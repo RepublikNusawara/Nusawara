@@ -1,8 +1,14 @@
 {
-  "updatedAt": "2026-11-11T02:40:00+11:00",
-  "penduduk": 1,
-  "warga": {
-    "julianto_jul": {"username": "julianto_jul", "niwn": "NUS-000001", "terdaftar": "11 Nov 2026", "houseId": null, "follow": null}
-  },
-  "billboards": {}
+ "updatedAt": "2026-11-11T02:55:00+11:00",
+ "penduduk": 1,
+ "warga": {
+  "julianto_jul": {
+   "username": "julianto_jul",
+   "niwn": "NUS-000001",
+   "terdaftar": "11 Nov 2026",
+   "houseId": null,
+   "follow": true
+  }
+ },
+ "billboards": {}
 }
