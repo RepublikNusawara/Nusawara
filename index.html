@@ -196,7 +196,7 @@
 
 <form class="search" id="search" autocomplete="off">
   <input id="q" placeholder="Ketik username Instagram-mu, mis. @namakamu" aria-label="Cari rumah dengan username" autocapitalize="none" autocorrect="off" spellcheck="false">
-  <button type="submit">Cari rumahku</button>
+  <button type="submit">Cari profil</button>
 </form>
 
 <div class="hint" id="hint">Geser untuk memutar · cubit untuk zoom · ketuk rumah</div>
@@ -1231,7 +1231,7 @@ function openLock(target, purpose){
   lkUser = u;
   if (!KUNCI[u]) { toast('Kata sandi @' + u + ' belum aktif. Hubungi Republik Nusawara lewat DM Instagram.'); return; }
   if (UNLOCK[u] && lkPurpose !== 'sandi') { afterUnlock(); return; }
-  const T = { billboard:['Billboard · ' + target,'Buka billboard'], desain:['Kirim desain · ' + target,'Lanjut kirim desain'], gaya:['Gaya karakter · @' + u,'Buka studio gaya'], sandi:['Ganti kata sandi · @' + u,'Lanjut'] }[lkPurpose];
+  const T = { profil:['Profil · @' + u,'Buka profil'], main:['Main karakter · @' + u,'Mulai main'], billboard:['Billboard · ' + target,'Buka billboard'], desain:['Kirim desain · ' + target,'Lanjut kirim desain'], gaya:['Gaya karakter · @' + u,'Buka studio gaya'], sandi:['Ganti kata sandi · @' + u,'Lanjut'] }[lkPurpose];
   document.getElementById('lkK').textContent = T[0]; document.getElementById('lkB').textContent = T[1];
   document.getElementById('lkH').textContent = lkPurpose === 'sandi' ? '🔑 Kata sandi lama' : '🔑 Masukkan Kata Sandi Warga';
   document.getElementById('lkP').textContent = 'Khusus @' + u + '. Masukkan Kata Sandi Warga kamu.';
@@ -1254,6 +1254,8 @@ function afterUnlock(){
   const u = lkUser, s = UNLOCK[u];
   if (lkPurpose === 'billboard') { openEditor(lkCtx); return; }
   if (lkPurpose === 'gaya') { openStyle(u); return; }
+  if (lkPurpose === 'main') { startCtl(u); return; }
+  if (lkPurpose === 'profil') { toast('🔓 Profil @' + u + ' terbuka'); showProfile(u, 'search'); return; }
   if (lkPurpose === 'desain'){
     const h = houseGroups[lkCtx] && houseGroups[lkCtx].userData.data; if (!h) return;
     const q = new URLSearchParams({ username: String(h.owner||'').replace(/^@+/,''), niwn: h.niwn || '', kavling: lkCtx, kode: s });
@@ -2121,6 +2123,7 @@ function profileHTML(key){
   const fol = (w.follow === true || w.follow === 'Yes') ? 'Yes' : (w.follow === false || w.follow === 'No') ? 'No' : null;
   const und = w.houseId ? '🏆 Pemenang Undian Rumah' : fol === 'Yes' ? '✅ Ikut Undian Rumah' : fol === 'No' ? '❌ Belum follow (tidak ikut undian)' : '⏳ Follow sedang dicek';
   const img = portraitOf(w);
+  const unlocked = isOwner || (typeof UNLOCK !== 'undefined' && !!UNLOCK[key]);
   let land = `<div class="card"><h3>🏞️ Tanah & rumah</h3><p>Belum punya tanah. ${fol === 'Yes' ? 'Sudah terdaftar di <b>Undian Rumah</b> berikutnya — semoga beruntung!' : 'Follow akun Republik Nusawara supaya bisa ikut <b>Undian Rumah</b>.'}</p></div>`;
   const hid = typeof w.houseId === 'string' ? w.houseId : '', s = hid && slotOf(hid), g = hid && houseGroups[hid];
   if (hid){
@@ -2130,16 +2133,18 @@ function profileHTML(key){
       <dt>Status</dt><dd>${built ? '✅ Sudah dibangun' : '⏳ Tanah · menunggu desain disetujui Presiden'}</dd></dl>
       ${g ? `<button class="btn ghost" data-gohouse="${esc(hid)}">📍 Lihat ${built ? 'rumah' : 'tanah'} & ${built ? 'billboard' : 'kirim desain'}</button>` : ''}</div>`;
   }
-  const own = isOwner ? sandiCard(key, u) : `<button class="btn ghost" data-sandi="${esc(key)}" style="margin-top:8px">🔑 Ganti kata sandi</button>`;
+  const own = isOwner ? sandiCard(key, u) : `<div class="prow" style="margin-top:8px"><button class="btn ghost" data-sandi="${esc(key)}">🔑 Ganti kata sandi</button><button class="btn ghost" data-kunci="${esc(key)}">🔒 Kunci profil</button></div>`;
   return `<div class="kicker">Warga Republik Nusawara</div>
     <div class="idcard"><div class="ih">🛡️ REPUBLIK NUSAWARA · KARTU WARGA</div>
-      <div class="ib"><button class="ip" data-follow="${esc(key)}" aria-label="Lihat karakter">${img ? `<img src="${img}" alt="">` : ''}<span>🧍 Lihat karakter</span></button>
+      <div class="ib"><button class="ip" ${unlocked ? `data-follow="${esc(key)}"` : `data-unlock="${esc(key)}"`} aria-label="Lihat karakter">${img ? `<img src="${img}" alt="">` : ''}<span>${unlocked ? '🧍 Lihat karakter' : '🔒 Terkunci'}</span></button>
         <div class="if"><b>@${esc(u)}</b><div>NIWN</div><p class="mono">${esc(w.niwn || '-')}</p><div>STATUS</div><p>Warga (WRN)</p><div>TERDAFTAR</div><p>${esc(w.terdaftar || '-')}</p></div></div>
       <div class="ifoot"><span>${esc(w.niwn || '')}</span><span>${und.split(' ')[0]}</span></div></div>
     <p style="margin:0 0 10px;font-size:13px">${und}</p>
-    <div class="prow"><button class="btn" data-follow="${esc(key)}">🧍 Lihat karakter</button><button class="btn" data-gaya="${esc(key)}">🎨 Ganti gaya${isOwner ? '' : ' 🔑'}</button></div>
+    ${unlocked ? '' : `<div class="card"><h3>🔒 Profil ini terkunci</h3><p>Hanya pemilik @${esc(u)} yang bisa membuka rumah, gaya karakter, dan memainkan karakter ini. Masukkan Kata Sandi Warga untuk membuka.</p>
+      <button class="btn" data-unlock="${esc(key)}">🔓 Buka profil dengan kata sandi</button></div>`}
+    ${unlocked ? `<div class="prow"><button class="btn" data-follow="${esc(key)}">🧍 Lihat karakter</button><button class="btn" data-gaya="${esc(key)}">🎨 Ganti gaya${isOwner ? '' : ' 🔑'}</button></div>
     <button class="btn" data-main="${esc(key)}" style="margin-top:8px;background:#f2b134;color:#2a1b00">🎮 Main karakter (jalan, lompat, lari)</button>
-    ${land}${own}`;
+    ${land}${own}` : ''}`;
 }
 function sandiCard(key, u){
   const k = typeof SANDI !== 'undefined' ? SANDI[key] : null;
@@ -2153,15 +2158,18 @@ function showProfile(key, mode){
   const w = wInfo(key); if (!w) return;
   const hid = typeof w.houseId === 'string' ? w.houseId : '', g = hid && houseGroups[hid];
   select(null);
-  if (mode === 'search' && g){
+  const unlocked = isOwner || (typeof UNLOCK !== 'undefined' && !!UNLOCK[key]);
+  if (unlocked && mode === 'search' && g){
     followKey = null; const p = g.position, tanah = g.userData.data.status === 'tanah';
     if (tanah) flyTo(new THREE.Vector3(p.x,0,p.z+6), new THREE.Vector3(p.x+4,12,p.z+21));
     else flyTo(new THREE.Vector3(p.x,4,p.z+5), new THREE.Vector3(p.x+6,13,p.z+26));
     select(g);
-  } else startFollow(key);
+  } else if (unlocked) startFollow(key);
   openSheet(()=>profileHTML(key)); hideHint();
 }
 sheetBody.addEventListener('click', e=>{
+  const ul = e.target.closest('[data-unlock]'); if (ul){ if (typeof openLock === 'function') openLock(ul.dataset.unlock, 'profil'); return; }
+  const kc = e.target.closest('[data-kunci]'); if (kc){ if (typeof UNLOCK !== 'undefined') delete UNLOCK[kc.dataset.kunci]; followKey = null; if (sheetFn) sheetBody.innerHTML = sheetFn(); toast('🔒 Profil dikunci lagi'); return; }
   const f = e.target.closest('[data-follow]'); if (f){ startFollow(f.dataset.follow); toast('🧍 Mengikuti @' + f.dataset.follow); return; }
   const gs = e.target.closest('[data-gaya]'); if (gs){ if (isOwner) openStyle(gs.dataset.gaya); else if (typeof openLock === 'function') openLock(gs.dataset.gaya, 'gaya'); return; }
   const ps = e.target.closest('[data-sandi]'); if (ps){ if (typeof openLock === 'function') openLock(ps.dataset.sandi, 'sandi'); return; }
@@ -2413,7 +2421,7 @@ const music = (()=>{
   addEventListener('pointerdown', ()=>{ if (on && !started) start(); }, {once:false, passive:true});
   return { start };
 })();
-sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-main]'); if (b) startCtl(b.dataset.main); });
+sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-main]'); if (!b) return; const k = b.dataset.main; if (isOwner || (typeof UNLOCK !== 'undefined' && UNLOCK[k])) startCtl(k); else if (typeof openLock === 'function') openLock(k, 'main'); });
 
 /* ---------- LOOP ---------- */
 addEventListener('resize', ()=>{
