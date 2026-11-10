@@ -996,7 +996,11 @@ const GREETS = ['Halo, warga Nusawara! 👋','Daftar = jadi warga!','Follow untu
 function say(text, dur){ bubble.textContent = text; bubble.classList.add('show'); bubbleT = dur || 3.2; }
 /* ---------- SUARA KHAS PRESIDEN (ElevenLabs · Mark – Natural Conversations) ---------- */
 const VOICE_URL = 'media/suara-presiden.mp3';
-const VOICE_SEG = [[0,5.94],[5.94,10.9],[10.9,14.86],[14.86,20.14],[20.14,9999]];  // dipotong di jeda alami
+// tiap tekan = satu kalimat utuh (dipotong tepat di jeda), teks balon sama persis dengan yang diucapkan
+const VOICE_SEG = [[0,2.8,'Hari ini, sebuah negara baru lahir.'],[2.8,5.95,'Bukan di peta dunia… tapi di layar kalian.'],[5.95,8.92,'Hadirin… Presiden Republik Nusawara.'],
+  [8.92,10.9,'Selamat datang, rakyat Nusawara!'],[10.9,14.86,'Hari ini kita membangun negara kita bersama, dari nol.'],[14.86,18.02,'Setiap yang follow adalah Warga Asing Nusawara.'],
+  [18.02,20.14,'Ingin menjadi Warga Republik Nusawara?'],[20.14,26.37,'Komentar "DAFTAR" dan kalian akan mendapat NIWN, Nomor Induk Warga Nusawara.'],
+  [26.37,29.1,'Setiap warga resmi berhak ikut Undian Rumah.'],[29.1,32.5,'Rumah kalian, billboard kalian, kota kalian.'],[32.5,35.42,'Follow, dan jadilah bagian dari sejarah.'],[35.42,9999,'Republik Nusawara resmi berdiri!']];
 const voice = new Audio(VOICE_URL); voice.preload = 'auto';
 let vEnd = null, vSeg = 0, actx = null, analyser = null, vData = null, speaking = false;
 function ensureAudioGraph(){
@@ -1013,7 +1017,7 @@ function ensureAudioGraph(){
 function speak(start, end, text){
   ensureAudioGraph();
   try { voice.currentTime = start; } catch(_) {}
-  vEnd = end; speaking = true;
+  vEnd = end; speaking = true; voice.muted = window.NUSA_SOUND === false;
   const p = voice.play();
   if (p && p.catch) p.catch(()=>{ speaking = false; toast('Suara belum bisa diputar. Ketuk sekali lagi.'); });
   const total = isFinite(voice.duration) && voice.duration ? voice.duration : 38.1;
@@ -1022,8 +1026,9 @@ function speak(start, end, text){
 }
 function stopVoice(){ voice.pause(); speaking = false; vEnd = null; bubbleT = .01; }
 voice.addEventListener('ended', ()=>{ speaking = false; });
-function greet(){ const sg = VOICE_SEG[vSeg++ % VOICE_SEG.length]; speak(sg[0], sg[1], '🔊 Bapak Presiden menyapa warga…'); }
-function announce(){ speak(0, 9999, '🎤 Pengumuman Bapak Presiden…'); }
+// kalimat tidak saling menimpa: selama Presiden masih bicara, tekanan berikutnya diabaikan
+function greet(){ if (speaking && !voice.paused) return; const sg = VOICE_SEG[vSeg++ % VOICE_SEG.length]; speak(sg[0], sg[1], '🔊 ' + sg[2]); }
+function announce(){ if (speaking && !voice.paused) return; vSeg = 0; greet(); }
 function updateVoice(time){
   if (speaking && vEnd !== null && voice.currentTime >= vEnd){ voice.pause(); speaking = false; }
   let open = 0;
@@ -1064,6 +1069,7 @@ joyEl.addEventListener('pointermove', e=>{ if (e.pointerId===joyId) joyMove(e); 
 ['pointerup','pointercancel','lostpointercapture'].forEach(t=>joyEl.addEventListener(t, e=>{ if (e.pointerId===joyId) joyReset(); }));
 
 function setPlay(on){
+  if (on && !isOwner){ toast('🔒 Hanya Bapak Presiden yang dapat menggerakkan Presiden.'); return; }
   playing = on;
   document.body.classList.toggle('play', on);
   if (on){
@@ -1229,7 +1235,7 @@ function openLock(target, purpose){
   lkPurpose = purpose || 'billboard'; lkCtx = target; lkStage = 'old';
   const u = (lkPurpose === 'billboard' || lkPurpose === 'desain') ? userOfHouse(target) : String(target).toLowerCase();
   lkUser = u;
-  if (!KUNCI[u]) { toast('Kata sandi @' + u + ' belum aktif. Hubungi Republik Nusawara lewat DM Instagram.'); return; }
+  if (!KUNCI[u] && !wInfo(u)) { toast('Kata sandi @' + u + ' belum aktif. Hubungi Republik Nusawara lewat DM Instagram.'); return; }
   if (UNLOCK[u] && lkPurpose !== 'sandi') { afterUnlock(); return; }
   const T = { profil:['Profil · @' + u,'Buka profil'], main:['Main karakter · @' + u,'Mulai main'], billboard:['Billboard · ' + target,'Buka billboard'], desain:['Kirim desain · ' + target,'Lanjut kirim desain'], gaya:['Gaya karakter · @' + u,'Buka studio gaya'], sandi:['Ganti kata sandi · @' + u,'Lanjut'] }[lkPurpose];
   document.getElementById('lkK').textContent = T[0]; document.getElementById('lkB').textContent = T[1];
@@ -1271,14 +1277,21 @@ document.getElementById('lkF').addEventListener('submit', async e=>{
     if (!/^[A-Z0-9]{6,20}$/.test(a)) { m.textContent = 'Kata sandi baru 6–20 huruf/angka.'; return; }
     if (a !== b) { m.textContent = 'Kata sandi baru tidak sama. Ulangi.'; return; }
     if (a === UNLOCK[lkUser]) { m.textContent = 'Kata sandi baru sama dengan yang lama.'; return; }
-    submitWarga(lkUser, 'sandi', {sandi_baru: a}); lkEl.classList.remove('open');
-    toast('✓ Tekan Kirim di formulir. Kata sandi baru aktif ±1 jam lagi; sampai saat itu pakai yang lama.'); return;
+    const bb = document.getElementById('lkB'); bb.disabled = true; m.textContent = 'Menyimpan…';
+    submitWarga(lkUser, 'sandi', {sandi_baru: a});   // catatan resmi di Daftar Warga (tekan Kirim di formulir)
+    try { const ok = await SB.ganti(lkUser, UNLOCK[lkUser], a); bb.disabled = false;
+      if (!ok){ m.textContent = '❌ Kata sandi lama sudah tidak cocok. Tutup lalu coba lagi.'; return; }
+      UNLOCK[lkUser] = a; lkEl.classList.remove('open'); toast('✓ Kata sandi baru langsung aktif. Tekan Kirim di formulir supaya tercatat di Daftar Warga.'); }
+    catch(_){ bb.disabled = false; m.textContent = 'Gagal tersambung. Periksa internet lalu coba lagi.'; }
+    return;
   }
   const pw = normPw(document.getElementById('lkI').value);
   if (!/^[A-Z0-9]{4,20}$/.test(pw)) { m.textContent = 'Kata sandi berisi huruf dan angka.'; return; }
   btn.disabled = true; m.textContent = 'Memeriksa…';
   let ok = false;
-  try { ok = (await kunciHash(lkUser, pw)) === KUNCI[lkUser]; } catch(_) { m.textContent = 'Browser ini tidak bisa memeriksa kata sandi.'; btn.disabled = false; return; }
+  let net = false;
+  try { ok = await SB.cek(lkUser, pw) === true; net = true; } catch(_) {}          // diperiksa di server Supabase
+  if (!net){ try { ok = (await kunciHash(lkUser, pw)) === KUNCI[lkUser]; } catch(_) { m.textContent = 'Browser ini tidak bisa memeriksa kata sandi.'; btn.disabled = false; return; } }
   btn.disabled = false;
   if (!ok) { m.textContent = '❌ Kata sandi salah. Coba lagi.'; return; }
   UNLOCK[lkUser] = pw;
@@ -1645,7 +1658,8 @@ function undianPublic(d){
   if (d && Array.isArray(d.undian) && !db) setUndianList(d.undian);
   if (d && d.warga){
     for (const [k, w] of Object.entries(d.warga)){ let loc = null; try { loc = JSON.parse(localStorage.getItem('nusawara.gaya.' + k) || 'null'); } catch(_) {}
-      if (loc && w && typeof w === 'object'){ if (JSON.stringify(avatarSpec(Object.assign({}, w))) === JSON.stringify(avatarSpec({username:w.username, avatar:loc}))) { try { localStorage.removeItem('nusawara.gaya.' + k); } catch(_) {} } else w.avatar = loc; } }
+      if (loc && w && typeof w === 'object'){ if (JSON.stringify(avatarSpec(Object.assign({}, w))) === JSON.stringify(avatarSpec({username:w.username, avatar:loc}))) { try { localStorage.removeItem('nusawara.gaya.' + k); } catch(_) {} } else w.avatar = loc; }
+      if (window.SB_GAYA && w && typeof w === 'object' && SB_GAYA[k]) w.avatar = SB_GAYA[k]; }
     syncWalkers(d.warga);
   }
   if (d && d.kunci && typeof d.kunci === 'object') for (const [k,v] of Object.entries(d.kunci)) if (typeof v === 'string' && /^[0-9a-f]{64}$/.test(v)) KUNCI[k] = v;
@@ -1719,6 +1733,7 @@ async function ownerDraw(clean){
 
 /* ---------- PERTUNJUKAN: Presiden jalan → tekan tombol → nama berputar → kembang api ---------- */
 function sfx(f, dur, type, vol, delay, slide){
+  if (window.NUSA_SOUND === false) return;   // tombol 🔇 mematikan semua efek suara
   ensureAudioGraph(); if (!actx) return;
   const t0 = actx.currentTime + (delay||0), o = actx.createOscillator(), g = actx.createGain();
   o.type = type || 'square'; o.frequency.setValueAtTime(f, t0); if (slide) o.frequency.exponentialRampToValueAtTime(slide, t0 + dur);
@@ -1726,6 +1741,7 @@ function sfx(f, dur, type, vol, delay, slide){
   o.connect(g); g.connect(actx.destination); o.start(t0); o.stop(t0 + dur + .02);
 }
 function boom(delay, vol){
+  if (window.NUSA_SOUND === false) return;
   ensureAudioGraph(); if (!actx) return;
   const t0 = actx.currentTime + (delay||0), n = Math.floor(actx.sampleRate*.5), buf = actx.createBuffer(1, n, actx.sampleRate), d = buf.getChannelData(0);
   for (let i=0;i<n;i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/n, 3);
@@ -2369,11 +2385,13 @@ document.getElementById('stS').onclick = async ()=>{
     syncWalkers({[key]: Object.assign({}, wInfo(key), {avatar})}); closeStyle(); toast('Gaya karakter disimpan ✓');
     if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); return;
   }
-  try { localStorage.setItem('nusawara.gaya.' + key, JSON.stringify(avatar)); } catch(_) {}
+  msg.textContent = 'Menyimpan…';
+  try { const ok = await SB.gaya(key, UNLOCK[key], avatar); if (!ok){ msg.textContent = '❌ Kata sandi sudah berubah. Kunci lalu buka profil lagi.'; return; } SB_GAYA[key] = avatar; }
+  catch(_){ try { localStorage.setItem('nusawara.gaya.' + key, JSON.stringify(avatar)); } catch(__) {} toast('Jaringan lemah: gaya tersimpan di HP ini dulu.'); }
   syncWalkers({[key]: Object.assign({}, wInfo(key), {avatar})});
   closeStyle(); startFollow(key);
   if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn();
-  toast('✓ Gaya karakter tersimpan');
+  toast('✓ Gaya karakter tersimpan & langsung terlihat semua warga');
 };
 
 /* ---------- MAIN KARAKTER SENDIRI: keypad, lompat, jongkok, lari, pukul + efek suara ---------- */
@@ -2394,6 +2412,7 @@ body.ctl .gpad{justify-content:flex-end}
 body.ctl .gtop{display:flex}
 .gtop button{border:0;border-radius:999px;background:#fff;color:#1f3a5f;font:inherit;font-weight:800;padding:6px 12px}
 .mbtn{position:fixed;right:12px;bottom:calc(150px + env(safe-area-inset-bottom));z-index:6;width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,253,248,.95);box-shadow:0 4px 14px rgba(0,0,0,.18);font-size:20px}
+body:not(.owner) #playBtn, body:not(.owner) #ctrlBtn{display:none!important}
 body.ctl .mbtn{bottom:auto;top:calc(118px + env(safe-area-inset-top))}
 .gzoom{position:fixed;right:12px;top:calc(172px + env(safe-area-inset-top));z-index:12;display:none;flex-direction:column;gap:6px}
 body.ctl .gzoom{display:flex}
@@ -2508,6 +2527,53 @@ chatBox.querySelector('form').addEventListener('submit', e=>{
 chatIn.addEventListener('keydown', e=>e.stopPropagation()); chatIn.addEventListener('keyup', e=>e.stopPropagation());
 chatPaint();
 
+/* ---------- SUPABASE: obrolan & gaya langsung untuk semua warga ---------- */
+// Kunci publik (aman untuk website). Kata sandi diperiksa di server Supabase; tabel kata sandi tidak bisa dibaca dari website.
+const SB_URL = 'https://lvffysleofnbqfjrlboa.supabase.co', SB_KEY = 'sb_publishable_gCPrL26Au0wpcrygu35bBg_iRCOs8ZO';
+window.SB_GAYA = {};
+const SB = (()=>{
+  const H = { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+  const rpc = async (fn, args) => { const r = await fetch(SB_URL + '/rest/v1/rpc/' + fn, {method:'POST', headers:H, body:JSON.stringify(args)});
+    const j = await r.json().catch(()=>null); if (!r.ok) throw new Error((j && j.message) || ('HTTP ' + r.status)); return j; };
+  const get = async path => { const r = await fetch(SB_URL + '/rest/v1/' + path, {headers:H}); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); };
+  return { rpc, get,
+    cek: (u, s) => rpc('cek_sandi', {p_user:u, p_sandi:s}),
+    gaya: (u, s, a) => rpc('simpan_gaya', {p_user:u, p_sandi:s, p_avatar:a}),
+    kirim: (u, s, n, t) => rpc('kirim_obrolan', {p_user:u, p_sandi:s, p_nama:n, p_teks:t}),
+    ganti: (u, a, b) => rpc('ganti_sandi', {p_user:u, p_lama:a, p_baru:b}) };
+})();
+function sbApplyGaya(rows){
+  const upd = {};
+  (rows || []).forEach(r=>{ if (!r || !r.username || !r.avatar) return; SB_GAYA[r.username] = r.avatar; const w = wInfo(r.username); if (w) upd[r.username] = Object.assign({}, w, {avatar: r.avatar}); });
+  if (Object.keys(upd).length){ syncWalkers(upd); if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); }
+}
+const SB_PENDING = [];
+function sbTerimaObrolan(r){
+  if (!r || !r.teks) return;
+  const i = SB_PENDING.findIndex(p => p.u === r.username && p.t === r.teks);
+  if (i >= 0){ SB_PENDING.splice(i, 1); return; }                     // pesan sendiri sudah tampil
+  chatAdd({k: r.username, u: r.nama || r.username, t: r.teks, at: Date.parse(r.dibuat) || Date.now()});
+}
+window.nusawaraChatKirim = async ({k, u, t}) => {
+  const s = UNLOCK[k]; if (!s) return;
+  SB_PENDING.push({u: k, t});
+  try { const ok = await SB.kirim(k, s, u, t); if (!ok) toast('Pesan tidak terkirim: kata sandi berubah. Buka profil lagi.'); }
+  catch(e){ toast(/terlalu cepat/.test(e.message) ? 'Tunggu sebentar sebelum mengirim lagi.' : 'Pesan belum terkirim ke warga lain (jaringan).'); }
+};
+(async ()=>{
+  try { sbApplyGaya(await SB.get('gaya?select=username,avatar')); } catch(_) {}
+  try { const rows = await SB.get('obrolan?select=username,nama,teks,dibuat&order=dibuat.desc&limit=40');
+    CHAT = rows.reverse().map(r=>({k:r.username, u:r.nama || r.username, t:r.teks, at:Date.parse(r.dibuat)})); chatPaint(); } catch(_) {}
+  // realtime (langsung muncul di semua HP)
+  const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+  s.onload = ()=>{ try {
+    const cli = window.supabase.createClient(SB_URL, SB_KEY);
+    cli.channel('nusawara').on('postgres_changes', {event:'INSERT', schema:'public', table:'obrolan'}, p=>sbTerimaObrolan(p.new))
+      .on('postgres_changes', {event:'*', schema:'public', table:'gaya'}, p=>sbApplyGaya([p.new])).subscribe();
+  } catch(_) {} };
+  document.head.appendChild(s);
+})();
+
 renderer.domElement.addEventListener('pointerdown', e=>{ if (ctl.key) ctl.drag = {x:e.clientX, y:e.clientY, id:e.pointerId}; });
 addEventListener('pointermove', e=>{ if (!ctl.key || !ctl.drag || e.pointerId !== ctl.drag.id) return;
   ctl.yaw -= (e.clientX - ctl.drag.x) * .0065; ctl.pitch = Math.max(-.15, Math.min(.7, ctl.pitch + (e.clientY - ctl.drag.y) * .004));
@@ -2601,47 +2667,75 @@ function updateCtl(dt, time){
 
 /* ---------- MUSIK GAME (tenang, dibuat langsung di browser) ---------- */
 const music = (()=>{
-  let on = true, started = false, master = null, timer = null, nextT = 0, step = 0, delay = null;
+  // Suara alam yang tenang: angin lembut, gemericik air, kicau burung, dan pad hangat dengan petikan sesekali.
+  let on = true, started = false, master = null, timer = null, nextT = 0, step = 0, nodes = [];
   try { on = localStorage.getItem('nusawara.music') !== 'off'; } catch(_) {}
-  const btn = document.createElement('button'); btn.className = 'mbtn'; btn.setAttribute('aria-label','Musik'); document.body.appendChild(btn);
-  const paint = () => { btn.textContent = on ? '🎵' : '🔇'; };
+  window.NUSA_SOUND = on;
+  const btn = document.createElement('button'); btn.className = 'mbtn'; btn.setAttribute('aria-label','Musik & suara'); document.body.appendChild(btn);
+  const paint = () => { btn.textContent = on ? '🎵' : '🔇'; btn.title = on ? 'Matikan musik & suara' : 'Nyalakan musik & suara'; };
   paint();
-  // progresi lembut: Cmaj7 – Am7 – Fmaj7 – G6 (tiap akor 4 ketukan, tempo 72)
-  const CH = [[48,55,59,64],[45,52,55,60],[41,48,52,57],[43,50,52,59]];
-  const PENTA = [60,62,64,67,69,72,74,76];
-  const hz = m => 440 * Math.pow(2, (m-69)/12), BEAT = 60/72;
-  function voice(f, t, dur, type, vol, dest, att){
-    const o = actx.createOscillator(), g = actx.createGain();
-    o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(vol, t + att); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
-    o.connect(g); g.connect(dest); o.start(t); o.stop(t + dur + .05);
+  const hz = m => 440 * Math.pow(2, (m-69)/12), BAR = 8;                 // satu akor = 8 detik
+  const CH = [[50,57,62,66],[47,54,59,62],[43,50,55,59],[45,52,57,61]];   // D – Bm – G – A (lembut, terbuka)
+  const PENTA = [62,64,66,69,71,74,76,78];
+  function noiseBuf(sec){ const n = Math.floor(actx.sampleRate*sec), b = actx.createBuffer(1, n, actx.sampleRate), d = b.getChannelData(0); let last = 0; for (let i=0;i<n;i++){ last = (last + .02*(Math.random()*2-1))/1.02; d[i] = last*3.5; } return b; }
+  function loopNoise(freq, q, vol, lfoHz, lfoAmt, type){
+    const src = actx.createBufferSource(); src.buffer = noiseBuf(4); src.loop = true;
+    const f = actx.createBiquadFilter(); f.type = type || 'lowpass'; f.frequency.value = freq; f.Q.value = q;
+    const g = actx.createGain(); g.gain.value = vol;
+    const lfo = actx.createOscillator(), la = actx.createGain(); lfo.frequency.value = lfoHz; la.gain.value = lfoAmt; lfo.connect(la); la.connect(g.gain);
+    src.connect(f); f.connect(g); g.connect(master); src.start(); lfo.start(); nodes.push(src, lfo);
+  }
+  function pad(f, t, dur, vol){
+    const o = actx.createOscillator(), o2 = actx.createOscillator(), g = actx.createGain();
+    o.type = 'sine'; o2.type = 'triangle'; o.frequency.value = f; o2.frequency.value = f*1.003;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + dur*.4); g.gain.linearRampToValueAtTime(0, t + dur);
+    o.connect(g); o2.connect(g); g.connect(master); o.start(t); o2.start(t); o.stop(t + dur + .1); o2.stop(t + dur + .1);
+  }
+  function pluck(f, t, vol){
+    const o = actx.createOscillator(), g = actx.createGain(); o.type = 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + 3.2);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + 3.3);
+  }
+  function bird(t){
+    const base = 2600 + Math.random()*1600, n = 2 + Math.floor(Math.random()*4), pan = actx.createStereoPanner ? actx.createStereoPanner() : null;
+    if (pan){ pan.pan.value = Math.random()*1.6 - .8; pan.connect(master); }
+    for (let i=0;i<n;i++){ const o = actx.createOscillator(), g = actx.createGain(), s = t + i*(.12 + Math.random()*.06);
+      o.type = 'sine'; o.frequency.setValueAtTime(base*(1 + Math.random()*.15), s); o.frequency.exponentialRampToValueAtTime(base*(Math.random() < .5 ? 1.35 : .8), s + .09);
+      g.gain.setValueAtTime(0, s); g.gain.linearRampToValueAtTime(.018, s + .015); g.gain.exponentialRampToValueAtTime(.0001, s + .11);
+      o.connect(g); g.connect(pan || master); o.start(s); o.stop(s + .13); }
   }
   function schedule(){
-    if (!actx) return;
-    while (nextT < actx.currentTime + .6){
-      const bar = Math.floor(step/4) % CH.length, beat = step % 4, t = nextT;
-      if (beat === 0) CH[bar].forEach((m,i)=>voice(hz(m), t, BEAT*4.6, i ? 'sine' : 'triangle', i ? .035 : .05, master, .9));
-      if (beat === 0) voice(hz(CH[bar][0]-12), t, BEAT*3.5, 'sine', .06, master, .05);
-      if (Math.random() < .55){ const n = PENTA[Math.floor(Math.random()*PENTA.length)], tt = t + (Math.random()<.4 ? BEAT/2 : 0);
-        voice(hz(n), tt, BEAT*1.6, 'triangle', .035, master, .01); voice(hz(n), tt, BEAT*1.6, 'triangle', .02, delay, .01); }
-      nextT += BEAT; step++;
+    if (!actx || !started) return;
+    while (nextT < actx.currentTime + 1){
+      const t = nextT, ch = CH[step % CH.length];
+      ch.forEach((m,i)=>pad(hz(m - 12*(i === 0)), t, BAR*1.25, i ? .028 : .04));
+      for (let k=0;k<3;k++) if (Math.random() < .5) pluck(hz(PENTA[Math.floor(Math.random()*PENTA.length)]), t + 1 + Math.random()*(BAR - 2), .03);
+      for (let k=0;k<2;k++) if (Math.random() < .55) bird(t + Math.random()*BAR);
+      nextT += BAR; step++;
     }
   }
   function start(){
     if (started || !on) return;
     ensureAudioGraph(); if (!actx) return;
-    started = true;
-    master = actx.createGain(); master.gain.value = .55;
-    const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1800;
-    master.connect(lp); lp.connect(actx.destination);
-    delay = actx.createDelay(1); delay.delayTime.value = BEAT*.75; const fb = actx.createGain(); fb.gain.value = .35;
-    delay.connect(fb); fb.connect(delay); delay.connect(master);
-    nextT = actx.currentTime + .1; timer = setInterval(schedule, 200); schedule();
+    started = true; nodes = [];
+    master = actx.createGain(); master.gain.setValueAtTime(0, actx.currentTime); master.gain.linearRampToValueAtTime(.6, actx.currentTime + 3);
+    const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5000;
+    master.connect(lp); lp.connect(actx.destination); master._lp = lp;
+    loopNoise(420, .4, .05, .07, .03);                  // angin lembut
+    loopNoise(1800, 1.2, .012, .3, .006, 'bandpass');    // gemericik air
+    nextT = actx.currentTime + .2; timer = setInterval(schedule, 400); schedule();
   }
-  function stop(){ if (!started) return; clearInterval(timer); try { master.disconnect(); } catch(_) {} started = false; }
-  btn.onclick = ()=>{ on = !on; try { localStorage.setItem('nusawara.music', on ? 'on' : 'off'); } catch(_) {} paint(); if (on) start(); else stop(); };
-  addEventListener('pointerdown', ()=>{ if (on && !started) start(); }, {once:false, passive:true});
-  return { start };
+  function stop(){
+    if (!started) return; started = false; clearInterval(timer); timer = null;
+    const m = master, n = nodes; master = null; nodes = [];
+    try { m.gain.cancelScheduledValues(actx.currentTime); m.gain.setValueAtTime(m.gain.value, actx.currentTime); m.gain.linearRampToValueAtTime(0, actx.currentTime + .15); } catch(_) {}
+    setTimeout(()=>{ n.forEach(x=>{ try { x.stop(); } catch(_) {} }); try { m.disconnect(); m._lp.disconnect(); } catch(_) {} }, 250);
+  }
+  btn.addEventListener('pointerdown', e=>e.stopPropagation());
+  btn.onclick = e=>{ e.stopPropagation(); on = !on; window.NUSA_SOUND = on; try { localStorage.setItem('nusawara.music', on ? 'on' : 'off'); } catch(_) {} paint(); if (on) start(); else stop(); };
+  addEventListener('pointerdown', ()=>{ if (on && !started) start(); }, {passive:true});
+  document.addEventListener('visibilitychange', ()=>{ if (document.hidden) stop(); else if (on) start(); });
+  return { start, stop };
 })();
 sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-main]'); if (!b) return; const k = b.dataset.main; if (isOwner || (typeof UNLOCK !== 'undefined' && UNLOCK[k])) startCtl(k); else if (typeof openLock === 'function') openLock(k, 'main'); });
 
