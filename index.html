@@ -441,27 +441,57 @@ const boards = {};   // id -> {mesh, aspect, defTex, tok, cur}
 const BB = {};       // id -> isi billboard tersimpan
 let isOwner = false, db = null, assetsApi = null;
 const houseGroups = {};
+// Rumah warga model ruko 2 lantai: rolling door, kanopi, kisi kayu, bingkai hitam, billboard besar di fasad
+const RUKO = {
+  shutter: canvasTex(256,256,(g,W,H)=>{ g.fillStyle='#4d3d34'; g.fillRect(0,0,W,H); for (let x=0;x<W;x+=16){ g.fillStyle='#3a2d26'; g.fillRect(x,0,5,H); g.fillStyle='#5e4b40'; g.fillRect(x+6,0,3,H); } }),
+  slat: canvasTex(128,256,(g,W,H)=>{ g.fillStyle='#8a5a38'; g.fillRect(0,0,W,H); for (let x=0;x<W;x+=12){ g.fillStyle='#a8744c'; g.fillRect(x,0,7,H); g.fillStyle='#6b4329'; g.fillRect(x+7,0,2,H); } }),
+  roofSheet: canvasTex(256,64,(g,W,H)=>{ g.fillStyle='#9aa1a8'; g.fillRect(0,0,W,H); for (let x=0;x<W;x+=14){ g.fillStyle='#c3c8cd'; g.fillRect(x,0,5,H); } })
+};
+function rukoSign(h){
+  return canvasTex(512,64,(g,W,H)=>{ g.fillStyle='#e9e9e6'; g.fillRect(0,0,W,H); g.fillStyle='#1d2430'; g.textAlign='center'; g.textBaseline='middle';
+    g.font=`800 34px ${FONT}`; const no = h.no || (String(h.id).match(/(\d+)$/)||[,''])[1].replace(/^0+/,'');
+    g.fillText(`${String(h.street||'').replace(/^Jalan /,'JL. ').toUpperCase()} NO. ${no}`, W/2, H/2+2); });
+}
 function makeHouse(h){
   const g = new THREE.Group();
-  box(5,3.2,4.5, h.color, 0,1.6,0, g);
-  const roof = new THREE.Mesh(new THREE.ConeGeometry(3.9,2.3,4), M(h.roof));
-  roof.rotation.y = Math.PI/4; roof.scale.z = .92; roof.position.y = 4.35; roof.castShadow = true; g.add(roof);
-  box(1,1.8,.14, 0x5a3b28, 0,.9,2.27, g);
-  const win = M(0xbfe6ff);
-  box(.95,.85,.1, win, -1.55,1.95,2.27, g); box(.95,.85,.1, win, 1.55,1.95,2.27, g);
-  // billboard di atas atap, menghadap ke depan
-  const pole = M(0x6b7076);
-  [-1.7,1.7].forEach(px=>{ const p=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,3,8),pole);
-    p.position.set(px,5.2,-.5); p.castShadow=true; g.add(p); });
-  const side = M(0x3a3f45), defTex = billboardTex(h);
-  const board = new THREE.Mesh(new THREE.BoxGeometry(4.4,2.55,.2),
+  const WALL = 0xe9e9e6, DARK = 0x1d2430;
+  box(6.4,7,4.5, WALL, 0,3.5,-.05, g);                          // badan ruko 2 lantai
+  box(6.6,.5,4.7, 0xd6d6d2, 0,7.2,-.05, g);                     // atap datar + parapet
+  box(6.6,.12,4.7, 0x7b8188, 0,.06,-.05, g);                    // lantai teras
+  // lantai 1: dua rolling door + papan alamat
+  const sh = new THREE.MeshStandardMaterial({map:RUKO.shutter, roughness:.8});
+  [-1.55,1.55].forEach(x=>{ const d = new THREE.Mesh(new THREE.BoxGeometry(2.7,2.7,.08), sh); d.position.set(x,1.42,2.22); g.add(d); });
+  box(.22,2.9,.2, 0x9aa0a6, 0,1.45,2.25, g);
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(4.2,.52), new THREE.MeshBasicMaterial({map:rukoSign(h)}));
+  sign.position.set(0,3.6,2.215); g.add(sign);
+  box(6.4,.1,.06, h.roof, 0,3.98,2.24, g); box(6.4,.1,.06, h.roof, 0,3.2,2.24, g);                     // garis aksen
+  // kanopi atap seng
+  const can = new THREE.Mesh(new THREE.BoxGeometry(6.9,.1,1.35), new THREE.MeshStandardMaterial({map:RUKO.roofSheet, roughness:.6}));
+  can.position.set(0,3.0,2.85); can.rotation.x = .12; can.castShadow = true; g.add(can);
+  [-3.3,3.3].forEach(x=>box(.1,2.9,.1, 0x6b7076, x,1.5,3.4, g));
+  // lantai 2: kisi kayu di samping
+  const sl = new THREE.MeshStandardMaterial({map:RUKO.slat, roughness:.9});
+  [-2.95,2.95].forEach(x=>{ const s = new THREE.Mesh(new THREE.BoxGeometry(.5,3.6,.1), sl); s.position.set(x,5.4,2.22); g.add(s); });
+  // jendela kaca dalam bingkai hitam (kiri & kanan billboard)
+  const glass = new THREE.MeshStandardMaterial({color:0x7fa3c4, roughness:.2, metalness:.1, emissive:0x1b2d44});
+  [-2.25,2.25].forEach(x=>{
+    box(.95,3.1,.12, DARK, x,5.6,2.24, g);
+    const gl = new THREE.Mesh(new THREE.BoxGeometry(.7,2.3,.05), glass); gl.position.set(x,5.6,2.31); g.add(gl);
+    box(.04,2.3,.06, DARK, x,5.6,2.33, g);
+  });
+  // billboard besar di fasad lantai 2, dalam bingkai hitam
+  box(4.1,2.66,.16, DARK, 0,5.6,2.24, g);
+  const side = M(DARK), defTex = billboardTex(h);
+  const board = new THREE.Mesh(new THREE.BoxGeometry(3.7,2.15,.12),
     [side,side,side,side,new THREE.MeshBasicMaterial({map:defTex}),side]);
-  boards[h.id] = {mesh:board, aspect:4.4/2.55, defTex, tok:0, cur:{tex:defTex}};
-  board.position.set(0,7.6,-.5); board.castShadow = true; g.add(board);
-  // pagar kecil
-  box(5.6,.5,.15, 0xf4f1e8, 0,.25,3.4, g);
+  boards[h.id] = {mesh:board, aspect:3.7/2.15, defTex, tok:0, cur:{tex:defTex}};
+  board.position.set(0,5.6,2.33); g.add(board);
+  // lampu dinding & lampu sorot billboard
+  [-2.95,2.95].forEach(x=>box(.16,.3,.16, 0x111111, x,6.6,2.33, g));
+  box(.12,.12,.4, 0x111111, 0,6.95,2.45, g);
   g.position.set(h.x,0,h.z);
   if (h.face < 0) g.rotation.y = Math.PI;
+  g.traverse(o=>{ if (o.isMesh){ o.castShadow = true; o.receiveShadow = true; } });
   g.userData = {type:'house', data:h};
   scene.add(g); pickables.push(g); houseGroups[h.id] = g;
 }
@@ -814,7 +844,7 @@ const presTag = label('Bapak Presiden', {h:1.2,size:30,bg:'rgba(31,58,95,.92)',f
 
 // tabrakan: [x, z, setengah lebar, setengah dalam]
 const COLL = [];
-houses.forEach(h=>COLL.push([h.x,h.z,2.5,2.25]));
+houses.forEach(h=>COLL.push([h.x,h.z-.05,3.3,2.3]));
 COLL.push([18,-9,6,.3]);      // backdrop
 COLL.push([18,-5.2,.65,.45]); // podium
 COLL.push([29,-4,.25,.25]);   // tiang bendera
@@ -1433,7 +1463,7 @@ function placeHouse(rec, animate){
   let g = houseGroups[s.id];
   if (!g){
     const h = Object.assign({}, s, {owner, niwn: rec.niwn ? String(rec.niwn) : '', since: rec.since ? String(rec.since) : ''});
-    houses.push(h); makeHouse(h); COLL.push([h.x, h.z, 2.5, 2.25]); g = houseGroups[s.id];
+    houses.push(h); makeHouse(h); COLL.push([h.x, h.z-.05, 3.3, 2.3]); g = houseGroups[s.id];
     if (BB[s.id]) applyBoard(s.id);
     if (animate){ g.scale.setScalar(.01); pops.push({g, t:0}); }
   } else { const h = g.userData.data; h.owner = owner; if (rec.niwn) h.niwn = String(rec.niwn); if (rec.since) h.since = String(rec.since); }
