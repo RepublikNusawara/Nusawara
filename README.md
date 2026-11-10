@@ -1,6 +1,6 @@
 # Republik Nusawara — Peta Kota 3D 🏛️
 
-Website resmi peta 3D Kota Republik Nusawara: https://republiknusawara.github.io/nusawara
+Website resmi peta 3D Kota Republik Nusawara: https://republiknusawara.github.io/Nusawara/
 
 - **Daftar jadi warga:** https://tally.so/r/Z9or5e
 - **Undang-Undang Nusawara 2026:** https://tally.so/r/X5JlNz

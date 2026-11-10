@@ -7,7 +7,7 @@
 <meta name="description" content="Peta 3D Kota Republik Nusawara. Daftar jadi warga, cari rumahmu dengan username Instagram, dan ikut membangun negara bersama.">
 <meta property="og:title" content="Republik Nusawara — Peta Kota 3D">
 <meta property="og:description" content="DAFTAR = JADI WARGA · FOLLOW = IKUT UNDIAN RUMAH · KOMENTAR = IKUT MEMBANGUN NEGARA">
-<meta property="og:image" content="https://republiknusawara.github.io/nusawara/assets/og.png">
+<meta property="og:image" content="https://republiknusawara.github.io/Nusawara/assets/og.png">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#1f3a5f">
 <link rel="icon" type="image/png" href="assets/favicon.png">
@@ -511,10 +511,10 @@ function counterTex(n){
 const cntFront = new THREE.MeshBasicMaterial({map:counterTex(0)});
 const cntSide = M(0x1f3a5f);
 const cntBoard = new THREE.Mesh(new THREE.BoxGeometry(9,2.6,.3), [cntSide,cntSide,cntSide,cntSide,cntFront,cntSide]);
-cntBoard.position.set(0,8.85,-3); cntBoard.castShadow = true;
+cntBoard.position.set(0,10.15,-3); cntBoard.castShadow = true;
 cntBoard.userData = {type:'counter'};
 stage.add(cntBoard);
-box(.25,.5,.25, 0xf2b134, -3.6,7.42,-3, stage); box(.25,.5,.25, 0xf2b134, 3.6,7.42,-3, stage);
+box(.25,4.3,.25, 0xf2b134, -4.7,9.3,-3.25, stage); box(.25,4.3,.25, 0xf2b134, 4.7,9.3,-3.25, stage);
 function setPenduduk(n){
   n = Math.max(0, Math.floor(Number(n) || 0));
   pendudukCount = n;
@@ -676,6 +676,9 @@ function focusObj(obj){
       <p style="font-size:14px;line-height:1.55;margin:0">Selalu menemani Bapak Presiden ke mana pun: berjalan di belakangnya, ikut naik panggung, dan mematuk-matuk saat Presiden berhenti.</p>`);
     hideHint(); return;
   }
+  if (t==='undian' || t==='undianBtn'){
+    select(null); openSheet(undianHTML); hideHint(); return;
+  }
   if (t==='president'){
     select(null); openSheet(presHTML());
     sheetBody.querySelector('#ctrlBtn').onclick = ()=>{ if (playing) closeSheet(); else setPlay(true); };
@@ -729,8 +732,9 @@ function wargaHTML(u, w, note){
   if (!w) return `<div class="kicker">Pencarian warga</div><h2>@${esc(u)}</h2>
     <span class="pill empty">● Belum terdaftar</span>
     <p style="font-size:14px;line-height:1.55;margin:12px 0 0">Username ini belum terdaftar sebagai Warga Republik Nusawara, jadi belum punya rumah.</p>${daftar}`;
-  const undian = w.follow === 'Yes' ? '✅ Ikut Undian Rumah'
-    : w.follow === 'No' ? '❌ Belum ikut Undian Rumah. Follow akun Republik Nusawara dulu, ya!'
+  const fol = (w.follow === true || w.follow === 'Yes') ? 'Yes' : (w.follow === false || w.follow === 'No') ? 'No' : null;
+  const undian = w.houseId ? '🏠 Sudah menang Undian Rumah' : fol === 'Yes' ? '✅ Ikut Undian Rumah'
+    : fol === 'No' ? '❌ Belum ikut Undian Rumah. Follow akun Republik Nusawara dulu, ya!'
     : '⏳ Status follow sedang dicek untuk Undian Rumah';
   const info = `<dl><dt>Undian</dt><dd>${undian}</dd><dt>Username</dt><dd>@${esc(w.username||u)}</dd>${w.niwn ? `<dt>NIWN</dt><dd class="mono">${esc(w.niwn)}</dd>` : ''}${w.terdaftar ? `<dt>Terdaftar</dt><dd>${esc(w.terdaftar)}</dd>` : ''}</dl>`;
   return `<div class="kicker">Warga Republik Nusawara</div><h2>@${esc(w.username||u)}</h2>
@@ -757,7 +761,7 @@ document.getElementById('search').addEventListener('submit', async e=>{
   }
   const note = hid
     ? `Rumahmu <b class="mono">${esc(hid)}</b> sudah tercatat, tapi bangunannya belum berdiri di peta. Nantikan pembangunannya!`
-    : (w.follow === 'Yes' ? `Kamu sudah resmi jadi warga dan terdaftar di <b>Undian Rumah</b> berikutnya. Semoga beruntung!` : `Kamu sudah resmi jadi warga, tapi belum punya rumah. Follow akun Republik Nusawara supaya bisa ikut <b>Undian Rumah</b>!`);
+    : ((w.follow === true || w.follow === 'Yes') ? `Kamu sudah resmi jadi warga dan terdaftar di <b>Undian Rumah</b> berikutnya. Semoga beruntung!` : `Kamu sudah resmi jadi warga, tapi belum punya rumah. Follow akun Republik Nusawara supaya bisa ikut <b>Undian Rumah</b>!`);
   select(null); openSheet(wargaHTML(u, w, note)); hideHint();
 });
 
@@ -1077,6 +1081,7 @@ async function initCloud(){
   document.body.classList.toggle('owner', isOwner);
   if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn();
   if (!db) return;
+  undianCloud();
   let timer = setTimeout(()=>toast('Isi billboard belum bisa dimuat.'), 10000);
   db.doc('stats/penduduk').onSnapshot(d=>{
     const v = d.exists ? Number((d.data()||{}).count) : 0;
@@ -1104,6 +1109,7 @@ async function loadPublicData(){
     const d = await r.json();
     if (d && Number.isFinite(d.penduduk)) setPenduduk(d.penduduk);
     if (d && d.warga && typeof d.warga === 'object') WARGA = d.warga;
+    undianPublic(d);
     if (d && d.billboards && typeof d.billboards === 'object' && !db){
       for (const [id, rec] of Object.entries(d.billboards)){ if (boards[id] && rec && typeof rec === 'object'){ BB[id] = rec; applyBoard(id); } }
     }
@@ -1316,6 +1322,347 @@ document.getElementById('shotExit').onclick = ()=>setShot(false);
 document.getElementById('shotTalk').onclick = ()=>{ if (speaking) stopVoice(); else announce(); };
 document.querySelectorAll('[data-shot]').forEach(b=>b.onclick = ()=>goShot(+b.dataset.shot));
 
+/* ---------- UNDIAN RUMAH (kolom undian + tombol Presiden + kembang api) ---------- */
+// Slot rumah Distrik Melati: dibagikan berurutan Jalan Mawar No. 1 … Jalan Teratai No. 6.
+const SLOTS = [];
+STREETS.forEach((st, si)=>{ for (let i = 0; i < 6; i++){ const k = si*6 + i;
+  SLOTS.push({ id:`MLT-${st.toUpperCase()}-${String(i+1).padStart(3,'0')}`, district:'Distrik Melati', code:'MLT',
+    street:'Jalan ' + st, no:i+1, x:HOUSE_X[i], z:STREET_Z[si] - 7, face:1,
+    color:PALETTE[(k*3)%PALETTE.length][0], roof:PALETTE[(k*3)%PALETTE.length][1] }); } });
+const slotOf = id => SLOTS.find(s => s.id === id) || null;
+const alamatOf = s => `${s.street} No. ${s.no}, ${s.district}`;
+const RUMAH = {};          // houseId -> {houseId, username, niwn, since, undianNo}
+let UNDIAN = [];           // riwayat undian, urut nomor
+const WDB = {};            // warga dari db (khusus tampilan pemilik)
+let drawing = false, show = null;
+const niwn6 = n => String(n||'').replace(/^NUS-/,'');
+const entryText = w => `${w.username} - ${niwn6(w.niwn)}`;
+const isFollow = f => f === true || f === 'Yes';
+
+const uStyle = document.createElement('style');
+uStyle.textContent = `
+.winx{position:fixed;left:50%;bottom:92px;transform:translate(-50%,-20px) scale(.9);opacity:0;pointer-events:none;z-index:30;
+  width:min(340px,88vw);background:#fff;border-radius:20px;padding:18px 18px 14px;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);border:3px solid #f2b134;transition:all .45s cubic-bezier(.2,1.4,.4,1)}
+.winx.show{opacity:1;transform:translate(-50%,0) scale(1);pointer-events:auto}
+.winx .wk{font-size:12px;font-weight:800;letter-spacing:.08em;color:#b07d10}
+.winx .wn{font-size:26px;font-weight:800;color:#1f3a5f;margin:6px 0 2px;word-break:break-all}
+.winx .wi{font-family:ui-monospace,monospace;font-size:14px;color:#556}
+.winx .wa{margin:12px 0 4px;background:#1f3a5f;color:#fff;border-radius:12px;padding:10px;font-size:17px;font-weight:800}
+.winx .wa small{display:block;font-size:12px;font-weight:600;opacity:.8;margin-top:2px;font-family:ui-monospace,monospace}
+.winx .wb{display:flex;gap:8px;margin-top:10px}.winx .wb button{flex:1;margin:0}
+.ulist{max-height:170px;overflow:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.7;margin:6px 0 0;padding-left:18px}`;
+document.head.appendChild(uStyle);
+const winEl = document.createElement('div'); winEl.className = 'winx'; document.body.appendChild(winEl);
+winEl.addEventListener('click', e=>{
+  if (e.target.closest('[data-wclose]')) winEl.classList.remove('show');
+  const b = e.target.closest('[data-wgo]');
+  if (b){ winEl.classList.remove('show'); const g = houseGroups[b.dataset.wgo]; if (shotMode) setShot(false); if (g) setTimeout(()=>focusObj(g), 50); }
+});
+
+// kolom undian (seperti kolom pencarian) di bawah papan Jumlah Penduduk
+const uCan = document.createElement('canvas'); uCan.width = 1024; uCan.height = 150;
+const uTex = new THREE.CanvasTexture(uCan); uTex.anisotropy = 4;
+const uSide = M(0x1f3a5f);
+const uPanel = new THREE.Mesh(new THREE.BoxGeometry(9,1.32,.2), [uSide,uSide,uSide,uSide,new THREE.MeshBasicMaterial({map:uTex}),uSide]);
+uPanel.position.set(0,8.0,-3); uPanel.userData = {type:'undian'}; stage.add(uPanel);
+function rr(g,x,y,w,h,r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
+function fitFont(g, text, max, size, weight){ let s = size; do { g.font = `${weight} ${s}px ${FONT}`; s -= 2; } while (g.measureText(text).width > max && s > 14); }
+// mode: {idle} | {spin:[a,b], f, no} | {win, alamat, id, no}
+function drawPanel(st){
+  const g = uCan.getContext('2d'), W = uCan.width, H = uCan.height;
+  g.clearRect(0,0,W,H); g.fillStyle = '#1f3a5f'; g.fillRect(0,0,W,H);
+  g.strokeStyle = '#f2b134'; g.lineWidth = 8; g.strokeRect(4,4,W-8,H-8);
+  const fx = 22, fy = 20, fw = W-44, fh = H-40;
+  rr(g,fx,fy,fw,fh,fh/2); g.fillStyle = st.win ? '#fff7df' : '#ffffff'; g.fill();
+  g.lineWidth = 4; g.strokeStyle = st.win ? '#f2b134' : '#c9d3e0'; g.stroke();
+  // label kiri
+  rr(g,fx+10,fy+10,190,fh-20,(fh-20)/2); g.fillStyle = '#f2b134'; g.fill();
+  g.fillStyle = '#2a1b00'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = `800 26px ${FONT}`; g.fillText('UNDIAN', fx+105, fy+fh/2 - 13);
+  g.font = `800 22px ${FONT}`; g.fillText(st.no ? 'RUMAH #' + st.no : 'RUMAH', fx+105, fy+fh/2 + 15);
+  const cx = fx + 210 + (fw - 230)/2, maxW = fw - 250;
+  g.save(); rr(g,fx+206,fy+4,fw-216,fh-8,(fh-8)/2); g.clip();
+  if (st.spin){
+    const row = fh, mid = fy + fh/2;
+    [[st.spin[0], -st.f], [st.spin[1], 1 - st.f]].forEach(([t, o])=>{
+      g.globalAlpha = Math.max(0, 1 - Math.abs(o)*1.2);
+      g.fillStyle = '#1f3a5f'; fitFont(g, t, maxW, 50, 800); g.fillText(t, cx, mid + o*row*.8);
+    });
+    g.globalAlpha = 1;
+  } else if (st.win){
+    g.fillStyle = '#1f3a5f'; const t = '🏆 ' + st.win; fitFont(g, t, maxW, 42, 800); g.fillText(t, cx, fy + fh/2 - 17);
+    g.fillStyle = '#9a6b1f'; const a = `🏠 ${st.alamat}`; fitFont(g, a, maxW, 26, 700); g.fillText(a, cx, fy + fh/2 + 24);
+  } else {
+    g.fillStyle = '#8a93a3'; const t = st.text || '🔍 Menunggu Bapak Presiden menekan tombol…'; fitFont(g, t, maxW, 34, 600); g.fillText(t, cx, fy + fh/2);
+  }
+  g.restore(); uTex.needsUpdate = true;
+}
+function restPanel(){
+  if (drawing || show) return;
+  const last = UNDIAN[UNDIAN.length-1];
+  if (last && last.winner){ const s = slotOf(last.houseId);
+    drawPanel({win: entryText(last.winner), alamat: s ? `${s.street} No. ${s.no}` : last.houseId, no: last.no}); }
+  else drawPanel({idle:true});
+}
+drawPanel({idle:true});
+
+// tombol merah khusus Presiden, di samping podium
+const uBtn = new THREE.Group();
+box(.8,1.25,.8, 0x2a2f36, 0,0,0, uBtn);
+box(.9,.08,.9, 0xf2b134, 0,.64,0, uBtn);
+const capMat = new THREE.MeshStandardMaterial({color:0xd8262b, emissive:0x550000, roughness:.35});
+const btnCap = new THREE.Mesh(new THREE.CylinderGeometry(.28,.3,.18,24), capMat); btnCap.position.y = .77; btnCap.castShadow = true; uBtn.add(btnCap);
+const btnTag = canvasTex(256,96,(g,W,H)=>{ g.fillStyle='#f2b134'; g.fillRect(0,0,W,H); g.fillStyle='#2a1b00'; g.textAlign='center'; g.textBaseline='middle'; g.font=`800 34px ${FONT}`; g.fillText('UNDI!',W/2,H/2+2); });
+const tagM = new THREE.Mesh(new THREE.PlaneGeometry(.7,.26), new THREE.MeshBasicMaterial({map:btnTag})); tagM.position.set(0,.25,.41); uBtn.add(tagM);
+uBtn.position.set(2.6,1.72,1.2); uBtn.userData = {type:'undianBtn'}; stage.add(uBtn);
+COLL.push([18+2.6, -6+1.2, .45, .45]);
+const BTN_W = new THREE.Vector3(18+2.6, 1.5, -6+1.2);
+
+/* rumah pemenang muncul di peta */
+function refreshStats(){
+  const own = houses.filter(h=>h.owner).length;
+  document.getElementById('sWrn').textContent = own;
+  document.getElementById('sHouse').textContent = houses.length;
+  document.getElementById('sEmpty').textContent = houses.length - own;
+}
+const pops = [];
+function placeHouse(rec, animate){
+  const s = slotOf(rec.houseId); if (!s) return;
+  const owner = '@' + String(rec.username||'').replace(/^@+/,'');
+  let g = houseGroups[s.id];
+  if (!g){
+    const h = Object.assign({}, s, {owner, niwn: rec.niwn ? String(rec.niwn) : '', since: rec.since ? String(rec.since) : ''});
+    houses.push(h); makeHouse(h); COLL.push([h.x, h.z, 2.5, 2.25]); g = houseGroups[s.id];
+    if (BB[s.id]) applyBoard(s.id);
+    if (animate){ g.scale.setScalar(.01); pops.push({g, t:0}); }
+  } else { const h = g.userData.data; h.owner = owner; if (rec.niwn) h.niwn = String(rec.niwn); if (rec.since) h.since = String(rec.since); }
+  refreshStats();
+}
+function setRumah(rec, animate){ if (!rec || typeof rec.houseId !== 'string' || !slotOf(rec.houseId)) return; RUMAH[rec.houseId] = rec; placeHouse(rec, animate); }
+function setUndianList(list){ UNDIAN = list.filter(u=>u && Number.isFinite(+u.no)).sort((a,b)=>a.no-b.no); restPanel(); }
+function undianPublic(d){
+  if (d && d.rumah && typeof d.rumah === 'object' && !db) Object.values(d.rumah).forEach(r=>setRumah(r, false));
+  if (d && Array.isArray(d.undian) && !db) setUndianList(d.undian);
+}
+function undianCloud(){
+  if (!db) return;
+  db.collection('rumah').onSnapshot(snap=>{ snap.docChanges().forEach(ch=>{ if (ch.type !== 'removed') setRumah(ch.doc.data(), false); }); }, ()=>{});
+  db.collection('undian').onSnapshot(snap=>{ const l = []; snap.forEach(d=>l.push(d.data())); setUndianList(l); if (sheetFn === undianHTML) sheetBody.innerHTML = undianHTML(); }, ()=>{});
+  if (isOwner) db.collection('warga').onSnapshot(snap=>{
+    snap.docChanges().forEach(ch=>{ if (ch.type==='removed') delete WDB[ch.doc.id]; else WDB[ch.doc.id] = Object.assign({_id: ch.doc.id}, ch.doc.data()); });
+    if (sheetFn === undianHTML) sheetBody.innerHTML = undianHTML();
+  }, ()=>{});
+}
+const peserta = () => Object.values(WDB).filter(w => w && w.niwn && isFollow(w.follow) && !w.houseId)
+  .sort((a,b)=>String(a.niwn).localeCompare(String(b.niwn)));
+const nextSlot = () => SLOTS.find(s => !RUMAH[s.id] && !(houseGroups[s.id] && houseGroups[s.id].userData.data.owner)) || null;
+
+function undianHTML(){
+  const last = UNDIAN[UNDIAN.length-1];
+  const lastHTML = last && last.winner ? (()=>{ const s = slotOf(last.houseId); return `<div class="card"><h3>Pemenang Undian #${last.no}</h3>
+    <p><b>@${esc(last.winner.username)}</b> · <span class="mono">${esc(last.winner.niwn)}</span><br>🏠 ${esc(s ? alamatOf(s) : last.houseId)}<br><span class="mono">${esc(last.houseId)}</span></p></div>`; })() : '';
+  const info = `<div class="kicker">Panggung Presiden</div><h2>🎰 Undian Rumah</h2>
+    <p style="font-size:14px;line-height:1.55;margin:0">Peserta: WRN ber-NIWN yang <b>sudah follow</b> dan belum punya rumah. Bapak Presiden menekan tombol merah, nama-nama berputar, lalu pemenang dan alamat rumahnya diumumkan.</p>`;
+  if (isOwner){
+    const p = peserta(), s = nextSlot(), no = (UNDIAN.length ? UNDIAN[UNDIAN.length-1].no : 0) + 1;
+    const list = p.length ? `<ol class="ulist">${p.map(w=>`<li>${esc(entryText(w))}</li>`).join('')}</ol>` : '<p>Belum ada peserta. Kirim "NIWN … yes" ke Claude untuk warga yang sudah follow.</p>';
+    const can = p.length && s;
+    return info + `<div class="card"><h3>Undian #${no} · ${p.length} peserta</h3>${list}
+      <p class="note">Hadiah: <b>${s ? esc(alamatOf(s)) : 'semua rumah sudah terbagi'}</b>${s ? ` (<span class="mono">${esc(s.id)}</span>)` : ''}</p>
+      ${can ? `<button class="btn" data-undi="1">🔴 Presiden, tekan tombolnya!</button>
+      <button class="btn ghost" data-undi="rec" style="margin-top:8px">🎬 Undi dengan layar bersih (untuk rekam video)</button>
+      <p class="note">Pemenang dipilih acak dan langsung tersimpan resmi. Hasilnya tidak bisa diulang.</p>` : ''}</div>` + lastHTML
+      + (last ? `<button class="btn ghost" data-undi="replay">▶️ Tonton ulang undian #${last.no}</button>` : '');
+  }
+  return info + (last ? lastHTML + `<button class="btn" data-undi="replay">▶️ Tonton undian #${last.no}</button>
+      <button class="btn ghost" data-undi="replayrec" style="margin-top:8px">🎬 Tonton dengan layar bersih</button>`
+    : `<div class="card"><h3>Belum ada undian</h3><p>Undian Rumah pertama akan diumumkan Bapak Presiden. Pastikan kamu sudah daftar dan follow akun Republik Nusawara!</p></div>`);
+}
+sheetBody.addEventListener('click', e=>{
+  const b = e.target.closest('[data-undi]'); if (!b) return;
+  const k = b.dataset.undi;
+  if (k === '1' || k === 'rec') ownerDraw(k === 'rec');
+  else { const last = UNDIAN[UNDIAN.length-1]; if (last) runShow(last, k === 'replayrec', true); }
+});
+
+function rndInt(n){ const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; }
+function todayID(){ return new Date().toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}); }
+async function ownerDraw(clean){
+  if (drawing || !isOwner || !db) return;
+  const p = peserta(), s = nextSlot();
+  if (!p.length || !s) { toast(!s ? 'Semua rumah sudah terbagi.' : 'Belum ada peserta undian.'); return; }
+  const w = p[rndInt(p.length)];
+  const no = (UNDIAN.length ? UNDIAN[UNDIAN.length-1].no : 0) + 1;
+  const rec = { no, at: Date.now(), tanggal: todayID(), houseId: s.id, alamat: alamatOf(s),
+    peserta: p.map(x=>({username: x.username || x._id, niwn: x.niwn})),
+    winner: { username: w.username || w._id, niwn: w.niwn } };
+  drawing = true;
+  try {
+    const wd = await db.doc('warga/' + w._id).get();
+    const cur = wd.exists ? (wd.data() || {}) : null;
+    if (!cur || cur.houseId) throw new Error('warga');
+    await db.doc('rumah/' + s.id).set({ houseId: s.id, alamat: rec.alamat, username: rec.winner.username, niwn: rec.winner.niwn, since: rec.tanggal, undianNo: no });
+    await db.doc('warga/' + w._id).set(Object.assign({}, cur, { houseId: s.id }));
+    await db.doc('undian/' + String(no).padStart(4,'0')).set(rec);
+  } catch(err){ drawing = false; toast('Undian gagal disimpan. Coba lagi.'); return; }
+  drawing = false;
+  runShow(rec, clean, false);
+}
+
+/* ---------- PERTUNJUKAN: Presiden jalan → tekan tombol → nama berputar → kembang api ---------- */
+function sfx(f, dur, type, vol, delay, slide){
+  ensureAudioGraph(); if (!actx) return;
+  const t0 = actx.currentTime + (delay||0), o = actx.createOscillator(), g = actx.createGain();
+  o.type = type || 'square'; o.frequency.setValueAtTime(f, t0); if (slide) o.frequency.exponentialRampToValueAtTime(slide, t0 + dur);
+  g.gain.setValueAtTime(vol || .08, t0); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+  o.connect(g); g.connect(actx.destination); o.start(t0); o.stop(t0 + dur + .02);
+}
+function boom(delay, vol){
+  ensureAudioGraph(); if (!actx) return;
+  const t0 = actx.currentTime + (delay||0), n = Math.floor(actx.sampleRate*.5), buf = actx.createBuffer(1, n, actx.sampleRate), d = buf.getChannelData(0);
+  for (let i=0;i<n;i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/n, 3);
+  const src = actx.createBufferSource(), g = actx.createGain(), lp = actx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 1400; src.buffer = buf; g.gain.value = vol || .35;
+  src.connect(lp); lp.connect(g); g.connect(actx.destination); src.start(t0);
+}
+function runShow(rec, clean, replay){
+  if (show) return;
+  const s = slotOf(rec.houseId);
+  const names = (rec.peserta && rec.peserta.length ? rec.peserta : [rec.winner]).map(entryText);
+  const winTxt = entryText(rec.winner);
+  // urutan putaran: acak berulang, berakhir pada pemenang
+  const seq = []; while (seq.length < 34){ const sh = names.slice(); for (let i=sh.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [sh[i],sh[j]] = [sh[j],sh[i]]; } seq.push(...sh); }
+  seq.length = 34; seq.push(winTxt);
+  winEl.classList.remove('show'); closeSheet();
+  if (playing) setPlay(false);
+  if (clean){ if (!shotMode) setShot(true); document.body.classList.add('shot-clean'); }
+  if (rec.houseId && !replay) placeHouse({houseId: rec.houseId, username: rec.winner.username, niwn: rec.winner.niwn, since: rec.tanggal}, false);
+  if (houseGroups[rec.houseId]) houseGroups[rec.houseId].visible = false;   // bangunan muncul saat diumumkan
+  { const d = Math.max(17, 6.8 / (Math.tan(24*Math.PI/180) * camera.aspect)), tg = new THREE.Vector3(18.6,6.4,-6);
+    flyTo(tg, new THREE.Vector3(tg.x + .3, tg.y + d*Math.cos(1.27), tg.z + d*Math.sin(1.27))); }
+  presTag.visible = false;
+  hideHint();
+  show = { t:0, rec, s, seq, last:-1, from: pres.position.clone(), stand: new THREE.Vector3(BTN_W.x, 1.5, BTN_W.z - 1.0), pressed:false, won:false, replay };
+  drawPanel({text:'🥁 Bapak Presiden menuju tombol…', no: rec.no});
+}
+const SPIN0 = 2.1, SPIN = 6.6;
+function updateShow(dt, time){
+  // rumah baru "tumbuh"
+  for (let i = pops.length-1; i >= 0; i--){ const p = pops[i]; p.t += dt*1.6; const k = Math.min(1, p.t);
+    p.g.scale.setScalar(Math.max(.01, 1 + Math.sin(k*Math.PI)*.15 - (1-k)*(1-k))); if (k >= 1){ p.g.scale.setScalar(1); pops.splice(i,1); } }
+  updateFx(dt);
+  if (!show) return;
+  const S = show; S.t += dt; const t = S.t;
+  // 0–1.5 s: Presiden berjalan ke tombol
+  if (t < 1.5){
+    const k = ease(Math.min(1, t/1.5));
+    pres.position.x = S.from.x + (S.stand.x - S.from.x)*k; pres.position.z = S.from.z + (S.stand.z - S.from.z)*k;
+    const dx = S.stand.x - S.from.x, dz = S.stand.z - S.from.z;
+    if (Math.hypot(dx,dz) > .1){ let d = Math.atan2(dx,dz) - pres.rotation.y; d = Math.atan2(Math.sin(d),Math.cos(d)); pres.rotation.y += d*Math.min(1, dt*10); }
+    const sw = Math.sin(t*12) * .55 * (1 - k*k); legL.rotation.x = sw; legR.rotation.x = -sw; armL.rotation.x = -sw*.8;
+  } else {
+    let d = 0 - pres.rotation.y; d = Math.atan2(Math.sin(d),Math.cos(d)); pres.rotation.y += d*Math.min(1, dt*8);
+    legL.rotation.x *= .8; legR.rotation.x *= .8;
+  }
+  // 1.5–2.1 s: menekan tombol
+  if (t >= 1.5 && t < SPIN0 + .4){
+    const k = Math.min(1, (t-1.5)/.35), back = Math.max(0, (t-1.95)/.5);
+    armR.rotation.z = 0; armR.rotation.x = -1.25*k*(1-Math.min(1,back));
+    btnCap.position.y = .77 - (k >= 1 && back < .6 ? .1 : 0);
+    if (k >= 1 && !S.pressed){ S.pressed = true; sfx(140, .18, 'sine', .4, 0, 60); sfx(880, .08, 'square', .06, .02); capMat.emissive.setHex(0xff2222); }
+  }
+  if (t >= SPIN0 + .4) { btnCap.position.y = .77; capMat.emissive.setHex(0x550000 + (S.won ? 0 : Math.floor((Math.sin(time*10)*.5+.5)*0x30)*0x10000)); }
+  // 2.1–8.7 s: nama berputar, melambat, berhenti di pemenang
+  if (t >= SPIN0 && !S.won){
+    const u = Math.min(1, (t - SPIN0)/SPIN), N = S.seq.length - 1;
+    const pos = N * (1 - Math.pow(1-u, 3.2)), i = Math.min(N, Math.floor(pos)), f = i >= N ? 0 : pos - i;
+    drawPanel({spin:[S.seq[i], S.seq[Math.min(N, i+1)]], f, no:S.rec.no});
+    if (i !== S.last){ S.last = i; sfx(1100 + (i%2)*180, .045, 'square', .05); }
+    if (u >= 1){ S.won = true; S.wonT = t; reveal(S); }
+  }
+  if (S.won && t - S.wonT > 6){ show = null; capMat.emissive.setHex(0x550000); presTag.visible = !shotMode; }
+}
+function reveal(S){
+  const r = S.rec, s = S.s;
+  drawPanel({win: entryText(r.winner), alamat: s ? `${s.street} No. ${s.no}` : r.houseId, no: r.no});
+  [523,659,784,1047].forEach((f,i)=>sfx(f, i===3 ? .7 : .2, 'triangle', .16, i*.13));
+  confetti(); fireworks();
+  waveT = 2.5;
+  say(`🎉 Selamat @${r.winner.username}! Rumahmu di ${s ? s.street + ' No. ' + s.no : r.houseId}!`, 5);
+  const g = houseGroups[r.houseId];
+  if (g){ g.visible = true; g.scale.setScalar(.01); pops.push({g, t:-.6}); }
+  winEl.innerHTML = `<div class="wk">🎉 PEMENANG UNDIAN RUMAH #${esc(r.no)}</div>
+    <div class="wn">@${esc(r.winner.username)}</div><div class="wi">NIWN ${esc(r.winner.niwn)}</div>
+    <div class="wa">🏠 ${esc(s ? s.street + ' No. ' + s.no : r.houseId)}<small>${esc(s ? s.district : '')} · ${esc(r.houseId)}</small></div>
+    <div class="wb"><button class="btn ghost" data-wclose>Tutup</button><button class="btn" data-wgo="${esc(r.houseId)}">📍 Lihat rumah</button></div>`;
+  setTimeout(()=>winEl.classList.add('show'), 700);
+}
+
+/* kertas warna-warni menyembur ke atas + kembang api */
+const CONF_N = 420, confM = new THREE.InstancedMesh(new THREE.PlaneGeometry(.22,.12), new THREE.MeshBasicMaterial({side:THREE.DoubleSide}), CONF_N);
+confM.instanceMatrix.setUsage(THREE.DynamicDrawUsage); confM.frustumCulled = false; confM.visible = false; scene.add(confM);
+const CONF = [], CCOL = [0xf2b134,0xd8262b,0xffffff,0x2f80ed,0x27ae60,0xff6fb5,0x9b51e0];
+const _o = new THREE.Object3D(), _c = new THREE.Color();
+for (let i=0;i<CONF_N;i++){ CONF.push({p:new THREE.Vector3(), v:new THREE.Vector3(), r:new THREE.Euler(), w:new THREE.Vector3(), life:0}); confM.setColorAt(i, _c.setHex(CCOL[i%CCOL.length])); }
+function confetti(){
+  confM.visible = true;
+  CONF.forEach((c,i)=>{
+    const side = i % 3, x = side===0 ? 12.8 : side===1 ? 23.2 : 18 + (Math.random()-.5)*8;
+    c.p.set(x, side===2 ? 7.2 : 1.4, side===2 ? -8.6 : -2.6);
+    const a = Math.random()*Math.PI*2, sp = 2 + Math.random()*4;
+    c.v.set(Math.cos(a)*sp + (side===0 ? 1.5 : side===1 ? -1.5 : 0), 11 + Math.random()*9, Math.sin(a)*sp*.6 + 2.5);
+    c.r.set(Math.random()*6, Math.random()*6, Math.random()*6); c.w.set((Math.random()-.5)*14, (Math.random()-.5)*14, (Math.random()-.5)*14);
+    c.life = 6 + Math.random()*2 + (i%5)*.05;
+  });
+  boom(0, .25); boom(.05, .2);
+}
+const FW = [];
+function fireworks(){
+  for (let k=0;k<7;k++){
+    const delay = .2 + k*.42 + Math.random()*.2;
+    FW.push({wait:delay, born:false});
+    boom(delay + .02, .3);
+  }
+}
+function spawnBurst(){
+  const n = 160, geo = new THREE.BufferGeometry(), pos = new Float32Array(n*3), vel = [];
+  const c = new THREE.Vector3(18 + (Math.random()-.5)*26, 16 + Math.random()*10, -10 + (Math.random()-.5)*10);
+  for (let i=0;i<n;i++){ pos[i*3]=c.x; pos[i*3+1]=c.y; pos[i*3+2]=c.z;
+    const u = Math.random()*2-1, th = Math.random()*Math.PI*2, r = Math.sqrt(1-u*u), sp = 7 + Math.random()*2.5;
+    vel.push(new THREE.Vector3(r*Math.cos(th)*sp, u*sp, r*Math.sin(th)*sp)); }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const mat = new THREE.PointsMaterial({color:CCOL[Math.floor(Math.random()*CCOL.length)], size:.55, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending});
+  const pts = new THREE.Points(geo, mat); pts.frustumCulled = false; scene.add(pts);
+  return {pts, vel, t:0};
+}
+function updateFx(dt){
+  if (confM.visible){
+    let alive = 0;
+    CONF.forEach((c,i)=>{
+      if (c.life > 0){ c.life -= dt; alive++;
+        c.v.y -= 9.5*dt; c.v.multiplyScalar(1 - Math.min(.9, dt*(c.v.y < 0 ? 2.6 : .6)));
+        if (c.v.y < -2.2) c.v.y = -2.2;
+        c.p.addScaledVector(c.v, dt); c.p.x += Math.sin(c.life*3 + i)*dt*.8;
+        if (c.p.y < .3){ c.p.y = .3; c.v.set(0,0,0); c.w.multiplyScalar(.9); }
+        c.r.x += c.w.x*dt; c.r.y += c.w.y*dt; c.r.z += c.w.z*dt;
+      }
+      _o.position.copy(c.p); _o.rotation.copy(c.r); _o.scale.setScalar(c.life > 0 ? Math.min(1, c.life) : 0); _o.updateMatrix(); confM.setMatrixAt(i, _o.matrix);
+    });
+    confM.instanceMatrix.needsUpdate = true; if (confM.instanceColor) confM.instanceColor.needsUpdate = true;
+    if (!alive) confM.visible = false;
+  }
+  for (let i = FW.length-1; i >= 0; i--){
+    const f = FW[i];
+    if (!f.born){ f.wait -= dt; if (f.wait <= 0){ Object.assign(f, spawnBurst(), {born:true}); sfx(400, .5, 'sine', .05, 0, 1800); } continue; }
+    f.t += dt; const a = f.pts.geometry.attributes.position, arr = a.array;
+    for (let j=0;j<f.vel.length;j++){ const v = f.vel[j]; v.y -= 4*dt; v.multiplyScalar(1 - dt*1.4);
+      arr[j*3] += v.x*dt; arr[j*3+1] += v.y*dt; arr[j*3+2] += v.z*dt; }
+    a.needsUpdate = true; f.pts.material.opacity = Math.max(0, 1 - f.t/1.9); f.pts.material.size = .55 + f.t*.2;
+    if (f.t > 1.9){ scene.remove(f.pts); f.pts.geometry.dispose(); f.pts.material.dispose(); FW.splice(i,1); }
+  }
+}
+
 /* ---------- LOOP ---------- */
 addEventListener('resize', ()=>{
   camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
@@ -1332,6 +1679,7 @@ function loop(){
     if (anim.t >= 1) anim = null;
   }
   updatePres(dt, time);
+  updateShow(dt, time);
   updateChicken(dt, time);
   updateNear();
   controls.update();
