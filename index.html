@@ -204,9 +204,9 @@
 <nav class="actions">
   <button class="navy" id="playBtn">🕹️ Presiden</button>
   <button class="primary" data-open="daftar">Jadi Warga</button>
-  <button data-open="uun">UUN</button>
+  <button data-open="uun" hidden>UUN</button>
   <button id="resetBtn">Lihat semua</button>
-  <button id="shotBtn">🎬 Adegan</button>
+  <button id="shotBtn" hidden>🎬 Adegan</button>
 </nav>
 
 <div class="play-ui">
@@ -2416,6 +2416,7 @@ body.ctl .gtop{display:flex}
 .gtop button{border:0;border-radius:999px;background:#fff;color:#1f3a5f;font:inherit;font-weight:800;padding:6px 12px}
 .mbtn{position:fixed;right:12px;bottom:calc(150px + env(safe-area-inset-bottom));z-index:6;width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,253,248,.95);box-shadow:0 4px 14px rgba(0,0,0,.18);font-size:20px}
 body:not(.owner) #playBtn, body:not(.owner) #ctrlBtn{display:none!important}
+#shotBtn,.actions [data-open="uun"]{display:none!important}
 body.ctl .mbtn{bottom:auto;top:calc(118px + env(safe-area-inset-top))}
 .gzoom{position:fixed;right:12px;top:calc(172px + env(safe-area-inset-top));z-index:12;display:none;flex-direction:column;gap:6px}
 body.ctl .gzoom{display:flex}
