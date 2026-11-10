@@ -1985,205 +1985,139 @@ function shellGeo(o, clip){
 }
 const nrm = (x,y,z) => { const l = Math.hypot(x,y,z) || 1; return [x/l, y/l, z/l]; };
 function makeAvatar(sp){
+  // Karakter warga bergaya balok seperti LEGO: kepala kotak dengan wajah tercetak, badan & tangan kaki kotak.
   const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
-  const add = (geo, mat, x, y, z, p, sx, sy, sz) => { const m = new THREE.Mesh(geo, mat); m.position.set(x,y,z); if (sx) m.scale.set(sx, sy, sz); m.castShadow = true; (p||body).add(m); return m; };
-  const cyl = (rt, rb, h, seg) => AG(`c${rt}_${rb}_${h}_${seg||16}`, ()=>new THREE.CylinderGeometry(rt, rb, h, seg||16));
-  const sph = (r, ws, hs, ps, pl, ts, tl) => AG(`s${r}_${ws}_${hs}_${ps}_${pl}_${ts}_${tl}`, ()=>new THREE.SphereGeometry(r, ws||20, hs||16, ps||0, pl||Math.PI*2, ts||0, tl||Math.PI));
-  const bx = (w,h,d) => AG(`b${w}_${h}_${d}`, ()=>new THREE.BoxGeometry(w,h,d));
-  const tor = (r, t, arc) => AG(`t${r}_${t}_${arc}`, ()=>new THREE.TorusGeometry(r, t, 8, 24, arc));
-  const cone = (r, h) => AG(`k${r}_${h}`, ()=>new THREE.ConeGeometry(r, h, 10));
-  const SK = AM(sp.kulit, .75), TOP = AM(sp.baju, .85), BOT = AM(sp.celana, .85), SH = AM(sp.sepatu, .5), HR = AM(sp.rambut, .55);
-  const HR2 = AM(shade(sp.rambut, .78), .6), SOLE = AM(0xf2f2f2, .6);
+  const bx = (w,h,d) => AG(`B${w}_${h}_${d}`, ()=>new THREE.BoxGeometry(w,h,d));
+  const mk = (w,h,d,c,x,y,z,p,r) => { const m = new THREE.Mesh(bx(w,h,d), AM(c, r||.8)); m.position.set(x,y,z); m.castShadow = true; (p||body).add(m); return m; };
   const limb = (x,y) => { const l = new THREE.Group(); l.position.set(x,y,0); body.add(l); return l; };
-  // ---------- kaki: celana slim + sneakers ----------
-  const legL = limb(.1,1.42), legR = limb(-.1,1.42);
+  const dk = c => shade(c, .82);
+  // ---------- kaki & celana ----------
+  const legL = limb(.2,1.0), legR = limb(-.2,1.0);
   [legL,legR].forEach(l=>{
-    if (sp.celanaModel === 'pendek'){ add(cyl(.105,.1,.55), BOT, 0,-.27,0, l); add(cyl(.06,.05,.78), SK, 0,-.92,0, l); }
-    else { add(cyl(.105,.075,1.3), BOT, 0,-.65,0, l); }
-    add(sph(.075,16,12), SH, 0,-1.33,.05, l, .95,.6,1.75);                    // sneakers
-    add(cyl(.072,.072,.03,16), SOLE, 0,-1.37,.05, l, 1,1,1.75);
+    if (sp.celanaModel === 'pendek'){ mk(.34,.42,.38, sp.celana,0,-.2,0,l); mk(.26,.44,.28, sp.kulit,0,-.62,0,l); }
+    else mk(.34,.88,.38, sp.celana,0,-.43,0,l);
+    mk(.36,.17,.5, sp.sepatu,0,-.92,.06,l,.6); mk(.37,.05,.51, 0xf2f2f2,0,-.985,.06,l,.6);
   });
-  // ---------- badan ramping ----------
-  add(cyl(.17,.165,.2), BOT, 0,1.5,0, null, 1,1,.68);                         // pinggul
-  add(cyl(.15,.155,.03), AM(0x1a1a1a,.4), 0,1.6,0, null, 1,1,.7);              // ikat pinggang
-  const jas = sp.bajuModel === 'jas', loose = sp.bajuModel === 'sweater' || sp.bajuModel === 'hoodie';
-  const SHIRT = jas ? AM(0xf4f4f4,.8) : TOP;
-  add(cyl(loose ? .245 : .23, loose ? .19 : .165, .62), jas ? TOP : SHIRT, 0,1.92,0, null, 1,1,.66);   // badan
-  add(sph(loose ? .245 : .23,18,10,0,Math.PI*2,0,Math.PI/2), jas ? TOP : SHIRT, 0,2.22,0, null, 1,.35,.66);
-  add(cyl(.05,.055,.12), SK, 0,2.3,0);                                         // leher
-  if (sp.bajuModel === 'kemeja' || jas){
-    const C = jas ? SHIRT : AM(shade(sp.baju,.95),.8);
-    add(bx(.1,.08,.02), C, .045,2.27,.1, null).rotation.set(-.3,0,-.5); add(bx(.1,.08,.02), C, -.045,2.27,.1, null).rotation.set(-.3,0,.5);   // kerah
-    if (!jas) for (let i=0;i<4;i++) add(sph(.01,8,6), AM(0xdddddd,.4), 0,2.16-i*.13,.155);
-    if (!jas) add(bx(.07,.06,.01), AM(shade(sp.baju,.93),.8), .085,2.05,.152);   // saku
-  }
-  if (jas){
-    add(bx(.1,.42,.01), SHIRT, 0,2.0,.15);                                       // kemeja di dalam jas
-    add(bx(.06,.34,.012), TOP, .055,2.02,.156).rotation.z = -.22; add(bx(.06,.34,.012), TOP, -.055,2.02,.156).rotation.z = .22;   // kerah jas
-    add(sph(.012,8,6), AM(0x222222,.4), 0,1.78,.158);
-  }
-  if (sp.bajuModel === 'hoodie'){ add(sph(.13,14,10), TOP, 0,2.27,-.12, null, 1.4,.7,.8); add(bx(.2,.1,.02), AM(shade(sp.baju,.85),.9), 0,1.75,.16); }
-  if (sp.bajuModel === 'sweater') add(cyl(.2,.2,.05), AM(shade(sp.baju,.88),.9), 0,1.62,0, null, 1,1,.68);
-  // ---------- lengan ----------
-  const armL = limb(.29,2.18), armR = limb(-.29,2.18);
-  const rolled = sp.bajuModel === 'kemeja';
+  mk(.82,.16,.42, sp.celana, 0,1.02,0);                       // pinggul
+  // ---------- badan & model baju ----------
+  mk(.9,1.0,.5, sp.baju, 0,1.6,0);
+  const front = .26;
+  if (sp.bajuModel === 'sweater'){ mk(.92,.1,.52, dk(sp.baju), 0,1.13,0); mk(.36,.06,.04, dk(sp.baju), 0,2.06,front); }
+  if (sp.bajuModel === 'kaos'){ mk(.3,.08,.03, dk(sp.baju), 0,2.06,front); }
+  if (sp.bajuModel === 'hoodie'){ mk(.74,.3,.22, sp.baju, 0,2.08,-.3); mk(.52,.24,.04, dk(sp.baju), 0,1.32,front); mk(.03,.3,.03, 0xeeeeee, .1,1.9,front); mk(.03,.3,.03, 0xeeeeee, -.1,1.9,front); }
+  if (sp.bajuModel === 'kemeja'){ mk(.2,.1,.08, dk(sp.baju), .13,2.06,.24); mk(.2,.1,.08, dk(sp.baju), -.13,2.06,.24); for (let i=0;i<4;i++) mk(.05,.05,.03, 0xdcd8cf, 0,1.92-i*.2,front); mk(.16,.14,.03, dk(sp.baju), .22,1.82,front); }
+  if (sp.bajuModel === 'jas'){ mk(.3,.86,.03, 0xf4f1ea, 0,1.62,front); mk(.09,.52,.03, 0xb03030, 0,1.62,front+.015); mk(.12,.09,.03, 0xb03030, 0,1.95,front+.015); mk(.12,.5,.03, dk(sp.baju), .2,1.8,front+.01); mk(.12,.5,.03, dk(sp.baju), -.2,1.8,front+.01); }
+  const armL = limb(.6,2.02), armR = limb(-.6,2.02);
   [armL,armR].forEach(a=>{
-    add(sph(.065,12,10), jas ? TOP : SHIRT, 0,0,0, a);
-    if (sp.bajuModel === 'kaos'){ add(cyl(.065,.06,.2), TOP, 0,-.1,0, a); add(cyl(.045,.04,.6), SK, 0,-.5,0, a); }
-    else if (rolled){ add(cyl(.062,.055,.46), SHIRT, 0,-.23,0, a); add(cyl(.062,.062,.06), AM(shade(sp.baju,.93),.8), 0,-.47,0, a); add(cyl(.043,.038,.32), SK, 0,-.65,0, a); }
-    else { add(cyl(.062,.052,.76), jas ? TOP : SHIRT, 0,-.38,0, a); add(cyl(.045,.045,.03), jas ? SHIRT : AM(shade(sp.baju,.88),.9), 0,-.76,0, a); }
-    add(sph(.045,12,10), SK, 0,-.84,.005, a, .8,1.2,.95);                       // tangan
+    if (sp.bajuModel === 'kaos'){ mk(.28,.36,.32, sp.baju,0,-.15,0,a); mk(.22,.5,.24, sp.kulit,0,-.58,0,a); }
+    else { mk(.28,.82,.32, sp.baju,0,-.38,0,a); if (sp.bajuModel === 'kemeja') mk(.29,.1,.33, dk(sp.baju),0,-.74,0,a); }
+    mk(.24,.2,.26, sp.kulit,0,-.9,0,a);                      // tangan
   });
-  // ---------- kepala ----------
-  const head = new THREE.Group(); head.position.y = 2.56; body.add(head);
-  add(sph(HR_R,28,22), SK, 0,0,0, head, HSX,HSY,HSZ);
-  add(cone(.085,.12), SK, 0,-.15,.055, head, 1,1,.8).rotation.x = Math.PI + .25;     // dagu runcing
-  add(sph(.035,10,8), SK, .175,-.005,-.01, head, .45,1,.7); add(sph(.035,10,8), SK, -.175,-.005,-.01, head, .45,1,.7);   // telinga
-  add(cone(.012,.03), AM(shade(sp.kulit,.9),.7), 0,-.045,.192, head).rotation.x = Math.PI/2;   // hidung
-  faceOf(sp.ekspresi);
-  hairOf(sp.rambutModel);
-  // ---------- topi ----------
-  if (sp.topi === 'cap'){ const TC = AM(sp.topiWarna,.8); add(sph(HR_R*1.12,24,14,0,Math.PI*2,0,Math.PI*.5), TC, 0,.06,0, head, HSX,HSY*.8,HSZ); add(cyl(.12,.12,.012,24), TC, 0,.07,.16, head, 1,1,.8); }
-  if (sp.topi === 'kupluk'){ const TC = AM(sp.topiWarna,.95); add(sph(HR_R*1.14,24,14,0,Math.PI*2,0,Math.PI*.55), TC, 0,.04,0, head, HSX,HSY,HSZ); add(cyl(HR_R*1.08,HR_R*1.08,.05,24), AM(shade(sp.topiWarna,.8),.95), 0,.02,0, head, HSX,1,HSZ); add(sph(.045,12,10), AM(0xf4f1ea,.95), 0,.27,0, head); }
-  // ---------- kacamata ----------
-  if (sp.kacamata !== 'tidak'){
-    const fr = AM(0x1a1a1a,.3), lens = sp.kacamata === 'hitam' ? AM(0x0b0b0b,.2) : new THREE.MeshPhongMaterial({color:0xcfe9ff, shininess:80, transparent:true, opacity:.3});
-    [.06,-.06].forEach(x=>{ add(cyl(.042,.042,.008,20), lens, x,0,.196, head, 1,1,.8).rotation.x = Math.PI/2; add(AG('rim3', ()=>new THREE.TorusGeometry(.042,.005,6,24)), fr, x,0,.2, head, 1,.8,1); });
-    add(bx(.04,.006,.006), fr, 0,.01,.2, head); add(bx(.006,.006,.14), fr, .1,.01,.13, head); add(bx(.006,.006,.14), fr, -.1,.01,.13, head);
+  mk(.26,.14,.26, sp.kulit, 0,2.16,0);                        // leher
+  // ---------- kepala kotak + wajah tercetak ----------
+  const head = new THREE.Group(); head.position.y = 2.5; body.add(head);
+  mk(.64,.64,.6, sp.kulit, 0,0,0, head, .7);
+  const face = new THREE.Mesh(AG('faceP', ()=>new THREE.PlaneGeometry(.6,.6)), faceMat(sp.ekspresi, sp.kulit));
+  face.position.set(0,0,.301); head.add(face);
+  const hat = sp.topi === 'cap' || sp.topi === 'kupluk';
+  hairOf(sp.rambutModel || 'pendek');
+  if (sp.topi === 'cap'){ mk(.72,.2,.68, sp.topiWarna, 0,.42,0, head); mk(.68,.05,.3, sp.topiWarna, 0,.34,.46, head); mk(.12,.06,.12, shade(sp.topiWarna,.8), 0,.55,0, head); }
+  if (sp.topi === 'kupluk'){ mk(.74,.32,.7, sp.topiWarna, 0,.42,-.01, head,.95); mk(.76,.09,.72, shade(sp.topiWarna,.8), 0,.27,-.01, head,.95); mk(.14,.14,.14, 0xf4f1ea, 0,.64,0, head,.95); }
+  if (sp.kacamata === 'hitam'){ mk(.24,.13,.05, 0x0d0d0d, .15,.06,.32, head,.2); mk(.24,.13,.05, 0x0d0d0d, -.15,.06,.32, head,.2); mk(.62,.04,.04, 0x0d0d0d, 0,.1,.32, head,.2); }
+  else if (sp.kacamata === 'bening'){
+    const lens = AG('lensM', ()=>new THREE.MeshPhongMaterial({color:0xcfe9ff, transparent:true, opacity:.4}));
+    [.15,-.15].forEach(x=>{ mk(.24,.03,.04, 0x222222, x,.12,.32, head); mk(.24,.03,.04, 0x222222, x,0,.32, head); mk(.03,.13,.04, 0x222222, x+.11,.06,.32, head); mk(.03,.13,.04, 0x222222, x-.11,.06,.32, head);
+      const l = new THREE.Mesh(bx(.2,.1,.02), lens); l.position.set(x,.06,.32); head.add(l); });
+    mk(.1,.03,.04, 0x222222, 0,.1,.32, head);
   }
   // ---------- mug kopi ----------
   let cup = null;
   if (sp.kopi === 'ya'){
-    cup = new THREE.Group(); cup.position.set(0,-.88,.07); armL.add(cup);
-    add(cyl(.045,.042,.1,18), AM(0xf2c26b,.6), 0,0,0, cup); add(cyl(.038,.038,.006,18), AM(0x5a3820,.6), 0,.05,0, cup);
-    add(tor(.026,.008,Math.PI*1.3), AM(0xf2c26b,.6), .05,0,0, cup).rotation.z = -Math.PI*.65;
+    cup = new THREE.Group(); cup.position.set(0,-.98,.16); armL.add(cup);
+    mk(.2,.26,.2, 0xf4f1ea, 0,0,0, cup); mk(.21,.08,.21, 0x8b5a2b, 0,-.01,0, cup); mk(.22,.05,.22, 0xeeeeee, 0,.15,0, cup); mk(.05,.12,.06, 0xf4f1ea, .13,0,0, cup);
   }
   return {g, body, legL, legR, armL, armR, head, cup};
 
-  // ===== ekspresi wajah bergaya anime =====
-  function faceOf(ex){
-    const LASH = AM(0x1d1410,.4), WHITE = AM(0xffffff,.3), IRIS = AM(0x3a2a20,.25), PUP = AM(0x120c0a,.2), SHINE = AM(0xffffff,.1);
-    const Z = .178, EY = .0;
-    const eye = (x, type) => {
-      const s = x > 0 ? 1 : -1;
-      if (type === 'tutup'){ const t = add(tor(.03,.0055,Math.PI), LASH, x,EY-.005,Z+.006, head); t.rotation.z = Math.PI; t.scale.set(1.2,.6,1); return; }
-      if (type === 'senang'){ const t = add(tor(.028,.006,Math.PI), LASH, x,EY-.012,Z+.008, head); t.scale.set(1.2,.9,1); return; }
-      if (type === 'cinta'){ const H = AM(0xe8475f,.4); add(sph(.017,10,8), H, x-.013,EY+.004,Z+.006, head); add(sph(.017,10,8), H, x+.013,EY+.004,Z+.006, head); add(cone(.025,.03), H, x,EY-.016,Z+.006, head).rotation.z = Math.PI; return; }
-      const big = type === 'kaget';
-      add(sph(.034,16,12), WHITE, x,EY,Z-.008, head, big ? 1.05 : 1.15, big ? 1 : .78, .4);              // putih mata (almond)
-      add(sph(big ? .016 : .021,14,10), IRIS, x,EY-.002,Z+.003, head, 1,1.15,.45);                       // iris
-      add(sph(big ? .008 : .011,10,8), PUP, x,EY-.002,Z+.007, head, 1,1.15,.4);
-      add(sph(.006,8,6), SHINE, x+.008,EY+.009,Z+.011, head);
-      add(bx(.078,.008,.006), LASH, x+s*.004,EY+.025*(big?1.15:1),Z+.004, head).rotation.z = -s*.12;     // garis mata atas tebal
-      if (type === 'setengah') add(bx(.074,.022,.006), SK, x,EY+.014,Z+.008, head);
-    };
-    const brow = (x, tilt, dy) => { const b = add(bx(.075,.009,.006), AM(shade(sp.rambut,.85),.6), x,.06+(dy||0),Z+.008, head); b.rotation.z = (x > 0 ? -1 : 1) * tilt; };
-    const LIP = AM(0x8a4a40,.6);
-    const mouth = type => {
-      if (type === 'kecil'){ add(bx(.03,.005,.004), LIP, 0,-.1,Z+.004, head); }
-      else if (type === 'sedih') add(tor(.016,.004,Math.PI), LIP, 0,-.105,Z+.004, head);
-      else if (type === 'senyum'){ add(tor(.024,.004,Math.PI), LIP, 0,-.088,Z+.004, head).rotation.z = Math.PI; }
-      else if (type === 'datar') add(bx(.036,.004,.004), LIP, 0,-.1,Z+.004, head);
-      else if (type === 'o') add(sph(.012,12,10), AM(0x5b1f1f,.6), 0,-.102,Z, head, 1,1.3,.35);
-      else if (type === 'tawa' || type === 'teriak'){
-        const m = add(sph(.03,16,10,0,Math.PI*2,Math.PI*.5,Math.PI*.5), AM(0x7a2626,.6), 0,-.085,Z-.006, head, 1.1, type === 'teriak' ? 1.4 : 1, .4);
-        add(sph(.014,10,8), AM(0xe8838a,.6), 0,-.11,Z-.001, head, 1.3,.5,.4);
-      }
-    };
-    const blush = () => [.07,-.07].forEach(x=>add(sph(.026,12,10), AM(0xf2a59a,.9), x*1.25,-.045,Z-.012, head, 1,.5,.35));
-    const drop = (x, y, s) => { const D = AM(0x8fd3ff,.2); add(sph(.012*s,10,8), D, x,y,Z+.008, head, 1,1.3,.6); add(cone(.012*s,.02*s), D, x,y+.016*s,Z+.008, head); };
-    switch (ex){
-      case 'senyum':  eye(.06,'buka'); eye(-.06,'buka'); brow(.06,.05); brow(-.06,.05); mouth('senyum'); blush(); break;
-      case 'tertawa': eye(.06,'senang'); eye(-.06,'senang'); brow(.06,.1,.008); brow(-.06,.1,.008); mouth('tawa'); blush(); break;
-      case 'kedip':   eye(.06,'senang'); eye(-.06,'buka'); brow(.06,.05); brow(-.06,.05); mouth('senyum'); break;
-      case 'cinta':   eye(.06,'cinta'); eye(-.06,'cinta'); brow(.06,.08,.008); brow(-.06,.08,.008); mouth('senyum'); blush(); break;
-      case 'kaget':   eye(.06,'kaget'); eye(-.06,'kaget'); brow(.06,.05,.02); brow(-.06,.05,.02); mouth('o'); drop(.14,.06,1); break;
-      case 'bingung': eye(.06,'buka'); eye(-.06,'setengah'); brow(.06,-.15,.015); brow(-.06,.15); mouth('datar'); drop(.15,.05,.9); break;
-      case 'serius':  eye(.06,'setengah'); eye(-.06,'setengah'); brow(.06,.18); brow(-.06,.18); mouth('datar'); break;
-      case 'marah':   eye(.06,'buka'); eye(-.06,'buka'); brow(.06,.45,-.006); brow(-.06,.45,-.006); mouth('teriak'); break;
-      case 'sedih':   eye(.06,'buka'); eye(-.06,'buka'); brow(.06,-.3); brow(-.06,-.3); mouth('sedih'); drop(.075,-.04,.8); break;
-      case 'menangis':eye(.06,'senang'); eye(-.06,'senang'); brow(.06,-.32); brow(-.06,-.32); mouth('teriak');
-                      [.06,-.06].forEach(x=>add(bx(.014,.07,.004), AM(0x8fd3ff,.2), x,-.05,Z-.002, head)); break;
-      case 'ngantuk': eye(.06,'tutup'); eye(-.06,'tutup'); brow(.06,-.05); brow(-.06,-.05); mouth('o'); break;
-      case 'santai':  eye(.06,'tutup'); eye(-.06,'tutup'); brow(.06,.1); brow(-.06,.1); mouth('kecil'); blush(); break;
-      default:        eye(.06,'buka'); eye(-.06,'buka'); brow(.06,.12); brow(-.06,.12); mouth('kecil');            // netral
-    }
-  }
-
-  // ===== rambut: helai-helai meruncing (gaya anime) =====
+  // ---------- rambut balok (rapi, tidak tumpuk, dan tidak tembus topi) ----------
   function hairOf(model){
     if (model === 'botak') return;
-    const H = new HairBuilder();
-    // topi: rambut ditekan masuk ke dalam bentuk topi supaya tidak tembus
-    const hat = sp.topi === 'cap' ? {cy:.06, rx:HR_R*1.12*HSX*.95, ry:HR_R*1.12*HSY*.8*.95, rz:HR_R*1.12*HSZ*.95}
-              : sp.topi === 'kupluk' ? {cy:.04, rx:HR_R*1.14*HSX*.95, ry:HR_R*1.14*HSY*.95, rz:HR_R*1.14*HSZ*.95} : null;
-    const clip = hat ? (x,y,z) => { if (y < hat.cy) return [x,y,z]; const e = Math.hypot(x/hat.rx, (y-hat.cy)/hat.ry, z/hat.rz); return e <= 1 ? [x,y,z] : [x/e, hat.cy + (y-hat.cy)/e, z/e]; } : null;
-    const inHat = (x,y,z,r) => !hat || y < hat.cy || Math.hypot(x/hat.rx, (y-hat.cy)/hat.ry, z/hat.rz) + (r||0)/hat.rx <= 1;
-    const _add = add; const addH = (geo, mat, x, y, z, p, sx, sy, sz) => { if (!inHat(x,y,z, geo.parameters && geo.parameters.radius)) return { rotation:{}, position:{set(){}} }; return _add(geo, mat, x, y, z, p, sx, sy, sz); };
-    const capM = (tilt, k, cut, mat) => { const c = _add(sph(HR_R*(hat ? Math.min(k||1.06, 1.02) : (k||1.06)),28,20,0,Math.PI*2,0,Math.PI*(cut||.52)), mat||HR, 0,.005,-.004, head, HSX,HSY,HSZ); c.rotation.x = -(tilt||.32); return c; };
-    const nape = (low, mat) => _add(sph(HR_R*1.05,22,14,Math.PI*1.1,Math.PI*.8,Math.PI*.4,Math.PI*(low||.32)), mat||HR, 0,0,-.004, head, HSX,HSY,HSZ);
-    // panel: helai rapi yang menempel di permukaan kepala, tetangga diberi jarak lapisan berbeda supaya tidak saling tumpuk
-    const panel = (th0, ph0, th1, ph1, k, w, lift) => { H.tip = .42; H.flow(th0, ph0, th1, ph1, k, k + (lift||0), w*1.25, .3); H.tip = 0; };
-    const shell = (o, mat) => { const m = new THREE.Mesh(shellGeo(o, clip), mat || AMD(sp.rambut, .55)); m.castShadow = true; head.add(m); return m; };
-    const row = (n, ph0, ph1, th0, th1, k, w, sweep, lift) => { for (let i=0;i<n;i++){ const t = n > 1 ? i/(n-1) : .5, ph = ph0 + (ph1-ph0)*t; panel(th0, ph, th1, ph + (sweep||0), k + (i%2)*.014, w, lift); } };
-    const fringe = (n, len, sweep, w) => row(n, -.8, .8, .3, .3 + len*5, 1.07, (w||.032)*1.1, sweep*.6);
-    const sides = (len) => [1,-1].forEach(s=>row(2, s*1.15, s*1.45, .5, .5 + len*6, 1.06, .04, s*.06));
+    const R = sp.rambut, R2 = shade(sp.rambut, .8), h = (w,ht,d,x,y,z,c) => mk(w,ht,d, c||R, x,y,z, head, .55);
+    const top = () => h(.68,.2,.64, 0,.33,-.01);                       // atap rambut
+    const backS = (ht) => h(.68,ht,.12, 0,.33 - ht/2 + .1,-.31);        // bagian belakang
+    const sideS = (ht, d) => [1,-1].forEach(s=>h(.06,ht,d||.5, s*.34,.33 - ht/2 + .1,-.06));
+    const fringe = (n, ht, sweep) => { const w = .64/n; for (let i=0;i<n;i++){ const L = ht*(1 - (sweep||0)*(i/(n-1) - .5)*1.2); h(w*.98,L,.06, -.32 + w*(i+.5),.24 - L/2 + .02,.31); } };
     switch (model){
-      case 'spike': {           // jambul runcing rapi ke atas-belakang, samping pendek
-        shell({F:1.12, S:1.4, B:1.75, n:9, amp:.22, ampS:.08, kTop:1.1, kEdge:1.05,
-          spikes:[0,.55,-.55,1.1,-1.1,1.65,-1.65,2.4,-2.4,Math.PI].map((ph,i)=>({ph, th: i < 3 ? .3 : .6, h: i < 3 ? .2 : .15, w: .36}))});
-        break; }
-      case 'undercut': {        // fade tipis di samping, atas tebal disisir ke depan dengan poni runcing
-        shell({F:.72, S:1.45, B:1.75, kTop:1.02, kEdge:1.015}, AMD(shade(sp.rambut,.8),.6));
-        shell({F:1.2, S:.95, B:1.0, n:11, amp:.2, ampS:.1, sweep:.15, kTop:1.14, kEdge:1.07,
-          spikes:[{ph:0,th:.35,h:.12,w:.5},{ph:.6,th:.3,h:.1,w:.45},{ph:-.6,th:.3,h:.1,w:.45}]});
-        break; }
-      case 'ikal': {            // bergelombang lembut, mengembang rapi
-        shell({F:1.22, S:1.7, B:2.05, n:13, amp:.13, ampS:.09, kTop:1.16, kEdge:1.08, wave:.022, waveN:9});
-        break; }
-      case 'kuncir': {          // disisir rapi ke belakang, dua helai samping wajah, kuncir rendah
-        shell({F:1.0, S:1.55, B:1.95, kTop:1.09, kEdge:1.04});
-        [1,-1].forEach(s=>panel(.4, s*.78, 1.5, s*.95, 1.05, .042, .04));
-        for (let i=0;i<6;i++){ const a = i/6*Math.PI*2; H.lock([[Math.cos(a)*.012,-.1,-.2],[Math.cos(a)*.022,-.18,-.235],[Math.cos(a)*.02,-.28,-.235],[Math.cos(a)*.01,-.38,-.215]], .028, .7, 10, 6); }
-        _add(cyl(.026,.026,.025,12), AM(0x222222,.4), 0,-.1,-.19, head).rotation.x = .6;
-        break; }
+      case 'spike': top(); backS(.36); sideS(.18);
+        h(.64,.06,.06, 0,.22,.31);
+        if (!hat) for (let i=0;i<5;i++){ const c = new THREE.Mesh(AG('spk', ()=>new THREE.ConeGeometry(.1,.3,4)), AM(R,.55)); c.position.set(-.26+i*.13,.56,-.04+(i%2)*.12); c.rotation.x = -.35; c.rotation.y = Math.PI/4; c.castShadow = true; head.add(c); }
+        break;
+      case 'undercut': h(.66,.1,.62, 0,.29,-.01, R2); h(.66,.3,.1, 0,.12,-.3, R2); [1,-1].forEach(s=>h(.04,.22,.5, s*.33,.16,-.05, R2));
+        h(.62,hat ? .1 : .2,.58, 0,hat ? .38 : .43,.0); if (!hat) h(.62,.12,.12, 0,.32,.3);                   // atas tebal disisir ke depan
+        break;
+      case 'ikal': top(); backS(.5); sideS(.34);
+        for (let i=0;i<5;i++) h(.13,.13,.08, -.26+i*.13,.2 - (i%2)*.04,.31);
+        if (!hat) for (let i=0;i<4;i++) h(.16,.06,.16, -.21+i*.14,.46,-.12+(i%2)*.18);
+        break;
+      case 'kuncir': top(); backS(.5); sideS(.3); h(.64,.06,.06, 0,.3,.31);
+        h(.16,.16,.16, 0,.0,-.42); h(.12,.4,.12, 0,-.22,-.46); [1,-1].forEach(s=>h(.06,.34,.06, s*.27,.05,.31));
+        break;
       // ---------------- wanita ----------------
-      case 'bob': shell({F:1.22, S:2.1, B:2.1, n:13, amp:.14, ampS:.05, kTop:1.1, kEdge:1.12}); break;
-      case 'kuda': capM(.3,1.05); nape(.32);
-        for (let i=0;i<10;i++){ const a = i/10*Math.PI*2; H.lock([[0,.2,-.11],[Math.cos(a)*.03,.27,-.2],[Math.cos(a)*.05,.16,-.3],[Math.cos(a)*.04,-.12,-.33]], .03, .5); }
-        addH(cyl(.035,.035,.03,12), AM(0xc0392b,.4), 0,.2,-.13, head).rotation.x = 1.1; break;
-      case 'retro': capM(.32,1.06); nape(.36);
-        addH(tor(.05,.025,Math.PI*2), HR, .05,.17,.11, head).rotation.y = .5;
-        [1,-1].forEach(s=>{ const t = addH(tor(.045,.024,Math.PI*2), HR, s*.17,-.08,-.02, head); t.rotation.y = Math.PI/2; }); break;
-      case 'mahkota': capM(.32,1.05); nape(.34);
-        for (let i=0;i<20;i++){ const a = i/20*Math.PI*2; addH(sph(.03,10,8), i%2 ? HR2 : HR, Math.cos(a)*.18*HSX, .1, Math.sin(a)*.18 - .01, head); } break;
-      case 'kepangsamping': capM(.32,1.05); nape(.36);
-        for (let i=0;i<8;i++) addH(sph(.032 - i*.002,10,8), i%2 ? HR2 : HR, .15 + i*.004, -.04 - i*.055, .04 + i*.006, head);
-        [[.16,.03,.1,0xffffff],[.17,-.12,.08,0x8fb8ff],[.17,-.26,.09,0xffffff]].forEach(([x,y,z,c])=>addH(sph(.014,8,6), AM(c,.4), x,y,z, head));
-        fringe(4, .1, -.35, .032); break;
-      case 'cepoldua': capM(.32,1.05); nape(.34);
-        [1,-1].forEach(s=>{ addH(sph(.065,14,12), HR, s*.11,.2,-.02, head); for (let i=0;i<8;i++){ const a = i/8*Math.PI*2; addH(sph(.03,10,8), HR2, s*.11 + Math.cos(a)*.055, .2 + Math.sin(a)*.055, -.02, head); } }); break;
-      case 'panjang': shell({F:1.22, S:3.3, B:3.5, n:15, amp:.14, ampS:.12, kTop:1.1, kEdge:1.12, flare:.05}); break;
-      case 'bobmiring': capM(.3,1.06); nape(.4);
-        for (let i=0;i<20;i++){ const ph = Math.PI*(.28 + i/19*1.44), L = Math.sin(ph) > 0 ? .26 : .15; H.from(.5, ph, nrm(Math.sin(ph)*.15,-1,Math.cos(ph)*.15), L, .044, [0,.02,0], .5); }
-        fringe(4, .13, .5, .034); break;
-      case 'kepangkecil': capM(.32,1.05); nape(.34);
-        for (let i=0;i<22;i++){ const ph = Math.PI*(.35 + i/21*1.3); H.from(.55, ph, nrm(Math.sin(ph)*.1,-1,Math.cos(ph)*.1), .48, .012, [0,0,0], 1); }
-        for (let i=0;i<22;i+=2){ const ph = Math.PI*(.35 + i/21*1.3), p = scalp(.55, ph, 1.05); addH(sph(.01,8,6), AM(0xe2b24a,.3), p[0]*1.02, p[1] - .46, p[2]*1.02, head); } break;
-      case 'pixie': capM(.36,1.04); nape(.28);
-        fringe(5, .1, .7, .03); sides(.07); break;
-      case 'cepol': capM(.34,1.05); nape(.32);
-        addH(sph(.07,14,12), HR, 0,.22,-.05, head); [[.04,.25,-.01],[-.05,.24,-.02],[0,.27,-.08]].forEach(([x,y,z])=>addH(sph(.032,10,8), HR2, x,y,z, head));
-        [1,-1].forEach(s=>H.from(.45, s*1.1, nrm(s*.1,-1,.15), .14, .02, [0,0,0], .4)); break;
-      case 'sanggul': capM(.32,1.05); nape(.34);
-        for (let i=0;i<12;i++){ const a = i/12*Math.PI*2; addH(sph(.026,10,8), i%2 ? HR2 : HR, Math.cos(a)*.05, -.03 + Math.sin(a)*.05, -.2, head); }
-        addH(sph(.04,12,10), HR, 0,-.03,-.21, head); break;
-      default: {                // 'pendek' rapi dengan poni menyamping sampai alis
-        shell({F:1.2, S:1.65, B:1.95, n:11, amp:.2, ampS:.1, sweep:.25, kTop:1.14, kEdge:1.07});
-      }
+      case 'bob': top(); backS(.66); sideS(.66, .56); fringe(5, .14); break;
+      case 'kuda': top(); backS(.4); sideS(.3); fringe(4, .1);
+        h(.18,.18,.18, 0,.3,-.4); h(.14,.5,.14, 0,.02,-.48); h(.16,.05,.16, 0,.3,-.4, 0xc0392b); break;
+      case 'retro': top(); backS(.44); sideS(.3); h(.24,.12,.08, .16,.2,.31);
+        [1,-1].forEach(s=>{ const c = new THREE.Mesh(AG('curl', ()=>new THREE.CylinderGeometry(.09,.09,.12,10)), AM(R,.55)); c.rotation.z = Math.PI/2; c.position.set(s*.4,-.12,-.02); head.add(c); }); break;
+      case 'mahkota': top(); backS(.44); sideS(.3); fringe(5, .08);
+        if (!hat) for (let i=0;i<10;i++){ const a = i/10*Math.PI*2; h(.1,.1,.1, Math.cos(a)*.3,.42,Math.sin(a)*.28, i%2 ? R2 : R); } break;
+      case 'kepangsamping': top(); backS(.44); sideS(.36); fringe(4, .12, .8);
+        for (let i=0;i<5;i++) h(.12 - i*.008,.12,.12, .3,-.12 - i*.12,.14, i%2 ? R2 : R); h(.08,.05,.08, .3,-.74,.14, 0x8fb8ff); break;
+      case 'cepoldua': top(); backS(.44); sideS(.3); fringe(5, .1);
+        if (!hat) [1,-1].forEach(s=>{ h(.2,.2,.2, s*.24,.5,-.04); h(.22,.04,.22, s*.24,.42,-.04, R2); }); break;
+      case 'panjang': top(); h(.7,.95,.12, 0,-.08,-.32); [1,-1].forEach(s=>h(.07,.95,.5, s*.35,-.08,-.04)); fringe(5, .12); break;
+      case 'bobmiring': top(); backS(.6); h(.07,.7,.54, .35,-.02,-.04); h(.07,.4,.54, -.35,.13,-.04); fringe(4, .16, 1); break;
+      case 'kepangkecil': top(); backS(.44); sideS(.3); fringe(5, .1);
+        for (let i=0;i<5;i++) h(.06,.6,.06, -.24+i*.12,-.2,-.36, i%2 ? R2 : R); break;
+      case 'pixie': top(); backS(.3); sideS(.18); fringe(4, .12, .9); break;
+      case 'cepol': top(); backS(.44); sideS(.3); fringe(5, .1); if (!hat){ h(.24,.2,.24, 0,.53,-.06); h(.26,.04,.26, 0,.45,-.06, R2); } break;
+      case 'sanggul': top(); backS(.44); sideS(.3); fringe(5, .1); h(.26,.24,.18, 0,.02,-.42); h(.28,.05,.2, 0,.02,-.42, R2); break;
+      default: top(); backS(.4); sideS(.26); fringe(6, .12, .6);   // 'pendek' rapi berponi
     }
-    head.add(H.mesh(HR, clip));
   }
+}
+// wajah tercetak (seperti minifigur) — satu tekstur per ekspresi & warna kulit
+const FACEMAT = {};
+function faceMat(ex, skin){
+  const key = (ex||'senyum') + skin; if (FACEMAT[key]) return FACEMAT[key];
+  const tex = canvasTex(256, 256, (g,W,H)=>{
+    g.fillStyle = skin; g.fillRect(0,0,W,H);
+    const ink = '#1d1410', L = 92, Rx = 164, Y = 118;
+    g.strokeStyle = ink; g.fillStyle = ink; g.lineCap = 'round'; g.lineJoin = 'round'; g.lineWidth = 9;
+    const dot = (x,y,r) => { g.beginPath(); g.ellipse(x,y,r*.8,r,0,0,Math.PI*2); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(x+r*.3,y-r*.35,r*.28,0,Math.PI*2); g.fill(); g.fillStyle = ink; };
+    const arc = (x,y,r,a0,a1) => { g.beginPath(); g.arc(x,y,r,a0,a1); g.stroke(); };
+    const line = (x0,y0,x1,y1) => { g.beginPath(); g.moveTo(x0,y0); g.lineTo(x1,y1); g.stroke(); };
+    const brow = (dl, dr) => { g.lineWidth = 8; line(L-22,Y-40+dl,L+22,Y-40-dl); line(Rx-22,Y-40-dr,Rx+22,Y-40+dr); g.lineWidth = 9; };
+    const blush = () => { g.fillStyle = 'rgba(240,110,110,.35)'; g.beginPath(); g.ellipse(L-18,Y+36,20,11,0,0,Math.PI*2); g.ellipse(Rx+18,Y+36,20,11,0,0,Math.PI*2); g.fill(); g.fillStyle = ink; };
+    const smile = (w, d) => arc(128, 160 - d*.6, w, .2*Math.PI, .8*Math.PI);
+    switch (ex){
+      case 'netral': dot(L,Y,14); dot(Rx,Y,14); brow(0,0); line(108,182,148,182); break;
+      case 'santai': g.lineWidth = 8; arc(L,Y+10,16,1.15*Math.PI,1.85*Math.PI); arc(Rx,Y+10,16,1.15*Math.PI,1.85*Math.PI); brow(0,0); smile(26, 10); break;
+      case 'tertawa': g.lineWidth = 8; arc(L,Y+8,16,1.1*Math.PI,1.9*Math.PI); arc(Rx,Y+8,16,1.1*Math.PI,1.9*Math.PI); brow(-3,-3);
+        g.beginPath(); g.moveTo(92,162); g.quadraticCurveTo(128,222,164,162); g.closePath(); g.fill(); g.fillStyle = '#e8475f'; g.beginPath(); g.ellipse(128,192,16,8,0,0,Math.PI*2); g.fill(); g.fillStyle = ink; blush(); break;
+      case 'kedip': dot(L,Y,14); g.lineWidth = 8; arc(Rx,Y+8,16,1.1*Math.PI,1.9*Math.PI); brow(0,-3); smile(30, 0); break;
+      case 'cinta': g.fillStyle = '#e8475f'; [L,Rx].forEach(x=>{ g.beginPath(); g.moveTo(x,Y+16); g.bezierCurveTo(x-30,Y-6,x-12,Y-26,x,Y-8); g.bezierCurveTo(x+12,Y-26,x+30,Y-6,x,Y+16); g.fill(); }); g.fillStyle = ink; smile(30, 0); blush(); break;
+      case 'kaget': g.lineWidth = 6; [L,Rx].forEach(x=>{ g.beginPath(); g.arc(x,Y,20,0,Math.PI*2); g.stroke(); dot(x,Y,9); }); brow(-6,-6); g.beginPath(); g.ellipse(128,184,13,17,0,0,Math.PI*2); g.fill(); break;
+      case 'bingung': dot(L,Y,13); dot(Rx,Y,13); brow(4,-6); g.lineWidth = 7; g.beginPath(); g.moveTo(100,184); for (let i=0;i<=4;i++) g.lineTo(100 + i*14, 184 + (i%2 ? -8 : 0)); g.stroke(); break;
+      case 'serius': g.fillRect(L-18,Y-6,36,12); g.fillRect(Rx-18,Y-6,36,12); brow(3,3); line(110,182,146,182); break;
+      case 'marah': dot(L,Y+4,13); dot(Rx,Y+4,13); brow(10,10); arc(128,208,26,1.2*Math.PI,1.8*Math.PI); break;
+      case 'sedih': dot(L,Y+4,13); dot(Rx,Y+4,13); brow(-9,-9); arc(128,206,24,1.2*Math.PI,1.8*Math.PI); break;
+      case 'menangis': g.lineWidth = 8; arc(L,Y+14,16,1.1*Math.PI,1.9*Math.PI); arc(Rx,Y+14,16,1.1*Math.PI,1.9*Math.PI); brow(-9,-9);
+        g.fillStyle = '#6fb7ff'; [L,Rx].forEach(x=>{ g.beginPath(); g.moveTo(x,Y+18); g.quadraticCurveTo(x-11,Y+44,x,Y+52); g.quadraticCurveTo(x+11,Y+44,x,Y+18); g.fill(); }); g.fillStyle = ink; arc(128,210,24,1.2*Math.PI,1.8*Math.PI); break;
+      case 'ngantuk': g.lineWidth = 7; line(L-16,Y+4,L+16,Y+4); line(Rx-16,Y+4,Rx+16,Y+4); g.beginPath(); g.ellipse(128,184,9,11,0,0,Math.PI*2); g.fill();
+        g.font = '800 34px sans-serif'; g.fillText('z', 196, 60); g.font = '800 24px sans-serif'; g.fillText('z', 222, 36); break;
+      default: dot(L,Y,14); dot(Rx,Y,14); brow(0,0); smile(30, 0); blush();   // 'senyum'
+    }
+  });
+  return FACEMAT[key] = new THREE.MeshPhongMaterial({map:tex, shininess:12, specular:0x111111});
 }
 // jaringan jalan: persimpangan tiap jalan dengan gang & titik tengah
 const WX = [-76,-61,-46,-31,-17];
@@ -2302,7 +2236,7 @@ function portraitOf(w){
   const sp = avatarSpec(w), sig = JSON.stringify(sp); if (PORTRAIT[sig]) return PORTRAIT[sig];
   try {
     portraitRig(); const av = makeAvatar(sp); av.g.rotation.y = -.35; pScene.add(av.g);
-    pCam.position.set(0, 2.5, 1.95); pCam.lookAt(0, 2.4, 0);
+    pCam.position.set(.5, 2.6, 3.1); pCam.lookAt(0, 2.42, 0);
     const bg = scene.background; renderer.setRenderTarget(pRT); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(pScene, pCam);
     const px = new Uint8Array(PW*PH*4); renderer.readRenderTargetPixels(pRT, 0, 0, PW, PH, px); renderer.setRenderTarget(null); renderer.setClearColor(0x000000, 1);
     pScene.remove(av.g);
