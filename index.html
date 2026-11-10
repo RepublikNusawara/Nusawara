@@ -808,6 +808,7 @@ let down = null;
 renderer.domElement.addEventListener('pointerdown', e=>{ down = {x:e.clientX, y:e.clientY}; });
 renderer.domElement.addEventListener('pointerup', e=>{
   if (!down) return;
+  if (typeof ctl !== 'undefined' && ctl.key) { down = null; return; }
   const moved = Math.hypot(e.clientX-down.x, e.clientY-down.y); down = null;
   if (moved > 7) return;
   if (shotMode) { document.body.classList.toggle('shot-clean'); return; }
@@ -1907,56 +1908,73 @@ function avatarSpec(w){
   };
 }
 function shade(hex, f){ const c = new THREE.Color(hex); c.multiplyScalar(f); return c.getHex(); }
+const AMAT = {};
+function AM(c, r){ const k = c + '|' + (r||.75); return AMAT[k] || (AMAT[k] = new THREE.MeshPhongMaterial({color:c, shininess: Math.round((1-(r||.75))*60)+4, specular:0x222222})); }
+const AGEO = {};
+function AG(key, make){ return AGEO[key] || (AGEO[key] = make()); }
 function makeAvatar(sp){
   const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
-  const mk = (w,h,d,c,x,y,z,p) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), M(c)); m.position.set(x,y,z); m.castShadow = true; (p||body).add(m); return m; };
+  const add = (geo, mat, x, y, z, p, sx, sy, sz) => { const m = new THREE.Mesh(geo, mat); m.position.set(x,y,z); if (sx) m.scale.set(sx, sy, sz); m.castShadow = true; (p||body).add(m); return m; };
+  const cyl = (rt, rb, h, seg) => AG(`c${rt}_${rb}_${h}_${seg||14}`, ()=>new THREE.CylinderGeometry(rt, rb, h, seg||14));
+  const sph = (r, ws, hs, ps, pl, ts, tl) => AG(`s${r}_${ws}_${hs}_${ps}_${pl}_${ts}_${tl}`, ()=>new THREE.SphereGeometry(r, ws||16, hs||12, ps||0, pl||Math.PI*2, ts||0, tl||Math.PI));
+  const bx = (w,h,d) => AG(`b${w}_${h}_${d}`, ()=>new THREE.BoxGeometry(w,h,d));
+  const SK = AM(sp.kulit, .6), TOP = AM(sp.baju, .8), BOT = AM(sp.celana, .85), SH = AM(sp.sepatu, .5), HR = AM(sp.rambut, .55);
   const limb = (x,y) => { const l = new THREE.Group(); l.position.set(x,y,0); body.add(l); return l; };
-  // kaki & celana
-  const legL = limb(.2,.95), legR = limb(-.2,.95);
+  // kaki
+  const legL = limb(.17,.98), legR = limb(-.17,.98);
   [legL,legR].forEach(l=>{
-    if (sp.celanaModel === 'pendek'){ mk(.32,.42,.36, sp.celana,0,-.2,0,l); mk(.24,.42,.26, sp.kulit,0,-.62,0,l); }
-    else mk(.3,.85,.34, sp.celana,0,-.42,0,l);
-    mk(.33,.16,.46, sp.sepatu,0,-.88,.06,l);
+    if (sp.celanaModel === 'pendek'){ add(cyl(.15,.14,.42), BOT, 0,-.2,0, l); add(cyl(.1,.085,.48), SK, 0,-.64,0, l); }
+    else { add(cyl(.15,.12,.88), BOT, 0,-.43,0, l); }
+    add(sph(.13,14,10), SH, 0,-.9,.07, l, 1, .55, 1.6);
   });
-  // badan & model baju
-  mk(.9,1.05,.5, sp.baju, 0,1.45,0);
-  if (sp.bajuModel === 'hoodie'){ mk(.72,.32,.22, sp.baju, 0,2.0,-.32); mk(.5,.22,.04, shade(sp.baju,.82), 0,1.2,.26); mk(.03,.3,.03, 0xeeeeee, .1,1.78,.26); mk(.03,.3,.03, 0xeeeeee, -.1,1.78,.26); }
-  if (sp.bajuModel === 'kemeja'){ mk(.5,.1,.06, shade(sp.baju,.85), 0,1.95,.25); for (let i=0;i<4;i++) mk(.05,.05,.03, 0xf4f1ea, 0,1.82-i*.2,.26); }
-  if (sp.bajuModel === 'jas'){ mk(.34,.78,.04, 0xf4f1ea, 0,1.58,.26); mk(.1,.5,.03, 0xb03030, 0,1.55,.285); mk(.12,.1,.03, 0xb03030, 0,1.84,.285); }
-  const armL = limb(.58,1.9), armR = limb(-.58,1.9);
+  // badan
+  add(cyl(.27,.24,.22), BOT, 0,1.02,0, null, 1,1,.72);                                     // pinggul
+  add(cyl(.36,.28,.78), TOP, 0,1.48,0, null, 1,1,.68);                                     // badan
+  add(sph(.36,16,10,0,Math.PI*2,0,Math.PI/2), TOP, 0,1.86,0, null, 1,.42,.68);             // bahu
+  if (sp.bajuModel === 'hoodie'){ add(sph(.28,14,10), TOP, 0,1.95,-.2, null, 1.05,.75,.7); add(bx(.36,.2,.03), AM(shade(sp.baju,.85),.8), 0,1.28,.24); add(cyl(.012,.012,.26,6), AM(0xeeeeee), .07,1.72,.25); add(cyl(.012,.012,.26,6), AM(0xeeeeee), -.07,1.72,.25); }
+  if (sp.bajuModel === 'kemeja'){ add(bx(.34,.06,.05), AM(shade(sp.baju,.85),.8), 0,1.9,.21); for (let i=0;i<4;i++) add(sph(.022,8,6), AM(0xf4f1ea), 0,1.78-i*.16,.245); }
+  if (sp.bajuModel === 'jas'){ add(bx(.2,.62,.02), AM(0xf4f1ea,.7), 0,1.56,.235); add(bx(.07,.42,.02), AM(0xa83232,.6), 0,1.52,.25); add(bx(.09,.07,.02), AM(0xa83232,.6), 0,1.8,.25);
+    add(bx(.08,.5,.02), AM(shade(sp.baju,.8),.7), .11,1.62,.24).rotation.z = -.18; add(bx(.08,.5,.02), AM(shade(sp.baju,.8),.7), -.11,1.62,.24).rotation.z = .18; }
+  // lengan
+  const armL = limb(.43,1.86), armR = limb(-.43,1.86);
   [armL,armR].forEach(a=>{
-    if (sp.bajuModel === 'kaos'){ mk(.27,.34,.31, sp.baju,0,-.15,0,a); mk(.22,.52,.24, sp.kulit,0,-.58,0,a); }
-    else { mk(.26,.85,.3, sp.baju,0,-.4,0,a); mk(.22,.2,.24, sp.kulit,0,-.88,0,a); }
+    add(sph(.12,12,10), TOP, 0,0,0, a);
+    if (sp.bajuModel === 'kaos'){ add(cyl(.115,.1,.32), TOP, 0,-.16,0, a); add(cyl(.08,.07,.5), SK, 0,-.56,0, a); }
+    else { add(cyl(.11,.09,.78), TOP, 0,-.39,0, a); add(cyl(.075,.075,.05), SK, 0,-.8,0, a); }
+    add(sph(.085,12,10), SK, 0,-.88,.01, a, .9,1.1,1);
   });
-  mk(.24,.16,.24, sp.kulit, 0,2.05,0);
-  // kepala & rambut
-  const head = new THREE.Group(); head.position.y = 2.42; body.add(head);
-  mk(.62,.64,.58, sp.kulit, 0,0,0, head);
-  const R = sp.rambut;
+  // leher & kepala
+  add(cyl(.09,.1,.16), SK, 0,2.0,0);
+  const head = new THREE.Group(); head.position.y = 2.34; body.add(head);
+  add(sph(.27,22,18), SK, 0,.02,0, head, 1,1.12,1.02);
+  add(sph(.06,10,8), SK, .265,.02,0, head, .5,1,.8); add(sph(.06,10,8), SK, -.265,.02,0, head, .5,1,.8);   // telinga
+  add(sph(.045,10,8), AM(shade(sp.kulit,.92),.6), 0,-.01,.28, head, .9,1,1.1);                               // hidung
+  const eyeW = AM(0xfafafa,.3), eyeP = AM(0x231a14,.25);
+  [.095,-.095].forEach(x=>{ add(sph(.048,12,10), eyeW, x,.07,.235, head, 1,.75,.5); add(sph(.027,10,8), eyeP, x,.07,.258, head); add(bx(.1,.022,.02), HR, x,.15,.25, head).rotation.z = x > 0 ? -.08 : .08; });
+  add(bx(.11,.022,.02), AM(0x9c4a3c,.5), 0,-.12,.255, head);                                                   // mulut
+  // rambut
   if (sp.rambutModel !== 'botak'){
-    mk(.66,.2,.62, R, 0,.33,-.02, head); mk(.66,.36,.1, R, 0,.14,-.3, head);
-    if (sp.rambutModel === 'spike') for (let i=0;i<5;i++){ const c = new THREE.Mesh(new THREE.ConeGeometry(.09,.28,5), M(R)); c.position.set(-.24+i*.12,.52,-.02+(i%2)*.1); head.add(c); }
-    if (sp.rambutModel === 'panjang'){ mk(.7,.7,.14, R, 0,-.15,-.32, head); mk(.1,.6,.5, R, .34,-.05,-.05, head); mk(.1,.6,.5, R, -.34,-.05,-.05, head); }
-    if (sp.rambutModel === 'kuncir'){ mk(.18,.18,.18, R, 0,.2,-.42, head); mk(.14,.42,.14, R, 0,-.08,-.48, head); }
+    add(sph(.29,22,14,0,Math.PI*2,0,Math.PI*.52), HR, 0,.06,-.01, head, 1.02,1.12,1.06);
+    add(sph(.285,18,12,Math.PI*.15,Math.PI*.7,Math.PI*.45,Math.PI*.4), HR, 0,.02,-.02, head, 1.02,1.15,1.05).rotation.y = Math.PI;
+    if (sp.rambutModel === 'spike') for (let i=0;i<7;i++){ const c = add(AG('spk', ()=>new THREE.ConeGeometry(.07,.24,8)), HR, -.18+i*.06,.36-(Math.abs(i-3)*.025),-.02+(i%2)*.06, head); c.rotation.z = (i-3)*.12; }
+    if (sp.rambutModel === 'panjang'){ add(cyl(.27,.24,.6,18), HR, 0,-.22,-.08, head, 1.05,1,.75); }
+    if (sp.rambutModel === 'kuncir'){ add(sph(.09,10,8), HR, 0,.12,-.31, head); add(cyl(.07,.04,.38), HR, 0,-.12,-.36, head).rotation.x = .25; }
   }
-  if (sp.topi === 'cap'){ mk(.7,.18,.66, sp.topiWarna, 0,.42,0, head); mk(.66,.05,.3, sp.topiWarna, 0,.35,.42, head); }
-  if (sp.topi === 'kupluk'){ mk(.72,.3,.66, sp.topiWarna, 0,.42,-.01, head); mk(.74,.08,.68, shade(sp.topiWarna,.8), 0,.28,-.01, head); const pom = new THREE.Mesh(new THREE.SphereGeometry(.1,8,6), M(0xf4f1ea)); pom.position.set(0,.64,0); head.add(pom); }
-  if (sp.kacamata === 'hitam'){ mk(.24,.13,.05, 0x0d0d0d, .15,.06,.31, head); mk(.24,.13,.05, 0x0d0d0d, -.15,.06,.31, head); mk(.62,.04,.04, 0x0d0d0d, 0,.09,.31, head); }
-  else if (sp.kacamata === 'bening'){
-    const lens = new THREE.MeshStandardMaterial({color:0xcfe9ff, transparent:true, opacity:.45});
-    [.15,-.15].forEach(x=>{ mk(.24,.03,.04, 0x222222, x,.12,.31, head); mk(.24,.03,.04, 0x222222, x,0,.31, head); mk(.03,.13,.04, 0x222222, x+.11,.06,.31, head); mk(.03,.13,.04, 0x222222, x-.11,.06,.31, head);
-      const l = new THREE.Mesh(new THREE.BoxGeometry(.2,.1,.02), lens); l.position.set(x,.06,.31); head.add(l); mk(.06,.05,.03, 0x111111, x,.05,.29, head); });
-    mk(.1,.03,.04, 0x222222, 0,.1,.31, head);
-  } else { mk(.08,.07,.03, 0x111111, .13,.05,.3, head); mk(.08,.07,.03, 0x111111, -.13,.05,.3, head); }
-  mk(.18,.04,.03, 0x4a1f1a, 0,-.16,.3, head);
+  // topi
+  if (sp.topi === 'cap'){ const TC = AM(sp.topiWarna,.7); add(sph(.3,20,12,0,Math.PI*2,0,Math.PI*.5), TC, 0,.12,0, head, 1.02,.85,1.05); add(cyl(.2,.2,.025,20), TC, 0,.13,.24, head, 1,1,.8); }
+  if (sp.topi === 'kupluk'){ const TC = AM(sp.topiWarna,.9); add(sph(.305,20,12,0,Math.PI*2,0,Math.PI*.55), TC, 0,.08,0, head, 1.02,1.1,1.05); add(cyl(.305,.305,.08,20), AM(shade(sp.topiWarna,.8),.9), 0,.06,0, head, 1.02,1,1.05); add(sph(.07,10,8), AM(0xf4f1ea,.9), 0,.44,0, head); }
+  // kacamata
+  if (sp.kacamata !== 'tidak'){
+    const fr = AM(0x1a1a1a,.3), lens = sp.kacamata === 'hitam' ? AM(0x0b0b0b,.15) : new THREE.MeshStandardMaterial({color:0xcfe9ff, roughness:.1, transparent:true, opacity:.35});
+    [.095,-.095].forEach(x=>{ add(cyl(.065,.065,.02,18), lens, x,.07,.275, head).rotation.x = Math.PI/2; add(AG('rim', ()=>new THREE.TorusGeometry(.066,.009,6,20)), fr, x,.07,.285, head); });
+    add(bx(.06,.012,.012), fr, 0,.08,.285, head); add(bx(.012,.012,.24), fr, .2,.08,.17, head); add(bx(.012,.012,.24), fr, -.2,.08,.17, head);
+  }
   let cup = null;
   if (sp.kopi === 'ya'){
-    cup = new THREE.Group(); cup.position.set(0,-.95,.16); armL.add(cup);
-    const c1 = new THREE.Mesh(new THREE.CylinderGeometry(.11,.085,.3,12), M(0xf4f1ea)); cup.add(c1);
-    const c2 = new THREE.Mesh(new THREE.CylinderGeometry(.115,.1,.12,12), M(0x8b5a2b)); c2.position.y = -.01; cup.add(c2);
-    const c3 = new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,.05,12), M(0xeeeeee)); c3.position.y = .17; cup.add(c3);
+    cup = new THREE.Group(); cup.position.set(0,-.95,.14); armL.add(cup);
+    add(cyl(.085,.065,.24,16), AM(0xf4f1ea,.5), 0,0,0, cup); add(cyl(.09,.08,.09,16), AM(0x8b5a2b,.8), 0,-.01,0, cup); add(cyl(.092,.092,.035,16), AM(0xffffff,.4), 0,.135,0, cup);
   }
-  g.scale.setScalar(.85);
+  g.scale.setScalar(.92);
   return {g, body, legL, legR, armL, armR, head, cup};
 }
 // jaringan jalan: persimpangan tiap jalan dengan gang & titik tengah
@@ -2063,7 +2081,7 @@ document.head.appendChild(pStyle);
 const wInfo = key => WINFO[key] || (typeof WARGA !== 'undefined' && WARGA[key]) || (typeof WDB !== 'undefined' && WDB[key]) || null;
 // foto karakter untuk kartu (render 3D kecil)
 let pRT = null, pScene = null, pCam = null; const PORTRAIT = {};
-const PW = 192, PH = 240;
+const PW = 384, PH = 480;
 function portraitRig(){
   if (pRT) return;
   pRT = new THREE.WebGLRenderTarget(PW, PH);
@@ -2075,7 +2093,7 @@ function portraitOf(w){
   const sp = avatarSpec(w), sig = JSON.stringify(sp); if (PORTRAIT[sig]) return PORTRAIT[sig];
   try {
     portraitRig(); const av = makeAvatar(sp); av.g.rotation.y = -.35; pScene.add(av.g);
-    pCam.position.set(0, 1.75, 5.6); pCam.lookAt(0, 1.45, 0);
+    pCam.position.set(0, 2.05, 3.4); pCam.lookAt(0, 1.82, 0);
     const bg = scene.background; renderer.setRenderTarget(pRT); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(pScene, pCam);
     const px = new Uint8Array(PW*PH*4); renderer.readRenderTargetPixels(pRT, 0, 0, PW, PH, px); renderer.setRenderTarget(null); renderer.setClearColor(0x000000, 1);
     pScene.remove(av.g);
@@ -2235,7 +2253,7 @@ gpad.innerHTML = `<div class="dpad"><span></span><button data-d="up" aria-label=
 document.body.appendChild(gpad);
 const gtop = document.createElement('div'); gtop.className = 'gtop'; gtop.innerHTML = `<span id="gName">🎮</span><button id="gExit">✕ Selesai</button>`;
 document.body.appendChild(gtop);
-const ctl = { key:null, d:{up:0,down:0,left:0,right:0}, run:false, crouch:false, vy:0, y:0, punchT:0, stepT:0, last:null, cr:1 };
+const ctl = { key:null, d:{up:0,down:0,left:0,right:0}, run:false, crouch:false, vy:0, y:0, punchT:0, stepT:0, last:null, cr:1, yaw:0, pitch:.18, drag:null, ctlSave:null };
 function holdBtn(el, on, off){
   el.addEventListener('pointerdown', e=>{ e.preventDefault(); try{ el.setPointerCapture(e.pointerId); }catch(_){} el.classList.add('on'); on(); });
   ['pointerup','pointercancel','lostpointercapture'].forEach(t=>el.addEventListener(t, ()=>{ el.classList.remove('on'); off(); }));
@@ -2248,6 +2266,11 @@ const runBtn = gpad.querySelector('[data-a="run"]');
 runBtn.addEventListener('pointerdown', e=>{ e.preventDefault(); ctl.run = !ctl.run; sfx(ctl.run ? 520 : 380, .1, 'triangle', .07); setTimeout(()=>runBtn.classList.toggle('on', ctl.run), 0); });
 ['pointerup','pointercancel'].forEach(t=>runBtn.addEventListener(t, ()=>runBtn.classList.toggle('on', ctl.run)));
 document.getElementById('gExit').onclick = ()=>stopCtl();
+renderer.domElement.addEventListener('pointerdown', e=>{ if (ctl.key) ctl.drag = {x:e.clientX, y:e.clientY, id:e.pointerId}; });
+addEventListener('pointermove', e=>{ if (!ctl.key || !ctl.drag || e.pointerId !== ctl.drag.id) return;
+  ctl.yaw -= (e.clientX - ctl.drag.x) * .0065; ctl.pitch = Math.max(-.15, Math.min(.7, ctl.pitch + (e.clientY - ctl.drag.y) * .004));
+  ctl.drag.x = e.clientX; ctl.drag.y = e.clientY; });
+addEventListener('pointerup', e=>{ if (ctl.drag && e.pointerId === ctl.drag.id) ctl.drag = null; });
 addEventListener('keydown', e=>{
   if (!ctl.key || e.target.tagName === 'INPUT') return;
   const k = e.key.toLowerCase(), m = {w:'up',arrowup:'up',s:'down',arrowdown:'down',a:'left',arrowleft:'left',d:'right',arrowright:'right'}[k];
@@ -2269,15 +2292,19 @@ function startCtl(key){
   Object.assign(ctl, {key, run:false, crouch:false, vy:0, y:0, punchT:0, cr:1, d:{up:0,down:0,left:0,right:0}});
   W.target = null; W.wait = 0;
   const p = W.av.g.position; ctl.last = p.clone();
-  flyTo(new THREE.Vector3(p.x, 1.4, p.z), new THREE.Vector3(p.x + 2.5, 7.5, p.z + 11));
+  ctl.yaw = W.av.g.rotation.y; ctl.pitch = .18;
+  ctl.ctlSave = {min: controls.minDistance, pol: controls.maxPolarAngle};
+  controls.enabled = false; controls.minDistance = 1; controls.maxPolarAngle = 1.6;
   document.getElementById('gName').textContent = '🎮 @' + String((wInfo(key)||{}).username || key).replace(/^@+/,'');
   document.body.classList.add('ctl'); hideHint(); music.start();
   toast(matchMedia('(pointer: coarse)').matches ? 'Pakai tombol panah untuk berjalan.' : 'WASD/panah jalan · Spasi lompat · C jongkok · Shift lari · F pukul');
 }
 function stopCtl(){
   const W = WALKERS[ctl.key];
-  if (W){ W.av.g.position.y = 0; W.av.g.scale.y = .85; W.wait = 1.5; W.node = nearestNode(W.av.g.position.x, W.av.g.position.z); }
+  if (W){ W.av.g.position.y = 0; W.av.g.scale.y = .92; W.tag.visible = true; W.wait = 1.5; W.node = nearestNode(W.av.g.position.x, W.av.g.position.z); }
   ctl.key = null; document.body.classList.remove('ctl'); runBtn.classList.remove('on');
+  controls.enabled = true; if (ctl.ctlSave){ controls.minDistance = ctl.ctlSave.min; controls.maxPolarAngle = ctl.ctlSave.pol; }
+  if (W){ const p = W.av.g.position; flyTo(new THREE.Vector3(p.x, 1.4, p.z + 4), new THREE.Vector3(p.x + 3.5, 9, p.z + 18)); }
 }
 function ctlJump(){ if (!ctl.key || ctl.y > .01) return; ctl.vy = ctl.crouch ? 6 : 8.5; sfx(330, .22, 'square', .06, 0, 880); }
 function ctlPunch(){ if (!ctl.key || ctl.punchT > 0) return; ctl.punchT = .32; boom(0, .08); sfx(180, .12, 'sawtooth', .05, 0, 90); }
@@ -2290,14 +2317,15 @@ function updateCtl(dt, time){
   const ix = ctl.d.right - ctl.d.left, iy = ctl.d.up - ctl.d.down, mag = Math.min(1, Math.hypot(ix, iy));
   const speed = (ctl.crouch ? 1.6 : ctl.run ? 9 : 4.2) * mag;
   if (mag > 0){
-    camera.getWorldDirection(_fw); _fw.y = 0; _fw.normalize(); _rt.set(-_fw.z, 0, _fw.x);
+    _fw.set(Math.sin(ctl.yaw), 0, Math.cos(ctl.yaw)); _rt.set(-Math.cos(ctl.yaw), 0, Math.sin(ctl.yaw));
     _dir.copy(_rt).multiplyScalar(ix).addScaledVector(_fw, iy).normalize();
     const nx = g.position.x + _dir.x*speed*dt, nz = g.position.z + _dir.z*speed*dt;
     // batas gerak: tetap di dalam peta dan tidak menembus bangunan
     const inMap = (x,z) => Math.abs(x) < 112 && Math.abs(z) < 112;
     if (inMap(nx, g.position.z) && !blocked(nx, g.position.z)) g.position.x = nx;
     if (inMap(g.position.x, nz) && !blocked(g.position.x, nz)) g.position.z = nz;
-    let r = Math.atan2(_dir.x, _dir.z) - g.rotation.y; r = Math.atan2(Math.sin(r), Math.cos(r)); g.rotation.y += r*Math.min(1, dt*12);
+    const face = iy < 0 && ix === 0 ? ctl.yaw : Math.atan2(_dir.x, _dir.z);   // mundur: tetap menghadap depan
+    let r = face - g.rotation.y; r = Math.atan2(Math.sin(r), Math.cos(r)); g.rotation.y += r*Math.min(1, dt*12);
     W.phase += dt * (ctl.run ? 14 : ctl.crouch ? 5 : 9);
     ctl.stepT -= dt;
     if (ctl.stepT <= 0 && ctl.y < .01){ ctl.stepT = ctl.run ? .2 : ctl.crouch ? .45 : .33; sfx(ctl.run ? 150 : 120, .05, 'triangle', ctl.crouch ? .03 : .05); }
@@ -2308,7 +2336,7 @@ function updateCtl(dt, time){
   g.position.y = gy + ctl.y;
   // jongkok
   ctl.cr += ((ctl.crouch ? .62 : 1) - ctl.cr) * Math.min(1, dt*14);
-  g.scale.set(.85, .85*ctl.cr, .85);
+  g.scale.set(.92, .92*ctl.cr, .92);
   // animasi kaki & tangan
   const amp = mag > 0 ? (ctl.run ? .95 : .6) : 0, sw = Math.sin(W.phase) * amp;
   const air = ctl.y > .05;
@@ -2317,9 +2345,14 @@ function updateCtl(dt, time){
   if (ctl.punchT > 0){ ctl.punchT -= dt; const k = 1 - Math.abs(ctl.punchT/.32*2 - 1); A.armR.rotation.x = -1.6*k; A.armR.rotation.z = 0; A.body.position.z = .15*k; }
   else { A.armR.rotation.x = air ? -2.4 : sw*.8; A.body.position.z = 0; }
   A.body.position.y = mag > 0 && !air ? Math.abs(Math.sin(W.phase))*(ctl.run ? .1 : .05) : 0;
-  W.tag.position.set(g.position.x, g.position.y + 3.15*ctl.cr, g.position.z);
-  // kamera ikut bergerak bersama karakter (tetap bisa diputar)
-  if (!anim && ctl.last){ const dx = g.position.x - ctl.last.x, dz = g.position.z - ctl.last.z; controls.target.x += dx; controls.target.z += dz; camera.position.x += dx; camera.position.z += dz; }
+  W.tag.position.set(g.position.x, g.position.y + 3.15*ctl.cr, g.position.z); W.tag.visible = false;   // nama sendiri disembunyikan supaya tidak menutupi layar
+  // kamera orang ketiga: selalu di belakang pemain, halus dan stabil (seperti game battle royale)
+  anim = null;
+  const fx = Math.sin(ctl.yaw), fz = Math.cos(ctl.yaw), dist = 7.2 + ctl.pitch*3, hgt = 3 + ctl.pitch*5;
+  const camT = new THREE.Vector3(g.position.x - fx*dist, gy + hgt*(ctl.crouch ? .85 : 1), g.position.z - fz*dist);
+  const tgtT = new THREE.Vector3(g.position.x + fx*2.2, gy + 1.55*ctl.cr + ctl.y*.5, g.position.z + fz*2.2);
+  const k = 1 - Math.exp(-dt*10);
+  camera.position.lerp(camT, k); controls.target.lerp(tgtT, k); camera.lookAt(controls.target);
   ctl.last.copy(g.position);
 }
 
