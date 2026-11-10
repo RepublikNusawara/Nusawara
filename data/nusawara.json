@@ -1,16 +1,50 @@
 {
- "updatedAt": "2026-11-11T02:55:00+11:00",
+ "updatedAt": "2026-11-11T03:26:00+11:00",
  "penduduk": 1,
  "warga": {
   "julianto_jul": {
-   "username": "julianto_jul",
+   "username": "Julianto_Jul",
    "niwn": "NUS-000001",
    "terdaftar": "11 Nov 2026",
-   "houseId": null,
+   "houseId": "MLT-MAWAR-001",
    "follow": true
   }
  },
- "billboards": {},
- "rumah": {},
- "undian": []
+ "billboards": {
+  "BACKDROP": {
+   "kind": "text",
+   "title": "Republik Nusawara",
+   "sub": "",
+   "bg": "#1f3a5f",
+   "fg": "#ffffff"
+  }
+ },
+ "rumah": {
+  "MLT-MAWAR-001": {
+   "houseId": "MLT-MAWAR-001",
+   "alamat": "Jalan Mawar No. 1, Distrik Melati",
+   "username": "Julianto_Jul",
+   "niwn": "NUS-000001",
+   "since": "11 Nov 2026",
+   "undianNo": 1
+  }
+ },
+ "undian": [
+  {
+   "no": 1,
+   "tanggal": "11 Nov 2026",
+   "houseId": "MLT-MAWAR-001",
+   "alamat": "Jalan Mawar No. 1, Distrik Melati",
+   "peserta": [
+    {
+     "username": "Julianto_Jul",
+     "niwn": "NUS-000001"
+    }
+   ],
+   "winner": {
+    "username": "Julianto_Jul",
+    "niwn": "NUS-000001"
+   }
+  }
+ ]
 }
