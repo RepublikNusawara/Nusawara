@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-11T03:26:00+11:00",
+ "updatedAt": "2026-11-11T04:10:00+11:00",
  "penduduk": 1,
  "warga": {
   "julianto_jul": {
@@ -7,7 +7,17 @@
    "niwn": "NUS-000001",
    "terdaftar": "11 Nov 2026",
    "houseId": "MLT-MAWAR-001",
-   "follow": true
+   "follow": true,
+   "avatar": {
+    "kulit": "#e0ac69",
+    "rambut": "#1b1b1b",
+    "baju": "#f4f1ea",
+    "celana": "#2b3a55",
+    "sepatu": "#ffffff",
+    "kacamata": true,
+    "kopi": true,
+    "tudung": true
+   }
   }
  },
  "billboards": {
@@ -26,7 +36,9 @@
    "username": "Julianto_Jul",
    "niwn": "NUS-000001",
    "since": "11 Nov 2026",
-   "undianNo": 1
+   "undianNo": 1,
+   "status": "tanah",
+   "desain": null
   }
  },
  "undian": [
