@@ -646,7 +646,7 @@ function boardPreview(id, fb){
   const src = mediaSrc(r); if (!src) return fb;
   return r.kind==='video' ? `<video class="mediaprev" src="${src}" muted loop autoplay playsinline></video>` : `<img class="mediaprev" src="${src}" alt="Isi billboard">`;
 }
-function editBtn(id){ return isOwner ? `<button class="btn" data-edit="${esc(id)}">✏️ Ganti isi billboard</button>` : (id !== 'BACKDROP' ? `<a class="btn ghost" href="https://tally.so/r/Nql52l" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">✏️ Pemilik rumah? Ganti isi billboard</a>` : ''); }
+function editBtn(id){ return isOwner ? `<button class="btn" data-edit="${esc(id)}">✏️ Ganti isi billboard</button>` : (id !== 'BACKDROP' ? `<a class="btn ghost" href="https://tally.so/r/Nql52l" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">🔑 Khusus pemilik rumah: ganti isi billboard</a>` : ''); }
 function houseHTML(h){
   const head = `<div class="kicker">${esc(h.district)} · ${esc(h.street)}</div><h2 class="mono" style="font-size:20px">${esc(h.id)}</h2>`;
   if (!h.owner) return head + `<span class="pill empty">● Rumah kosong</span>
@@ -658,8 +658,19 @@ function houseHTML(h){
   return head + `<span class="pill ok">● Dimiliki WRN</span>
     <dl><dt>Pemilik</dt><dd>${esc(h.owner)}</dd><dt>NIWN</dt><dd class="mono">${esc(h.niwn||'-')}</dd><dt>Terdaftar</dt><dd>${esc(h.since||'-')}</dd></dl>
     <div class="card"><h3>Billboard rumah ini</h3>${ad}
-    <p class="note">Saat ini pemasangan iklan gratis untuk pemilik rumah (UUN No. 3/2026).</p></div>`;
+    <p class="note">Hanya pemilik rumah ini yang bisa mengganti billboard-nya, memakai <b>Kode Pemilik Rumah</b> rahasia yang dikirim lewat DM. Pemasangan iklan gratis untuk pemilik rumah (UUN No. 3/2026).</p></div>${kodeCard(h)}`;
 }
+function kodeCard(h){
+  if (!isOwner) return '';
+  const k = KODE[h.id], u = String(h.owner||'').replace(/^@+/,'');
+  if (!k) return `<div class="card"><h3>🔑 Kode Pemilik Rumah</h3><p>Belum ada kode untuk rumah ini.</p></div>`;
+  const dm = `Selamat @${u}! 🏠 Kamu pemilik ${h.street} No. ${h.no || ''} (${h.id}) di Kota Nusawara. Kode Pemilik Rumah kamu: ${k}. Pakai kode ini untuk mengganti billboard di https://tally.so/r/Nql52l — jangan berikan kepada siapa pun.`;
+  return `<div class="card"><h3>🔑 Kode Pemilik Rumah (khusus kamu)</h3><p style="font-size:22px;font-weight:800;letter-spacing:.15em" class="mono">${esc(k)}</p>
+    <p class="note">Kirim ke pemilik lewat DM Instagram. Pesan siap salin:</p><p style="font-size:13px;background:#f4f1e8;border-radius:10px;padding:10px">${esc(dm)}</p>
+    <button class="btn ghost" data-copy="${esc(dm)}">📋 Salin pesan DM</button></div>`;
+}
+sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-copy]'); if (!b) return;
+  (navigator.clipboard ? navigator.clipboard.writeText(b.dataset.copy) : Promise.reject()).then(()=>toast('Pesan DM disalin ✓')).catch(()=>toast('Salin manual teks di atas, ya.')); });
 function stageHTML(){
   return `<div class="kicker">Distrik Pusat · Plaza Proklamasi</div><h2>Panggung Presiden</h2>
     <p style="font-size:14px;line-height:1.55;margin:0">Di sini <b>Bapak Presiden Mr. Bung</b> menyampaikan setiap pengumuman negara: hasil Undian Rumah, UUN baru, dan pembukaan distrik.</p>
@@ -1364,6 +1375,8 @@ const alamatOf = s => `${s.street} No. ${s.no}, ${s.district}`;
 const RUMAH = {};          // houseId -> {houseId, username, niwn, since, undianNo}
 let UNDIAN = [];           // riwayat undian, urut nomor
 const WDB = {};            // warga dari db (khusus tampilan pemilik)
+const KODE = {};           // houseId -> kode pemilik rumah (khusus tampilan pemilik)
+function newKode(){ const A = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789', r = new Uint32Array(6); crypto.getRandomValues(r); return Array.from(r, x=>A[x % A.length]).join(''); }
 let drawing = false, show = null;
 const niwn6 = n => String(n||'').replace(/^NUS-/,'');
 const entryText = w => `${w.username} - ${niwn6(w.niwn)}`;
@@ -1479,6 +1492,7 @@ function undianCloud(){
   if (!db) return;
   db.collection('rumah').onSnapshot(snap=>{ snap.docChanges().forEach(ch=>{ if (ch.type !== 'removed') setRumah(ch.doc.data(), false); }); }, ()=>{});
   db.collection('undian').onSnapshot(snap=>{ const l = []; snap.forEach(d=>l.push(d.data())); setUndianList(l); if (sheetFn === undianHTML) sheetBody.innerHTML = undianHTML(); }, ()=>{});
+  if (isOwner) db.collection('kode').onSnapshot(snap=>{ snap.docChanges().forEach(ch=>{ if (ch.type==='removed') delete KODE[ch.doc.id]; else KODE[ch.doc.id] = (ch.doc.data()||{}).kode; }); if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); }, ()=>{});
   if (isOwner) db.collection('warga').onSnapshot(snap=>{
     snap.docChanges().forEach(ch=>{ if (ch.type==='removed') delete WDB[ch.doc.id]; else WDB[ch.doc.id] = Object.assign({_id: ch.doc.id}, ch.doc.data()); });
     if (sheetFn === undianHTML) sheetBody.innerHTML = undianHTML();
@@ -1535,6 +1549,9 @@ async function ownerDraw(clean){
     await db.doc('rumah/' + s.id).set({ houseId: s.id, alamat: rec.alamat, username: rec.winner.username, niwn: rec.winner.niwn, since: rec.tanggal, undianNo: no });
     await db.doc('warga/' + w._id).set(Object.assign({}, cur, { houseId: s.id }));
     await db.doc('undian/' + String(no).padStart(4,'0')).set(rec);
+    const kode = newKode(); rec.kode = kode;
+    await db.doc('kode/' + s.id).set({ houseId: s.id, kode, username: rec.winner.username, niwn: rec.winner.niwn, dibuat: Date.now() });
+    KODE[s.id] = kode;
   } catch(err){ drawing = false; toast('Undian gagal disimpan. Coba lagi.'); return; }
   drawing = false;
   runShow(rec, clean, false);
@@ -1625,6 +1642,7 @@ function reveal(S){
   winEl.innerHTML = `<div class="wk">🎉 PEMENANG UNDIAN RUMAH #${esc(r.no)}</div>
     <div class="wn">@${esc(r.winner.username)}</div><div class="wi">NIWN ${esc(r.winner.niwn)}</div>
     <div class="wa">🏠 ${esc(s ? s.street + ' No. ' + s.no : r.houseId)}<small>${esc(s ? s.district : '')} · ${esc(r.houseId)}</small></div>
+    ${r.kode && isOwner ? `<div class="wi" style="margin-top:8px">🔑 Kode Pemilik (kirim lewat DM): <b>${esc(r.kode)}</b></div>` : ''}
     <div class="wb"><button class="btn ghost" data-wclose>Tutup</button><button class="btn" data-wgo="${esc(r.houseId)}">📍 Lihat rumah</button></div>`;
   setTimeout(()=>winEl.classList.add('show'), 700);
 }
