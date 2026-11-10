@@ -407,6 +407,7 @@ function billboardTex(hs){
     drawBoardText(g, W, H, 'KOSONG', 'Billboard belum diisi', '#f4f2ec', '#9a958a', hs.id));
 }
 
+const BIG_LABELS = [];   // label distrik besar
 /* ---------- JALAN ---------- */
 const ROAD = M(0x4b5059), GANG = M(0x6a6e75);
 function road(cx,cz,lx,lz,mat){
@@ -431,9 +432,9 @@ s = label('Gang Camar',{h:2,size:30,bg:'rgba(240,236,226,.95)'}); s.position.set
 s = label('Jl. Proklamasi',{h:2.2,size:34}); s.position.set(45,1.6,0);
 s = label('Jl. Bendera',{h:2.2,size:34}); s.position.set(18,1.6,40);
 s = label('Jl. Bintang',{h:2.2,size:34}); s.position.set(56,1.6,-32);
-s = label('DISTRIK MELATI · MLT',{h:4.6,size:44,bg:'rgba(31,58,95,.92)',fg:'#fff',onTop:true}); s.position.set(-46,20,-54);
+s = label('DISTRIK MELATI · MLT',{h:4.6,size:44,bg:'rgba(31,58,95,.92)',fg:'#fff',onTop:true}); s.position.set(-46,20,-54); BIG_LABELS.push(s);
 }
-s = label('DISTRIK PUSAT · PST',{h:4.6,size:44,bg:'rgba(31,58,95,.92)',fg:'#fff',onTop:true}); s.position.set(18,22,-20);
+s = label('DISTRIK PUSAT · PST',{h:4.6,size:44,bg:'rgba(31,58,95,.92)',fg:'#fff',onTop:true}); s.position.set(18,22,-20); BIG_LABELS.push(s);
 
 /* ---------- RUMAH ---------- */
 const pickables = [];
@@ -717,17 +718,9 @@ function houseHTML(h){
   return head + `<span class="pill ok">● Dimiliki WRN</span>
     <dl><dt>Pemilik</dt><dd>${esc(h.owner)}</dd><dt>NIWN</dt><dd class="mono">${esc(h.niwn||'-')}</dd><dt>Terdaftar</dt><dd>${esc(h.since||'-')}</dd></dl>
     <div class="card"><h3>Billboard rumah ini</h3>${ad}
-    <p class="note">Hanya pemilik rumah ini yang bisa mengganti billboard-nya, memakai <b>Kode Pemilik Rumah</b> rahasia yang dikirim lewat DM. Pemasangan iklan gratis untuk pemilik rumah (UUN No. 3/2026).</p></div>${kodeCard(h)}`;
+    <p class="note">Hanya pemilik rumah ini yang bisa mengganti billboard-nya, memakai <b>Kata Sandi Warga</b> miliknya. Pemasangan iklan gratis untuk pemilik rumah (UUN No. 3/2026).</p></div>${kodeCard(h)}`;
 }
-function kodeCard(h){
-  if (!isOwner) return '';
-  const k = KODE[h.id], u = String(h.owner||'').replace(/^@+/,'');
-  if (!k) return `<div class="card"><h3>🔑 Kode Pemilik Rumah</h3><p>Belum ada kode untuk rumah ini.</p></div>`;
-  const dm = `Selamat @${u}! 🏞️ Kamu pemilik tanah ${h.street} No. ${h.no || ''} (${h.id}) di Kota Nusawara. Kode Pemilik Rumah kamu: ${k}. Desain rumahmu bebas (rumah/ruko dengan billboard). Cara kirim desain dan ganti billboard: buka https://republiknusawara.github.io/Nusawara/ → cari username kamu → ketuk tombolnya → masukkan kode ini. Jangan berikan kepada siapa pun.`;
-  return `<div class="card"><h3>🔑 Kode Pemilik Rumah (khusus kamu)</h3><p style="font-size:22px;font-weight:800;letter-spacing:.15em" class="mono">${esc(k)}</p>
-    <p class="note">Kirim ke pemilik lewat DM Instagram. Pesan siap salin:</p><p style="font-size:13px;background:#f4f1e8;border-radius:10px;padding:10px">${esc(dm)}</p>
-    <button class="btn ghost" data-copy="${esc(dm)}">📋 Salin pesan DM</button></div>`;
-}
+function kodeCard(h){ if (!isOwner) return ''; const u = String(h.owner||'').replace(/^@+/,''); return sandiCard(u.toLowerCase(), u); }
 sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-copy]'); if (!b) return;
   (navigator.clipboard ? navigator.clipboard.writeText(b.dataset.copy) : Promise.reject()).then(()=>toast('Pesan DM disalin ✓')).catch(()=>toast('Salin manual teks di atas, ya.')); });
 function stageHTML(){
@@ -823,7 +816,7 @@ renderer.domElement.addEventListener('pointerup', e=>{
   const hit = ray.intersectObjects(pickables, true)[0];
   if (!hit) { if (sheet.classList.contains('open')) closeSheet(); return; }
   let o = hit.object; while (o && !o.userData.type) o = o.parent;
-  if (o && o.userData.type === 'warga'){ const qi = document.getElementById('q'); qi.value = o.userData.data.username; document.getElementById('search').requestSubmit(); return; }
+  if (o && o.userData.type === 'warga'){ showProfile(o.userData.data.username, 'char'); return; }
   if (o) focusObj(o);
 });
 
@@ -857,21 +850,12 @@ document.getElementById('search').addEventListener('submit', async e=>{
   if (db) { try { const d = await db.doc('warga/' + u).get(); w = d.exists ? (d.data() || {}) : null; } catch(err) { w = null; } }
   if (!w && Object.prototype.hasOwnProperty.call(WARGA, u)) w = WARGA[u];
   if (!w) { select(null); openSheet(wargaHTML(u, null)); hideHint(); return; }
-  const hid = typeof w.houseId === 'string' ? w.houseId : '';
-  const g = hid && houseGroups[hid];
-  if (g){
-    const h = g.userData.data;
-    h.owner = '@' + (w.username || u); if (w.niwn) h.niwn = String(w.niwn); if (w.terdaftar) h.since = String(w.terdaftar);
-    focusObj(g); return;
-  }
-  const note = hid
-    ? `Rumahmu <b class="mono">${esc(hid)}</b> sudah tercatat, tapi bangunannya belum berdiri di peta. Nantikan pembangunannya!`
-    : ((w.follow === true || w.follow === 'Yes') ? `Kamu sudah resmi jadi warga dan terdaftar di <b>Undian Rumah</b> berikutnya. Semoga beruntung!` : `Kamu sudah resmi jadi warga, tapi belum punya rumah. Follow akun Republik Nusawara supaya bisa ikut <b>Undian Rumah</b>!`);
-  select(null); openSheet(wargaHTML(u, w, note)); hideHint();
+  WINFO[u] = Object.assign({}, WINFO[u] || {}, w, {username: w.username || u});
+  showProfile(u, 'search');
 });
 
 /* ---------- UNDANG-UNDANG NUSAWARA 2026 ---------- */
-const UUN = [["1", "Kewarganegaraan", [["Warga Republik Nusawara", ["Warga Republik Nusawara (WRN) adalah setiap orang yang telah mendaftar melalui formulir pendaftaran resmi Republik Nusawara.", "Pendaftaran cukup dengan mengisi username Instagram dan menyetujui Undang-Undang Nusawara.", "Follow akun Republik Nusawara tidak menjadi syarat untuk menjadi WRN."]], ["Warga Asing", ["Setiap orang yang mengikuti atau menyaksikan Republik Nusawara tetapi belum mendaftar disebut Warga Asing (WA)."]], ["Nomor Induk Warga Nusawara", ["Setiap WRN mendapat Nomor Induk Warga Nusawara (NIWN) dengan format NUS-000001, diberikan berurutan sesuai waktu pendaftaran.", "Satu username hanya dapat memiliki satu NIWN, dan NIWN tidak dapat dipindahtangankan."]], ["Hak Warga", ["Setiap WRN berhak tercatat dalam Daftar Warga dan dapat ditemukan melalui pencarian username di peta Kota Nusawara.", "Setiap WRN berhak ikut membangun negara sesuai UUN No. 4/2026, dan berhak mengikuti Undian Rumah apabila memenuhi syarat UUN No. 2/2026."]], ["Sifat Virtual", ["Seluruh identitas, NIWN, dan kepemilikan di Republik Nusawara bersifat virtual dan bukan dokumen resmi negara mana pun."]]]], ["2", "Tanah dan Rumah", [["Tanah Warga", ["Setiap tanah (kavling) memiliki ID sesuai distrik dan jalannya, misalnya MLT-MAWAR-001.", "Satu kavling hanya dimiliki satu WRN, dan satu WRN hanya dapat memiliki satu kavling."]], ["Undian Rumah", ["Kavling tanah dibagikan melalui Undian Rumah yang diumumkan oleh Bapak Presiden di Panggung Presiden.", "Pemenang Undian Rumah mendapatkan tanah (kavling), bukan bangunan rumah.", "Peserta Undian Rumah adalah WRN yang memiliki NIWN, sudah follow akun Instagram Republik Nusawara, dan belum memiliki kavling.", "WRN yang tidak follow akun Instagram Republik Nusawara tidak diikutkan dalam Undian Rumah."]], ["Desain Rumah", ["Pemilik kavling bebas menentukan desain bangunannya sendiri.", "Desain wajib berbentuk rumah atau ruko dan wajib memiliki billboard.", "Desain dikirim melalui formulir resmi dengan Kode Pemilik Rumah dan harus disetujui Presiden sebelum dibangun.", "Jika desain yang dikirim tidak memiliki billboard, Presiden berhak mengubah desain tersebut sehingga memiliki billboard.", "Setelah disetujui, rumah dibangun oleh negara di atas kavling pemiliknya."]], ["Pemeriksaan Follow", ["Status follow setiap WRN diperiksa oleh negara sebelum Undian Rumah dilaksanakan.", "Hasil pemeriksaan dicatat dalam Daftar Warga sebagai dasar penentuan peserta undian."]], ["Pengambilan Kembali", ["Negara dapat mengambil kembali tanah dan rumah dari WRN yang NIWN-nya dicabut sesuai UUN No. 5/2026.", "Tanah yang diambil kembali diundi ulang pada Undian Rumah berikutnya."]]]], ["3", "Billboard dan Iklan", [["Billboard Rumah", ["Setiap rumah memiliki satu billboard yang isinya dikelola oleh pemilik rumah."]], ["Tarif Iklan", ["Untuk sementara, pemasangan iklan di billboard rumah tidak dipungut biaya bagi pemilik rumah.", "Negara dapat memberlakukan iklan berbayar di kemudian hari, dengan harga per distrik dalam Mata Uang Nusawara (MN) yang setara dengan rupiah.", "Pendapatan iklan berbayar dibagi 70% untuk pemilik rumah dan 30% untuk negara."]], ["Isi Iklan", ["Iklan dilarang memuat unsur SARA, pornografi, kekerasan, perjudian, penipuan, ujaran kebencian, atau hal lain yang melanggar hukum.", "Negara berhak menurunkan iklan yang melanggar ketentuan ini tanpa pemberitahuan terlebih dahulu."]], ["Backdrop Panggung", ["Papan backdrop di Panggung Presiden adalah ruang sponsor milik negara."]]]], ["4", "Partisipasi Warga", [["Komentar Membangun Negara", ["Setiap warga dan pengikut Republik Nusawara dapat mengusulkan bangunan atau ide pembangunan melalui komentar di postingan resmi."]], ["Usulan Terpilih", ["Usulan dalam komentar dengan like terbanyak pada postingan usulan akan dibangun oleh negara.", "Negara dapat menolak usulan yang melanggar UUN No. 5/2026."]], ["Membangun Bersama", ["Warga diajak memberi like, komentar, dan share untuk membangun Republik Nusawara bersama-sama."]], ["Pengumuman Negara", ["Setiap keputusan negara, termasuk hasil Undian Rumah dan usulan terpilih, diumumkan oleh Bapak Presiden di Panggung Presiden dan di akun resmi Republik Nusawara."]]]], ["5", "Perilaku dan Sanksi", [["Kewajiban Warga", ["Setiap warga wajib saling menghormati, tidak melakukan spam, tidak memakai identitas orang lain, dan tidak mendaftar lebih dari satu kali."]], ["Larangan", ["Setiap warga dilarang melakukan ujaran kebencian, menyebarkan SARA, melecehkan warga lain, menipu, atau memakai akun palsu dan like palsu untuk memenangkan undian maupun usulan."]], ["Jenis Sanksi", ["Pelanggaran dapat dikenai sanksi berupa: a. teguran; b. penurunan iklan; c. dikeluarkan dari Undian Rumah; d. pencabutan NIWN."]], ["Pencabutan NIWN", ["Negara dapat mencabut NIWN seorang WRN secara sepihak apabila terjadi pelanggaran.", "Rumah milik WRN yang NIWN-nya dicabut diambil kembali oleh negara dan diundi ulang."]]]], ["6", "Pembuatan dan Perubahan UUN", [["Pembentukan", ["Undang-Undang Nusawara dibuat dan diubah oleh Pemerintah Republik Nusawara dan ditetapkan oleh Presiden Republik Nusawara."]], ["Penomoran", ["Setiap Undang-Undang Nusawara diberi nomor dan tahun penetapan, misalnya UUN No. 1/2026."]], ["Berlakunya Perubahan", ["Setiap perubahan UUN diumumkan di Panggung Presiden dan di akun resmi Republik Nusawara, dan berlaku sejak tanggal diumumkan."]], ["Usulan Warga", ["Warga dapat mengusulkan perubahan UUN melalui komentar sesuai UUN No. 4/2026."]]]]];
+const UUN = [["1", "Kewarganegaraan", [["Warga Republik Nusawara", ["Warga Republik Nusawara (WRN) adalah setiap orang yang telah mendaftar melalui formulir pendaftaran resmi Republik Nusawara.", "Pendaftaran cukup dengan mengisi username Instagram dan menyetujui Undang-Undang Nusawara.", "Follow akun Republik Nusawara tidak menjadi syarat untuk menjadi WRN."]], ["Warga Asing", ["Setiap orang yang mengikuti atau menyaksikan Republik Nusawara tetapi belum mendaftar disebut Warga Asing (WA)."]], ["Nomor Induk Warga Nusawara", ["Setiap WRN mendapat Nomor Induk Warga Nusawara (NIWN) dengan format NUS-000001, diberikan berurutan sesuai waktu pendaftaran.", "Satu username hanya dapat memiliki satu NIWN, dan NIWN tidak dapat dipindahtangankan."]], ["Hak Warga", ["Setiap WRN berhak tercatat dalam Daftar Warga dan dapat ditemukan melalui pencarian username di peta Kota Nusawara.", "Setiap WRN berhak ikut membangun negara sesuai UUN No. 4/2026, dan berhak mengikuti Undian Rumah apabila memenuhi syarat UUN No. 2/2026."]], ["Sifat Virtual", ["Seluruh identitas, NIWN, dan kepemilikan di Republik Nusawara bersifat virtual dan bukan dokumen resmi negara mana pun."]]]], ["2", "Tanah dan Rumah", [["Tanah Warga", ["Setiap tanah (kavling) memiliki ID sesuai distrik dan jalannya, misalnya MLT-MAWAR-001.", "Satu kavling hanya dimiliki satu WRN, dan satu WRN hanya dapat memiliki satu kavling."]], ["Undian Rumah", ["Kavling tanah dibagikan melalui Undian Rumah yang diumumkan oleh Bapak Presiden di Panggung Presiden.", "Pemenang Undian Rumah mendapatkan tanah (kavling), bukan bangunan rumah.", "Peserta Undian Rumah adalah WRN yang memiliki NIWN, sudah follow akun Instagram Republik Nusawara, dan belum memiliki kavling.", "WRN yang tidak follow akun Instagram Republik Nusawara tidak diikutkan dalam Undian Rumah."]], ["Desain Rumah", ["Pemilik kavling bebas menentukan desain bangunannya sendiri.", "Desain wajib berbentuk rumah atau ruko dan wajib memiliki billboard.", "Desain dikirim melalui formulir resmi dengan Kata Sandi Warga dan harus disetujui Presiden sebelum dibangun.", "Jika desain yang dikirim tidak memiliki billboard, Presiden berhak mengubah desain tersebut sehingga memiliki billboard.", "Setelah disetujui, rumah dibangun oleh negara di atas kavling pemiliknya."]], ["Pemeriksaan Follow", ["Status follow setiap WRN diperiksa oleh negara sebelum Undian Rumah dilaksanakan.", "Hasil pemeriksaan dicatat dalam Daftar Warga sebagai dasar penentuan peserta undian."]], ["Pengambilan Kembali", ["Negara dapat mengambil kembali tanah dan rumah dari WRN yang NIWN-nya dicabut sesuai UUN No. 5/2026.", "Tanah yang diambil kembali diundi ulang pada Undian Rumah berikutnya."]]]], ["3", "Billboard dan Iklan", [["Billboard Rumah", ["Setiap rumah memiliki satu billboard yang isinya dikelola oleh pemilik rumah."]], ["Tarif Iklan", ["Untuk sementara, pemasangan iklan di billboard rumah tidak dipungut biaya bagi pemilik rumah.", "Negara dapat memberlakukan iklan berbayar di kemudian hari, dengan harga per distrik dalam Mata Uang Nusawara (MN) yang setara dengan rupiah.", "Pendapatan iklan berbayar dibagi 70% untuk pemilik rumah dan 30% untuk negara."]], ["Isi Iklan", ["Iklan dilarang memuat unsur SARA, pornografi, kekerasan, perjudian, penipuan, ujaran kebencian, atau hal lain yang melanggar hukum.", "Negara berhak menurunkan iklan yang melanggar ketentuan ini tanpa pemberitahuan terlebih dahulu."]], ["Backdrop Panggung", ["Papan backdrop di Panggung Presiden adalah ruang sponsor milik negara."]]]], ["4", "Partisipasi Warga", [["Komentar Membangun Negara", ["Setiap warga dan pengikut Republik Nusawara dapat mengusulkan bangunan atau ide pembangunan melalui komentar di postingan resmi."]], ["Usulan Terpilih", ["Usulan dalam komentar dengan like terbanyak pada postingan usulan akan dibangun oleh negara.", "Negara dapat menolak usulan yang melanggar UUN No. 5/2026."]], ["Membangun Bersama", ["Warga diajak memberi like, komentar, dan share untuk membangun Republik Nusawara bersama-sama."]], ["Pengumuman Negara", ["Setiap keputusan negara, termasuk hasil Undian Rumah dan usulan terpilih, diumumkan oleh Bapak Presiden di Panggung Presiden dan di akun resmi Republik Nusawara."]]]], ["5", "Perilaku dan Sanksi", [["Kewajiban Warga", ["Setiap warga wajib saling menghormati, tidak melakukan spam, tidak memakai identitas orang lain, dan tidak mendaftar lebih dari satu kali."]], ["Larangan", ["Setiap warga dilarang melakukan ujaran kebencian, menyebarkan SARA, melecehkan warga lain, menipu, atau memakai akun palsu dan like palsu untuk memenangkan undian maupun usulan."]], ["Jenis Sanksi", ["Pelanggaran dapat dikenai sanksi berupa: a. teguran; b. penurunan iklan; c. dikeluarkan dari Undian Rumah; d. pencabutan NIWN."]], ["Pencabutan NIWN", ["Negara dapat mencabut NIWN seorang WRN secara sepihak apabila terjadi pelanggaran.", "Rumah milik WRN yang NIWN-nya dicabut diambil kembali oleh negara dan diundi ulang."]]]], ["6", "Pembuatan dan Perubahan UUN", [["Pembentukan", ["Undang-Undang Nusawara dibuat dan diubah oleh Pemerintah Republik Nusawara dan ditetapkan oleh Presiden Republik Nusawara."]], ["Penomoran", ["Setiap Undang-Undang Nusawara diberi nomor dan tahun penetapan, misalnya UUN No. 1/2026."]], ["Berlakunya Perubahan", ["Setiap perubahan UUN diumumkan di Panggung Presiden dan di akun resmi Republik Nusawara, dan berlaku sejak tanggal diumumkan."]], ["Usulan Warga", ["Warga dapat mengusulkan perubahan UUN melalui komentar sesuai UUN No. 4/2026."]]]]];
 (function(){
   const box = document.getElementById('uunList'); if (!box) return;
   box.innerHTML = UUN.map(([no,title,pasals]) => `<details class="uunx"><summary><b>UUN No. ${no}/2026</b>tentang ${esc(title)}</summary>${
@@ -1223,55 +1207,88 @@ async function loadPublicData(){
 }
 loadPublicData();
 
-/* ---------- KUNCI PEMILIK RUMAH (website) ---------- */
-// Kode Pemilik Rumah dicek di perangkat dengan PBKDF2; kode aslinya tidak pernah disimpan di website.
-const KUNCI = {}, UNLOCK = {};
+const WARGA_FORM = 'J1p9PK';   // formulir Simpan Perubahan Warga
+/* ---------- KATA SANDI WARGA (website) ---------- */
+// Kata sandi dicek di perangkat dengan PBKDF2; kata sandi aslinya tidak pernah disimpan di website.
+const KUNCI = {}, UNLOCK = {};   // username (huruf kecil) -> hash / kata sandi yang sudah dibuka di perangkat ini
 const lkEl = document.createElement('div'); lkEl.className = 'modal'; lkEl.id = 'modal-kunci';
+const pwInput = (id, ph) => `<input id="${id}" type="password" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="${ph}"
+    style="font:inherit;font-size:20px;letter-spacing:.2em;text-transform:uppercase;text-align:center;padding:12px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box;margin-bottom:8px">`;
 lkEl.innerHTML = `<div class="box"><button class="x" data-close aria-label="Tutup">×</button>
-  <div class="kicker" id="lkK">Billboard rumah</div><h2>🔑 Masukkan Kode Pemilik</h2>
-  <p style="font-size:14px;line-height:1.5;margin:0 0 10px">Khusus pemilik. Masukkan Kode Pemilik Rumah 6 karakter yang kamu terima lewat DM dari Republik Nusawara.</p>
-  <form id="lkF"><input id="lkI" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" placeholder="Contoh: K7Q2MX"
-    style="font:inherit;font-size:22px;letter-spacing:.25em;text-transform:uppercase;text-align:center;padding:12px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box">
-  <button class="btn" id="lkB" style="width:100%">Buka billboard</button></form><p class="note" id="lkM"></p></div>`;
+  <div class="kicker" id="lkK">Kata sandi</div><h2 id="lkH">🔑 Masukkan Kata Sandi Warga</h2>
+  <p style="font-size:14px;line-height:1.5;margin:0 0 10px" id="lkP">Khusus pemilik akun. Masukkan Kata Sandi Warga kamu.</p>
+  <form id="lkF">${pwInput('lkI','Kata sandi')}<div id="lkNew" style="display:none">${pwInput('lkN1','Kata sandi baru')}${pwInput('lkN2','Ulangi kata sandi baru')}</div>
+  <button class="btn" id="lkB" style="width:100%">Lanjut</button></form><p class="note" id="lkM"></p></div>`;
 document.body.appendChild(lkEl);
 lkEl.addEventListener('click', e=>{ if (e.target===lkEl || e.target.hasAttribute('data-close')) lkEl.classList.remove('open'); });
-let lkId = null, lkPurpose = 'billboard';
-function afterUnlock(id){
-  if (lkPurpose !== 'desain') { openEditor(id); return; }
-  const h = houseGroups[id] && houseGroups[id].userData.data; if (!h) return;
-  const q = new URLSearchParams({ username: String(h.owner||'').replace(/^@+/,''), niwn: h.niwn || '', kavling: id, kode: UNLOCK[id] });
-  window.open('https://tally.so/r/gbdDpK?' + q.toString(), '_blank', 'noopener');
-  toast('🔓 Kode benar. Kirim desain rumahmu di formulir yang terbuka.');
-}
-function openLock(id, purpose){
-  lkPurpose = purpose === 'desain' ? 'desain' : 'billboard';
-  if (UNLOCK[id]) { afterUnlock(id); return; }
-  if (!KUNCI[id]) { toast('Kode untuk kavling ini belum aktif. Coba lagi nanti.'); return; }
-  lkId = id; document.getElementById('lkK').textContent = (lkPurpose === 'desain' ? 'Kirim desain rumah · ' : 'Billboard rumah · ') + id;
-  document.getElementById('lkB').textContent = lkPurpose === 'desain' ? 'Lanjut kirim desain' : 'Buka billboard';
-  document.getElementById('lkI').value = ''; document.getElementById('lkM').textContent = '';
+let lkUser = null, lkPurpose = 'billboard', lkCtx = null, lkStage = 'old';
+const normPw = v => String(v||'').replace(/\s+/g,'').toUpperCase();
+function userOfHouse(id){ const g = houseGroups[id]; return g ? String(g.userData.data.owner||'').replace(/^@+/,'').toLowerCase() : ''; }
+function openLock(target, purpose){
+  lkPurpose = purpose || 'billboard'; lkCtx = target; lkStage = 'old';
+  const u = (lkPurpose === 'billboard' || lkPurpose === 'desain') ? userOfHouse(target) : String(target).toLowerCase();
+  lkUser = u;
+  if (!KUNCI[u]) { toast('Kata sandi @' + u + ' belum aktif. Hubungi Republik Nusawara lewat DM Instagram.'); return; }
+  if (UNLOCK[u] && lkPurpose !== 'sandi') { afterUnlock(); return; }
+  const T = { billboard:['Billboard · ' + target,'Buka billboard'], desain:['Kirim desain · ' + target,'Lanjut kirim desain'], gaya:['Gaya karakter · @' + u,'Buka studio gaya'], sandi:['Ganti kata sandi · @' + u,'Lanjut'] }[lkPurpose];
+  document.getElementById('lkK').textContent = T[0]; document.getElementById('lkB').textContent = T[1];
+  document.getElementById('lkH').textContent = lkPurpose === 'sandi' ? '🔑 Kata sandi lama' : '🔑 Masukkan Kata Sandi Warga';
+  document.getElementById('lkP').textContent = 'Khusus @' + u + '. Masukkan Kata Sandi Warga kamu.';
+  document.getElementById('lkNew').style.display = 'none'; document.getElementById('lkI').style.display = '';
+  ['lkI','lkN1','lkN2'].forEach(i=>document.getElementById(i).value = ''); document.getElementById('lkM').textContent = '';
   lkEl.classList.add('open'); setTimeout(()=>document.getElementById('lkI').focus(), 60);
 }
-async function kunciHash(id, kode){
+async function kunciHash(u, pw){
   const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey('raw', enc.encode(kode), 'PBKDF2', false, ['deriveBits']);
-  const bits = await crypto.subtle.deriveBits({name:'PBKDF2', hash:'SHA-256', salt:enc.encode('nusawara:' + id), iterations:150000}, key, 256);
+  const key = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({name:'PBKDF2', hash:'SHA-256', salt:enc.encode('nusawara:' + u), iterations:150000}, key, 256);
   return Array.from(new Uint8Array(bits), x=>x.toString(16).padStart(2,'0')).join('');
+}
+function submitWarga(u, aksi, extra){
+  const w = wInfo(u) || {};
+  const q = new URLSearchParams(Object.assign({ aksi, username: String(w.username || u).replace(/^@+/,''), niwn: w.niwn || '', kode: UNLOCK[u] || '' }, extra || {}));
+  window.open('https://tally.so/r/' + WARGA_FORM + '?' + q.toString(), '_blank', 'noopener');
+}
+function afterUnlock(){
+  const u = lkUser, s = UNLOCK[u];
+  if (lkPurpose === 'billboard') { openEditor(lkCtx); return; }
+  if (lkPurpose === 'gaya') { openStyle(u); return; }
+  if (lkPurpose === 'desain'){
+    const h = houseGroups[lkCtx] && houseGroups[lkCtx].userData.data; if (!h) return;
+    const q = new URLSearchParams({ username: String(h.owner||'').replace(/^@+/,''), niwn: h.niwn || '', kavling: lkCtx, kode: s });
+    window.open('https://tally.so/r/gbdDpK?' + q.toString(), '_blank', 'noopener');
+    toast('🔓 Kata sandi benar. Kirim desain rumahmu di formulir yang terbuka.');
+  }
 }
 document.getElementById('lkF').addEventListener('submit', async e=>{
   e.preventDefault();
   const m = document.getElementById('lkM'), btn = document.getElementById('lkB');
-  const kode = document.getElementById('lkI').value.replace(/\s+/g,'').toUpperCase();
-  if (!/^[A-Z0-9]{4,12}$/.test(kode)) { m.textContent = 'Kode berisi huruf dan angka, 6 karakter.'; return; }
-  btn.disabled = true; m.textContent = 'Memeriksa kode…';
+  if (lkStage === 'new'){
+    const a = normPw(document.getElementById('lkN1').value), b = normPw(document.getElementById('lkN2').value);
+    if (!/^[A-Z0-9]{6,20}$/.test(a)) { m.textContent = 'Kata sandi baru 6–20 huruf/angka.'; return; }
+    if (a !== b) { m.textContent = 'Kata sandi baru tidak sama. Ulangi.'; return; }
+    if (a === UNLOCK[lkUser]) { m.textContent = 'Kata sandi baru sama dengan yang lama.'; return; }
+    submitWarga(lkUser, 'sandi', {sandi_baru: a}); lkEl.classList.remove('open');
+    toast('✓ Tekan Kirim di formulir. Kata sandi baru aktif ±1 jam lagi; sampai saat itu pakai yang lama.'); return;
+  }
+  const pw = normPw(document.getElementById('lkI').value);
+  if (!/^[A-Z0-9]{4,20}$/.test(pw)) { m.textContent = 'Kata sandi berisi huruf dan angka.'; return; }
+  btn.disabled = true; m.textContent = 'Memeriksa…';
   let ok = false;
-  try { ok = (await kunciHash(lkId, kode)) === KUNCI[lkId]; } catch(_) { m.textContent = 'Browser ini tidak bisa memeriksa kode.'; btn.disabled = false; return; }
+  try { ok = (await kunciHash(lkUser, pw)) === KUNCI[lkUser]; } catch(_) { m.textContent = 'Browser ini tidak bisa memeriksa kata sandi.'; btn.disabled = false; return; }
   btn.disabled = false;
-  if (!ok) { m.textContent = '❌ Kode salah. Coba lagi — hanya pemilik yang punya kode ini.'; return; }
-  UNLOCK[lkId] = kode; lkEl.classList.remove('open'); afterUnlock(lkId);
+  if (!ok) { m.textContent = '❌ Kata sandi salah. Coba lagi.'; return; }
+  UNLOCK[lkUser] = pw;
+  if (lkPurpose === 'sandi'){
+    lkStage = 'new'; m.textContent = '';
+    document.getElementById('lkH').textContent = '🔑 Buat kata sandi baru'; document.getElementById('lkP').textContent = 'Kata sandi baru 6–20 huruf/angka. Jangan berikan kepada siapa pun.';
+    document.getElementById('lkI').style.display = 'none'; document.getElementById('lkNew').style.display = ''; document.getElementById('lkB').textContent = 'Simpan kata sandi baru';
+    setTimeout(()=>document.getElementById('lkN1').focus(), 60); return;
+  }
+  lkEl.classList.remove('open'); afterUnlock();
 });
 function guestSave(){
-  const id = ed.id, owner = houseGroups[id] && houseGroups[id].userData.data, kode = UNLOCK[id];
+  const id = ed.id, owner = houseGroups[id] && houseGroups[id].userData.data, kode = UNLOCK[userOfHouse(id)];
   if (!owner || !kode) { closeEditor(); return; }
   const b = boards[id], q = new URLSearchParams({ username: String(owner.owner||'').replace(/^@+/,''), niwn: owner.niwn || '', rumah: id, kode });
   if (ed.kind === 'text'){
@@ -1305,7 +1322,7 @@ let ed = null, resetArmed = false;
 function edSay(t){ edMsg.textContent = t || ''; }
 
 function openEditor(id){
-  if (!(isOwner || UNLOCK[id]) || !boards[id]) return;
+  if (!(isOwner || UNLOCK[userOfHouse(id)]) || !boards[id]) return;
   const r = BB[id] || null, h = houses.find(x=>x.id===id);
   ed = {id, kind: r && ['text','image','gif','video'].includes(r.kind) ? r.kind : 'text', file:null, url:null};
   document.getElementById('edTitle').textContent = id==='BACKDROP' ? 'Backdrop Panggung' : id;
@@ -1315,7 +1332,7 @@ function openEditor(id){
   edT.value = String(base.title||''); edS.value = String(base.sub||'');
   edBg.value = col(base.bg,'#1f3a5f'); edFg.value = col(base.fg,'#ffffff');
   edFile.value = ''; resetArmed = false; edReset.textContent = 'Kembalikan bawaan'; edReset.disabled = !r;
-  edSay(isOwner ? (db ? '' : 'Penyimpanan tidak tersedia di tampilan ini.') : '🔓 Kode benar. Silakan ganti isi billboard rumahmu.');
+  edSay(isOwner ? (db ? '' : 'Penyimpanan tidak tersedia di tampilan ini.') : '🔓 Kata sandi benar. Silakan ganti isi billboard rumahmu.');
   edReset.style.display = isOwner ? '' : 'none';
   edSave.textContent = isOwner ? 'Simpan' : 'Pasang billboard';
   setKind(ed.kind);
@@ -1510,8 +1527,7 @@ const alamatOf = s => `${s.street} No. ${s.no}, ${s.district}`;
 const RUMAH = {};          // houseId -> {houseId, username, niwn, since, undianNo}
 let UNDIAN = [];           // riwayat undian, urut nomor
 const WDB = {};            // warga dari db (khusus tampilan pemilik)
-const KODE = {};           // houseId -> kode pemilik rumah (khusus tampilan pemilik)
-function newKode(){ const A = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789', r = new Uint32Array(6); crypto.getRandomValues(r); return Array.from(r, x=>A[x % A.length]).join(''); }
+const SANDI = {};          // username -> Kata Sandi Warga (khusus tampilan pemilik)
 let drawing = false, show = null;
 const niwn6 = n => String(n||'').replace(/^NUS-/,'');
 const entryText = w => `${w.username} - ${niwn6(w.niwn)}`;
@@ -1631,7 +1647,7 @@ function undianCloud(){
   if (!db) return;
   db.collection('rumah').onSnapshot(snap=>{ snap.docChanges().forEach(ch=>{ if (ch.type !== 'removed') setRumah(ch.doc.data(), false); }); }, ()=>{});
   db.collection('undian').onSnapshot(snap=>{ const l = []; snap.forEach(d=>l.push(d.data())); setUndianList(l); if (sheetFn === undianHTML) sheetBody.innerHTML = undianHTML(); }, ()=>{});
-  if (isOwner) db.collection('kode').onSnapshot(snap=>{ snap.docChanges().forEach(ch=>{ if (ch.type==='removed') delete KODE[ch.doc.id]; else KODE[ch.doc.id] = (ch.doc.data()||{}).kode; }); if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); }, ()=>{});
+  if (isOwner) db.collection('sandi').onSnapshot(snap=>{ snap.docChanges().forEach(ch=>{ if (ch.type==='removed') delete SANDI[ch.doc.id]; else SANDI[ch.doc.id] = (ch.doc.data()||{}).sandi; }); if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); }, ()=>{});
   if (isOwner) db.collection('warga').onSnapshot(snap=>{
     snap.docChanges().forEach(ch=>{ if (ch.type==='removed') delete WDB[ch.doc.id]; else WDB[ch.doc.id] = Object.assign({_id: ch.doc.id}, ch.doc.data()); });
     syncWalkers(WDB);
@@ -1689,9 +1705,6 @@ async function ownerDraw(clean){
     await db.doc('rumah/' + s.id).set({ houseId: s.id, alamat: rec.alamat, username: rec.winner.username, niwn: rec.winner.niwn, since: rec.tanggal, undianNo: no, status: 'tanah', desain: null });
     await db.doc('warga/' + w._id).set(Object.assign({}, cur, { houseId: s.id }));
     await db.doc('undian/' + String(no).padStart(4,'0')).set(rec);
-    const kode = newKode(); rec.kode = kode;
-    await db.doc('kode/' + s.id).set({ houseId: s.id, kode, username: rec.winner.username, niwn: rec.winner.niwn, dibuat: Date.now() });
-    KODE[s.id] = kode;
   } catch(err){ drawing = false; toast('Undian gagal disimpan. Coba lagi.'); return; }
   drawing = false;
   runShow(rec, clean, false);
@@ -1783,7 +1796,6 @@ function reveal(S){
     <div class="wn">@${esc(r.winner.username)}</div><div class="wi">NIWN ${esc(r.winner.niwn)}</div>
     <div class="wa">🏞️ Tanah ${esc(s ? s.street + ' No. ' + s.no : r.houseId)}<small>${esc(s ? s.district : '')} · ${esc(r.houseId)}</small></div>
     <div class="wi" style="margin-top:6px">Desain rumah bebas · wajib rumah/ruko dengan billboard · disetujui Presiden</div>
-    ${r.kode && isOwner ? `<div class="wi" style="margin-top:8px">🔑 Kode Pemilik (kirim lewat DM): <b>${esc(r.kode)}</b></div>` : ''}
     <div class="wb"><button class="btn ghost" data-wclose>Tutup</button><button class="btn" data-wgo="${esc(r.houseId)}">📍 Lihat rumah</button></div>`;
   setTimeout(()=>winEl.classList.add('show'), 700);
 }
@@ -1854,39 +1866,87 @@ function updateFx(dt){
 
 sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-desain]'); if (!b) return; if (typeof openLock === 'function') openLock(b.dataset.desain, 'desain'); });
 /* ---------- WARGA BERJALAN: avatar tiap warga + nama di atas kepala ---------- */
-// Avatar bisa diatur per warga lewat data warga.avatar; selain itu dibuat dari username.
-const AVA_SKIN = ['#f1c27d','#e0ac69','#c68642','#8d5524','#ffdbac'];
-const AVA_HAIR = ['#1b1b1b','#3b2416','#6b4423','#a0522d','#2d2d2d'];
-const AVA_TOP  = ['#e74c3c','#2f80ed','#27ae60','#f2b134','#9b51e0','#f4f1ea','#ff7f50','#16a085'];
-const AVA_BOT  = ['#2b3a55','#3d3d3d','#5a4632','#1f3a5f','#6b7076'];
+// Gaya karakter (warga.avatar) dipilih sendiri oleh warga; selain itu dibuat otomatis dari username.
+const AVA_SKIN = ['#ffdbac','#f1c27d','#e0ac69','#c68642','#8d5524','#5c3a21'];
+const AVA_HAIR = ['#1b1b1b','#3b2416','#6b4423','#a0522d','#d4a64a','#e8e1d1','#8e44ad','#2f80ed'];
+const AVA_TOP  = ['#f4f1ea','#1b1b1b','#e74c3c','#2f80ed','#27ae60','#f2b134','#9b51e0','#ff7f50','#16a085','#1f3a5f','#ff6fb5','#7f8c8d'];
+const AVA_BOT  = ['#2b3a55','#1b1b1b','#3d3d3d','#5a4632','#1f3a5f','#6b7076','#c8b48a','#f4f1ea'];
+const AVA_SHOE = ['#ffffff','#1b1b1b','#e74c3c','#2f80ed','#8b5a2b','#f2b134'];
+const AVA_OPT = {
+  rambutModel: [['pendek','Pendek'],['spike','Spike'],['panjang','Panjang'],['kuncir','Kuncir'],['botak','Botak']],
+  bajuModel:   [['kaos','Kaos'],['hoodie','Hoodie'],['kemeja','Kemeja'],['jas','Jas']],
+  celanaModel: [['panjang','Panjang'],['pendek','Pendek']],
+  kacamata:    [['tidak','Tidak'],['hitam','Hitam'],['bening','Bening']],
+  topi:        [['tidak','Tidak'],['cap','Cap'],['kupluk','Kupluk']],
+  kopi:        [['tidak','Tidak'],['ya','Bawa kopi']]
+};
 function hashStr(s){ let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+const isHex = v => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v);
+const pick = (v, list, d) => list.some(o=>o[0]===v) ? v : d;
 function avatarSpec(w){
-  const u = String(w.username||'').toLowerCase(), h = hashStr(u), a = (w.avatar && typeof w.avatar === 'object') ? w.avatar : {};
-  const c = (v, d) => (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v)) ? v : d;
-  return { kulit: c(a.kulit, AVA_SKIN[h%5]), rambut: c(a.rambut, AVA_HAIR[(h>>3)%5]), baju: c(a.baju, AVA_TOP[(h>>6)%8]),
-    celana: c(a.celana, AVA_BOT[(h>>9)%5]), sepatu: c(a.sepatu, '#222222'), topi: a.topi ? c(a.topi, '#1f3a5f') : null,
-    kacamata: !!a.kacamata, kopi: !!a.kopi, tudung: !!a.tudung };
+  const u = String((w && w.username) || '').toLowerCase(), h = hashStr(u), a = (w && w.avatar && typeof w.avatar === 'object') ? w.avatar : {};
+  const kac = a.kacamata === true ? 'hitam' : a.kacamata === false ? 'tidak' : a.kacamata;
+  const top = isHex(a.topi) ? 'cap' : a.topi;
+  return {
+    kulit: isHex(a.kulit) ? a.kulit : AVA_SKIN[h%6],
+    rambut: isHex(a.rambut) ? a.rambut : AVA_HAIR[(h>>3)%5],
+    rambutModel: pick(a.rambutModel, AVA_OPT.rambutModel, ['pendek','spike','pendek','kuncir'][(h>>5)%4]),
+    baju: isHex(a.baju) ? a.baju : AVA_TOP[(h>>7)%12],
+    bajuModel: pick(a.bajuModel, AVA_OPT.bajuModel, a.tudung ? 'hoodie' : ['kaos','hoodie','kemeja'][(h>>9)%3]),
+    celana: isHex(a.celana) ? a.celana : AVA_BOT[(h>>11)%6],
+    celanaModel: pick(a.celanaModel, AVA_OPT.celanaModel, 'panjang'),
+    sepatu: isHex(a.sepatu) ? a.sepatu : AVA_SHOE[(h>>13)%6],
+    kacamata: pick(kac, AVA_OPT.kacamata, 'tidak'),
+    topi: pick(top, AVA_OPT.topi, 'tidak'),
+    topiWarna: isHex(a.topiWarna) ? a.topiWarna : isHex(a.topi) ? a.topi : '#1f3a5f',
+    kopi: a.kopi === true || a.kopi === 'ya' ? 'ya' : 'tidak'
+  };
 }
+function shade(hex, f){ const c = new THREE.Color(hex); c.multiplyScalar(f); return c.getHex(); }
 function makeAvatar(sp){
   const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
   const mk = (w,h,d,c,x,y,z,p) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), M(c)); m.position.set(x,y,z); m.castShadow = true; (p||body).add(m); return m; };
   const limb = (x,y) => { const l = new THREE.Group(); l.position.set(x,y,0); body.add(l); return l; };
+  // kaki & celana
   const legL = limb(.2,.95), legR = limb(-.2,.95);
-  [legL,legR].forEach(l=>{ mk(.3,.85,.34,sp.celana,0,-.42,0,l); mk(.33,.16,.46,sp.sepatu,0,-.88,.06,l); });
-  mk(.9,1.05,.5, sp.baju, 0,1.45,0);                                   // badan / hoodie
-  if (sp.tudung) mk(.7,.3,.22, sp.baju, 0,2.0,-.3);                    // tudung hoodie di punggung
+  [legL,legR].forEach(l=>{
+    if (sp.celanaModel === 'pendek'){ mk(.32,.42,.36, sp.celana,0,-.2,0,l); mk(.24,.42,.26, sp.kulit,0,-.62,0,l); }
+    else mk(.3,.85,.34, sp.celana,0,-.42,0,l);
+    mk(.33,.16,.46, sp.sepatu,0,-.88,.06,l);
+  });
+  // badan & model baju
+  mk(.9,1.05,.5, sp.baju, 0,1.45,0);
+  if (sp.bajuModel === 'hoodie'){ mk(.72,.32,.22, sp.baju, 0,2.0,-.32); mk(.5,.22,.04, shade(sp.baju,.82), 0,1.2,.26); mk(.03,.3,.03, 0xeeeeee, .1,1.78,.26); mk(.03,.3,.03, 0xeeeeee, -.1,1.78,.26); }
+  if (sp.bajuModel === 'kemeja'){ mk(.5,.1,.06, shade(sp.baju,.85), 0,1.95,.25); for (let i=0;i<4;i++) mk(.05,.05,.03, 0xf4f1ea, 0,1.82-i*.2,.26); }
+  if (sp.bajuModel === 'jas'){ mk(.34,.78,.04, 0xf4f1ea, 0,1.58,.26); mk(.1,.5,.03, 0xb03030, 0,1.55,.285); mk(.12,.1,.03, 0xb03030, 0,1.84,.285); }
   const armL = limb(.58,1.9), armR = limb(-.58,1.9);
-  [armL,armR].forEach(a=>{ mk(.26,.85,.3, sp.baju,0,-.4,0,a); mk(.22,.2,.24, sp.kulit,0,-.88,0,a); });
-  mk(.24,.16,.24, sp.kulit, 0,2.05,0);                                 // leher
+  [armL,armR].forEach(a=>{
+    if (sp.bajuModel === 'kaos'){ mk(.27,.34,.31, sp.baju,0,-.15,0,a); mk(.22,.52,.24, sp.kulit,0,-.58,0,a); }
+    else { mk(.26,.85,.3, sp.baju,0,-.4,0,a); mk(.22,.2,.24, sp.kulit,0,-.88,0,a); }
+  });
+  mk(.24,.16,.24, sp.kulit, 0,2.05,0);
+  // kepala & rambut
   const head = new THREE.Group(); head.position.y = 2.42; body.add(head);
   mk(.62,.64,.58, sp.kulit, 0,0,0, head);
-  mk(.66,.2,.62, sp.rambut, 0,.33,-.02, head); mk(.66,.36,.1, sp.rambut, 0,.14,-.3, head);
-  if (sp.topi){ mk(.7,.18,.66, sp.topi, 0,.42,0, head); mk(.66,.05,.3, sp.topi, 0,.35,.42, head); }
-  if (sp.kacamata){ mk(.24,.13,.05, 0x0d0d0d, .15,.06,.31, head); mk(.24,.13,.05, 0x0d0d0d, -.15,.06,.31, head); mk(.62,.04,.04, 0x0d0d0d, 0,.09,.31, head); }
-  else { mk(.08,.07,.03, 0x111111, .13,.05,.3, head); mk(.08,.07,.03, 0x111111, -.13,.05,.3, head); }
+  const R = sp.rambut;
+  if (sp.rambutModel !== 'botak'){
+    mk(.66,.2,.62, R, 0,.33,-.02, head); mk(.66,.36,.1, R, 0,.14,-.3, head);
+    if (sp.rambutModel === 'spike') for (let i=0;i<5;i++){ const c = new THREE.Mesh(new THREE.ConeGeometry(.09,.28,5), M(R)); c.position.set(-.24+i*.12,.52,-.02+(i%2)*.1); head.add(c); }
+    if (sp.rambutModel === 'panjang'){ mk(.7,.7,.14, R, 0,-.15,-.32, head); mk(.1,.6,.5, R, .34,-.05,-.05, head); mk(.1,.6,.5, R, -.34,-.05,-.05, head); }
+    if (sp.rambutModel === 'kuncir'){ mk(.18,.18,.18, R, 0,.2,-.42, head); mk(.14,.42,.14, R, 0,-.08,-.48, head); }
+  }
+  if (sp.topi === 'cap'){ mk(.7,.18,.66, sp.topiWarna, 0,.42,0, head); mk(.66,.05,.3, sp.topiWarna, 0,.35,.42, head); }
+  if (sp.topi === 'kupluk'){ mk(.72,.3,.66, sp.topiWarna, 0,.42,-.01, head); mk(.74,.08,.68, shade(sp.topiWarna,.8), 0,.28,-.01, head); const pom = new THREE.Mesh(new THREE.SphereGeometry(.1,8,6), M(0xf4f1ea)); pom.position.set(0,.64,0); head.add(pom); }
+  if (sp.kacamata === 'hitam'){ mk(.24,.13,.05, 0x0d0d0d, .15,.06,.31, head); mk(.24,.13,.05, 0x0d0d0d, -.15,.06,.31, head); mk(.62,.04,.04, 0x0d0d0d, 0,.09,.31, head); }
+  else if (sp.kacamata === 'bening'){
+    const lens = new THREE.MeshStandardMaterial({color:0xcfe9ff, transparent:true, opacity:.45});
+    [.15,-.15].forEach(x=>{ mk(.24,.03,.04, 0x222222, x,.12,.31, head); mk(.24,.03,.04, 0x222222, x,0,.31, head); mk(.03,.13,.04, 0x222222, x+.11,.06,.31, head); mk(.03,.13,.04, 0x222222, x-.11,.06,.31, head);
+      const l = new THREE.Mesh(new THREE.BoxGeometry(.2,.1,.02), lens); l.position.set(x,.06,.31); head.add(l); mk(.06,.05,.03, 0x111111, x,.05,.29, head); });
+    mk(.1,.03,.04, 0x222222, 0,.1,.31, head);
+  } else { mk(.08,.07,.03, 0x111111, .13,.05,.3, head); mk(.08,.07,.03, 0x111111, -.13,.05,.3, head); }
   mk(.18,.04,.03, 0x4a1f1a, 0,-.16,.3, head);
   let cup = null;
-  if (sp.kopi){                                                        // gelas kopi polos
+  if (sp.kopi === 'ya'){
     cup = new THREE.Group(); cup.position.set(0,-.95,.16); armL.add(cup);
     const c1 = new THREE.Mesh(new THREE.CylinderGeometry(.11,.085,.3,12), M(0xf4f1ea)); cup.add(c1);
     const c2 = new THREE.Mesh(new THREE.CylinderGeometry(.115,.1,.12,12), M(0x8b5a2b)); c2.position.y = -.01; cup.add(c2);
@@ -1897,19 +1957,12 @@ function makeAvatar(sp){
 }
 // jaringan jalan: persimpangan tiap jalan dengan gang & titik tengah
 const WX = [-76,-61,-46,-31,-17];
-function wNodes(){ const n = []; STREET_Z.forEach((z,zi)=>WX.forEach((x,xi)=>n.push({x, z, xi, zi}))); return n; }
-const WNODES = wNodes();
-function wNeighbors(i){
-  const a = WNODES[i], out = [];
-  WNODES.forEach((b,j)=>{
-    if (b.zi === a.zi && Math.abs(b.xi - a.xi) === 1) out.push(j);
-    if ((a.xi === 0 || a.xi === WX.length-1) && b.xi === a.xi && Math.abs(b.zi - a.zi) === 1) out.push(j);
-  });
-  return out;
-}
-const WNB = WNODES.map((_,i)=>wNeighbors(i));
+const WNODES = []; STREET_Z.forEach((z,zi)=>WX.forEach((x,xi)=>WNODES.push({x, z, xi, zi})));
+const WNB = WNODES.map((a,i)=>{ const out = []; WNODES.forEach((b,j)=>{
+  if (b.zi === a.zi && Math.abs(b.xi - a.xi) === 1) out.push(j);
+  if ((a.xi === 0 || a.xi === WX.length-1) && b.xi === a.xi && Math.abs(b.zi - a.zi) === 1) out.push(j); }); return out; });
 const wPos = i => { const n = WNODES[i]; return new THREE.Vector3(n.x + (n.xi===0 ? 1.3 : n.xi===WX.length-1 ? -1.3 : 0), 0, n.z + 1.6); };
-const WALKERS = {};
+const WALKERS = {}, WINFO = {};
 const MAX_WALKERS = 40;
 function nearestNode(x, z){ let bi = 0, bd = 1e9; WNODES.forEach((n,i)=>{ const d = Math.hypot(n.x-x, n.z-z); if (d < bd){ bd = d; bi = i; } }); return bi; }
 function syncWalkers(list){
@@ -1917,20 +1970,22 @@ function syncWalkers(list){
   Object.values(list).slice(0, 400).forEach(w=>{
     if (!w || !w.username || !w.niwn) return;
     const key = String(w.username).toLowerCase();
-    const sig = JSON.stringify(avatarSpec(w));
+    WINFO[key] = Object.assign({}, WINFO[key] || {}, w);
+    const sig = JSON.stringify(avatarSpec(WINFO[key]));
     const ex = WALKERS[key];
     if (ex && ex.sig === sig) return;
     if (!ex && Object.keys(WALKERS).length >= MAX_WALKERS) return;
-    if (ex){ scene.remove(ex.av.g); scene.remove(ex.tag); const pi = pickables.indexOf(ex.av.g); if (pi >= 0) pickables.splice(pi,1); }
-    const av = makeAvatar(avatarSpec(w));
-    const tag = label('@' + String(w.username).replace(/^@+/,''), {h:.75, size:28, bg:'rgba(255,253,248,.95)', fg:'#1f3a5f', onTop:true});
+    if (ex){ scene.remove(ex.av.g); [ex.av.g, ex.tag].forEach(o=>{ const pi = pickables.indexOf(o); if (pi >= 0) pickables.splice(pi,1); }); }
+    const av = makeAvatar(avatarSpec(WINFO[key]));
+    const tag = ex ? ex.tag : label('@' + String(w.username).replace(/^@+/,''), {h:.75, size:28, bg:'rgba(255,253,248,.95)', fg:'#1f3a5f', onTop:true});
     let start = Math.floor(Math.random()*WNODES.length);
     const hs = typeof w.houseId === 'string' && slotOf(w.houseId);
     if (hs) start = nearestNode(hs.x, hs.z + 7);
     const p = ex ? ex.av.g.position.clone() : wPos(start).add(new THREE.Vector3((Math.random()-.5)*2, 0, 0));
-    av.g.position.copy(p); av.g.userData = {type:'warga', data:{username: String(w.username)}};
-    scene.add(av.g); pickables.push(av.g);
-    WALKERS[key] = {av, tag, sig, node: ex ? ex.node : start, target: ex ? ex.target : null, wait: 1 + Math.random()*2, phase: Math.random()*6, speed: 2 + Math.random()*.8};
+    av.g.position.copy(p); if (ex) av.g.rotation.y = ex.av.g.rotation.y;
+    av.g.userData = {type:'warga', data:{username: key}}; tag.userData = {type:'warga', data:{username: key}};
+    scene.add(av.g); pickables.push(av.g, tag);
+    WALKERS[key] = {av, tag, sig, node: ex ? ex.node : start, target: ex ? ex.target : null, wait: ex ? ex.wait : 1 + Math.random()*2, phase: Math.random()*6, speed: 2 + Math.random()*.8};
   });
 }
 function updateWalkers(dt, time){
@@ -1955,7 +2010,196 @@ function updateWalkers(dt, time){
     }
     W.tag.position.set(g.position.x, 3.15, g.position.z);
   }
+  updateFollow(dt);
+  BIG_LABELS.forEach(l=>{ l.visible = camera.position.y > 30 && camera.position.distanceTo(l.position) > 48; });   // label distrik disembunyikan saat kamera dekat
 }
+
+/* ---------- KAMERA MENGIKUTI KARAKTER ---------- */
+let followKey = null;
+controls.addEventListener('start', ()=>{ followKey = null; });
+function startFollow(key){ if (!WALKERS[key]) { toast('Karakter belum muncul di peta.'); return; } if (playing) setPlay(false); anim = null; followKey = key; }
+function updateFollow(dt){
+  if (!followKey || !WALKERS[followKey] || anim) return;
+  const p = WALKERS[followKey].av.g.position, open = sheet.classList.contains('open');
+  const tg = new THREE.Vector3(p.x, 1.4, p.z + (open ? 4.2 : 0)), cam = tg.clone().add(new THREE.Vector3(3.5, open ? 8 : 6, open ? 14 : 11));
+  const k = Math.min(1, dt*3.5);
+  controls.target.lerp(tg, k); camera.position.lerp(cam, k);
+}
+
+/* ---------- KARTU PROFIL WARGA ---------- */
+const pStyle = document.createElement('style');
+pStyle.textContent = `
+.idcard{border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#1f3a5f,#2c5282);color:#fff;box-shadow:0 8px 24px rgba(31,58,95,.3);margin:4px 0 12px}
+.idcard .ih{display:flex;align-items:center;gap:8px;padding:9px 14px;background:#f2b134;color:#2a1b00;font-size:11px;font-weight:800;letter-spacing:.08em}
+.idcard .ib{display:flex;gap:12px;padding:12px 14px 10px}
+.idcard .ip{width:96px;height:120px;border-radius:10px;background:radial-gradient(circle at 50% 35%,#e9f2fb,#a9c3dd);flex:none;border:2px solid rgba(255,255,255,.7);padding:0;cursor:pointer;overflow:hidden;position:relative}
+.idcard .ip img{width:100%;height:100%;object-fit:cover;display:block}
+.idcard .ip span{position:absolute;left:0;right:0;bottom:0;background:rgba(31,58,95,.85);font-size:10px;font-weight:800;padding:3px 0;color:#fff}
+.idcard .if{flex:1;min-width:0;font-size:12px;line-height:1.35}
+.idcard .if b{display:block;font-size:17px;word-break:break-all;margin-bottom:4px}
+.idcard .if div{opacity:.75;font-size:10px;letter-spacing:.06em;margin-top:5px}
+.idcard .if p{margin:0;font-weight:700}
+.idcard .ifoot{display:flex;justify-content:space-between;align-items:center;padding:7px 14px;background:rgba(0,0,0,.18);font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.12em}
+.prow{display:flex;gap:8px}.prow .btn{flex:1;margin-top:0}
+.stx{position:fixed;inset:0;z-index:40;background:linear-gradient(#cfe6f5,#eef4f8 60%);display:none;flex-direction:column}
+.stx.open{display:flex}
+.stx .sv{flex:1;min-height:0;position:relative;touch-action:none}
+.stx .sv canvas{width:100%!important;height:100%!important;display:block}
+.stx .sh{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;font-weight:800;color:#1f3a5f}
+.stx .sp{max-height:46vh;overflow:auto;background:#fffdf8;border-radius:18px 18px 0 0;padding:12px 14px 14px;box-shadow:0 -6px 20px rgba(0,0,0,.12)}
+.stx .sg{margin:6px 0 10px}.stx .sg h4{margin:0 0 6px;font-size:12px;color:#556;letter-spacing:.04em}
+.stx .ch{display:flex;flex-wrap:wrap;gap:6px}
+.stx .ch button{border:1px solid #d6d2c4;background:#fff;border-radius:999px;padding:6px 11px;font:inherit;font-size:13px}
+.stx .ch button.on{background:#1f3a5f;color:#fff;border-color:#1f3a5f}
+.stx .sw{width:30px;height:30px;border-radius:50%;padding:0!important;border:2px solid #fff!important;box-shadow:0 0 0 1px #c9c4b4}
+.stx .sw.on{box-shadow:0 0 0 3px #1f3a5f!important}`;
+document.head.appendChild(pStyle);
+const wInfo = key => WINFO[key] || (typeof WARGA !== 'undefined' && WARGA[key]) || (typeof WDB !== 'undefined' && WDB[key]) || null;
+// foto karakter untuk kartu (render 3D kecil)
+let pRT = null, pScene = null, pCam = null; const PORTRAIT = {};
+const PW = 192, PH = 240;
+function portraitRig(){
+  if (pRT) return;
+  pRT = new THREE.WebGLRenderTarget(PW, PH);
+  pScene = new THREE.Scene(); pScene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.05));
+  const dl = new THREE.DirectionalLight(0xffffff, .7); dl.position.set(2,4,5); pScene.add(dl);
+  pCam = new THREE.PerspectiveCamera(30, PW/PH, .1, 50);
+}
+function portraitOf(w){
+  const sp = avatarSpec(w), sig = JSON.stringify(sp); if (PORTRAIT[sig]) return PORTRAIT[sig];
+  try {
+    portraitRig(); const av = makeAvatar(sp); av.g.rotation.y = -.35; pScene.add(av.g);
+    pCam.position.set(0, 1.75, 5.6); pCam.lookAt(0, 1.45, 0);
+    const bg = scene.background; renderer.setRenderTarget(pRT); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(pScene, pCam);
+    const px = new Uint8Array(PW*PH*4); renderer.readRenderTargetPixels(pRT, 0, 0, PW, PH, px); renderer.setRenderTarget(null); renderer.setClearColor(0x000000, 1);
+    pScene.remove(av.g);
+    const c = document.createElement('canvas'); c.width = PW; c.height = PH; const g2 = c.getContext('2d'), img = g2.createImageData(PW, PH);
+    for (let y = 0; y < PH; y++) img.data.set(px.subarray((PH-1-y)*PW*4, (PH-y)*PW*4), y*PW*4);
+    g2.putImageData(img, 0, 0); const url = c.toDataURL('image/png'); PORTRAIT[sig] = url; return url;
+  } catch(_) { try { renderer.setRenderTarget(null); } catch(__) {} return ''; }
+}
+function profileHTML(key){
+  const w = wInfo(key); if (!w) return '';
+  const u = String(w.username || key).replace(/^@+/,'');
+  const fol = (w.follow === true || w.follow === 'Yes') ? 'Yes' : (w.follow === false || w.follow === 'No') ? 'No' : null;
+  const und = w.houseId ? '🏆 Pemenang Undian Rumah' : fol === 'Yes' ? '✅ Ikut Undian Rumah' : fol === 'No' ? '❌ Belum follow (tidak ikut undian)' : '⏳ Follow sedang dicek';
+  const img = portraitOf(w);
+  let land = `<div class="card"><h3>🏞️ Tanah & rumah</h3><p>Belum punya tanah. ${fol === 'Yes' ? 'Sudah terdaftar di <b>Undian Rumah</b> berikutnya — semoga beruntung!' : 'Follow akun Republik Nusawara supaya bisa ikut <b>Undian Rumah</b>.'}</p></div>`;
+  const hid = typeof w.houseId === 'string' ? w.houseId : '', s = hid && slotOf(hid), g = hid && houseGroups[hid];
+  if (hid){
+    const built = g && g.userData.data.status !== 'tanah';
+    land = `<div class="card"><h3>${built ? '🏠 Rumah' : '🏞️ Tanah'} milik @${esc(u)}</h3>
+      <dl><dt>Alamat</dt><dd>${esc(s ? alamatOf(s) : hid)}</dd><dt>ID</dt><dd class="mono">${esc(hid)}</dd>
+      <dt>Status</dt><dd>${built ? '✅ Sudah dibangun' : '⏳ Tanah · menunggu desain disetujui Presiden'}</dd></dl>
+      ${g ? `<button class="btn ghost" data-gohouse="${esc(hid)}">📍 Lihat ${built ? 'rumah' : 'tanah'} & ${built ? 'billboard' : 'kirim desain'}</button>` : ''}</div>`;
+  }
+  const own = isOwner ? sandiCard(key, u) : `<button class="btn ghost" data-sandi="${esc(key)}" style="margin-top:8px">🔑 Ganti kata sandi</button>`;
+  return `<div class="kicker">Warga Republik Nusawara</div>
+    <div class="idcard"><div class="ih">🛡️ REPUBLIK NUSAWARA · KARTU WARGA</div>
+      <div class="ib"><button class="ip" data-follow="${esc(key)}" aria-label="Lihat karakter">${img ? `<img src="${img}" alt="">` : ''}<span>🧍 Lihat karakter</span></button>
+        <div class="if"><b>@${esc(u)}</b><div>NIWN</div><p class="mono">${esc(w.niwn || '-')}</p><div>STATUS</div><p>Warga (WRN)</p><div>TERDAFTAR</div><p>${esc(w.terdaftar || '-')}</p></div></div>
+      <div class="ifoot"><span>${esc(w.niwn || '')}</span><span>${und.split(' ')[0]}</span></div></div>
+    <p style="margin:0 0 10px;font-size:13px">${und}</p>
+    <div class="prow"><button class="btn" data-follow="${esc(key)}">🧍 Lihat karakter</button><button class="btn" data-gaya="${esc(key)}">🎨 Ganti gaya${isOwner ? '' : ' 🔑'}</button></div>
+    ${land}${own}`;
+}
+function sandiCard(key, u){
+  const k = typeof SANDI !== 'undefined' ? SANDI[key] : null;
+  if (!k) return `<div class="card"><h3>🔑 Kata Sandi Warga</h3><p>@${esc(u)} belum punya kata sandi. Minta Claude membuatkannya.</p></div>`;
+  const dm = `Halo @${u}! 🛡️ Kata Sandi Warga kamu di Republik Nusawara: ${k}. Pakai untuk ganti gaya karakter, kirim desain rumah, dan ganti billboard di https://republiknusawara.github.io/Nusawara/ (cari username kamu). Kamu bisa mengganti kata sandi sendiri. Jangan berikan kepada siapa pun.`;
+  return `<div class="card"><h3>🔑 Kata Sandi Warga (khusus kamu)</h3><p style="font-size:22px;font-weight:800;letter-spacing:.15em" class="mono">${esc(k)}</p>
+    <p class="note">Kirim lewat DM Instagram. Pesan siap salin:</p><p style="font-size:13px;background:#f4f1e8;border-radius:10px;padding:10px">${esc(dm)}</p>
+    <button class="btn ghost" data-copy="${esc(dm)}">📋 Salin pesan DM</button></div>`;
+}
+function showProfile(key, mode){
+  const w = wInfo(key); if (!w) return;
+  const hid = typeof w.houseId === 'string' ? w.houseId : '', g = hid && houseGroups[hid];
+  select(null);
+  if (mode === 'search' && g){
+    followKey = null; const p = g.position, tanah = g.userData.data.status === 'tanah';
+    if (tanah) flyTo(new THREE.Vector3(p.x,0,p.z+6), new THREE.Vector3(p.x+4,12,p.z+21));
+    else flyTo(new THREE.Vector3(p.x,4,p.z+5), new THREE.Vector3(p.x+6,13,p.z+26));
+    select(g);
+  } else startFollow(key);
+  openSheet(()=>profileHTML(key)); hideHint();
+}
+sheetBody.addEventListener('click', e=>{
+  const f = e.target.closest('[data-follow]'); if (f){ startFollow(f.dataset.follow); toast('🧍 Mengikuti @' + f.dataset.follow); return; }
+  const gs = e.target.closest('[data-gaya]'); if (gs){ if (isOwner) openStyle(gs.dataset.gaya); else if (typeof openLock === 'function') openLock(gs.dataset.gaya, 'gaya'); return; }
+  const ps = e.target.closest('[data-sandi]'); if (ps){ if (typeof openLock === 'function') openLock(ps.dataset.sandi, 'sandi'); return; }
+  const gh = e.target.closest('[data-gohouse]'); if (gh){ const g = houseGroups[gh.dataset.gohouse]; if (g){ followKey = null; focusObj(g); } }
+});
+
+/* ---------- STUDIO GAYA KARAKTER (layar penuh) ---------- */
+const stEl = document.createElement('div'); stEl.className = 'stx';
+stEl.innerHTML = `<div class="sv" id="stV"><div class="sh"><span id="stT">Gaya karakter</span><button class="btn ghost" id="stX" style="margin:0;padding:8px 12px;width:auto;flex:none">✕ Tutup</button></div></div>
+  <div class="sp"><div id="stO"></div><p class="note" id="stM"></p><div class="prow"><button class="btn ghost" id="stR">Acak 🎲</button><button class="btn" id="stS">Simpan gaya</button></div></div>`;
+document.body.appendChild(stEl);
+let st = null, stRen = null, stScene = null, stCam = null, stAv = null, stRot = -.3, stDrag = null;
+function stRig(){
+  if (stRen) return;
+  stRen = new THREE.WebGLRenderer({antialias:true, alpha:true}); stRen.setPixelRatio(Math.min(devicePixelRatio, 2));
+  document.getElementById('stV').prepend(stRen.domElement);
+  stScene = new THREE.Scene(); stScene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1));
+  const dl = new THREE.DirectionalLight(0xffffff, .75); dl.position.set(3,5,6); stScene.add(dl);
+  const fl = new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.4,.08,40), M(0xd9e6f0)); fl.position.y = -.04; stScene.add(fl);
+  stCam = new THREE.PerspectiveCamera(32, 1, .1, 50);
+  const v = document.getElementById('stV');
+  v.addEventListener('pointerdown', e=>{ stDrag = e.clientX; });
+  addEventListener('pointermove', e=>{ if (stDrag !== null){ stRot += (e.clientX - stDrag)*.012; stDrag = e.clientX; } });
+  addEventListener('pointerup', ()=>{ stDrag = null; });
+}
+function stBuild(){
+  if (stAv) stScene.remove(stAv.g);
+  stAv = makeAvatar(st.spec); stScene.add(stAv.g);
+}
+function stResize(){ const v = document.getElementById('stV'), w = v.clientWidth, h = v.clientHeight; stRen.setSize(w, h, false); stCam.aspect = w/h; stCam.updateProjectionMatrix();
+  const d = Math.max(5.2, 3.2 / Math.tan(16*Math.PI/180) / Math.min(1.6, Math.max(.5, w/h)) * .55); stCam.position.set(0, 1.5, d); stCam.lookAt(0, 1.3, 0); }
+function stLoop(t){ if (!st) return; if (stAv){ stAv.g.rotation.y = stRot + (stDrag === null ? Math.sin(t/1400)*.25 : 0); const b = Math.sin(t/300)*.04; stAv.body.position.y = Math.abs(b); } stRen.render(stScene, stCam); requestAnimationFrame(stLoop); }
+const SWATCH = { kulit: AVA_SKIN, rambut: AVA_HAIR, baju: AVA_TOP, celana: AVA_BOT, sepatu: AVA_SHOE, topiWarna: AVA_TOP };
+function stOptions(){
+  const sp = st.spec, chip = (k, list) => `<div class="ch">${list.map(([v,l])=>`<button data-k="${k}" data-v="${v}" class="${sp[k]===v?'on':''}">${l}</button>`).join('')}</div>`;
+  const sw = k => `<div class="ch">${SWATCH[k].map(c=>`<button class="sw ${sp[k].toLowerCase()===c.toLowerCase()?'on':''}" data-k="${k}" data-v="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}</div>`;
+  const grp = (t, inner) => `<div class="sg"><h4>${t}</h4>${inner}</div>`;
+  document.getElementById('stO').innerHTML =
+    grp('MODEL RAMBUT', chip('rambutModel', AVA_OPT.rambutModel)) + grp('WARNA RAMBUT', sw('rambut')) +
+    grp('MODEL BAJU', chip('bajuModel', AVA_OPT.bajuModel)) + grp('WARNA BAJU', sw('baju')) +
+    grp('MODEL CELANA', chip('celanaModel', AVA_OPT.celanaModel)) + grp('WARNA CELANA', sw('celana')) +
+    grp('SEPATU', sw('sepatu')) + grp('WARNA KULIT', sw('kulit')) +
+    grp('KACAMATA', chip('kacamata', AVA_OPT.kacamata)) + grp('TOPI', chip('topi', AVA_OPT.topi)) + (sp.topi !== 'tidak' ? grp('WARNA TOPI', sw('topiWarna')) : '') +
+    grp('AKSESORIS', chip('kopi', AVA_OPT.kopi));
+}
+document.getElementById('stO').addEventListener('click', e=>{ const b = e.target.closest('[data-k]'); if (!b || !st) return; st.spec[b.dataset.k] = b.dataset.v; stBuild(); stOptions(); });
+document.getElementById('stR').onclick = ()=>{ if (!st) return; const r = l => l[Math.floor(Math.random()*l.length)];
+  Object.assign(st.spec, { rambutModel: r(AVA_OPT.rambutModel)[0], bajuModel: r(AVA_OPT.bajuModel)[0], celanaModel: r(AVA_OPT.celanaModel)[0], rambut: r(AVA_HAIR), baju: r(AVA_TOP), celana: r(AVA_BOT), sepatu: r(AVA_SHOE), kacamata: r(AVA_OPT.kacamata)[0], topi: r(AVA_OPT.topi)[0], topiWarna: r(AVA_TOP) });
+  stBuild(); stOptions(); };
+function openStyle(key){
+  const w = wInfo(key); if (!w) return;
+  stRig(); st = { key, spec: avatarSpec(w), w }; stRot = -.3;
+  document.getElementById('stT').textContent = '🎨 Gaya @' + String(w.username||key).replace(/^@+/,'');
+  document.getElementById('stM').textContent = 'Geser karakter untuk memutar. Pilih gaya, lalu Simpan.';
+  stEl.classList.add('open'); stResize(); stBuild(); stOptions(); requestAnimationFrame(stLoop);
+}
+function closeStyle(){ st = null; stEl.classList.remove('open'); }
+document.getElementById('stX').onclick = closeStyle;
+addEventListener('resize', ()=>{ if (st) stResize(); });
+document.getElementById('stS').onclick = async ()=>{
+  if (!st) return;
+  const key = st.key, avatar = Object.assign({}, st.spec), msg = document.getElementById('stM');
+  if (isOwner && db){
+    msg.textContent = 'Menyimpan…';
+    try { const d = await db.doc('warga/' + key).get(); if (!d.exists) throw 0;
+      await db.doc('warga/' + key).set(Object.assign({}, d.data(), {avatar}));
+      WDB[key] = Object.assign({}, WDB[key] || d.data(), {avatar}); } catch(_) { msg.textContent = 'Gagal menyimpan. Coba lagi.'; return; }
+    syncWalkers({[key]: Object.assign({}, wInfo(key), {avatar})}); closeStyle(); toast('Gaya karakter disimpan ✓');
+    if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); return;
+  }
+  if (typeof submitWarga === 'function') submitWarga(key, 'gaya', {avatar: JSON.stringify(avatar)});
+  syncWalkers({[key]: Object.assign({}, wInfo(key), {avatar})});
+  closeStyle(); startFollow(key);
+  if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn();
+  toast('✓ Gaya tampil di layarmu. Tekan Kirim di formulir supaya semua warga melihatnya (±1 jam).');
+};
 
 /* ---------- LOOP ---------- */
 addEventListener('resize', ()=>{

@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-11T04:10:00+11:00",
+ "updatedAt": "2026-11-11T04:40:00+11:00",
  "penduduk": 1,
  "warga": {
   "julianto_jul": {
@@ -11,12 +11,16 @@
    "avatar": {
     "kulit": "#e0ac69",
     "rambut": "#1b1b1b",
+    "rambutModel": "pendek",
     "baju": "#f4f1ea",
+    "bajuModel": "hoodie",
     "celana": "#2b3a55",
+    "celanaModel": "panjang",
     "sepatu": "#ffffff",
-    "kacamata": true,
-    "kopi": true,
-    "tudung": true
+    "kacamata": "hitam",
+    "topi": "tidak",
+    "topiWarna": "#1f3a5f",
+    "kopi": "ya"
    }
   }
  },
@@ -60,6 +64,6 @@
   }
  ],
  "kunci": {
-  "MLT-MAWAR-001": "842ce4c4352b1e9ae4c55729a8225ae801e7161a42acc6a8b1fed7d1dd74da47"
+  "julianto_jul": "0c29b97300c8d682961c4763e3af2b49c6fb1cbf8bdc827834a8a994f52da8f8"
  }
 }
