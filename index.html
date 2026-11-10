@@ -974,8 +974,15 @@ function setPlay(on){
   document.body.classList.toggle('play', on);
   if (on){
     closeSheet();
-    const p = pres.position, ry = pres.rotation.y;
-    flyTo(new THREE.Vector3(p.x, p.y+2, p.z), new THREE.Vector3(p.x - Math.sin(ry)*15, p.y+11, p.z - Math.cos(ry)*15));
+    const p = pres.position;
+    if (p.y > 1){
+      // di panggung: Presiden menghadap warga, kamera dari sisi penonton (depan podium)
+      pres.rotation.y = 0;
+      flyTo(new THREE.Vector3(p.x, p.y+2, p.z), new THREE.Vector3(p.x, p.y+9, p.z+16));
+    } else {
+      const ry = pres.rotation.y;
+      flyTo(new THREE.Vector3(p.x, p.y+2, p.z), new THREE.Vector3(p.x - Math.sin(ry)*15, p.y+11, p.z - Math.cos(ry)*15));
+    }
     hideHint();
     toast(matchMedia('(pointer: coarse)').matches ? 'Geser joystick untuk berjalan. Dorong penuh untuk lari.' : 'WASD / panah untuk berjalan · Shift lari · Spasi menyapa');
   } else {
