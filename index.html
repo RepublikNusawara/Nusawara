@@ -1640,7 +1640,11 @@ function setUndianList(list){ UNDIAN = list.filter(u=>u && Number.isFinite(+u.no
 function undianPublic(d){
   if (d && d.rumah && typeof d.rumah === 'object' && !db) Object.values(d.rumah).forEach(r=>setRumah(r, false));
   if (d && Array.isArray(d.undian) && !db) setUndianList(d.undian);
-  if (d && d.warga) syncWalkers(d.warga);
+  if (d && d.warga){
+    for (const [k, w] of Object.entries(d.warga)){ let loc = null; try { loc = JSON.parse(localStorage.getItem('nusawara.gaya.' + k) || 'null'); } catch(_) {}
+      if (loc && w && typeof w === 'object'){ if (JSON.stringify(avatarSpec(Object.assign({}, w))) === JSON.stringify(avatarSpec({username:w.username, avatar:loc}))) { try { localStorage.removeItem('nusawara.gaya.' + k); } catch(_) {} } else w.avatar = loc; } }
+    syncWalkers(d.warga);
+  }
   if (d && d.kunci && typeof d.kunci === 'object') for (const [k,v] of Object.entries(d.kunci)) if (typeof v === 'string' && /^[0-9a-f]{64}$/.test(v)) KUNCI[k] = v;
 }
 function undianCloud(){
@@ -1990,6 +1994,7 @@ function syncWalkers(list){
 }
 function updateWalkers(dt, time){
   for (const k in WALKERS){
+    if (k === ctl.key) continue;
     const W = WALKERS[k], g = W.av.g;
     if (W.wait > 0){
       W.wait -= dt;
@@ -2011,6 +2016,7 @@ function updateWalkers(dt, time){
     W.tag.position.set(g.position.x, 3.15, g.position.z);
   }
   updateFollow(dt);
+  updateCtl(dt, time);
   BIG_LABELS.forEach(l=>{ l.visible = camera.position.y > 30 && camera.position.distanceTo(l.position) > 48; });   // label distrik disembunyikan saat kamera dekat
 }
 
@@ -2101,6 +2107,7 @@ function profileHTML(key){
       <div class="ifoot"><span>${esc(w.niwn || '')}</span><span>${und.split(' ')[0]}</span></div></div>
     <p style="margin:0 0 10px;font-size:13px">${und}</p>
     <div class="prow"><button class="btn" data-follow="${esc(key)}">🧍 Lihat karakter</button><button class="btn" data-gaya="${esc(key)}">🎨 Ganti gaya${isOwner ? '' : ' 🔑'}</button></div>
+    <button class="btn" data-main="${esc(key)}" style="margin-top:8px;background:#f2b134;color:#2a1b00">🎮 Main karakter (jalan, lompat, lari)</button>
     ${land}${own}`;
 }
 function sandiCard(key, u){
@@ -2194,12 +2201,173 @@ document.getElementById('stS').onclick = async ()=>{
     syncWalkers({[key]: Object.assign({}, wInfo(key), {avatar})}); closeStyle(); toast('Gaya karakter disimpan ✓');
     if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); return;
   }
-  if (typeof submitWarga === 'function') submitWarga(key, 'gaya', {avatar: JSON.stringify(avatar)});
+  try { localStorage.setItem('nusawara.gaya.' + key, JSON.stringify(avatar)); } catch(_) {}
   syncWalkers({[key]: Object.assign({}, wInfo(key), {avatar})});
   closeStyle(); startFollow(key);
   if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn();
-  toast('✓ Gaya tampil di layarmu. Tekan Kirim di formulir supaya semua warga melihatnya (±1 jam).');
+  toast('✓ Gaya karakter tersimpan');
 };
+
+/* ---------- MAIN KARAKTER SENDIRI: keypad, lompat, jongkok, lari, pukul + efek suara ---------- */
+const gStyle = document.createElement('style');
+gStyle.textContent = `
+.gpad{position:fixed;inset:auto 0 calc(14px + env(safe-area-inset-bottom)) 0;z-index:12;display:none;justify-content:space-between;align-items:flex-end;padding:0 14px;pointer-events:none}
+body.ctl .gpad{display:flex}
+body.ctl .actions, body.ctl .sheet, body.ctl .hint{display:none!important}
+.dpad{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(3,58px);gap:4px;pointer-events:auto}
+.dpad button,.gact button{border:0;border-radius:14px;background:rgba(31,58,95,.82);color:#fff;font:inherit;font-weight:800;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,.25);touch-action:none;user-select:none;-webkit-user-select:none}
+.dpad button:active,.dpad button.on,.gact button.on{background:#f2b134;color:#2a1b00}
+.gact{display:grid;grid-template-columns:repeat(2,74px);gap:8px;pointer-events:auto}
+.gact button{height:62px;font-size:13px;line-height:1.1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.gact button b{font-size:20px}
+.gtop{white-space:nowrap;position:fixed;top:calc(118px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:12;display:none;gap:8px;align-items:center;background:rgba(31,58,95,.9);color:#fff;border-radius:999px;padding:6px 6px 6px 14px;font-weight:800;font-size:13px}
+body.ctl .gtop{display:flex}
+.gtop button{border:0;border-radius:999px;background:#fff;color:#1f3a5f;font:inherit;font-weight:800;padding:6px 12px}
+.mbtn{position:fixed;right:12px;bottom:calc(150px + env(safe-area-inset-bottom));z-index:6;width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,253,248,.95);box-shadow:0 4px 14px rgba(0,0,0,.18);font-size:20px}
+body.ctl .mbtn{bottom:auto;top:calc(118px + env(safe-area-inset-top))}`;
+document.head.appendChild(gStyle);
+const gpad = document.createElement('div'); gpad.className = 'gpad';
+gpad.innerHTML = `<div class="dpad"><span></span><button data-d="up" aria-label="Maju">▲</button><span></span>
+  <button data-d="left" aria-label="Kiri">◀</button><span></span><button data-d="right" aria-label="Kanan">▶</button>
+  <span></span><button data-d="down" aria-label="Mundur">▼</button><span></span></div>
+  <div class="gact"><button data-a="jump"><b>⤒</b>Lompat</button><button data-a="punch"><b>👊</b>Pukul</button>
+  <button data-a="crouch"><b>⤓</b>Jongkok</button><button data-a="run"><b>💨</b>Lari</button></div>`;
+document.body.appendChild(gpad);
+const gtop = document.createElement('div'); gtop.className = 'gtop'; gtop.innerHTML = `<span id="gName">🎮</span><button id="gExit">✕ Selesai</button>`;
+document.body.appendChild(gtop);
+const ctl = { key:null, d:{up:0,down:0,left:0,right:0}, run:false, crouch:false, vy:0, y:0, punchT:0, stepT:0, last:null, cr:1 };
+function holdBtn(el, on, off){
+  el.addEventListener('pointerdown', e=>{ e.preventDefault(); try{ el.setPointerCapture(e.pointerId); }catch(_){} el.classList.add('on'); on(); });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(t=>el.addEventListener(t, ()=>{ el.classList.remove('on'); off(); }));
+}
+gpad.querySelectorAll('[data-d]').forEach(b=>holdBtn(b, ()=>ctl.d[b.dataset.d]=1, ()=>ctl.d[b.dataset.d]=0));
+holdBtn(gpad.querySelector('[data-a="jump"]'), ()=>ctlJump(), ()=>{});
+holdBtn(gpad.querySelector('[data-a="punch"]'), ()=>ctlPunch(), ()=>{});
+holdBtn(gpad.querySelector('[data-a="crouch"]'), ()=>ctlCrouch(true), ()=>ctlCrouch(false));
+const runBtn = gpad.querySelector('[data-a="run"]');
+runBtn.addEventListener('pointerdown', e=>{ e.preventDefault(); ctl.run = !ctl.run; sfx(ctl.run ? 520 : 380, .1, 'triangle', .07); setTimeout(()=>runBtn.classList.toggle('on', ctl.run), 0); });
+['pointerup','pointercancel'].forEach(t=>runBtn.addEventListener(t, ()=>runBtn.classList.toggle('on', ctl.run)));
+document.getElementById('gExit').onclick = ()=>stopCtl();
+addEventListener('keydown', e=>{
+  if (!ctl.key || e.target.tagName === 'INPUT') return;
+  const k = e.key.toLowerCase(), m = {w:'up',arrowup:'up',s:'down',arrowdown:'down',a:'left',arrowleft:'left',d:'right',arrowright:'right'}[k];
+  if (m){ ctl.d[m] = 1; e.preventDefault(); }
+  if (k === ' ' && !e.repeat){ ctlJump(); e.preventDefault(); }
+  if (k === 'f' && !e.repeat) ctlPunch();
+  if (k === 'c' && !e.repeat) ctlCrouch(true);
+  if (k === 'shift') ctl.run = true;
+});
+addEventListener('keyup', e=>{
+  if (!ctl.key) return;
+  const k = e.key.toLowerCase(), m = {w:'up',arrowup:'up',s:'down',arrowdown:'down',a:'left',arrowleft:'left',d:'right',arrowright:'right'}[k];
+  if (m) ctl.d[m] = 0; if (k === 'c') ctlCrouch(false); if (k === 'shift') ctl.run = false;
+});
+function startCtl(key){
+  const W = WALKERS[key]; if (!W) { toast('Karakter belum muncul di peta.'); return; }
+  if (playing) setPlay(false); if (shotMode) setShot(false);
+  closeSheet(); followKey = null; anim = null;
+  Object.assign(ctl, {key, run:false, crouch:false, vy:0, y:0, punchT:0, cr:1, d:{up:0,down:0,left:0,right:0}});
+  W.target = null; W.wait = 0;
+  const p = W.av.g.position; ctl.last = p.clone();
+  flyTo(new THREE.Vector3(p.x, 1.4, p.z), new THREE.Vector3(p.x + 2.5, 7.5, p.z + 11));
+  document.getElementById('gName').textContent = '🎮 @' + String((wInfo(key)||{}).username || key).replace(/^@+/,'');
+  document.body.classList.add('ctl'); hideHint(); music.start();
+  toast(matchMedia('(pointer: coarse)').matches ? 'Pakai tombol panah untuk berjalan.' : 'WASD/panah jalan · Spasi lompat · C jongkok · Shift lari · F pukul');
+}
+function stopCtl(){
+  const W = WALKERS[ctl.key];
+  if (W){ W.av.g.position.y = 0; W.av.g.scale.y = .85; W.wait = 1.5; W.node = nearestNode(W.av.g.position.x, W.av.g.position.z); }
+  ctl.key = null; document.body.classList.remove('ctl'); runBtn.classList.remove('on');
+}
+function ctlJump(){ if (!ctl.key || ctl.y > .01) return; ctl.vy = ctl.crouch ? 6 : 8.5; sfx(330, .22, 'square', .06, 0, 880); }
+function ctlPunch(){ if (!ctl.key || ctl.punchT > 0) return; ctl.punchT = .32; boom(0, .08); sfx(180, .12, 'sawtooth', .05, 0, 90); }
+function ctlCrouch(on){ if (!ctl.key || ctl.crouch === on) return; ctl.crouch = on; sfx(on ? 240 : 300, .12, 'sine', .07, 0, on ? 140 : 420); }
+const _fw = new THREE.Vector3(), _rt = new THREE.Vector3(), _dir = new THREE.Vector3();
+function updateCtl(dt, time){
+  if (!ctl.key) return;
+  const W = WALKERS[ctl.key]; if (!W) { stopCtl(); return; }
+  const g = W.av.g, A = W.av;
+  const ix = ctl.d.right - ctl.d.left, iy = ctl.d.up - ctl.d.down, mag = Math.min(1, Math.hypot(ix, iy));
+  const speed = (ctl.crouch ? 1.6 : ctl.run ? 9 : 4.2) * mag;
+  if (mag > 0){
+    camera.getWorldDirection(_fw); _fw.y = 0; _fw.normalize(); _rt.set(-_fw.z, 0, _fw.x);
+    _dir.copy(_rt).multiplyScalar(ix).addScaledVector(_fw, iy).normalize();
+    const nx = g.position.x + _dir.x*speed*dt, nz = g.position.z + _dir.z*speed*dt;
+    // batas gerak: tetap di dalam peta dan tidak menembus bangunan
+    const inMap = (x,z) => Math.abs(x) < 112 && Math.abs(z) < 112;
+    if (inMap(nx, g.position.z) && !blocked(nx, g.position.z)) g.position.x = nx;
+    if (inMap(g.position.x, nz) && !blocked(g.position.x, nz)) g.position.z = nz;
+    let r = Math.atan2(_dir.x, _dir.z) - g.rotation.y; r = Math.atan2(Math.sin(r), Math.cos(r)); g.rotation.y += r*Math.min(1, dt*12);
+    W.phase += dt * (ctl.run ? 14 : ctl.crouch ? 5 : 9);
+    ctl.stepT -= dt;
+    if (ctl.stepT <= 0 && ctl.y < .01){ ctl.stepT = ctl.run ? .2 : ctl.crouch ? .45 : .33; sfx(ctl.run ? 150 : 120, .05, 'triangle', ctl.crouch ? .03 : .05); }
+  }
+  // lompat & gravitasi
+  if (ctl.vy !== 0 || ctl.y > 0){ ctl.vy -= 22*dt; ctl.y += ctl.vy*dt; if (ctl.y <= 0){ if (ctl.vy < -3) { sfx(90, .12, 'sine', .12, 0, 50); } ctl.y = 0; ctl.vy = 0; } }
+  const gy = groundY(g.position.x, g.position.z);
+  g.position.y = gy + ctl.y;
+  // jongkok
+  ctl.cr += ((ctl.crouch ? .62 : 1) - ctl.cr) * Math.min(1, dt*14);
+  g.scale.set(.85, .85*ctl.cr, .85);
+  // animasi kaki & tangan
+  const amp = mag > 0 ? (ctl.run ? .95 : .6) : 0, sw = Math.sin(W.phase) * amp;
+  const air = ctl.y > .05;
+  A.legL.rotation.x = air ? -.6 : sw; A.legR.rotation.x = air ? .4 : -sw;
+  A.armL.rotation.x = A.cup ? -1.1 : (air ? -2.4 : -sw*.8);
+  if (ctl.punchT > 0){ ctl.punchT -= dt; const k = 1 - Math.abs(ctl.punchT/.32*2 - 1); A.armR.rotation.x = -1.6*k; A.armR.rotation.z = 0; A.body.position.z = .15*k; }
+  else { A.armR.rotation.x = air ? -2.4 : sw*.8; A.body.position.z = 0; }
+  A.body.position.y = mag > 0 && !air ? Math.abs(Math.sin(W.phase))*(ctl.run ? .1 : .05) : 0;
+  W.tag.position.set(g.position.x, g.position.y + 3.15*ctl.cr, g.position.z);
+  // kamera ikut bergerak bersama karakter (tetap bisa diputar)
+  if (!anim && ctl.last){ const dx = g.position.x - ctl.last.x, dz = g.position.z - ctl.last.z; controls.target.x += dx; controls.target.z += dz; camera.position.x += dx; camera.position.z += dz; }
+  ctl.last.copy(g.position);
+}
+
+/* ---------- MUSIK GAME (tenang, dibuat langsung di browser) ---------- */
+const music = (()=>{
+  let on = true, started = false, master = null, timer = null, nextT = 0, step = 0, delay = null;
+  try { on = localStorage.getItem('nusawara.music') !== 'off'; } catch(_) {}
+  const btn = document.createElement('button'); btn.className = 'mbtn'; btn.setAttribute('aria-label','Musik'); document.body.appendChild(btn);
+  const paint = () => { btn.textContent = on ? '🎵' : '🔇'; };
+  paint();
+  // progresi lembut: Cmaj7 – Am7 – Fmaj7 – G6 (tiap akor 4 ketukan, tempo 72)
+  const CH = [[48,55,59,64],[45,52,55,60],[41,48,52,57],[43,50,52,59]];
+  const PENTA = [60,62,64,67,69,72,74,76];
+  const hz = m => 440 * Math.pow(2, (m-69)/12), BEAT = 60/72;
+  function voice(f, t, dur, type, vol, dest, att){
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + att); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(dest); o.start(t); o.stop(t + dur + .05);
+  }
+  function schedule(){
+    if (!actx) return;
+    while (nextT < actx.currentTime + .6){
+      const bar = Math.floor(step/4) % CH.length, beat = step % 4, t = nextT;
+      if (beat === 0) CH[bar].forEach((m,i)=>voice(hz(m), t, BEAT*4.6, i ? 'sine' : 'triangle', i ? .035 : .05, master, .9));
+      if (beat === 0) voice(hz(CH[bar][0]-12), t, BEAT*3.5, 'sine', .06, master, .05);
+      if (Math.random() < .55){ const n = PENTA[Math.floor(Math.random()*PENTA.length)], tt = t + (Math.random()<.4 ? BEAT/2 : 0);
+        voice(hz(n), tt, BEAT*1.6, 'triangle', .035, master, .01); voice(hz(n), tt, BEAT*1.6, 'triangle', .02, delay, .01); }
+      nextT += BEAT; step++;
+    }
+  }
+  function start(){
+    if (started || !on) return;
+    ensureAudioGraph(); if (!actx) return;
+    started = true;
+    master = actx.createGain(); master.gain.value = .55;
+    const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1800;
+    master.connect(lp); lp.connect(actx.destination);
+    delay = actx.createDelay(1); delay.delayTime.value = BEAT*.75; const fb = actx.createGain(); fb.gain.value = .35;
+    delay.connect(fb); fb.connect(delay); delay.connect(master);
+    nextT = actx.currentTime + .1; timer = setInterval(schedule, 200); schedule();
+  }
+  function stop(){ if (!started) return; clearInterval(timer); try { master.disconnect(); } catch(_) {} started = false; }
+  btn.onclick = ()=>{ on = !on; try { localStorage.setItem('nusawara.music', on ? 'on' : 'off'); } catch(_) {} paint(); if (on) start(); else stop(); };
+  addEventListener('pointerdown', ()=>{ if (on && !started) start(); }, {once:false, passive:true});
+  return { start };
+})();
+sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-main]'); if (b) startCtl(b.dataset.main); });
 
 /* ---------- LOOP ---------- */
 addEventListener('resize', ()=>{
