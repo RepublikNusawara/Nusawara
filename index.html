@@ -997,10 +997,9 @@ function say(text, dur){ bubble.textContent = text; bubble.classList.add('show')
 /* ---------- SUARA KHAS PRESIDEN (ElevenLabs · Mark – Natural Conversations) ---------- */
 const VOICE_URL = 'media/suara-presiden.mp3';
 // tiap tekan = satu kalimat utuh (dipotong tepat di jeda), teks balon sama persis dengan yang diucapkan
-const VOICE_SEG = [[0,2.8,'Hari ini, sebuah negara baru lahir.'],[2.8,5.95,'Bukan di peta dunia… tapi di layar kalian.'],[5.95,8.92,'Hadirin… Presiden Republik Nusawara.'],
-  [8.92,10.9,'Selamat datang, rakyat Nusawara!'],[10.9,14.86,'Hari ini kita membangun negara kita bersama, dari nol.'],[14.86,18.02,'Setiap yang follow adalah Warga Asing Nusawara.'],
-  [18.02,20.14,'Ingin menjadi Warga Republik Nusawara?'],[20.14,26.37,'Komentar "DAFTAR" dan kalian akan mendapat NIWN, Nomor Induk Warga Nusawara.'],
-  [26.37,29.1,'Setiap warga resmi berhak ikut Undian Rumah.'],[29.1,32.5,'Rumah kalian, billboard kalian, kota kalian.'],[32.5,35.42,'Follow, dan jadilah bagian dari sejarah.'],[35.42,9999,'Republik Nusawara resmi berdiri!']];
+const VOICE_SEG = [[8.92,10.9,'Selamat datang, rakyat Nusawara!'],[10.9,14.86,'Hari ini kita membangun negara kita bersama, dari nol.'],
+  [26.37,29.1,'Setiap warga resmi berhak ikut Undian Rumah.'],[29.1,32.5,'Rumah kalian, billboard kalian, kota kalian.'],
+  [32.5,35.42,'Follow, dan jadilah bagian dari sejarah.'],[35.42,9999,'Republik Nusawara resmi berdiri!']];
 const voice = new Audio(VOICE_URL); voice.preload = 'auto';
 let vEnd = null, vSeg = 0, actx = null, analyser = null, vData = null, speaking = false;
 function ensureAudioGraph(){
