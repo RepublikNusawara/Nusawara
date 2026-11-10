@@ -646,7 +646,11 @@ function boardPreview(id, fb){
   const src = mediaSrc(r); if (!src) return fb;
   return r.kind==='video' ? `<video class="mediaprev" src="${src}" muted loop autoplay playsinline></video>` : `<img class="mediaprev" src="${src}" alt="Isi billboard">`;
 }
-function editBtn(id){ return isOwner ? `<button class="btn" data-edit="${esc(id)}">✏️ Ganti isi billboard</button>` : (id !== 'BACKDROP' ? `<a class="btn ghost" href="https://tally.so/r/Nql52l" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">🔑 Khusus pemilik rumah: ganti isi billboard</a>` : ''); }
+function editBtn(id){
+  if (isOwner) return `<button class="btn" data-edit="${esc(id)}">✏️ Ganti isi billboard</button>`;
+  const g = houseGroups[id];
+  return (g && g.userData.data.owner) ? `<button class="btn" data-edit="${esc(id)}">✏️ Ganti isi billboard <span style="opacity:.7;font-weight:600">· khusus pemilik 🔑</span></button>` : '';
+}
 function houseHTML(h){
   const head = `<div class="kicker">${esc(h.district)} · ${esc(h.street)}</div><h2 class="mono" style="font-size:20px">${esc(h.id)}</h2>`;
   if (!h.owner) return head + `<span class="pill empty">● Rumah kosong</span>
@@ -664,7 +668,7 @@ function kodeCard(h){
   if (!isOwner) return '';
   const k = KODE[h.id], u = String(h.owner||'').replace(/^@+/,'');
   if (!k) return `<div class="card"><h3>🔑 Kode Pemilik Rumah</h3><p>Belum ada kode untuk rumah ini.</p></div>`;
-  const dm = `Selamat @${u}! 🏠 Kamu pemilik ${h.street} No. ${h.no || ''} (${h.id}) di Kota Nusawara. Kode Pemilik Rumah kamu: ${k}. Pakai kode ini untuk mengganti billboard di https://tally.so/r/Nql52l — jangan berikan kepada siapa pun.`;
+  const dm = `Selamat @${u}! 🏠 Kamu pemilik ${h.street} No. ${h.no || ''} (${h.id}) di Kota Nusawara. Kode Pemilik Rumah kamu: ${k}. Cara ganti billboard: buka https://republiknusawara.github.io/Nusawara/ → cari username kamu → ketuk Ganti isi billboard → masukkan kode ini. Jangan berikan kepada siapa pun.`;
   return `<div class="card"><h3>🔑 Kode Pemilik Rumah (khusus kamu)</h3><p style="font-size:22px;font-weight:800;letter-spacing:.15em" class="mono">${esc(k)}</p>
     <p class="note">Kirim ke pemilik lewat DM Instagram. Pesan siap salin:</p><p style="font-size:13px;background:#f4f1e8;border-radius:10px;padding:10px">${esc(dm)}</p>
     <button class="btn ghost" data-copy="${esc(dm)}">📋 Salin pesan DM</button></div>`;
@@ -1159,6 +1163,67 @@ async function loadPublicData(){
 }
 loadPublicData();
 
+/* ---------- KUNCI PEMILIK RUMAH (website) ---------- */
+// Kode Pemilik Rumah dicek di perangkat dengan PBKDF2; kode aslinya tidak pernah disimpan di website.
+const KUNCI = {}, UNLOCK = {};
+let lockTries = 0, lockUntil = 0;
+const lkEl = document.createElement('div'); lkEl.className = 'modal'; lkEl.id = 'modal-kunci';
+lkEl.innerHTML = `<div class="box"><button class="x" data-close aria-label="Tutup">×</button>
+  <div class="kicker" id="lkK">Billboard rumah</div><h2>🔑 Masukkan Kode Pemilik</h2>
+  <p style="font-size:14px;line-height:1.5;margin:0 0 10px">Hanya pemilik rumah ini yang bisa mengganti billboard-nya. Masukkan Kode Pemilik Rumah 6 karakter yang kamu terima lewat DM dari Republik Nusawara.</p>
+  <form id="lkF"><input id="lkI" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" placeholder="Contoh: K7Q2MX"
+    style="font:inherit;font-size:22px;letter-spacing:.25em;text-transform:uppercase;text-align:center;padding:12px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box">
+  <button class="btn" id="lkB" style="width:100%">Buka billboard</button></form><p class="note" id="lkM"></p></div>`;
+document.body.appendChild(lkEl);
+lkEl.addEventListener('click', e=>{ if (e.target===lkEl || e.target.hasAttribute('data-close')) lkEl.classList.remove('open'); });
+let lkId = null;
+function openLock(id){
+  if (UNLOCK[id]) { openEditor(id); return; }
+  if (!KUNCI[id]) { toast('Billboard rumah ini belum bisa diganti dari website.'); return; }
+  lkId = id; document.getElementById('lkK').textContent = 'Billboard rumah · ' + id;
+  document.getElementById('lkI').value = ''; document.getElementById('lkM').textContent = '';
+  lkEl.classList.add('open'); setTimeout(()=>document.getElementById('lkI').focus(), 60);
+}
+async function kunciHash(id, kode){
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode(kode), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({name:'PBKDF2', hash:'SHA-256', salt:enc.encode('nusawara:' + id), iterations:150000}, key, 256);
+  return Array.from(new Uint8Array(bits), x=>x.toString(16).padStart(2,'0')).join('');
+}
+document.getElementById('lkF').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const m = document.getElementById('lkM'), btn = document.getElementById('lkB');
+  const kode = document.getElementById('lkI').value.replace(/\s+/g,'').toUpperCase();
+  if (Date.now() < lockUntil) { m.textContent = 'Terlalu banyak percobaan. Tunggu sebentar.'; return; }
+  if (!/^[A-Z0-9]{4,12}$/.test(kode)) { m.textContent = 'Kode berisi huruf dan angka, 6 karakter.'; return; }
+  btn.disabled = true; m.textContent = 'Memeriksa kode…';
+  let ok = false;
+  try { ok = (await kunciHash(lkId, kode)) === KUNCI[lkId]; } catch(_) { m.textContent = 'Browser ini tidak bisa memeriksa kode.'; btn.disabled = false; return; }
+  btn.disabled = false;
+  if (!ok) { lockTries++; if (lockTries >= 5) { lockUntil = Date.now() + 60000; lockTries = 0; } m.textContent = '❌ Kode salah. Hanya pemilik rumah yang punya kode ini.'; return; }
+  UNLOCK[lkId] = kode; lkEl.classList.remove('open'); openEditor(lkId);
+});
+function guestSave(){
+  const id = ed.id, owner = houseGroups[id] && houseGroups[id].userData.data, kode = UNLOCK[id];
+  if (!owner || !kode) { closeEditor(); return; }
+  const b = boards[id], q = new URLSearchParams({ username: String(owner.owner||'').replace(/^@+/,''), niwn: owner.niwn || '', rumah: id, kode });
+  if (ed.kind === 'text'){
+    const title = edT.value.trim().slice(0,40); if (!title) { edSay('Isi judul dulu.'); return; }
+    const rec = {kind:'text', title, sub:edS.value.trim().slice(0,60), bg:col(edBg.value,'#1f3a5f'), fg:col(edFg.value,'#ffffff')};
+    setTex(b, {tex:textBoardTex(rec, b, id)});
+    q.set('jenis','Teks'); q.set('judul', rec.title); q.set('keterangan', rec.sub); q.set('warna', rec.bg + ',' + rec.fg);
+  } else {
+    if (!ed.file) { edSay('Pilih file dulu.'); return; }
+    const url = URL.createObjectURL(ed.file), k = ed.kind;
+    (k==='image' ? imageTex(url,b) : k==='gif' ? gifTex(url,b) : Promise.resolve(videoTex(url,b))).then(res=>setTex(b,res)).catch(()=>{});
+    q.set('jenis', k==='image' ? 'Foto' : k==='gif' ? 'GIF' : 'Video');
+  }
+  const media = ed.kind !== 'text';
+  window.open('https://tally.so/r/Nql52l?' + q.toString(), '_blank', 'noopener');
+  closeEditor();
+  toast(media ? 'Billboard tampil di layarmu ✓ Unggah file yang sama di formulir, lalu kirim.' : 'Billboard tampil di layarmu ✓ Centang persetujuan di formulir, lalu kirim.');
+}
+
 /* ---------- EDITOR BILLBOARD (khusus pemilik) ---------- */
 const edEl = document.getElementById('modal-edit'), edPrev = document.getElementById('edPrev'),
   edMsg = document.getElementById('edMsg'), edFile = document.getElementById('edFile'),
@@ -1173,7 +1238,7 @@ let ed = null, resetArmed = false;
 function edSay(t){ edMsg.textContent = t || ''; }
 
 function openEditor(id){
-  if (!isOwner || !boards[id]) return;
+  if (!(isOwner || UNLOCK[id]) || !boards[id]) return;
   const r = BB[id] || null, h = houses.find(x=>x.id===id);
   ed = {id, kind: r && ['text','image','gif','video'].includes(r.kind) ? r.kind : 'text', file:null, url:null};
   document.getElementById('edTitle').textContent = id==='BACKDROP' ? 'Backdrop Panggung' : id;
@@ -1183,7 +1248,9 @@ function openEditor(id){
   edT.value = String(base.title||''); edS.value = String(base.sub||'');
   edBg.value = col(base.bg,'#1f3a5f'); edFg.value = col(base.fg,'#ffffff');
   edFile.value = ''; resetArmed = false; edReset.textContent = 'Kembalikan bawaan'; edReset.disabled = !r;
-  edSay(db ? '' : 'Penyimpanan tidak tersedia di tampilan ini.');
+  edSay(isOwner ? (db ? '' : 'Penyimpanan tidak tersedia di tampilan ini.') : '🔓 Kode benar. Silakan ganti isi billboard rumahmu.');
+  edReset.style.display = isOwner ? '' : 'none';
+  edSave.textContent = isOwner ? 'Simpan' : 'Pasang billboard';
   setKind(ed.kind);
   edEl.classList.add('open');
 }
@@ -1241,6 +1308,7 @@ function closeEditor(){ if (ed) clearFile(); edEl.classList.remove('open'); ed =
 
 edSave.onclick = async ()=>{
   if (!ed) return;
+  if (!isOwner) { guestSave(); return; }
   if (!db) { edSay('Penyimpanan tidak tersedia di tampilan ini.'); return; }
   const id = ed.id, prev = BB[id] ? Object.assign({}, BB[id]) : null;
   let rec;
@@ -1273,7 +1341,7 @@ edReset.onclick = async ()=>{
   try { await db.doc('billboards/'+id).delete(); dropOldAsset(prev, id, null); closeEditor(); toast('Billboard kembali ke bawaan'); }
   catch(e) { edSay(errText(e)); busy(false); }
 };
-sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-edit]'); if (b) openEditor(b.dataset.edit); });
+sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-edit]'); if (!b) return; if (isOwner) openEditor(b.dataset.edit); else openLock(b.dataset.edit); });
 sheetBody.addEventListener('click', async e=>{
   if (!e.target.closest('#cntSave')) return;
   const inp = document.getElementById('cntInput'), msg = document.getElementById('cntMsg'), btn = e.target.closest('#cntSave');
@@ -1487,6 +1555,7 @@ function setUndianList(list){ UNDIAN = list.filter(u=>u && Number.isFinite(+u.no
 function undianPublic(d){
   if (d && d.rumah && typeof d.rumah === 'object' && !db) Object.values(d.rumah).forEach(r=>setRumah(r, false));
   if (d && Array.isArray(d.undian) && !db) setUndianList(d.undian);
+  if (d && d.kunci && typeof d.kunci === 'object') for (const [k,v] of Object.entries(d.kunci)) if (typeof v === 'string' && /^[0-9a-f]{64}$/.test(v)) KUNCI[k] = v;
 }
 function undianCloud(){
   if (!db) return;
