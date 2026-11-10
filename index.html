@@ -1875,11 +1875,11 @@ sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-desai
 const AVA_SKIN = ['#ffdbac','#f1c27d','#e0ac69','#c68642','#8d5524','#5c3a21'];
 const AVA_HAIR = ['#1b1b1b','#3b2416','#6b4423','#a0522d','#d4a64a','#e8e1d1','#8e44ad','#2f80ed'];
 const AVA_TOP  = ['#f4f1ea','#1b1b1b','#e74c3c','#2f80ed','#27ae60','#f2b134','#9b51e0','#ff7f50','#16a085','#1f3a5f','#ff6fb5','#7f8c8d'];
-const AVA_BOT  = ['#2b3a55','#1b1b1b','#3d3d3d','#5a4632','#1f3a5f','#6b7076','#c8b48a','#f4f1ea'];
+const AVA_BOT  = ['#2b3a55','#1b1b1b','#3d3d3d','#5a4632','#1f3a5f','#6b7076','#d9a441','#c8b48a','#f4f1ea'];
 const AVA_SHOE = ['#ffffff','#1b1b1b','#e74c3c','#2f80ed','#8b5a2b','#f2b134'];
 const AVA_OPT = {
   rambutModel: [['pendek','Pendek'],['spike','Spike'],['panjang','Panjang'],['kuncir','Kuncir'],['botak','Botak']],
-  bajuModel:   [['kaos','Kaos'],['hoodie','Hoodie'],['kemeja','Kemeja'],['jas','Jas']],
+  bajuModel:   [['sweater','Sweater'],['kaos','Kaos'],['hoodie','Hoodie'],['kemeja','Kemeja'],['jas','Jas']],
   celanaModel: [['panjang','Panjang'],['pendek','Pendek']],
   kacamata:    [['tidak','Tidak'],['hitam','Hitam'],['bening','Bening']],
   topi:        [['tidak','Tidak'],['cap','Cap'],['kupluk','Kupluk']],
@@ -1897,7 +1897,7 @@ function avatarSpec(w){
     rambut: isHex(a.rambut) ? a.rambut : AVA_HAIR[(h>>3)%5],
     rambutModel: pick(a.rambutModel, AVA_OPT.rambutModel, ['pendek','spike','pendek','kuncir'][(h>>5)%4]),
     baju: isHex(a.baju) ? a.baju : AVA_TOP[(h>>7)%12],
-    bajuModel: pick(a.bajuModel, AVA_OPT.bajuModel, a.tudung ? 'hoodie' : ['kaos','hoodie','kemeja'][(h>>9)%3]),
+    bajuModel: pick(a.bajuModel, AVA_OPT.bajuModel, a.tudung ? 'hoodie' : ['sweater','kaos','hoodie','sweater'][(h>>9)%4]),
     celana: isHex(a.celana) ? a.celana : AVA_BOT[(h>>11)%6],
     celanaModel: pick(a.celanaModel, AVA_OPT.celanaModel, 'panjang'),
     sepatu: isHex(a.sepatu) ? a.sepatu : AVA_SHOE[(h>>13)%6],
@@ -1909,72 +1909,85 @@ function avatarSpec(w){
 }
 function shade(hex, f){ const c = new THREE.Color(hex); c.multiplyScalar(f); return c.getHex(); }
 const AMAT = {};
-function AM(c, r){ const k = c + '|' + (r||.75); return AMAT[k] || (AMAT[k] = new THREE.MeshPhongMaterial({color:c, shininess: Math.round((1-(r||.75))*60)+4, specular:0x222222})); }
+function AM(c, r){ const k = c + '|' + (r||.75); return AMAT[k] || (AMAT[k] = new THREE.MeshPhongMaterial({color:c, shininess: Math.round((1-(r||.75))*40)+2, specular:0x161616})); }
 const AGEO = {};
 function AG(key, make){ return AGEO[key] || (AGEO[key] = make()); }
+// Gaya karakter chibi 3D: kepala besar, badan mungil, sweater longgar, celana lebar, kaki kecil.
 function makeAvatar(sp){
   const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
   const add = (geo, mat, x, y, z, p, sx, sy, sz) => { const m = new THREE.Mesh(geo, mat); m.position.set(x,y,z); if (sx) m.scale.set(sx, sy, sz); m.castShadow = true; (p||body).add(m); return m; };
-  const cyl = (rt, rb, h, seg) => AG(`c${rt}_${rb}_${h}_${seg||14}`, ()=>new THREE.CylinderGeometry(rt, rb, h, seg||14));
-  const sph = (r, ws, hs, ps, pl, ts, tl) => AG(`s${r}_${ws}_${hs}_${ps}_${pl}_${ts}_${tl}`, ()=>new THREE.SphereGeometry(r, ws||16, hs||12, ps||0, pl||Math.PI*2, ts||0, tl||Math.PI));
+  const cyl = (rt, rb, h, seg) => AG(`c${rt}_${rb}_${h}_${seg||18}`, ()=>new THREE.CylinderGeometry(rt, rb, h, seg||18));
+  const sph = (r, ws, hs, ps, pl, ts, tl) => AG(`s${r}_${ws}_${hs}_${ps}_${pl}_${ts}_${tl}`, ()=>new THREE.SphereGeometry(r, ws||20, hs||16, ps||0, pl||Math.PI*2, ts||0, tl||Math.PI));
   const bx = (w,h,d) => AG(`b${w}_${h}_${d}`, ()=>new THREE.BoxGeometry(w,h,d));
-  const SK = AM(sp.kulit, .6), TOP = AM(sp.baju, .8), BOT = AM(sp.celana, .85), SH = AM(sp.sepatu, .5), HR = AM(sp.rambut, .55);
+  const tor = (r, t, arc) => AG(`t${r}_${t}_${arc}`, ()=>new THREE.TorusGeometry(r, t, 8, 20, arc));
+  const SK = AM(sp.kulit, .8), TOP = AM(sp.baju, .95), BOT = AM(sp.celana, .95), SH = AM(sp.sepatu, .6), HR = AM(sp.rambut, .7), SOCK = AM(0xf7f3ea, .9);
   const limb = (x,y) => { const l = new THREE.Group(); l.position.set(x,y,0); body.add(l); return l; };
-  // kaki
-  const legL = limb(.17,.98), legR = limb(-.17,.98);
+  // kaki: celana lebar + kaus kaki putih + sepatu kecil
+  const legL = limb(.13,.78), legR = limb(-.13,.78);
   [legL,legR].forEach(l=>{
-    if (sp.celanaModel === 'pendek'){ add(cyl(.15,.14,.42), BOT, 0,-.2,0, l); add(cyl(.1,.085,.48), SK, 0,-.64,0, l); }
-    else { add(cyl(.15,.12,.88), BOT, 0,-.43,0, l); }
-    add(sph(.13,14,10), SH, 0,-.9,.07, l, 1, .55, 1.6);
+    if (sp.celanaModel === 'pendek'){ add(cyl(.15,.16,.3), BOT, 0,-.13,0, l); add(cyl(.065,.06,.34), SK, 0,-.45,0, l); }
+    else add(cyl(.14,.17,.62), BOT, 0,-.3,0, l);
+    add(cyl(.065,.07,.1), SOCK, 0,-.66,0, l);
+    add(sph(.1,16,12), SH, 0,-.73,.04, l, .95,.5,1.45);
   });
-  // badan
-  add(cyl(.27,.24,.22), BOT, 0,1.02,0, null, 1,1,.72);                                     // pinggul
-  add(cyl(.36,.28,.78), TOP, 0,1.48,0, null, 1,1,.68);                                     // badan
-  add(sph(.36,16,10,0,Math.PI*2,0,Math.PI/2), TOP, 0,1.86,0, null, 1,.42,.68);             // bahu
-  if (sp.bajuModel === 'hoodie'){ add(sph(.28,14,10), TOP, 0,1.95,-.2, null, 1.05,.75,.7); add(bx(.36,.2,.03), AM(shade(sp.baju,.85),.8), 0,1.28,.24); add(cyl(.012,.012,.26,6), AM(0xeeeeee), .07,1.72,.25); add(cyl(.012,.012,.26,6), AM(0xeeeeee), -.07,1.72,.25); }
-  if (sp.bajuModel === 'kemeja'){ add(bx(.34,.06,.05), AM(shade(sp.baju,.85),.8), 0,1.9,.21); for (let i=0;i<4;i++) add(sph(.022,8,6), AM(0xf4f1ea), 0,1.78-i*.16,.245); }
-  if (sp.bajuModel === 'jas'){ add(bx(.2,.62,.02), AM(0xf4f1ea,.7), 0,1.56,.235); add(bx(.07,.42,.02), AM(0xa83232,.6), 0,1.52,.25); add(bx(.09,.07,.02), AM(0xa83232,.6), 0,1.8,.25);
-    add(bx(.08,.5,.02), AM(shade(sp.baju,.8),.7), .11,1.62,.24).rotation.z = -.18; add(bx(.08,.5,.02), AM(shade(sp.baju,.8),.7), -.11,1.62,.24).rotation.z = .18; }
-  // lengan
-  const armL = limb(.43,1.86), armR = limb(-.43,1.86);
+  // badan: sweater longgar
+  const loose = sp.bajuModel === 'sweater' || sp.bajuModel === 'hoodie';
+  add(sph(.34,22,16), TOP, 0,1.08,0, null, loose ? 1.08 : .98, loose ? 1.12 : 1.05, loose ? .86 : .78);
+  add(cyl(loose ? .33 : .29, loose ? .31 : .28, .14, 22), loose ? AM(shade(sp.baju,.9),.95) : TOP, 0,.8,0, null, 1,1,loose ? .82 : .76);   // ujung baju
+  add(cyl(.12,.13,.06), loose ? AM(shade(sp.baju,.9),.95) : TOP, 0,1.45,0);                                                              // kerah
+  if (sp.bajuModel === 'hoodie'){ add(sph(.24,16,12), TOP, 0,1.42,-.22, null, 1.1,.72,.7); add(bx(.3,.16,.03), AM(shade(sp.baju,.85),.95), 0,.98,.3); add(cyl(.01,.01,.2,6), AM(0xf4f1ea), .06,1.28,.29); add(cyl(.01,.01,.2,6), AM(0xf4f1ea), -.06,1.28,.29); }
+  if (sp.bajuModel === 'kemeja'){ add(bx(.24,.05,.05), AM(shade(sp.baju,.85),.8), 0,1.43,.12); for (let i=0;i<3;i++) add(sph(.018,8,6), AM(0xf4f1ea), 0,1.3-i*.14,.27); }
+  if (sp.bajuModel === 'jas'){ add(bx(.14,.42,.02), AM(0xf4f1ea,.8), 0,1.18,.26); add(bx(.05,.3,.02), AM(0xa83232,.6), 0,1.14,.275); add(bx(.07,.06,.02), AM(0xa83232,.6), 0,1.33,.275); }
+  // lengan: lengan sweater tebal + tangan mungil
+  const armL = limb(.33,1.32), armR = limb(-.33,1.32);
   [armL,armR].forEach(a=>{
-    add(sph(.12,12,10), TOP, 0,0,0, a);
-    if (sp.bajuModel === 'kaos'){ add(cyl(.115,.1,.32), TOP, 0,-.16,0, a); add(cyl(.08,.07,.5), SK, 0,-.56,0, a); }
-    else { add(cyl(.11,.09,.78), TOP, 0,-.39,0, a); add(cyl(.075,.075,.05), SK, 0,-.8,0, a); }
-    add(sph(.085,12,10), SK, 0,-.88,.01, a, .9,1.1,1);
+    add(sph(.13,14,12), TOP, 0,0,0, a);
+    if (sp.bajuModel === 'kaos'){ add(cyl(.12,.11,.2), TOP, 0,-.1,0, a); add(cyl(.065,.06,.32), SK, 0,-.34,0, a); }
+    else { add(cyl(.125,.14,.46), TOP, 0,-.24,0, a); add(cyl(.12,.12,.06), loose ? AM(shade(sp.baju,.9),.95) : TOP, 0,-.47,0, a); }
+    add(sph(.075,14,12), SK, 0,-.55,.01, a, .95,1.05,1);
   });
-  // leher & kepala
-  add(cyl(.09,.1,.16), SK, 0,2.0,0);
-  const head = new THREE.Group(); head.position.y = 2.34; body.add(head);
-  add(sph(.27,22,18), SK, 0,.02,0, head, 1,1.12,1.02);
-  add(sph(.06,10,8), SK, .265,.02,0, head, .5,1,.8); add(sph(.06,10,8), SK, -.265,.02,0, head, .5,1,.8);   // telinga
-  add(sph(.045,10,8), AM(shade(sp.kulit,.92),.6), 0,-.01,.28, head, .9,1,1.1);                               // hidung
-  const eyeW = AM(0xfafafa,.3), eyeP = AM(0x231a14,.25);
-  [.095,-.095].forEach(x=>{ add(sph(.048,12,10), eyeW, x,.07,.235, head, 1,.75,.5); add(sph(.027,10,8), eyeP, x,.07,.258, head); add(bx(.1,.022,.02), HR, x,.15,.25, head).rotation.z = x > 0 ? -.08 : .08; });
-  add(bx(.11,.022,.02), AM(0x9c4a3c,.5), 0,-.12,.255, head);                                                   // mulut
-  // rambut
+  // kepala besar
+  const head = new THREE.Group(); head.position.y = 1.98; body.add(head);
+  add(cyl(.07,.08,.12), SK, 0,-.5,0, head);
+  add(sph(.48,28,22), SK, 0,0,0, head, 1,.94,.93);
+  add(sph(.1,12,10), SK, .47,-.04,0, head, .55,1,.8); add(sph(.1,12,10), SK, -.47,-.04,0, head, .55,1,.8);           // telinga
+  const LINE = AM(0x2a1d18, .5);
+  [.16,-.16].forEach(x=>{
+    add(tor(.06,.013,Math.PI), LINE, x,-.03,.43, head).rotation.z = Math.PI;                                            // mata santai (garis lengkung)
+    add(sph(.075,12,10), AM(0xf2a59a,.9), x*1.45,-.13,.38, head, 1,.6,.4);                                             // pipi merona
+    add(bx(.12,.016,.012), HR, x*1.05,.1,.44, head).rotation.z = x > 0 ? -.12 : .12;                                   // alis
+  });
+  add(tor(.03,.01,Math.PI), AM(0x7a3a30,.6), 0,-.2,.43, head);                                                         // mulut kecil
+  // rambut acak-acakan (tebal, berjumbai)
   if (sp.rambutModel !== 'botak'){
-    add(sph(.29,22,14,0,Math.PI*2,0,Math.PI*.52), HR, 0,.06,-.01, head, 1.02,1.12,1.06);
-    add(sph(.285,18,12,Math.PI*.15,Math.PI*.7,Math.PI*.45,Math.PI*.4), HR, 0,.02,-.02, head, 1.02,1.15,1.05).rotation.y = Math.PI;
-    if (sp.rambutModel === 'spike') for (let i=0;i<7;i++){ const c = add(AG('spk', ()=>new THREE.ConeGeometry(.07,.24,8)), HR, -.18+i*.06,.36-(Math.abs(i-3)*.025),-.02+(i%2)*.06, head); c.rotation.z = (i-3)*.12; }
-    if (sp.rambutModel === 'panjang'){ add(cyl(.27,.24,.6,18), HR, 0,-.22,-.08, head, 1.05,1,.75); }
-    if (sp.rambutModel === 'kuncir'){ add(sph(.09,10,8), HR, 0,.12,-.31, head); add(cyl(.07,.04,.38), HR, 0,-.12,-.36, head).rotation.x = .25; }
+    add(sph(.5,26,18,0,Math.PI*2,0,Math.PI*.5), HR, 0,.04,-.02, head, 1.04,1.02,1.03);
+    add(sph(.49,22,14,Math.PI*1.12,Math.PI*.76,Math.PI*.42,Math.PI*.34), HR, 0,.02,-.03, head, 1.04,1.05,1.04);          // belakang
+    const tuft = AG('tuft', ()=>new THREE.ConeGeometry(.12,.3,10));
+    [[-.28,.18,.36,.5,-.3],[-.1,.16,.43,.2,-.1],[.1,.17,.43,-.15,.1],[.3,.17,.35,-.5,.3]].forEach(([x,y,z,rz,rx])=>{ const c = add(tuft, HR, x,y,z, head); c.rotation.set(Math.PI*.82+rx, 0, rz); });   // poni
+    const top = sp.rambutModel === 'spike' ? [[-.2,.46,0],[0,.52,.05],[.2,.46,0],[.1,.44,-.2],[-.12,.44,-.2]] : [[-.12,.47,.06],[.14,.46,-.04]];
+    top.forEach(([x,y,z],i)=>{ const c = add(tuft, HR, x,y,z, head, sp.rambutModel === 'spike' ? 1 : .8, sp.rambutModel === 'spike' ? 1.1 : .8, 1); c.rotation.set(-.2+z, 0, (i%2?.35:-.35)); });
+    [.42,-.42].forEach(x=>{ const c = add(tuft, HR, x,.02,.12, head, .9,.9,.9); c.rotation.set(Math.PI*.9, 0, x>0 ? .25 : -.25); });                // jambang
+    if (sp.rambutModel === 'panjang'){ add(cyl(.42,.38,.55,22), HR, 0,-.28,-.1, head, 1.08,1,.75); }
+    if (sp.rambutModel === 'kuncir'){ add(sph(.1,12,10), HR, 0,.1,-.5, head); add(cyl(.09,.05,.4), HR, 0,-.16,-.56, head).rotation.x = .3; }
   }
   // topi
-  if (sp.topi === 'cap'){ const TC = AM(sp.topiWarna,.7); add(sph(.3,20,12,0,Math.PI*2,0,Math.PI*.5), TC, 0,.12,0, head, 1.02,.85,1.05); add(cyl(.2,.2,.025,20), TC, 0,.13,.24, head, 1,1,.8); }
-  if (sp.topi === 'kupluk'){ const TC = AM(sp.topiWarna,.9); add(sph(.305,20,12,0,Math.PI*2,0,Math.PI*.55), TC, 0,.08,0, head, 1.02,1.1,1.05); add(cyl(.305,.305,.08,20), AM(shade(sp.topiWarna,.8),.9), 0,.06,0, head, 1.02,1,1.05); add(sph(.07,10,8), AM(0xf4f1ea,.9), 0,.44,0, head); }
+  if (sp.topi === 'cap'){ const TC = AM(sp.topiWarna,.8); add(sph(.51,24,14,0,Math.PI*2,0,Math.PI*.5), TC, 0,.14,0, head, 1.04,.8,1.04); add(cyl(.3,.3,.03,24), TC, 0,.15,.38, head, 1,1,.75); }
+  if (sp.topi === 'kupluk'){ const TC = AM(sp.topiWarna,.95); add(sph(.52,24,14,0,Math.PI*2,0,Math.PI*.55), TC, 0,.1,0, head, 1.04,1.05,1.04); add(cyl(.52,.52,.12,24), AM(shade(sp.topiWarna,.8),.95), 0,.08,0, head, 1.04,1,1.04); add(sph(.11,12,10), AM(0xf4f1ea,.95), 0,.66,0, head); }
   // kacamata
   if (sp.kacamata !== 'tidak'){
-    const fr = AM(0x1a1a1a,.3), lens = sp.kacamata === 'hitam' ? AM(0x0b0b0b,.15) : new THREE.MeshStandardMaterial({color:0xcfe9ff, roughness:.1, transparent:true, opacity:.35});
-    [.095,-.095].forEach(x=>{ add(cyl(.065,.065,.02,18), lens, x,.07,.275, head).rotation.x = Math.PI/2; add(AG('rim', ()=>new THREE.TorusGeometry(.066,.009,6,20)), fr, x,.07,.285, head); });
-    add(bx(.06,.012,.012), fr, 0,.08,.285, head); add(bx(.012,.012,.24), fr, .2,.08,.17, head); add(bx(.012,.012,.24), fr, -.2,.08,.17, head);
+    const fr = AM(0x1a1a1a,.3), lens = sp.kacamata === 'hitam' ? AM(0x0b0b0b,.2) : new THREE.MeshPhongMaterial({color:0xcfe9ff, shininess:80, transparent:true, opacity:.35});
+    [.16,-.16].forEach(x=>{ add(cyl(.1,.1,.02,22), lens, x,-.02,.45, head).rotation.x = Math.PI/2; add(AG('rim2', ()=>new THREE.TorusGeometry(.1,.012,6,24)), fr, x,-.02,.46, head); });
+    add(bx(.1,.016,.016), fr, 0,0,.46, head); add(bx(.016,.016,.3), fr, .3,0,.32, head); add(bx(.016,.016,.3), fr, -.3,0,.32, head);
   }
+  // mug kopi dengan pegangan + uap
   let cup = null;
   if (sp.kopi === 'ya'){
-    cup = new THREE.Group(); cup.position.set(0,-.95,.14); armL.add(cup);
-    add(cyl(.085,.065,.24,16), AM(0xf4f1ea,.5), 0,0,0, cup); add(cyl(.09,.08,.09,16), AM(0x8b5a2b,.8), 0,-.01,0, cup); add(cyl(.092,.092,.035,16), AM(0xffffff,.4), 0,.135,0, cup);
+    cup = new THREE.Group(); cup.position.set(0,-.6,.12); armL.add(cup);
+    add(cyl(.075,.07,.16,18), AM(0xf2c26b,.6), 0,0,0, cup); add(cyl(.062,.062,.01,18), AM(0x5a3820,.6), 0,.08,0, cup);
+    add(tor(.045,.013,Math.PI*1.3), AM(0xf2c26b,.6), .085,0,0, cup).rotation.z = -Math.PI*.65;
+    const steam = add(tor(.03,.008,Math.PI*1.2), AM(0xffffff,.9), 0,.16,0, cup); steam.rotation.y = Math.PI/2;
   }
-  g.scale.setScalar(.92);
+  g.scale.setScalar(1.05);
   return {g, body, legL, legR, armL, armR, head, cup};
 }
 // jaringan jalan: persimpangan tiap jalan dengan gang & titik tengah
@@ -2093,7 +2106,7 @@ function portraitOf(w){
   const sp = avatarSpec(w), sig = JSON.stringify(sp); if (PORTRAIT[sig]) return PORTRAIT[sig];
   try {
     portraitRig(); const av = makeAvatar(sp); av.g.rotation.y = -.35; pScene.add(av.g);
-    pCam.position.set(0, 2.05, 3.4); pCam.lookAt(0, 1.82, 0);
+    pCam.position.set(0, 1.95, 3.7); pCam.lookAt(0, 1.72, 0);
     const bg = scene.background; renderer.setRenderTarget(pRT); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(pScene, pCam);
     const px = new Uint8Array(PW*PH*4); renderer.readRenderTargetPixels(pRT, 0, 0, PW, PH, px); renderer.setRenderTarget(null); renderer.setClearColor(0x000000, 1);
     pScene.remove(av.g);
@@ -2194,7 +2207,7 @@ function stOptions(){
     grp('KACAMATA', chip('kacamata', AVA_OPT.kacamata)) + grp('TOPI', chip('topi', AVA_OPT.topi)) + (sp.topi !== 'tidak' ? grp('WARNA TOPI', sw('topiWarna')) : '') +
     grp('AKSESORIS', chip('kopi', AVA_OPT.kopi));
 }
-document.getElementById('stO').addEventListener('click', e=>{ const b = e.target.closest('[data-k]'); if (!b || !st) return; st.spec[b.dataset.k] = b.dataset.v; stBuild(); stOptions(); });
+document.getElementById('stO').addEventListener('click', e=>{ const b = e.target.closest('[data-k]'); if (!b || !st) return; st.spec[b.dataset.k] = b.dataset.v; stBuild(); stOptions(); stResize(); });
 document.getElementById('stR').onclick = ()=>{ if (!st) return; const r = l => l[Math.floor(Math.random()*l.length)];
   Object.assign(st.spec, { rambutModel: r(AVA_OPT.rambutModel)[0], bajuModel: r(AVA_OPT.bajuModel)[0], celanaModel: r(AVA_OPT.celanaModel)[0], rambut: r(AVA_HAIR), baju: r(AVA_TOP), celana: r(AVA_BOT), sepatu: r(AVA_SHOE), kacamata: r(AVA_OPT.kacamata)[0], topi: r(AVA_OPT.topi)[0], topiWarna: r(AVA_TOP) });
   stBuild(); stOptions(); };
@@ -2203,7 +2216,7 @@ function openStyle(key){
   stRig(); st = { key, spec: avatarSpec(w), w }; stRot = -.3;
   document.getElementById('stT').textContent = '🎨 Gaya @' + String(w.username||key).replace(/^@+/,'');
   document.getElementById('stM').textContent = 'Geser karakter untuk memutar. Pilih gaya, lalu Simpan.';
-  stEl.classList.add('open'); stResize(); stBuild(); stOptions(); requestAnimationFrame(stLoop);
+  stEl.classList.add('open'); stBuild(); stOptions(); stResize(); requestAnimationFrame(()=>{ stResize(); stLoop(performance.now()); });
 }
 function closeStyle(){ st = null; stEl.classList.remove('open'); }
 document.getElementById('stX').onclick = closeStyle;
@@ -2301,7 +2314,7 @@ function startCtl(key){
 }
 function stopCtl(){
   const W = WALKERS[ctl.key];
-  if (W){ W.av.g.position.y = 0; W.av.g.scale.y = .92; W.tag.visible = true; W.wait = 1.5; W.node = nearestNode(W.av.g.position.x, W.av.g.position.z); }
+  if (W){ W.av.g.position.y = 0; W.av.g.scale.y = 1.05; W.tag.visible = true; W.wait = 1.5; W.node = nearestNode(W.av.g.position.x, W.av.g.position.z); }
   ctl.key = null; document.body.classList.remove('ctl'); runBtn.classList.remove('on');
   controls.enabled = true; if (ctl.ctlSave){ controls.minDistance = ctl.ctlSave.min; controls.maxPolarAngle = ctl.ctlSave.pol; }
   if (W){ const p = W.av.g.position; flyTo(new THREE.Vector3(p.x, 1.4, p.z + 4), new THREE.Vector3(p.x + 3.5, 9, p.z + 18)); }
@@ -2336,7 +2349,7 @@ function updateCtl(dt, time){
   g.position.y = gy + ctl.y;
   // jongkok
   ctl.cr += ((ctl.crouch ? .62 : 1) - ctl.cr) * Math.min(1, dt*14);
-  g.scale.set(.92, .92*ctl.cr, .92);
+  g.scale.set(1.05, 1.05*ctl.cr, 1.05);
   // animasi kaki & tangan
   const amp = mag > 0 ? (ctl.run ? .95 : .6) : 0, sw = Math.sin(W.phase) * amp;
   const air = ctl.y > .05;
