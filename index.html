@@ -995,11 +995,13 @@ const GREETS = ['Halo, warga Nusawara! 👋','Daftar = jadi warga!','Follow untu
   'Sudah punya NIWN? Daftar jadi WRN, ya!','Rumah kosong menunggu pemiliknya lewat Undian Rumah.','Selamat datang di Distrik Melati!'];
 function say(text, dur){ bubble.textContent = text; bubble.classList.add('show'); bubbleT = dur || 3.2; }
 /* ---------- SUARA KHAS PRESIDEN (ElevenLabs · Mark – Natural Conversations) ---------- */
-const VOICE_URL = 'media/suara-presiden.mp3';
+const VOICE_URL = 'media/suara-presiden-sambutan.mp3';
 // tiap tekan = satu kalimat utuh (dipotong tepat di jeda), teks balon sama persis dengan yang diucapkan
-const VOICE_SEG = [[8.92,10.9,'Selamat datang, rakyat Nusawara!'],[10.9,14.86,'Hari ini kita membangun negara kita bersama, dari nol.'],
-  [26.37,29.1,'Setiap warga resmi berhak ikut Undian Rumah.'],[29.1,32.5,'Rumah kalian, billboard kalian, kota kalian.'],
-  [32.5,35.42,'Follow, dan jadilah bagian dari sejarah.'],[35.42,9999,'Republik Nusawara resmi berdiri!']];
+// sambutan utuh satu kali putar (tidak dipotong); teks balon berganti mengikuti kalimat yang sedang diucapkan
+const VOICE_SEG = [[0,9999,'Selamat datang, rakyat Nusawara!']];
+const VOICE_CAP = [[0,'Selamat datang, rakyat Nusawara!'],[1.98,'Hari ini kita membangun negara kita bersama, dari nol.'],
+  [5.94,'Setiap warga resmi berhak ikut Undian Rumah.'],[8.67,'Rumah kalian, billboard kalian, kota kalian.'],
+  [12.07,'Follow, dan jadilah bagian dari sejarah.'],[14.99,'Republik Nusawara resmi berdiri!']];
 const voice = new Audio(VOICE_URL); voice.preload = 'auto';
 let vEnd = null, vSeg = 0, actx = null, analyser = null, vData = null, speaking = false;
 function ensureAudioGraph(){
@@ -1030,6 +1032,8 @@ function greet(){ if (speaking && !voice.paused) return; const sg = VOICE_SEG[vS
 function announce(){ if (speaking && !voice.paused) return; vSeg = 0; greet(); }
 function updateVoice(time){
   if (speaking && vEnd !== null && voice.currentTime >= vEnd){ voice.pause(); speaking = false; }
+  if (speaking && !voice.paused){ const ct = voice.currentTime; let cap = VOICE_CAP[0][1]; for (const c of VOICE_CAP) if (ct >= c[0]) cap = c[1];
+    const txt = '🔊 ' + cap; if (bubble.textContent !== txt) bubble.textContent = txt; bubble.classList.add('show'); bubbleT = Math.max(bubbleT, .6); }
   let open = 0;
   if (speaking && !voice.paused){
     if (analyser){
