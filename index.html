@@ -491,13 +491,14 @@ function makeRuko(h){
   [-2.95,2.95].forEach(x=>box(.16,.3,.16, 0x111111, x,6.6,2.33, g));
   box(.12,.12,.4, 0x111111, 0,6.95,2.45, g);
   g.position.set(h.x,0,h.z);
-  if (h.face < 0) g.rotation.y = Math.PI;
+  g.rotation.y = 0;   // ATURAN TETAP: semua rumah menghadap searah podium (+z), billboard terlihat dari satu arah kamera
   g.traverse(o=>{ if (o.isMesh){ o.castShadow = true; o.receiveShadow = true; } });
   g.userData = {type:'house', data:h};
   scene.add(g); pickables.push(g); houseGroups[h.id] = g;
 }
 // UUN No. 2/2026: pemenang undian mendapat TANAH (kavling). Rumah dibangun setelah desainnya disetujui Presiden.
 // Desain yang sudah disetujui didaftarkan di sini (kunci = nilai field "desain" di data rumah).
+// ATURAN TETAP (dikunci Bapak Presiden): SEMUA rumah & billboard menghadap searah podium (+z) agar terlihat dari satu arah kamera.
 const DESAIN = { ruko: makeRuko };
 // ---------- Desain rumah contoh (disetujui Presiden) ----------
 // Lampu hangat & kaca dipakai bersama
@@ -514,7 +515,7 @@ function houseBoard(h, w, hh, x, y, z, g, frame){
   box(.12,.12,.45, 0x111111, x - w*.3, y + hh/2 + .2, z + .3, g); box(.12,.12,.45, 0x111111, x + w*.3, y + hh/2 + .2, z + .3, g);   // lampu sorot
 }
 function finishHouse(h, g){
-  g.position.set(h.x,0,h.z); if (h.face < 0) g.rotation.y = Math.PI;
+  g.position.set(h.x,0,h.z); g.rotation.y = 0;   // ATURAN TETAP: semua rumah menghadap searah podium (+z)
   g.traverse(o=>{ if (o.isMesh && o.material !== WARM){ o.castShadow = true; o.receiveShadow = true; } });
   g.userData = {type:'house', data:h}; scene.add(g); pickables.push(g); houseGroups[h.id] = g;
 }
@@ -602,7 +603,7 @@ function makePlot(h){
   box(1.1,.35,.7, 0xb5543c, 1.9,.28,-1, g); box(.9,.3,.6, 0xc8bfa8, 1.6,.62,-1, g);
   [[1.2,1.2],[2.2,.6]].forEach(([x,z])=>{ const c = new THREE.Mesh(new THREE.ConeGeometry(.18,.5,10), M(0xff7a1a)); c.position.set(x,.36,z); c.castShadow = true; g.add(c); });
   g.position.set(h.x,0,h.z);
-  if (h.face < 0) g.rotation.y = Math.PI;
+  g.rotation.y = 0;   // ATURAN TETAP: semua rumah menghadap searah podium (+z), billboard terlihat dari satu arah kamera
   g.userData = {type:'house', data:h};
   scene.add(g); pickables.push(g); houseGroups[h.id] = g;
 }
@@ -987,8 +988,8 @@ COLL.push([18,-5.2,.65,.45]); // podium
 COLL.push([29,-4,.25,.25]);   // tiang bendera
 // Rumah contoh di Jalan Proklamasi (desain yang bisa dipilih pemenang undian)
 const CONTOH = [
-  {id:'CONTOH-1', district:'Distrik Pusat', code:'PST', street:'Jalan Proklamasi', no:1, x:36, z:9.5, face:-1, owner:'', status:'contoh', desain:'modern', nama:'Rumah Modern'},
-  {id:'CONTOH-2', district:'Distrik Pusat', code:'PST', street:'Jalan Proklamasi', no:2, x:46, z:9.5, face:-1, owner:'', status:'contoh', desain:'kaca', nama:'Gedung Kaca'}];
+  {id:'CONTOH-1', district:'Distrik Pusat', code:'PST', street:'Jalan Proklamasi', no:1, x:36, z:-8.5, face:1, owner:'', status:'contoh', desain:'modern', nama:'Rumah Modern'},
+  {id:'CONTOH-2', district:'Distrik Pusat', code:'PST', street:'Jalan Proklamasi', no:2, x:46, z:-8.5, face:1, owner:'', status:'contoh', desain:'kaca', nama:'Gedung Kaca'}];
 CONTOH.forEach(h=>{ DESAIN[h.desain](h); COLL.push([h.x, h.z, 3.4, 2.6]); });
 [['CONTOH-1','RUMAH CONTOH','Desain Modern','#1f3a5f','#ffffff'],['CONTOH-2','GEDUNG KACA','Desain Usaha','#141414','#d9b45a']]
   .forEach(([id,t,sb,bg,fg])=>{ if (!BB[id]){ BB[id] = {kind:'text', title:t, sub:sb, bg, fg}; applyBoard(id); } });

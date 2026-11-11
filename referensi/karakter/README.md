@@ -16,3 +16,7 @@ Semua karakter warga di peta dibuat mengikuti dua lembar ini (tampak depan, kana
 
 - `patokan-voxel.jpg` — kepala kubus besar dengan wajah piksel tajam (mata kotak dengan kilau putih, alis, pipi merona, hidung timbul), rambut dan kupluk tersusun dari balok kecil (kupluk rajut bergaris dengan pompom), kacamata bulat piksel yang timbul, kaos garis, hoodie dengan tali & logo piksel, celana dan sepatu kotak.
 - Raka & Sari (`raka-turnaround.jpg`, `sari-turnaround.jpg`) tetap dipakai sebagai patokan pakaian dan warna, tetapi dibuat dalam gaya voxel.
+
+## ATURAN TETAP PETA (dikunci Bapak Presiden, 12 November 2026)
+
+Semua rumah dan billboard menghadap searah podium Presiden (arah +z), supaya semua billboard terlihat dari satu arah kamera. Berlaku untuk setiap rumah, rumah contoh, dan desain baru.
