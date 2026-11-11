@@ -2005,7 +2005,7 @@ function shellGeo(o, clip){
 }
 const nrm = (x,y,z) => { const l = Math.hypot(x,y,z) || 1; return [x/l, y/l, z/l]; };
 function makeAvatar(sp){
-  // Karakter warga bergaya boneka 3D chibi (patokan: referensi/karakter/patokan-*.jpg):
+  // Karakter warga bergaya boneka 3D chibi (patokan: referensi/karakter/raka-turnaround.jpg & sari-turnaround.jpg):
   // kepala besar bulat, mata besar berkilau, pipi merona, badan mungil, baju rajut, sepatu kets putih.
   const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
   const R = .44, SX = 1, SY = .95, SZ = .93;                       // ukuran kepala
