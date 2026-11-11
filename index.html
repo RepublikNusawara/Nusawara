@@ -986,13 +986,9 @@ houses.forEach(h=>COLL.push([h.x,h.z-.05,3.3,2.3]));
 COLL.push([18,-9,6,.3]);      // backdrop
 COLL.push([18,-5.2,.65,.45]); // podium
 COLL.push([29,-4,.25,.25]);   // tiang bendera
-// Rumah contoh di Jalan Proklamasi (desain yang bisa dipilih pemenang undian)
-const CONTOH = [
-  {id:'CONTOH-1', district:'Distrik Pusat', code:'PST', street:'Jalan Proklamasi', no:1, x:36, z:-8.5, face:1, owner:'', status:'contoh', desain:'modern', nama:'Rumah Modern'},
-  {id:'CONTOH-2', district:'Distrik Pusat', code:'PST', street:'Jalan Proklamasi', no:2, x:46, z:-8.5, face:1, owner:'', status:'contoh', desain:'kaca', nama:'Gedung Kaca'}];
-CONTOH.forEach(h=>{ DESAIN[h.desain](h); COLL.push([h.x, h.z, 3.4, 2.6]); });
-[['CONTOH-1','RUMAH CONTOH','Desain Modern','#1f3a5f','#ffffff'],['CONTOH-2','GEDUNG KACA','Desain Usaha','#141414','#d9b45a']]
-  .forEach(([id,t,sb,bg,fg])=>{ if (!BB[id]){ BB[id] = {kind:'text', title:t, sub:sb, bg, fg}; applyBoard(id); } });
+// Rumah contoh tidak lagi dipasang di peta (keputusan Bapak Presiden).
+// Desainnya tetap tersedia sebagai "Desain siap pakai" di formulir Kirim Desain:
+//   modern = Rumah Modern (makeModern), kaca = Gedung Kaca (makeKaca).
 const R = .5;
 function blocked(x,z){
   if (Math.abs(x)>115 || Math.abs(z)>115) return true;
