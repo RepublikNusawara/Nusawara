@@ -499,6 +499,80 @@ function makeRuko(h){
 // UUN No. 2/2026: pemenang undian mendapat TANAH (kavling). Rumah dibangun setelah desainnya disetujui Presiden.
 // Desain yang sudah disetujui didaftarkan di sini (kunci = nilai field "desain" di data rumah).
 const DESAIN = { ruko: makeRuko };
+// ---------- Desain rumah contoh (disetujui Presiden) ----------
+// Lampu hangat & kaca dipakai bersama
+const WARM = new THREE.MeshBasicMaterial({color:0xffd27a});
+const GLASS_D = new THREE.MeshStandardMaterial({color:0x2e3d4f, roughness:.15, metalness:.3, emissive:0x101820});
+const WOODT = canvasTex(128,256,(g,W,H)=>{ g.fillStyle='#8a4f2c'; g.fillRect(0,0,W,H); for (let x=0;x<W;x+=10){ g.fillStyle = x%20 ? '#9c5c35' : '#7a4426'; g.fillRect(x,0,8,H); g.fillStyle='#5e331c'; g.fillRect(x+8,0,2,H); } });
+const WOOD = new THREE.MeshStandardMaterial({map:WOODT, roughness:.8});
+function houseBoard(h, w, hh, x, y, z, g, frame){
+  box(w + .3, hh + .3, .16, frame || 0x1d2430, x, y, z - .02, g);
+  const side = M(frame || 0x1d2430), defTex = billboardTex(h);
+  const board = new THREE.Mesh(new THREE.BoxGeometry(w, hh, .12), [side,side,side,side,new THREE.MeshBasicMaterial({map:defTex}),side]);
+  board.position.set(x, y, z + .06); g.add(board);
+  boards[h.id] = {mesh:board, aspect:w/hh, defTex, tok:0, cur:{tex:defTex}};
+  box(.12,.12,.45, 0x111111, x - w*.3, y + hh/2 + .2, z + .3, g); box(.12,.12,.45, 0x111111, x + w*.3, y + hh/2 + .2, z + .3, g);   // lampu sorot
+}
+function finishHouse(h, g){
+  g.position.set(h.x,0,h.z); if (h.face < 0) g.rotation.y = Math.PI;
+  g.traverse(o=>{ if (o.isMesh && o.material !== WARM){ o.castShadow = true; o.receiveShadow = true; } });
+  g.userData = {type:'house', data:h}; scene.add(g); pickables.push(g); houseGroups[h.id] = g;
+}
+// Rumah modern 2 lantai: dinding putih, bingkai abu, kayu vertikal, balkon kaca + pot tanaman, billboard di atap depan
+function makeModern(h){
+  const g = new THREE.Group(), WH = 0xf1efea, GR = 0x6e6e6c, DK = 0x1b1b1b, F = 2.25;
+  box(6.4,.3,5.2, 0xd9d6cf, 0,.15,.3, g);                                   // lantai dasar
+  box(6.2,3.2,4.4, WH, 0,1.75,-.1, g);                                       // lantai 1
+  box(2.9,2.2,.08, DK, -1.35,1.6,F, g); const w1 = new THREE.Mesh(new THREE.BoxGeometry(2.7,2.0,.05), GLASS_D); w1.position.set(-1.35,1.6,F+.05); g.add(w1);
+  [-2.05,-1.35,-.65].forEach(x=>box(.05,2.0,.07, DK, x,1.6,F+.07, g));
+  box(.95,2.25,.1, WOOD, 1.25,1.45,F-.25, g); box(.08,2.25,.12, 0xbfc3c7, .68,1.45,F-.2, g);  // pintu kayu masuk
+  box(.6,3.2,4.6, GR, 2.85,1.75,-.1, g);                                     // pilar abu kanan
+  [-2.4,.35,2.1].forEach(x=>{ box(.18,.28,.12, DK, x,2.4,F+.08, g); box(.08,.08,.02, WARM, x,2.3,F+.15, g); });   // lampu dinding
+  // pelat antar lantai abu + plafon kayu + pot tanaman balkon
+  box(6.6,.45,5.0, GR, 0,3.55,.1, g); box(6.4,.08,4.8, WOOD, 0,3.3,.15, g);
+  [-2.3,-.8,.8,2.3].forEach(x=>box(.12,.03,.12, WARM, x,3.25,2.3, g));
+  box(3.6,.6,.7, GR, -1.3,4.05,F+.3, g);
+  for (let i=0;i<7;i++){ box(.45,.35,.4, i%2 ? 0x4f8a3c : 0x3d7330, -2.85 + i*.5,4.45,F+.3, g); }
+  // lantai 2: kiri putih + kaca besar + pagar kaca, kanan kayu vertikal dalam bingkai abu
+  box(3.8,3.0,4.2, WH, -1.2,5.3,-.25, g);
+  box(3.0,2.3,.08, DK, -1.35,5.25,F-.38, g); const w2 = new THREE.Mesh(new THREE.BoxGeometry(2.8,2.1,.05), GLASS_D); w2.position.set(-1.35,5.25,F-.33); g.add(w2);
+  const rail = new THREE.Mesh(new THREE.BoxGeometry(3.6,.9,.04), new THREE.MeshStandardMaterial({color:0xcfe3ef, transparent:true, opacity:.35, roughness:.1})); rail.position.set(-1.3,4.8,F+.62); g.add(rail);
+  box(3.6,.05,.06, 0x333333, -1.3,5.25,F+.62, g);
+  box(2.9,3.6,4.5, GR, 1.75,5.4,-.1, g); box(2.2,3.0,.1, WOOD, 1.55,5.2,F+.17, g);
+  [1.15,1.95].forEach(x=>{ box(.55,1.9,.06, DK, x,5.0,F+.24, g); const w = new THREE.Mesh(new THREE.BoxGeometry(.45,1.8,.04), GLASS_D); w.position.set(x,5.0,F+.27); g.add(w); });
+  for (let i=0;i<9;i++) box(.42,.07,.08, 0x5a3a26, 2.95,3.9 + i*.38,F+.2, g);  // kisi kayu kanan
+  box(4.0,.25,4.9, WOOD, -.9,6.9,.1, g); box(4.2,.3,5.0, GR, -.9,7.1,.1, g);  // kanopi atas kiri
+  // lantai atap + billboard di bingkai abu atas
+  box(5.0,1.6,3.8, WH, -.3,7.9,-.6, g);
+  houseBoard(h, 3.6, 2.1, .9, 8.35, F-.2, g, 0x5d5d5b);
+  // tangga kayu depan & taman kecil
+  [0,1,2].forEach(i=>box(1.6 - i*.1,.12,.5, WOOD, 1.2,.06 + i*.12,F+1.3 - i*.45, g));
+  box(2.6,.5,.7, GR, -1.7,.25,F+.95, g); for (let i=0;i<5;i++) box(.45,.4,.45, i%2 ? 0x5d9a48 : 0x467f37, -2.7 + i*.5,.7,F+.95, g);
+  finishHouse(h, g);
+}
+// Gedung kaca 2 lantai: bingkai hitam, fasad kaca penuh, interior kayu terang, tangga, billboard emas di atas
+function makeKaca(h){
+  const g = new THREE.Group(), BK = 0x141414, F = 2.25;
+  box(6.6,.25,4.8, 0x2a2a2a, 0,.12,0, g);
+  [-2.95,2.95].forEach(x=>box(.1,7.0,4.4, 0x6b4a2e, x,3.6,-.1, g));            // dinding samping dalam
+  box(5.9,6.4,.1, 0xb98a55, 0,3.6,-2.2, g);                                  // dinding belakang kayu terang
+  [1.0,4.6].forEach(y=>box(5.9,.08,4.2, 0xd8b27c, 0,y - .55,-.05, g));       // lantai kayu
+  [3.2,6.7].forEach(y=>{ box(5.9,.1,4.2, 0xf3eadc, 0,y,-.05, g); for (let i=0;i<4;i++) box(.25,.03,.25, WARM, -2.2 + i*1.45,y - .07,.6, g); });
+  for (let i=0;i<8;i++) box(1.1,.12,.5, 0xc89a62, -1.4 + i*.36,.6 + i*.38,-1.2 + (i>3 ? .0 : 0), g);   // tangga
+  [-2.6,2.6].forEach(x=>{ box(.4,5.8,.9, 0x8a6a45, x,3.4,-1.6, g); for (let k=0;k<6;k++) box(.42,.05,.92, 0xc89a62, x,1.0 + k*.9,-1.6, g); });   // rak buku
+  [[-1.6,.95],[1.4,.95],[-1.6,4.4],[1.4,4.4]].forEach(([x,y])=>{ box(1.2,.08,.6, 0x1e1e1e, x,y + .45,-.4, g); box(.5,.35,.05, 0x223344, x,y + .7,-.6, g); });   // meja kerja
+  // fasad kaca + bingkai hitam
+  const fg = new THREE.MeshStandardMaterial({color:0x9fc0d4, transparent:true, opacity:.22, roughness:.05, metalness:.2});
+  [1.95,5.45].forEach(y=>{ const p = new THREE.Mesh(new THREE.BoxGeometry(6.0,3.2,.05), fg); p.position.set(0,y,F); g.add(p); });
+  [-3.1,3.1].forEach(x=>box(.22,7.4,4.6, BK, x,3.7,-.1, g));
+  [-1.0,1.0].forEach(x=>box(.08,7.0,.12, BK, x,3.6,F, g));
+  box(6.4,.35,.2, BK, 0,3.65,F, g); box(6.4,.12,.2, BK, 0,.3,F, g); box(6.4,.12,.2, BK, 0,7.1,F, g);
+  // papan nama hitam di atas + billboard emas
+  box(6.6,3.0,4.8, BK, 0,8.7,-.1, g);
+  houseBoard(h, 4.6, 2.65, 0, 8.7, F+.18, g, 0xc9a24a);
+  finishHouse(h, g);
+}
+Object.assign(DESAIN, {modern: makeModern, kaca: makeKaca});
 function makeHouse(h){ if (h.status === 'tanah') return makePlot(h); return (DESAIN[h.desain] || makeRuko)(h); }
 function plotSign(h){
   return canvasTex(512, 300, (g,W,H)=>{
@@ -708,6 +782,9 @@ function editBtn(id){
 }
 function houseHTML(h){
   if (h.status === 'tanah') return plotHTML(h);
+  if (h.status === 'contoh') return `<div class="kicker">${esc(h.district)} · ${esc(h.street)}</div><h2>${esc(h.nama)}</h2><span class="pill ok">● Rumah contoh</span>
+    <div class="card"><h3>Desain yang bisa dipilih</h3><p>Ini contoh desain rumah yang sudah disetujui Bapak Presiden. Pemenang <b>Undian Rumah</b> boleh memilih desain seperti ini untuk tanahnya, atau mengirim desain sendiri. Setiap rumah wajib punya <b>billboard</b>.</p></div>
+    <div class="card"><h3>Billboard</h3>${boardPreview(h.id, '<p>Billboard rumah contoh dikelola Republik Nusawara.</p>')}${editBtn(h.id)}</div>`;
   const head = `<div class="kicker">${esc(h.district)} · ${esc(h.street)}</div><h2 class="mono" style="font-size:20px">${esc(h.id)}</h2>`;
   if (!h.owner) return head + `<span class="pill empty">● Rumah kosong</span>
     <div class="card"><h3>Undian Rumah</h3><p>Rumah ini akan dibagikan lewat <b>Undian Rumah</b> berikutnya. Hanya WRN ber-NIWN yang sudah follow akun Republik Nusawara yang bisa ikut.</p></div>
@@ -908,6 +985,13 @@ houses.forEach(h=>COLL.push([h.x,h.z-.05,3.3,2.3]));
 COLL.push([18,-9,6,.3]);      // backdrop
 COLL.push([18,-5.2,.65,.45]); // podium
 COLL.push([29,-4,.25,.25]);   // tiang bendera
+// Rumah contoh di Jalan Proklamasi (desain yang bisa dipilih pemenang undian)
+const CONTOH = [
+  {id:'CONTOH-1', district:'Distrik Pusat', code:'PST', street:'Jalan Proklamasi', no:1, x:36, z:9.5, face:-1, owner:'', status:'contoh', desain:'modern', nama:'Rumah Modern'},
+  {id:'CONTOH-2', district:'Distrik Pusat', code:'PST', street:'Jalan Proklamasi', no:2, x:46, z:9.5, face:-1, owner:'', status:'contoh', desain:'kaca', nama:'Gedung Kaca'}];
+CONTOH.forEach(h=>{ DESAIN[h.desain](h); COLL.push([h.x, h.z, 3.4, 2.6]); });
+[['CONTOH-1','RUMAH CONTOH','Desain Modern','#1f3a5f','#ffffff'],['CONTOH-2','GEDUNG KACA','Desain Usaha','#141414','#d9b45a']]
+  .forEach(([id,t,sb,bg,fg])=>{ if (!BB[id]){ BB[id] = {kind:'text', title:t, sub:sb, bg, fg}; applyBoard(id); } });
 const R = .5;
 function blocked(x,z){
   if (Math.abs(x)>115 || Math.abs(z)>115) return true;
