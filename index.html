@@ -1366,10 +1366,9 @@ document.getElementById('lkF').addEventListener('submit', async e=>{
     if (a !== b) { m.textContent = 'Kata sandi baru tidak sama. Ulangi.'; return; }
     if (a === UNLOCK[lkUser]) { m.textContent = 'Kata sandi baru sama dengan yang lama.'; return; }
     const bb = document.getElementById('lkB'); bb.disabled = true; m.textContent = 'Menyimpan…';
-    submitWarga(lkUser, 'sandi', {sandi_baru: a});   // catatan resmi di Daftar Warga (tekan Kirim di formulir)
     try { const ok = await SB.ganti(lkUser, UNLOCK[lkUser], a); bb.disabled = false;
       if (!ok){ m.textContent = '❌ Kata sandi lama sudah tidak cocok. Tutup lalu coba lagi.'; return; }
-      UNLOCK[lkUser] = a; lkEl.classList.remove('open'); toast('✓ Kata sandi baru langsung aktif. Tekan Kirim di formulir supaya tercatat di Daftar Warga.'); }
+      UNLOCK[lkUser] = a; lkEl.classList.remove('open'); toast('✓ Kata sandi baru langsung aktif. Jangan berikan kepada siapa pun.'); }
     catch(_){ bb.disabled = false; m.textContent = 'Gagal tersambung. Periksa internet lalu coba lagi.'; }
     return;
   }
@@ -1407,9 +1406,18 @@ function guestSave(){
     q.set('jenis', k==='image' ? 'Foto' : k==='gif' ? 'GIF' : 'Video');
   }
   const media = ed.kind !== 'text';
+  if (!media){   // billboard teks: diperiksa & disimpan di server, langsung tampil untuk semua warga
+    const [bg, fg] = q.get('warna').split(','), user = q.get('username');
+    edSay('Menyimpan…');
+    SB.rpc('simpan_billboard', {p_user:user, p_sandi:kode, p_rumah:id, p_judul:q.get('judul'), p_ket:q.get('keterangan'), p_bg:bg, p_fg:fg}).then(r=>{
+      const pesan = {ok:'✓ Billboard tersimpan & langsung terlihat semua warga', sandi:'❌ Kata sandi sudah berubah. Kunci lalu buka profil lagi.', bukan_pemilik:'❌ Rumah ini bukan milikmu.', belum_dibangun:'Billboard bisa diisi setelah rumahmu dibangun.', teks:'❌ Judul 1–40 huruf, keterangan maks. 60.'}[r] || 'Gagal menyimpan.';
+      if (r === 'ok'){ BB[id] = {kind:'text', title:q.get('judul'), sub:q.get('keterangan'), bg, fg}; closeEditor(); toast(pesan); } else { applyBoard(id); edSay(pesan); }
+    }).catch(()=>edSay('Gagal tersambung. Periksa internet lalu coba lagi.'));
+    return;
+  }
   window.open('https://tally.so/r/Nql52l?' + q.toString(), '_blank', 'noopener');
   closeEditor();
-  toast(media ? 'Billboard tampil di layarmu ✓ Unggah file yang sama di formulir, lalu kirim.' : 'Billboard tampil di layarmu ✓ Centang persetujuan di formulir, lalu kirim.');
+  toast('Billboard tampil di layarmu ✓ Unggah file yang sama di formulir, lalu kirim. Foto/GIF diperiksa dulu sebelum tampil untuk semua warga.');
 }
 
 /* ---------- EDITOR BILLBOARD (khusus pemilik) ---------- */
@@ -2675,6 +2683,7 @@ function sbApplyGaya(rows){
   (rows || []).forEach(r=>{ if (!r || !r.username || !r.avatar) return; SB_GAYA[r.username] = r.avatar; const w = wInfo(r.username); if (w) upd[r.username] = Object.assign({}, w, {avatar: r.avatar}); });
   if (Object.keys(upd).length){ syncWalkers(upd); if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); }
 }
+function sbApplyBoard(r){ if (!r || !r.rumah || !boards[r.rumah]) return; BB[r.rumah] = {kind:'text', title:r.judul, sub:r.ket || '', bg:r.bg, fg:r.fg}; applyBoard(r.rumah); }
 const SB_PENDING = [];
 function sbTerimaObrolan(r){
   if (!r || !r.teks) return;
@@ -2690,6 +2699,7 @@ window.nusawaraChatKirim = async ({k, u, t}) => {
 };
 (async ()=>{
   try { sbApplyGaya(await SB.get('gaya?select=username,avatar')); } catch(_) {}
+  try { (await SB.get('billboard?select=rumah,judul,ket,bg,fg')).forEach(sbApplyBoard); } catch(_) {}
   try { const rows = await SB.get('obrolan?select=username,nama,teks,dibuat&order=dibuat.desc&limit=40');
     CHAT = rows.reverse().map(r=>({k:r.username, u:r.nama || r.username, t:r.teks, at:Date.parse(r.dibuat)})); chatPaint(); } catch(_) {}
   // realtime (langsung muncul di semua HP)
@@ -2697,7 +2707,8 @@ window.nusawaraChatKirim = async ({k, u, t}) => {
   s.onload = ()=>{ try {
     const cli = window.supabase.createClient(SB_URL, SB_KEY);
     cli.channel('nusawara').on('postgres_changes', {event:'INSERT', schema:'public', table:'obrolan'}, p=>sbTerimaObrolan(p.new))
-      .on('postgres_changes', {event:'*', schema:'public', table:'gaya'}, p=>sbApplyGaya([p.new])).subscribe();
+      .on('postgres_changes', {event:'*', schema:'public', table:'gaya'}, p=>sbApplyGaya([p.new]))
+      .on('postgres_changes', {event:'*', schema:'public', table:'billboard'}, p=>{ if (p.new && p.new.rumah) sbApplyBoard(p.new); else if (p.old && p.old.rumah){ delete BB[p.old.rumah]; applyBoard(p.old.rumah); } }).subscribe();
   } catch(_) {} };
   document.head.appendChild(s);
 })();
