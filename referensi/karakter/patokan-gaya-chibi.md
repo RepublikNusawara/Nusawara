@@ -32,4 +32,4 @@ Gambar turnaround Raka dan Sari tersimpan di ElevenLabs, di flow "Turnaround Kar
 - Raka: generation `Zj5Jx9A7IVpDnohsJQxV`
 - Sari: generation `kWTvyXvUMRD44OT4f8io`
 
-Upload versi `.png`-nya ke folder ini dengan nama `raka-turnaround.png` dan `sari-turnaround.png`.
+Gambar patokan resmi di folder ini: `raka-turnaround.jpg` dan `sari-turnaround.jpg`.
