@@ -53,6 +53,11 @@
   .daftarbar button,.daftarbar a{flex:none;border:0;border-left:1px solid var(--line);background:transparent;color:var(--navy);font:inherit;font-size:13px;font-weight:800;padding:0 12px;align-self:stretch;display:flex;align-items:center;text-decoration:none;cursor:pointer}
   .daftarbar a{background:var(--navy);color:#fff}
   body.play .daftarbar{display:none}
+  .tallyw{position:fixed;inset:0;z-index:30;display:none;flex-direction:column;background:var(--paper)}
+  .tallyw.open{display:flex}
+  .tallyw .tb{display:flex;align-items:center;justify-content:space-between;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:var(--navy);color:#fff;font-weight:800}
+  .tallyw .tb button{border:0;background:rgba(255,255,255,.15);color:#fff;font:inherit;font-weight:800;border-radius:10px;padding:8px 12px;cursor:pointer}
+  .tallyw iframe{flex:1;width:100%;border:0;background:#fff}
   .hint{position:fixed;left:50%;top:116px;transform:translateX(-50%);z-index:4;font-size:12px;
     background:rgba(31,58,95,.82);color:#fff;padding:6px 12px;border-radius:999px;white-space:nowrap;
     transition:opacity .6s}
@@ -209,6 +214,10 @@
 </form>
 
 
+<div class="tallyw" id="tallyw" role="dialog" aria-label="Pendaftaran Warga">
+  <div class="tb"><span>📝 Pendaftaran Warga</span><button type="button" id="tallyClose">Tutup ✕</button></div>
+  <iframe id="tallyFrame" title="Formulir Pendaftaran Warga Republik Nusawara" loading="lazy" allow="clipboard-write"></iframe>
+</div>
 <div class="hint" id="hint">Geser untuk memutar · cubit untuk zoom · ketuk rumah</div>
 
 <nav class="actions">
@@ -245,7 +254,7 @@
     <div class="kicker">Kewarganegaraan</div>
     <h2>Cara jadi Warga Republik Nusawara</h2>
     <p class="note" style="margin-top:6px">Siapa pun bisa menjadi <b>Warga Republik Nusawara (WRN)</b>. Cukup daftar, tanpa syarat lain:</p>
-    <a class="btn" href="https://tally.so/r/Z9or5e" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;background:var(--gold);color:#3a2600;font-size:16px;margin:12px 0 4px">📝 Daftar</a>
+    <a class="btn" id="daftarGo" href="https://tally.so/r/Z9or5e" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;background:var(--gold);color:#3a2600;font-size:16px;margin:12px 0 4px">📝 Daftar</a>
     <ol class="steps">
       <li>Tekan tombol <b>Daftar</b> di atas, atau <b>komentar "DAFTAR"</b> di postingan Republik Nusawara.</li>
       <li>Isi <b>username Instagram</b>-mu, buat <b>Kata Sandi Warga</b> 🔑 (6–20 huruf/angka, rahasia), lalu kirim.</li>
@@ -3047,6 +3056,16 @@ const music = (()=>{
 sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-main]'); if (!b) return; const k = b.dataset.main; if (isOwner || (typeof UNLOCK !== 'undefined' && UNLOCK[k])) startCtl(k); else if (typeof openLock === 'function') openLock(k, 'main'); });
 
 
+
+// tombol Daftar: formulir pendaftaran langsung terbuka di dalam peta (tanpa pindah halaman)
+(()=>{ const go = document.getElementById('daftarGo'), w = document.getElementById('tallyw'), fr = document.getElementById('tallyFrame');
+  if (!go || !w || !fr) return;
+  go.addEventListener('click', e=>{ e.preventDefault();
+    document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open'));
+    if (!fr.src) fr.src = 'https://tally.so/embed/Z9or5e?alignLeft=1&transparentBackground=1';
+    w.classList.add('open'); });
+  document.getElementById('tallyClose').addEventListener('click', ()=>w.classList.remove('open'));
+})();
 /* ---------- LOOP ---------- */
 addEventListener('resize', ()=>{
   camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
