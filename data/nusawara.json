@@ -23,8 +23,8 @@
     "topiWarna": "#f4f1ea"
    }
   },
-  "remetemeh": {
-   "username": "remetemeh",
+  "ramatemeh": {
+   "username": "ramatemeh",
    "niwn": "NUS-000002",
    "terdaftar": "12 Nov 2026",
    "houseId": null,
@@ -51,7 +51,6 @@
  "undian": [],
  "kunci": {
   "julianto_jul": "0c29b97300c8d682961c4763e3af2b49c6fb1cbf8bdc827834a8a994f52da8f8",
-  "liam": "391aa01f7e098b1ef07a08153348ca164b4c4049b6e9a7858489376066f5c192",
-  "remetemeh": "15da9ec8a1b050ca52a34e49cd64f5f41de87ad2b25bd31b005fefc6bc9a8b4f"
+  "liam": "391aa01f7e098b1ef07a08153348ca164b4c4049b6e9a7858489376066f5c192"
  }
 }
