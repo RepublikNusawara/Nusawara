@@ -53,7 +53,7 @@
   .daftarbar button,.daftarbar a{flex:none;border:0;border-left:1px solid var(--line);background:transparent;color:var(--navy);font:inherit;font-size:13px;font-weight:800;padding:0 12px;align-self:stretch;display:flex;align-items:center;text-decoration:none;cursor:pointer}
   .daftarbar a{background:var(--navy);color:#fff}
   body.play .daftarbar{display:none}
-  .hint{position:fixed;left:50%;top:160px;transform:translateX(-50%);z-index:4;font-size:12px;
+  .hint{position:fixed;left:50%;top:116px;transform:translateX(-50%);z-index:4;font-size:12px;
     background:rgba(31,58,95,.82);color:#fff;padding:6px 12px;border-radius:999px;white-space:nowrap;
     transition:opacity .6s}
   .hint.hide{opacity:0;pointer-events:none}
@@ -208,17 +208,12 @@
   <button type="submit" aria-label="Cari"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" style="vertical-align:-3px;margin-right:6px"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>Cari</button>
 </form>
 
-<div class="daftarbar" id="daftarbar">
-  <span class="lbl">📝 Daftar Warga</span>
-  <input id="daftarLink" value="tally.so/r/Z9or5e" data-url="https://tally.so/r/Z9or5e" readonly aria-label="Link pendaftaran Warga Republik Nusawara">
-  <a href="https://tally.so/r/Z9or5e" target="_blank" rel="noopener">Daftar</a>
-</div>
 
 <div class="hint" id="hint">Geser untuk memutar · cubit untuk zoom · ketuk rumah</div>
 
 <nav class="actions">
   <button class="navy" id="playBtn">🕹️ Presiden</button>
-  <a class="primary" href="https://tally.so/r/Z9or5e" target="_blank" rel="noopener">Jadi Warga</a>
+  <button class="primary" data-open="daftar">Jadi Warga</button>
   <button data-open="uun" hidden>UUN</button>
   <button id="resetBtn">Lihat semua</button>
   <button id="shotBtn" hidden>🎬 Adegan</button>
@@ -250,14 +245,14 @@
     <div class="kicker">Kewarganegaraan</div>
     <h2>Cara jadi Warga Republik Nusawara</h2>
     <p class="note" style="margin-top:6px">Siapa pun bisa menjadi <b>Warga Republik Nusawara (WRN)</b>. Cukup daftar, tanpa syarat lain:</p>
+    <a class="btn" href="https://tally.so/r/Z9or5e" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;background:var(--gold);color:#3a2600;font-size:16px;margin:12px 0 4px">📝 Daftar</a>
     <ol class="steps">
-      <li><b>Komentar "DAFTAR"</b> di postingan Republik Nusawara, atau buka link pendaftaran di bio Instagram.</li>
+      <li>Tekan tombol <b>Daftar</b> di atas, atau <b>komentar "DAFTAR"</b> di postingan Republik Nusawara.</li>
       <li>Isi <b>username Instagram</b>-mu, buat <b>Kata Sandi Warga</b> 🔑 (6–20 huruf/angka, rahasia), lalu kirim.</li>
       <li>Kamu dapat <b>NIWN</b> dan resmi jadi WRN. 🎉 Cari username-mu di peta untuk melihat <b>Kartu Warga</b> dan karaktermu yang berjalan di kota.</li>
       <li>Pakai Kata Sandi Warga untuk <b>mengganti gaya karakter</b> (rambut, baju, celana, sepatu, aksesoris). Kamu juga bisa <b>memainkan karaktermu</b> dan mengganti kata sandi sendiri.</li>
       <li>Mau ikut <b>Undian Rumah</b>? <b>Follow</b> akun Republik Nusawara. Pemenangnya dapat <b>tanah</b> dan bebas mendesain rumahnya (rumah/ruko dengan billboard, disetujui Presiden).</li>
     </ol>
-    <a class="btn" href="https://tally.so/r/Z9or5e" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">📝 Daftar Jadi Warga sekarang</a>
     <p class="note">Semua identitas dan kepemilikan di Nusawara bersifat virtual, bukan dokumen resmi.</p>
   </div>
 </div>
