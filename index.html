@@ -62,7 +62,8 @@
     display:flex;gap:8px;justify-content:center;transition:opacity .25s,transform .25s}
   .actions button{font:inherit;font-size:13px;font-weight:700;border-radius:12px;padding:11px 14px;cursor:pointer;
     border:1px solid var(--line);background:rgba(255,253,248,.96);color:var(--navy);box-shadow:0 6px 18px rgba(31,58,95,.12)}
-  .actions button.primary{background:var(--gold);border-color:#d99a1f;color:#3a2600}
+  .actions button.primary,.actions a.primary{background:var(--gold);border-color:#d99a1f;color:#3a2600}
+  .actions a.primary{font:inherit;font-size:13px;font-weight:700;border-radius:12px;padding:11px 14px;border:1px solid #d99a1f;text-decoration:none;box-shadow:0 6px 18px rgba(31,58,95,.12);display:inline-flex;align-items:center}
   body.sheet-open .actions{opacity:0;transform:translateY(20px);pointer-events:none}
 
   .sheet{position:fixed;left:0;right:0;bottom:0;z-index:8;max-width:520px;margin:0 auto;
@@ -210,7 +211,6 @@
 <div class="daftarbar" id="daftarbar">
   <span class="lbl">📝 Daftar Warga</span>
   <input id="daftarLink" value="tally.so/r/Z9or5e" data-url="https://tally.so/r/Z9or5e" readonly aria-label="Link pendaftaran Warga Republik Nusawara">
-  <button type="button" id="daftarCopy">Salin</button>
   <a href="https://tally.so/r/Z9or5e" target="_blank" rel="noopener">Daftar</a>
 </div>
 
@@ -218,7 +218,7 @@
 
 <nav class="actions">
   <button class="navy" id="playBtn">🕹️ Presiden</button>
-  <button class="primary" data-open="daftar">Jadi Warga</button>
+  <a class="primary" href="https://tally.so/r/Z9or5e" target="_blank" rel="noopener">Jadi Warga</a>
   <button data-open="uun" hidden>UUN</button>
   <button id="resetBtn">Lihat semua</button>
   <button id="shotBtn" hidden>🎬 Adegan</button>
@@ -247,12 +247,12 @@
 <div class="modal" id="modal-daftar">
   <div class="box">
     <button class="x" data-close aria-label="Tutup">×</button>
-    <div class="kicker">Kewarganegaraan · UUN No. 1/2026</div>
+    <div class="kicker">Kewarganegaraan</div>
     <h2>Cara jadi Warga Republik Nusawara</h2>
     <p class="note" style="margin-top:6px">Siapa pun bisa menjadi <b>Warga Republik Nusawara (WRN)</b>. Cukup daftar, tanpa syarat lain:</p>
     <ol class="steps">
       <li><b>Komentar "DAFTAR"</b> di postingan Republik Nusawara, atau buka link pendaftaran di bio Instagram.</li>
-      <li>Isi <b>username Instagram</b>-mu, buat <b>Kata Sandi Warga</b> 🔑 (6–20 huruf/angka, rahasia), baca UUN, lalu kirim.</li>
+      <li>Isi <b>username Instagram</b>-mu, buat <b>Kata Sandi Warga</b> 🔑 (6–20 huruf/angka, rahasia), lalu kirim.</li>
       <li>Kamu dapat <b>NIWN</b> dan resmi jadi WRN. 🎉 Cari username-mu di peta untuk melihat <b>Kartu Warga</b> dan karaktermu yang berjalan di kota.</li>
       <li>Pakai Kata Sandi Warga untuk <b>mengganti gaya karakter</b> (rambut, baju, celana, sepatu, aksesoris). Kamu juga bisa <b>memainkan karaktermu</b> dan mengganti kata sandi sendiri.</li>
       <li>Mau ikut <b>Undian Rumah</b>? <b>Follow</b> akun Republik Nusawara. Pemenangnya dapat <b>tanah</b> dan bebas mendesain rumahnya (rumah/ruko dengan billboard, disetujui Presiden).</li>
@@ -3052,12 +3052,6 @@ const music = (()=>{
 sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-main]'); if (!b) return; const k = b.dataset.main; if (isOwner || (typeof UNLOCK !== 'undefined' && UNLOCK[k])) startCtl(k); else if (typeof openLock === 'function') openLock(k, 'main'); });
 
 
-// kolom link pendaftaran warga: salin link
-(()=>{ const inp = document.getElementById('daftarLink'), btn = document.getElementById('daftarCopy'); if (!inp || !btn) return;
-  inp.addEventListener('focus', ()=>inp.select());
-  btn.addEventListener('click', async ()=>{ let ok = false;
-    try { await navigator.clipboard.writeText(inp.dataset.url); ok = true; } catch(e){ try { inp.select(); ok = document.execCommand('copy'); } catch(_){} }
-    btn.textContent = ok ? 'Tersalin ✓' : 'Salin manual'; setTimeout(()=>btn.textContent = 'Salin', 1800); }); })();
 /* ---------- LOOP ---------- */
 addEventListener('resize', ()=>{
   camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
