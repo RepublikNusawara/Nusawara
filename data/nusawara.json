@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-12T23:42:43+11:00",
+ "updatedAt": "2026-11-12T23:44:53+11:00",
  "penduduk": 10,
  "warga": {
   "julianto_jul": {
@@ -56,7 +56,7 @@
    "niwn": "NUS-000006",
    "terdaftar": "12 Nov 2026",
    "houseId": null,
-   "follow": null
+   "follow": true
   },
   "ma__19..": {
    "username": "Ma__19..",
