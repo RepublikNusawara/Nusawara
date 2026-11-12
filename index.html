@@ -1471,8 +1471,8 @@ async function loadPublicData(){
     const r = await fetch('data/nusawara.json?t=' + Date.now(), {cache:'no-store'});
     if (!r.ok) return;
     const d = await r.json();
-    if (d && Number.isFinite(d.penduduk)) setPenduduk(d.penduduk);
-    if (d && d.warga && typeof d.warga === 'object') WARGA = d.warga;
+    if (d && d.warga && typeof d.warga === 'object') WARGA = Object.assign({}, WARGA, d.warga);
+    if (d && Number.isFinite(d.penduduk)) setPenduduk(Math.max(d.penduduk, Object.keys(WARGA).length));
     undianPublic(d);
     if (d && d.billboards && typeof d.billboards === 'object' && !db){
       for (const [id, rec] of Object.entries(d.billboards)){ if (boards[id] && rec && typeof rec === 'object'){ BB[id] = rec; applyBoard(id); } }
@@ -2860,6 +2860,16 @@ function sbApplyGaya(rows){
   (rows || []).forEach(r=>{ if (!r || !r.username || !r.avatar) return; SB_GAYA[r.username] = r.avatar; const w = wInfo(r.username); if (w) upd[r.username] = Object.assign({}, w, {avatar: r.avatar}); });
   if (Object.keys(upd).length){ syncWalkers(upd); if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); }
 }
+// warga baru dari formulir pendaftaran: langsung muncul (tanpa menunggu sinkron tiap jam)
+function sbApplyWarga(rows){
+  const add = {};
+  (rows || []).forEach(r=>{ if (!r || !r.username || !/^[a-z0-9._]{1,30}$/.test(r.username) || WARGA[r.username]) return;
+    const w = {username: String(r.nama || r.username).slice(0,30), niwn: String(r.niwn || ''), terdaftar: String(r.terdaftar || ''), houseId: null, follow: null};
+    if (window.SB_GAYA && SB_GAYA[r.username]) w.avatar = SB_GAYA[r.username];
+    WARGA[r.username] = w; add[r.username] = w; });
+  if (Object.keys(add).length){ syncWalkers(add); setPenduduk(Math.max(pendudukCount, Object.keys(WARGA).length));
+    if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); }
+}
 function sbApplyBoard(r){ if (!r || !r.rumah || !boards[r.rumah]) return; BB[r.rumah] = {kind:'text', title:r.judul, sub:r.ket || '', bg:r.bg, fg:r.fg}; applyBoard(r.rumah); }
 const SB_PENDING = [];
 function sbTerimaObrolan(r){
@@ -2876,6 +2886,7 @@ window.nusawaraChatKirim = async ({k, u, t}) => {
 };
 (async ()=>{
   try { sbApplyGaya(await SB.get('gaya?select=username,avatar')); } catch(_) {}
+  try { sbApplyWarga(await SB.get('warga?select=username,nama,niwn,terdaftar&order=niwn')); } catch(_) {}
   try { (await SB.get('billboard?select=rumah,judul,ket,bg,fg')).forEach(sbApplyBoard); } catch(_) {}
   try { const rows = await SB.get('obrolan?select=username,nama,teks,dibuat&order=dibuat.desc&limit=40');
     CHAT = rows.reverse().map(r=>({k:r.username, u:r.nama || r.username, t:r.teks, at:Date.parse(r.dibuat)})); chatPaint(); } catch(_) {}
@@ -2885,6 +2896,7 @@ window.nusawaraChatKirim = async ({k, u, t}) => {
     const cli = window.supabase.createClient(SB_URL, SB_KEY);
     cli.channel('nusawara').on('postgres_changes', {event:'INSERT', schema:'public', table:'obrolan'}, p=>sbTerimaObrolan(p.new))
       .on('postgres_changes', {event:'*', schema:'public', table:'gaya'}, p=>sbApplyGaya([p.new]))
+      .on('postgres_changes', {event:'INSERT', schema:'public', table:'warga'}, p=>sbApplyWarga([p.new]))
       .on('postgres_changes', {event:'*', schema:'public', table:'billboard'}, p=>{ if (p.new && p.new.rumah) sbApplyBoard(p.new); else if (p.old && p.old.rumah){ delete BB[p.old.rumah]; applyBoard(p.old.rumah); } }).subscribe();
   } catch(_) {} };
   document.head.appendChild(s);
