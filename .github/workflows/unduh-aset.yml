@@ -1,0 +1,26 @@
+name: Unduh aset video (sementara)
+on:
+  push:
+    branches: [aset-video-sementara]
+    paths: ['.github/workflows/unduh-aset.yml']
+permissions:
+  contents: write
+jobs:
+  unduh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unduh file
+        run: |
+          mkdir -p aset
+          curl -sSfL -o aset/presiden1.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/5RtZIVH39oIizHv1DExI/UkS2yHs4h95H7ophV3o1/content.mp3?Expires=1794528000&KeyName=assets-cdn-key-1&Signature=VpDAF0U3x8guYWCRhRALqBclWWI="
+          curl -sSfL -o aset/jago1.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/fsm6sBuw7w6H3IHB8K1b/70eA7LlgoyCIuwfU5scI/content.mp3?Expires=1794528000&KeyName=assets-cdn-key-1&Signature=zGFy3QZc6TJ_xrkAawudmpEeqDg="
+          curl -sSfL -o aset/maskot.png "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/AKzXzKi2o8bha0hVEDLk/e83BwTa3qkU1iG2ACj6z/content.png?Expires=1794528000&KeyName=assets-cdn-key-1&Signature=DjqvWvplHT11f-YEs6QN9jdYxJY="
+          ls -la aset
+      - name: Simpan ke branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add aset
+          git commit -m "Aset video sementara"
+          git push
