@@ -260,6 +260,7 @@
       <li>Isi <b>username Instagram</b>-mu, buat <b>Kata Sandi Warga</b> 🔑 (6–20 huruf/angka, rahasia), lalu kirim.</li>
       <li>Kamu dapat <b>NIWN</b> dan resmi jadi WRN. 🎉 Cari username-mu di peta untuk melihat <b>Kartu Warga</b> dan karaktermu yang berjalan di kota.</li>
       <li>Pakai Kata Sandi Warga untuk <b>mengganti gaya karakter</b> (rambut, baju, celana, sepatu, aksesoris). Kamu juga bisa <b>memainkan karaktermu</b> dan mengganti kata sandi sendiri.</li>
+      <li>Karakter warga baru menunggu di <b>Pelabuhan Nusawara</b> 🛳️. Setelah status <b>follow</b> dicek dan dinyatakan sudah follow, karaktermu masuk ke kota lewat Gerbang Imigrasi.</li>
       <li>Mau ikut <b>Undian Rumah</b>? <b>Follow</b> akun Republik Nusawara. Pemenangnya dapat <b>tanah</b> dan bebas mendesain rumahnya (rumah/ruko dengan billboard, disetujui Presiden).</li>
     </ol>
     <p class="note">Semua identitas dan kepemilikan di Nusawara bersifat virtual, bukan dokumen resmi.</p>
@@ -883,6 +884,33 @@ for(let i=0;i<6;i++){const c=new THREE.Mesh(new THREE.CylinderGeometry(2.4-i*.22
 kbox(2.6,2,2.6,0xfff1b0,0,19,0,LH);const lc=new THREE.Mesh(new THREE.ConeGeometry(2.2,2.4,8),M(0x1f3a5f));lc.position.y=21.2;LH.add(lc);
 kbox(5,.2,30,0xd9d2c3,-66,.1,-18);
 
+// ===== PAGAR PELABUHAN & GERBANG IMIGRASI =====
+// Warga yang belum dinyatakan follow menunggu di dalam pagar Pelabuhan.
+// Setelah Claude mencatat follow = Yes, karakternya berjalan keluar lewat gerbang dan masuk ke kota.
+const HB = {x0:-90, x1:-42, z0:-52, z1:16, gz:-18, gw:3.2};       // koordinat dunia
+const inHarbor = (x,z) => x > HB.x0 && x < HB.x1 - .3 && z > HB.z0 + .3 && z < HB.z1 - .3;
+const FPOST = M(0x2f5d50), FRAIL = M(0x4f8a74);
+function fenceLine(xa,za,xb,zb){
+  const L = Math.hypot(xb-xa, zb-za), n = Math.max(1, Math.round(L/3)), ang = Math.atan2(xb-xa, zb-za);
+  const yb = (x) => (x < -76 ? 1.25 : 0);                           // di atas dermaga beton
+  for (let i=0;i<=n;i++){ const x = xa+(xb-xa)*i/n, z = za+(zb-za)*i/n; box(.3,2.4,.3,FPOST,x,yb(x)+1.2,z); }
+  for (let i=0;i<n;i++){ const x = xa+(xb-xa)*(i+.5)/n, z = za+(zb-za)*(i+.5)/n, b = yb(x);
+    [.7,1.5,2.2].forEach(h=>{ const r = box(.12,.12,L/n,FRAIL,x,b+h,z); r.rotation.y = ang; });
+    for (let k=1;k<6;k++){ const t = (i + k/6)/n, bx = xa+(xb-xa)*t, bz = za+(zb-za)*t; box(.08,1.6,.08,FRAIL,bx,yb(bx)+1.45,bz); } }
+}
+fenceLine(HB.x0,HB.z0,HB.x1,HB.z0); fenceLine(HB.x0,HB.z1,HB.x1,HB.z1);
+fenceLine(HB.x1,HB.z0,HB.x1,HB.gz-HB.gw); fenceLine(HB.x1,HB.gz+HB.gw,HB.x1,HB.z1);
+// pilar gerbang
+[-1,1].forEach(s=>{ box(.9,3.6,.9,0xf4f1ea,HB.x1,1.8,HB.gz+s*HB.gw); box(1.1,.3,1.1,0xd2463c,HB.x1,3.75,HB.gz+s*HB.gw); });
+// palang gerbang (naik saat warga yang sudah follow lewat)
+const GATE_ARM = new THREE.Group(); GATE_ARM.position.set(HB.x1, 1.7, HB.gz+HB.gw-.4); scene.add(GATE_ARM);
+for (let i=0;i<6;i++) box(.22,.22,1.02,i%2?0xffffff:0xd2463c,0,0,-.55-i*1.02,GATE_ARM);
+let gateOpen = 0;
+// pos imigrasi
+box(3.4,2.6,3,0xf6f5f1,HB.x1-4.2,1.3,HB.gz-6.2); box(3.8,.3,3.4,0x1f3a5f,HB.x1-4.2,2.75,HB.gz-6.2);
+box(.1,1,2,0x8fc7dc,HB.x1-2.45,1.6,HB.gz-6.2);
+const gateLbl = label('🛂 GERBANG IMIGRASI', {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); gateLbl.position.set(HB.x1, 5.6, HB.gz); scene.add(gateLbl);
+const gateLbl2 = label('Belum follow? Tunggu di Pelabuhan', {h:1, size:28, bg:'rgba(242,177,52,.95)', fg:'#3a2600'}); gateLbl2.position.set(HB.x1, 4.4, HB.gz); scene.add(gateLbl2);
 
 /* ---------- DISTRIK BERIKUTNYA (SEDANG DIBANGUN) ---------- */
 const FUTURE = EMPTY_MAP ? [] : [
@@ -1093,8 +1121,8 @@ function wargaHTML(u, w, note){
     <p style="font-size:14px;line-height:1.55;margin:12px 0 0">Username ini belum terdaftar sebagai Warga Republik Nusawara, jadi belum punya rumah.</p>${daftar}`;
   const fol = (w.follow === true || w.follow === 'Yes') ? 'Yes' : (w.follow === false || w.follow === 'No') ? 'No' : null;
   const undian = w.houseId ? '🏠 Sudah menang Undian Rumah' : fol === 'Yes' ? '✅ Ikut Undian Rumah'
-    : fol === 'No' ? '❌ Belum ikut Undian Rumah. Follow akun Republik Nusawara dulu, ya!'
-    : '⏳ Status follow sedang dicek untuk Undian Rumah';
+    : fol === 'No' ? '❌ Belum follow: menunggu di Pelabuhan, belum ikut Undian Rumah. Follow akun Republik Nusawara dulu, ya!'
+    : '⏳ Status follow sedang dicek: menunggu di Pelabuhan';
   const info = `<dl><dt>Undian</dt><dd>${undian}</dd><dt>Username</dt><dd>@${esc(w.username||u)}</dd>${w.niwn ? `<dt>NIWN</dt><dd class="mono">${esc(w.niwn)}</dd>` : ''}${w.terdaftar ? `<dt>Terdaftar</dt><dd>${esc(w.terdaftar)}</dd>` : ''}</dl>`;
   return `<div class="kicker">Warga Republik Nusawara</div><h2>@${esc(w.username||u)}</h2>
     <span class="pill ok">● WRN</span>${info}
@@ -1116,7 +1144,7 @@ document.getElementById('search').addEventListener('submit', async e=>{
 });
 
 /* ---------- UNDANG-UNDANG NUSAWARA 2026 ---------- */
-const UUN = [["1", "Kewarganegaraan", [["Warga Republik Nusawara", ["Warga Republik Nusawara (WRN) adalah setiap orang yang telah mendaftar melalui formulir pendaftaran resmi Republik Nusawara.", "Pendaftaran cukup dengan mengisi username Instagram, membuat Kata Sandi Warga, dan menyetujui Undang-Undang Nusawara.", "Follow akun Republik Nusawara tidak menjadi syarat untuk menjadi WRN, tetapi menjadi syarat untuk mengikuti Undian Rumah."]], ["Warga Asing", ["Setiap orang yang mengikuti atau menyaksikan Republik Nusawara tetapi belum mendaftar disebut Warga Asing (WA)."]], ["Nomor Induk Warga Nusawara", ["Setiap WRN mendapat Nomor Induk Warga Nusawara (NIWN) dengan format NUS-000001, diberikan berurutan sesuai waktu pendaftaran.", "Satu username hanya dapat memiliki satu NIWN, dan NIWN tidak dapat dipindahtangankan."]], ["Kartu Warga dan Karakter", ["Setiap WRN memiliki Kartu Warga yang memuat username, NIWN, tanggal terdaftar, foto karakter, serta data tanah atau rumahnya.", "Setiap WRN memiliki satu karakter yang berjalan di peta Kota Nusawara dengan nama di atas kepalanya.", "WRN bebas memilih gaya karakternya, termasuk rambut, baju, celana, sepatu, dan aksesoris, serta dapat memainkan karakternya di dalam batas peta Kota Nusawara."]], ["Kata Sandi Warga", ["Setiap WRN memiliki Kata Sandi Warga yang dibuat saat mendaftar.", "Kata Sandi Warga dipakai untuk mengganti gaya karakter, mengirim desain rumah, dan mengganti isi billboard.", "Kata Sandi Warga bersifat rahasia, tidak boleh diberikan kepada orang lain, dan dapat diganti sendiri oleh WRN yang bersangkutan."]], ["Hak Warga", ["Setiap WRN berhak tercatat dalam Daftar Warga dan dapat ditemukan melalui pencarian username di peta Kota Nusawara.", "Setiap WRN berhak ikut membangun negara sesuai UUN No. 4/2026, dan berhak mengikuti Undian Rumah apabila memenuhi syarat UUN No. 2/2026."]], ["Sifat Virtual", ["Seluruh identitas, NIWN, karakter, dan kepemilikan di Republik Nusawara bersifat virtual dan bukan dokumen resmi negara mana pun."]]]], ["2", "Tanah dan Rumah", [["Tanah Warga", ["Setiap tanah (kavling) memiliki ID sesuai distrik dan jalannya, misalnya MLT-MAWAR-001.", "Satu kavling hanya dimiliki satu WRN, dan satu WRN hanya dapat memiliki satu kavling."]], ["Undian Rumah", ["Kavling tanah dibagikan melalui Undian Rumah yang diumumkan oleh Bapak Presiden di Panggung Presiden.", "Pemenang Undian Rumah mendapatkan tanah (kavling), bukan bangunan rumah.", "Peserta Undian Rumah adalah WRN yang memiliki NIWN, sudah follow akun Instagram Republik Nusawara, dan belum memiliki kavling.", "WRN yang tidak follow akun Instagram Republik Nusawara tidak diikutkan dalam Undian Rumah."]], ["Desain Rumah", ["Pemilik kavling bebas menentukan desain bangunannya sendiri.", "Desain wajib berbentuk rumah atau ruko dan wajib memiliki billboard.", "Desain dikirim melalui formulir resmi dengan Kata Sandi Warga dan harus disetujui Presiden sebelum dibangun.", "Jika desain yang dikirim tidak memiliki billboard, Presiden berhak mengubah desain tersebut sehingga memiliki billboard.", "Setelah disetujui, rumah dibangun oleh negara di atas kavling pemiliknya."]], ["Pemeriksaan Follow", ["Status follow setiap WRN diperiksa oleh negara sebelum Undian Rumah dilaksanakan.", "Hasil pemeriksaan dicatat dalam Daftar Warga sebagai dasar penentuan peserta undian."]], ["Pengambilan Kembali", ["Negara dapat mengambil kembali tanah dan rumah dari WRN yang NIWN-nya dicabut sesuai UUN No. 5/2026.", "Tanah yang diambil kembali diundi ulang pada Undian Rumah berikutnya."]]]], ["3", "Billboard dan Iklan", [["Billboard Rumah", ["Setiap rumah yang sudah dibangun memiliki satu billboard yang isinya dikelola oleh pemilik rumah menggunakan Kata Sandi Warga miliknya."]], ["Tarif Iklan", ["Untuk sementara, pemasangan iklan di billboard rumah tidak dipungut biaya bagi pemilik rumah.", "Negara dapat memberlakukan iklan berbayar di kemudian hari, dengan harga per distrik dalam Mata Uang Nusawara (MN) yang setara dengan rupiah.", "Pendapatan iklan berbayar dibagi 70% untuk pemilik rumah dan 30% untuk negara."]], ["Isi Iklan", ["Iklan dilarang memuat unsur SARA, pornografi, kekerasan, perjudian, penipuan, ujaran kebencian, atau hal lain yang melanggar hukum.", "Negara berhak menurunkan iklan yang melanggar ketentuan ini tanpa pemberitahuan terlebih dahulu."]], ["Backdrop Panggung", ["Papan backdrop di Panggung Presiden adalah ruang sponsor milik negara."]]]], ["4", "Partisipasi Warga", [["Komentar Membangun Negara", ["Setiap warga dan pengikut Republik Nusawara dapat mengusulkan bangunan atau ide pembangunan melalui komentar di postingan resmi."]], ["Usulan Terpilih", ["Usulan dalam komentar dengan like terbanyak pada postingan usulan akan dibangun oleh negara.", "Negara dapat menolak usulan yang melanggar UUN No. 5/2026."]], ["Membangun Bersama", ["Warga diajak memberi like, komentar, dan share untuk membangun Republik Nusawara bersama-sama."]], ["Pengumuman Negara", ["Setiap keputusan negara, termasuk hasil Undian Rumah dan usulan terpilih, diumumkan oleh Bapak Presiden di Panggung Presiden dan di akun resmi Republik Nusawara."]]]], ["5", "Perilaku dan Sanksi", [["Kewajiban Warga", ["Setiap warga wajib saling menghormati, tidak melakukan spam, tidak memakai identitas atau Kata Sandi Warga orang lain, dan tidak mendaftar lebih dari satu kali."]], ["Larangan", ["Setiap warga dilarang melakukan ujaran kebencian, menyebarkan SARA, melecehkan warga lain, menipu, atau memakai akun palsu dan like palsu untuk memenangkan undian maupun usulan."]], ["Jenis Sanksi", ["Pelanggaran dapat dikenai sanksi berupa: a. teguran; b. penurunan iklan; c. dikeluarkan dari Undian Rumah; d. pencabutan NIWN."]], ["Pencabutan NIWN", ["Negara dapat mencabut NIWN seorang WRN secara sepihak apabila terjadi pelanggaran.", "Tanah dan rumah milik WRN yang NIWN-nya dicabut diambil kembali oleh negara dan diundi ulang."]]]], ["6", "Pembuatan dan Perubahan UUN", [["Pembentukan", ["Undang-Undang Nusawara dibuat dan diubah oleh Pemerintah Republik Nusawara dan ditetapkan oleh Presiden Republik Nusawara."]], ["Penomoran", ["Setiap Undang-Undang Nusawara diberi nomor dan tahun penetapan, misalnya UUN No. 1/2026."]], ["Berlakunya Perubahan", ["Setiap perubahan UUN diumumkan di Panggung Presiden dan di akun resmi Republik Nusawara, dan berlaku sejak tanggal diumumkan."]], ["Usulan Warga", ["Warga dapat mengusulkan perubahan UUN melalui komentar sesuai UUN No. 4/2026."]]]]];
+const UUN = [["1", "Kewarganegaraan", [["Warga Republik Nusawara", ["Warga Republik Nusawara (WRN) adalah setiap orang yang telah mendaftar melalui formulir pendaftaran resmi Republik Nusawara.", "Pendaftaran cukup dengan mengisi username Instagram, membuat Kata Sandi Warga, dan menyetujui Undang-Undang Nusawara.", "Follow akun Republik Nusawara tidak menjadi syarat untuk menjadi WRN, tetapi menjadi syarat untuk mengikuti Undian Rumah."]], ["Warga Asing", ["Setiap orang yang mengikuti atau menyaksikan Republik Nusawara tetapi belum mendaftar disebut Warga Asing (WA)."]], ["Nomor Induk Warga Nusawara", ["Setiap WRN mendapat Nomor Induk Warga Nusawara (NIWN) dengan format NUS-000001, diberikan berurutan sesuai waktu pendaftaran.", "Satu username hanya dapat memiliki satu NIWN, dan NIWN tidak dapat dipindahtangankan."]], ["Kartu Warga dan Karakter", ["Setiap WRN memiliki Kartu Warga yang memuat username, NIWN, tanggal terdaftar, foto karakter, serta data tanah atau rumahnya.", "Setiap WRN memiliki satu karakter yang berjalan di peta Kota Nusawara dengan nama di atas kepalanya.", "WRN bebas memilih gaya karakternya, termasuk rambut, baju, celana, sepatu, dan aksesoris, serta dapat memainkan karakternya di dalam batas peta Kota Nusawara."]], ["Kata Sandi Warga", ["Setiap WRN memiliki Kata Sandi Warga yang dibuat saat mendaftar.", "Kata Sandi Warga dipakai untuk mengganti gaya karakter, mengirim desain rumah, dan mengganti isi billboard.", "Kata Sandi Warga bersifat rahasia, tidak boleh diberikan kepada orang lain, dan dapat diganti sendiri oleh WRN yang bersangkutan."]], ["Hak Warga", ["Setiap WRN berhak tercatat dalam Daftar Warga dan dapat ditemukan melalui pencarian username di peta Kota Nusawara.", "Setiap WRN berhak ikut membangun negara sesuai UUN No. 4/2026, dan berhak mengikuti Undian Rumah apabila memenuhi syarat UUN No. 2/2026."]], ["Sifat Virtual", ["Seluruh identitas, NIWN, karakter, dan kepemilikan di Republik Nusawara bersifat virtual dan bukan dokumen resmi negara mana pun."]]]], ["2", "Tanah dan Rumah", [["Tanah Warga", ["Setiap tanah (kavling) memiliki ID sesuai distrik dan jalannya, misalnya MLT-MAWAR-001.", "Satu kavling hanya dimiliki satu WRN, dan satu WRN hanya dapat memiliki satu kavling."]], ["Undian Rumah", ["Kavling tanah dibagikan melalui Undian Rumah yang diumumkan oleh Bapak Presiden di Panggung Presiden.", "Pemenang Undian Rumah mendapatkan tanah (kavling), bukan bangunan rumah.", "Peserta Undian Rumah adalah WRN yang memiliki NIWN, sudah follow akun Instagram Republik Nusawara, dan belum memiliki kavling.", "WRN yang tidak follow akun Instagram Republik Nusawara tidak diikutkan dalam Undian Rumah."]], ["Desain Rumah", ["Pemilik kavling bebas menentukan desain bangunannya sendiri.", "Desain wajib berbentuk rumah atau ruko dan wajib memiliki billboard.", "Desain dikirim melalui formulir resmi dengan Kata Sandi Warga dan harus disetujui Presiden sebelum dibangun.", "Jika desain yang dikirim tidak memiliki billboard, Presiden berhak mengubah desain tersebut sehingga memiliki billboard.", "Setelah disetujui, rumah dibangun oleh negara di atas kavling pemiliknya."]], ["Pemeriksaan Follow", ["Status follow setiap WRN diperiksa oleh negara sebelum Undian Rumah dilaksanakan.", "Karakter WRN yang belum follow atau belum selesai diperiksa menunggu di Pelabuhan Nusawara dan baru dapat masuk ke kota melalui Gerbang Imigrasi setelah dinyatakan sudah follow.", "Hasil pemeriksaan dicatat dalam Daftar Warga sebagai dasar penentuan peserta undian."]], ["Pengambilan Kembali", ["Negara dapat mengambil kembali tanah dan rumah dari WRN yang NIWN-nya dicabut sesuai UUN No. 5/2026.", "Tanah yang diambil kembali diundi ulang pada Undian Rumah berikutnya."]]]], ["3", "Billboard dan Iklan", [["Billboard Rumah", ["Setiap rumah yang sudah dibangun memiliki satu billboard yang isinya dikelola oleh pemilik rumah menggunakan Kata Sandi Warga miliknya."]], ["Tarif Iklan", ["Untuk sementara, pemasangan iklan di billboard rumah tidak dipungut biaya bagi pemilik rumah.", "Negara dapat memberlakukan iklan berbayar di kemudian hari, dengan harga per distrik dalam Mata Uang Nusawara (MN) yang setara dengan rupiah.", "Pendapatan iklan berbayar dibagi 70% untuk pemilik rumah dan 30% untuk negara."]], ["Isi Iklan", ["Iklan dilarang memuat unsur SARA, pornografi, kekerasan, perjudian, penipuan, ujaran kebencian, atau hal lain yang melanggar hukum.", "Negara berhak menurunkan iklan yang melanggar ketentuan ini tanpa pemberitahuan terlebih dahulu."]], ["Backdrop Panggung", ["Papan backdrop di Panggung Presiden adalah ruang sponsor milik negara."]]]], ["4", "Partisipasi Warga", [["Komentar Membangun Negara", ["Setiap warga dan pengikut Republik Nusawara dapat mengusulkan bangunan atau ide pembangunan melalui komentar di postingan resmi."]], ["Usulan Terpilih", ["Usulan dalam komentar dengan like terbanyak pada postingan usulan akan dibangun oleh negara.", "Negara dapat menolak usulan yang melanggar UUN No. 5/2026."]], ["Membangun Bersama", ["Warga diajak memberi like, komentar, dan share untuk membangun Republik Nusawara bersama-sama."]], ["Pengumuman Negara", ["Setiap keputusan negara, termasuk hasil Undian Rumah dan usulan terpilih, diumumkan oleh Bapak Presiden di Panggung Presiden dan di akun resmi Republik Nusawara."]]]], ["5", "Perilaku dan Sanksi", [["Kewajiban Warga", ["Setiap warga wajib saling menghormati, tidak melakukan spam, tidak memakai identitas atau Kata Sandi Warga orang lain, dan tidak mendaftar lebih dari satu kali."]], ["Larangan", ["Setiap warga dilarang melakukan ujaran kebencian, menyebarkan SARA, melecehkan warga lain, menipu, atau memakai akun palsu dan like palsu untuk memenangkan undian maupun usulan."]], ["Jenis Sanksi", ["Pelanggaran dapat dikenai sanksi berupa: a. teguran; b. penurunan iklan; c. dikeluarkan dari Undian Rumah; d. pencabutan NIWN."]], ["Pencabutan NIWN", ["Negara dapat mencabut NIWN seorang WRN secara sepihak apabila terjadi pelanggaran.", "Tanah dan rumah milik WRN yang NIWN-nya dicabut diambil kembali oleh negara dan diundi ulang."]]]], ["6", "Pembuatan dan Perubahan UUN", [["Pembentukan", ["Undang-Undang Nusawara dibuat dan diubah oleh Pemerintah Republik Nusawara dan ditetapkan oleh Presiden Republik Nusawara."]], ["Penomoran", ["Setiap Undang-Undang Nusawara diberi nomor dan tahun penetapan, misalnya UUN No. 1/2026."]], ["Berlakunya Perubahan", ["Setiap perubahan UUN diumumkan di Panggung Presiden dan di akun resmi Republik Nusawara, dan berlaku sejak tanggal diumumkan."]], ["Usulan Warga", ["Warga dapat mengusulkan perubahan UUN melalui komentar sesuai UUN No. 4/2026."]]]]];
 (function(){
   const box = document.getElementById('uunList'); if (!box) return;
   box.innerHTML = UUN.map(([no,title,pasals]) => `<details class="uunx"><summary><b>UUN No. ${no}/2026</b>tentang ${esc(title)}</summary>${
@@ -1168,6 +1196,11 @@ houses.forEach(h=>COLL.push([h.x,h.z-.05,3.3,2.3]));
 COLL.push([18,-9,6,.3]);      // backdrop
 COLL.push([18,-5.2,.65,.45]); // podium
 COLL.push([29,-4,.25,.25]);   // tiang bendera
+// pagar pelabuhan (celah gerbang dibiarkan terbuka; warga yang belum follow ditahan di updateCtl)
+COLL.push([(HB.x0+HB.x1)/2, HB.z0, (HB.x1-HB.x0)/2, .25], [(HB.x0+HB.x1)/2, HB.z1, (HB.x1-HB.x0)/2, .25],
+  [HB.x1, (HB.z0+HB.gz-HB.gw)/2, .3, (HB.gz-HB.gw-HB.z0)/2], [HB.x1, (HB.gz+HB.gw+HB.z1)/2, .3, (HB.z1-HB.gz-HB.gw)/2],
+  [HB.x1-4.2, HB.gz-6.2, 1.7, 1.5],   // pos imigrasi
+  [-64, -18, 13, 11]);                // gedung terminal
 // Rumah contoh tidak lagi dipasang di peta (keputusan Bapak Presiden).
 // Desainnya tetap tersedia sebagai "Desain siap pakai" di formulir Kirim Desain:
 //   modern = Rumah Modern (makeModern), kaca = Gedung Kaca (makeKaca).
@@ -2447,16 +2480,25 @@ function faceMat8(ex, skin){
   const tex = new THREE.CanvasTexture(cv); tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.NearestFilter; tex.generateMipmaps = false;
   return FACE8[key] = new THREE.MeshPhongMaterial({map:tex, shininess:6, specular:0x111111});
 }
-// jaringan jalan: persimpangan tiap jalan dengan gang & titik tengah
-const WX = [-76,-61,-46,-31,-17];
-const WNODES = []; STREET_Z.forEach((z,zi)=>WX.forEach((x,xi)=>WNODES.push({x, z, xi, zi})));
-const WNB = WNODES.map((a,i)=>{ const out = []; WNODES.forEach((b,j)=>{
-  if (b.zi === a.zi && Math.abs(b.xi - a.xi) === 1) out.push(j);
-  if ((a.xi === 0 || a.xi === WX.length-1) && b.xi === a.xi && Math.abs(b.zi - a.zi) === 1) out.push(j); }); return out; });
-const wPos = i => { const n = WNODES[i]; return new THREE.Vector3(n.x + (n.xi===0 ? 1.3 : n.xi===WX.length-1 ? -1.3 : 0), 0, n.z + 1.6); };
+// jaringan jalan warga: 'kota' (sekeliling Plaza & jalan) dan 'pelabuhan' (ruang tunggu di dalam pagar)
+const WNODES = [], WNB = [];
+const addN = (x,z,zone) => { WNODES.push({x,z,zone}); WNB.push([]); return WNODES.length-1; };
+const link = (a,b) => { WNB[a].push(b); WNB[b].push(a); };
+const CITY_RING = []; for (let i=0;i<12;i++){ const a = i/12*Math.PI*2; CITY_RING.push(addN(18+Math.sin(a)*17.5, Math.cos(a)*17.5, 'kota')); }
+CITY_RING.forEach((n,i)=>link(n, CITY_RING[(i+1)%12]));
+const ROAD_W = [-33,-18,-3].map(x=>addN(x,-18,'kota')), ROAD_E = [40,55,70].map(x=>addN(x,-18,'kota'));
+link(ROAD_W[0],ROAD_W[1]); link(ROAD_W[1],ROAD_W[2]); link(ROAD_E[0],ROAD_E[1]); link(ROAD_E[1],ROAD_E[2]);
+const nearRing = (x,z) => CITY_RING.reduce((b,n)=>Math.hypot(WNODES[n].x-x,WNODES[n].z-z) < Math.hypot(WNODES[b].x-x,WNODES[b].z-z) ? n : b, CITY_RING[0]);
+link(ROAD_W[2], nearRing(-3,-18)); link(ROAD_E[0], nearRing(40,-18));
+const HCH = [[-70,-45],[-58,-45],[-46,-45],[-46,-32],[-46,-18],[-46,-4],[-46,10],[-58,10],[-70,10]].map(([x,z])=>addN(x,z,'pelabuhan'));
+HCH.forEach((n,i)=>{ if (i) link(HCH[i-1], n); });
+const GATE_IN = new THREE.Vector3(-46,0,-18), GATE_OUT = new THREE.Vector3(-37,0,-18), GATE_ROAD = new THREE.Vector3(-33,0,-18);
+const wPos = i => new THREE.Vector3(WNODES[i].x, 0, WNODES[i].z);
+const zoneNodes = zone => WNODES.map((n,i)=>n.zone===zone ? i : -1).filter(i=>i>=0);
+const bolehMasuk = key => isFollow((wInfo(key) || {}).follow);
 const WALKERS = {}, WINFO = {};
 const MAX_WALKERS = 40;
-function nearestNode(x, z){ let bi = 0, bd = 1e9; WNODES.forEach((n,i)=>{ const d = Math.hypot(n.x-x, n.z-z); if (d < bd){ bd = d; bi = i; } }); return bi; }
+function nearestNode(x, z, zone){ let bi = 0, bd = 1e9; WNODES.forEach((n,i)=>{ if (zone && n.zone !== zone) return; const d = Math.hypot(n.x-x, n.z-z); if (d < bd){ bd = d; bi = i; } }); return bi; }
 function syncWalkers(list){
   if (!list || typeof list !== 'object') return;
   Object.values(list).slice(0, 400).forEach(w=>{
@@ -2470,28 +2512,42 @@ function syncWalkers(list){
     if (ex){ scene.remove(ex.av.g); [ex.av.g, ex.tag].forEach(o=>{ const pi = pickables.indexOf(o); if (pi >= 0) pickables.splice(pi,1); }); }
     const av = makeAvatar(avatarSpec(WINFO[key]));
     const tag = ex ? ex.tag : label('@' + String(w.username).replace(/^@+/,''), {h:.75, size:28, bg:'rgba(255,253,248,.95)', fg:'#1f3a5f', onTop:true});
-    let start = Math.floor(Math.random()*WNODES.length);
-    const hs = typeof w.houseId === 'string' && slotOf(w.houseId);
-    if (hs) start = nearestNode(hs.x, hs.z + 7);
+    const ok = isFollow(WINFO[key].follow), zn = zoneNodes(ok ? 'kota' : 'pelabuhan');
+    let start = zn[Math.floor(Math.random()*zn.length)];
+    const hs = ok && typeof w.houseId === 'string' && slotOf(w.houseId);
+    if (hs) start = nearestNode(hs.x, hs.z + 7, 'kota');
     const p = ex ? ex.av.g.position.clone() : wPos(start).add(new THREE.Vector3((Math.random()-.5)*2, 0, 0));
     av.g.position.copy(p); if (ex) av.g.rotation.y = ex.av.g.rotation.y;
     av.g.userData = {type:'warga', data:{username: key}}; tag.userData = {type:'warga', data:{username: key}};
     scene.add(av.g); pickables.push(av.g, tag);
-    WALKERS[key] = {av, tag, sig, node: ex ? ex.node : start, target: ex ? ex.target : null, wait: ex ? ex.wait : 1 + Math.random()*2, phase: Math.random()*6, speed: 2 + Math.random()*.8};
+    WALKERS[key] = {av, tag, sig, node: ex ? ex.node : start, target: ex ? ex.target : null, wait: ex ? ex.wait : 1 + Math.random()*2, phase: Math.random()*6, speed: 2 + Math.random()*.8,
+      zone: ex ? ex.zone : (ok ? 'kota' : 'pelabuhan'), path: ex ? ex.path : null, toZone: ex ? ex.toZone : null};
   });
 }
 function updateWalkers(dt, time){
   for (const k in WALKERS){
     if (k === ctl.key) continue;
     const W = WALKERS[k], g = W.av.g;
+    // aturan pelabuhan: belum follow = tunggu di dalam pagar; sudah follow = keluar lewat gerbang ke kota
+    if (!W.path){ const ok = bolehMasuk(k);
+      if (W.zone === 'pelabuhan' && ok){
+        const a = HCH.indexOf(W.node), gi = HCH.indexOf(nearestNode(GATE_IN.x, GATE_IN.z, 'pelabuhan')), pth = [];
+        if (a >= 0) for (let i = a; i !== gi; i += (gi > a ? 1 : -1)) if (i !== a) pth.push(wPos(HCH[i]));
+        W.path = pth.concat([GATE_IN.clone(), GATE_OUT.clone(), GATE_ROAD.clone()]); W.toZone = 'kota'; W.target = null; W.wait = Math.min(W.wait, .3);
+      } else if (W.zone === 'kota' && !ok){
+        W.path = [GATE_ROAD.clone(), GATE_OUT.clone(), GATE_IN.clone()]; W.toZone = 'pelabuhan'; W.target = null; W.wait = Math.min(W.wait, .3);
+      } }
     if (W.wait > 0){
       W.wait -= dt;
       W.av.legL.rotation.x *= .85; W.av.legR.rotation.x *= .85; W.av.armR.rotation.x *= .85;
       W.av.armL.rotation.x = W.av.cup ? -1.1 - Math.max(0, Math.sin(time*1.3 + W.phase))*.5 : W.av.armL.rotation.x*.85;   // menyeruput kopi
-      if (W.wait <= 0){ const nb = WNB[W.node]; W.node = nb[Math.floor(Math.random()*nb.length)]; W.target = wPos(W.node).add(new THREE.Vector3((Math.random()-.5)*1.2, 0, (Math.random()-.5)*.8)); }
+      if (W.wait <= 0){
+        if (W.path && W.path.length) W.target = W.path.shift();
+        else if (W.path){ W.zone = W.toZone; W.path = null; W.node = nearestNode(g.position.x, g.position.z, W.zone); W.wait = .4; }
+        else { const nb = WNB[W.node]; W.node = nb[Math.floor(Math.random()*nb.length)]; W.target = wPos(W.node).add(new THREE.Vector3((Math.random()-.5)*1.2, 0, (Math.random()-.5)*.8)); } }
     } else if (W.target){
       const dx = W.target.x - g.position.x, dz = W.target.z - g.position.z, d = Math.hypot(dx, dz);
-      if (d < .15){ W.target = null; W.wait = Math.random() < .35 ? 1.5 + Math.random()*3 : 0.01; }
+      if (d < .15){ W.target = null; W.wait = W.path ? 0.01 : Math.random() < .35 ? 1.5 + Math.random()*3 : 0.01; }
       else {
         const st = Math.min(d, W.speed*dt); g.position.x += dx/d*st; g.position.z += dz/d*st;
         let r = Math.atan2(dx, dz) - g.rotation.y; r = Math.atan2(Math.sin(r), Math.cos(r)); g.rotation.y += r*Math.min(1, dt*8);
@@ -2503,6 +2559,11 @@ function updateWalkers(dt, time){
     }
     W.tag.position.set(g.position.x, 3.3, g.position.z);
   }
+  // palang gerbang naik saat ada warga yang boleh lewat (atau Bapak Presiden) di dekatnya
+  let buka = false; const nearG = p => Math.hypot(p.x - HB.x1, p.z - HB.gz) < 8;
+  for (const k in WALKERS){ const W = WALKERS[k]; if (nearG(W.av.g.position) && (W.path || (k === ctl.key && bolehMasuk(k)))) { buka = true; break; } }
+  if (!buka && typeof pres !== 'undefined' && nearG(pres.position)) buka = true;
+  gateOpen += ((buka ? 1 : 0) - gateOpen) * Math.min(1, dt*4); GATE_ARM.rotation.x = gateOpen * 1.45;
   updateFollow(dt);
   updateCtl(dt, time);
   updateBubbles(dt);
@@ -2577,10 +2638,10 @@ function profileHTML(key){
   const w = wInfo(key); if (!w) return '';
   const u = String(w.username || key).replace(/^@+/,'');
   const fol = (w.follow === true || w.follow === 'Yes') ? 'Yes' : (w.follow === false || w.follow === 'No') ? 'No' : null;
-  const und = w.houseId ? '🏆 Pemenang Undian Rumah' : fol === 'Yes' ? '✅ Ikut Undian Rumah' : fol === 'No' ? '❌ Belum follow (tidak ikut undian)' : '⏳ Follow sedang dicek';
+  const und = w.houseId ? '🏆 Pemenang Undian Rumah' : fol === 'Yes' ? '✅ Ikut Undian Rumah' : fol === 'No' ? '❌ Belum follow · menunggu di Pelabuhan' : '⏳ Follow sedang dicek · menunggu di Pelabuhan';
   const img = portraitOf(w);
   const unlocked = isOwner || (typeof UNLOCK !== 'undefined' && !!UNLOCK[key]);
-  let land = `<div class="card"><h3>🏞️ Tanah & rumah</h3><p>Belum punya tanah. ${fol === 'Yes' ? 'Sudah terdaftar di <b>Undian Rumah</b> berikutnya — semoga beruntung!' : 'Follow akun Republik Nusawara supaya bisa ikut <b>Undian Rumah</b>.'}</p></div>`;
+  let land = `<div class="card"><h3>🏞️ Tanah & rumah</h3><p>Belum punya tanah. ${fol === 'Yes' ? 'Sudah terdaftar di <b>Undian Rumah</b> berikutnya — semoga beruntung!' : 'Karaktermu menunggu di <b>Pelabuhan Nusawara</b> 🛳️ dan baru bisa masuk kota setelah dinyatakan sudah follow. Follow akun Republik Nusawara supaya bisa masuk dan ikut <b>Undian Rumah</b>.'}</p></div>`;
   const hid = typeof w.houseId === 'string' ? w.houseId : '', s = hid && slotOf(hid), g = hid && houseGroups[hid];
   if (hid){
     const built = g && g.userData.data.status !== 'tanah';
@@ -2937,7 +2998,8 @@ function startCtl(key){
 }
 function stopCtl(){
   const W = WALKERS[ctl.key];
-  if (W){ W.av.g.position.y = 0; W.av.g.scale.y = 1; W.tag.visible = true; W.wait = 1.5; W.node = nearestNode(W.av.g.position.x, W.av.g.position.z); }
+  if (W){ W.av.g.position.y = 0; W.av.g.scale.y = 1; W.tag.visible = true; W.wait = 1.5; W.path = null;
+    W.zone = inHarbor(W.av.g.position.x, W.av.g.position.z) ? 'pelabuhan' : 'kota'; W.node = nearestNode(W.av.g.position.x, W.av.g.position.z, W.zone); }
   ctl.key = null; joyReset(); document.body.classList.remove('ctl'); runBtn.classList.remove('on');
   controls.enabled = true; if (ctl.ctlSave){ controls.minDistance = ctl.ctlSave.min; controls.maxPolarAngle = ctl.ctlSave.pol; }
   if (W){ const p = W.av.g.position; flyTo(new THREE.Vector3(p.x, 1.4, p.z + 4), new THREE.Vector3(p.x + 3.5, 9, p.z + 18)); }
@@ -2959,8 +3021,14 @@ function updateCtl(dt, time){
     const nx = g.position.x + _dir.x*speed*dt, nz = g.position.z + _dir.z*speed*dt;
     // batas gerak: tetap di dalam peta dan tidak menembus bangunan
     const inMap = (x,z) => Math.abs(x) < 112 && Math.abs(z) < 112;
-    if (inMap(nx, g.position.z) && !blocked(nx, g.position.z)) g.position.x = nx;
-    if (inMap(g.position.x, nz) && !blocked(g.position.x, nz)) g.position.z = nz;
+    // warga yang belum follow tidak bisa keluar dari pagar Pelabuhan
+    const tahan = !bolehMasuk(ctl.key) && inHarbor(g.position.x, g.position.z);
+    const okPos = (x,z) => inMap(x,z) && !blocked(x,z) && (!tahan || inHarbor(x,z));
+    const px0 = g.position.x, pz0 = g.position.z;
+    if (okPos(nx, g.position.z)) g.position.x = nx;
+    if (okPos(g.position.x, nz)) g.position.z = nz;
+    if (tahan && (!inHarbor(nx, pz0) || !inHarbor(px0, nz)) && Math.hypot(px0 - HB.x1, pz0 - HB.gz) < 6 && !(ctl.gateMsg > time)){
+      ctl.gateMsg = time + 4; toast('🛂 Belum bisa masuk kota. Tunggu di Pelabuhan sampai status follow kamu dicek.'); }
     const face = iy < 0 && ix === 0 ? ctl.yaw : Math.atan2(_dir.x, _dir.z);   // mundur: tetap menghadap depan
     let r = face - g.rotation.y; r = Math.atan2(Math.sin(r), Math.cos(r)); g.rotation.y += r*Math.min(1, dt*12);
     W.phase += dt * (running ? 12 : ctl.crouch ? 4 : 6.5);
