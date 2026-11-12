@@ -1,6 +1,6 @@
 {
- "updatedAt": "2026-11-12T11:30:00+11:00",
- "penduduk": 1,
+ "updatedAt": "2026-11-12T13:35:00+11:00",
+ "penduduk": 3,
  "warga": {
   "julianto_jul": {
    "username": "Julianto_Jul",
@@ -9,19 +9,33 @@
    "houseId": null,
    "follow": true,
    "avatar": {
+    "baju": "#1f3a5f",
+    "bajuModel": "jas",
+    "celana": "#c8b48a",
+    "celanaModel": "pendek",
+    "kacamata": "tidak",
+    "kopi": "ya",
     "kulit": "#e0ac69",
-    "rambut": "#1b1b1b",
-    "rambutModel": "pendek",
-    "baju": "#f4f1ea",
-    "bajuModel": "hoodie",
-    "celana": "#2b3a55",
-    "celanaModel": "panjang",
-    "sepatu": "#ffffff",
-    "kacamata": "hitam",
-    "topi": "tidak",
-    "topiWarna": "#1f3a5f",
-    "kopi": "ya"
+    "rambut": "#6b4423",
+    "rambutModel": "panjang",
+    "sepatu": "#e74c3c",
+    "topi": "kupluk",
+    "topiWarna": "#f4f1ea"
    }
+  },
+  "remetemeh": {
+   "username": "remetemeh",
+   "niwn": "NUS-000002",
+   "terdaftar": "12 Nov 2026",
+   "houseId": null,
+   "follow": null
+  },
+  "liam": {
+   "username": "liam",
+   "niwn": "NUS-000003",
+   "terdaftar": "12 Nov 2026",
+   "houseId": null,
+   "follow": null
   }
  },
  "billboards": {
@@ -36,6 +50,8 @@
  "rumah": {},
  "undian": [],
  "kunci": {
-  "julianto_jul": "0c29b97300c8d682961c4763e3af2b49c6fb1cbf8bdc827834a8a994f52da8f8"
+  "julianto_jul": "57408c2153bace76e076921f04b8d5513cd282609ae56dc2c985a149b57eaf8b",
+  "liam": "391aa01f7e098b1ef07a08153348ca164b4c4049b6e9a7858489376066f5c192",
+  "remetemeh": "15da9ec8a1b050ca52a34e49cd64f5f41de87ad2b25bd31b005fefc6bc9a8b4f"
  }
 }
