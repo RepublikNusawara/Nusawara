@@ -12,14 +12,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Unduh file
         run: |
-          mkdir -p aset10
-          curl -sSfL -o aset10/p70.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/p9rM9cQcJYGh0QxMU3SJ/SPDH3UNpRieBDPidAX7M/content.mp3?Expires=1794592800&KeyName=assets-cdn-key-1&Signature=1rraOgoOjccVw_Jg2a2d0WlCGWc="
-          curl -sSfL -o aset10/j70.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/R4v0CvIpHKhxdXl57e8F/LMxYQtbGWnRa42tqamP2/content.mp3?Expires=1794592800&KeyName=assets-cdn-key-1&Signature=a3hz3c2DGBfxv37umLWQdAK95hQ="
-          ls -la aset10
+          mkdir -p aset11
+          curl -sSfL -o aset11/p71.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/igZdyDjiF7acdClCtlwp/m3h2Pbd1tkWUoKNSajVM/content.mp3?Expires=1794592800&KeyName=assets-cdn-key-1&Signature=r-4CcHExXJwqkRIT27WBD73IIKU="
+          curl -sSfL -o aset11/j71.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/ni9QkGq3beG5b0QdyEqB/IQHht6nPf4bHWNDhR9WO/content.mp3?Expires=1794592800&KeyName=assets-cdn-key-1&Signature=KDxZHsDnLvJU20W1HgjTLRJsNrw="
+          ls -la aset11
       - name: Simpan ke branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add aset10
-          git commit -m "Aset video sementara 10"
+          git add aset11
+          git commit -m "Aset video sementara 11"
           git push
