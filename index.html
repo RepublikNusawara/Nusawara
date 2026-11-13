@@ -275,7 +275,7 @@
     <p class="note" style="margin-top:4px">Ketuk salah satu UUN untuk membaca pasal-pasalnya.</p>
     <div id="uunList"></div>
     <a class="btn ghost" href="https://tally.so/r/X5JlNz" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">📜 Buka halaman UUN lengkap</a>
-    <p class="note">Ditetapkan di Kota Nusawara, 11 November 2026 oleh Presiden Republik Nusawara, Bapak Presiden Mr. Bung. Semua identitas dan kepemilikan di Nusawara bersifat virtual.</p>
+    <p class="note">Ditetapkan di Kota Nusawara, 11 November 2026 oleh Presiden Republik Nusawara, Bapak Presiden Nusawara. Semua identitas dan kepemilikan di Nusawara bersifat virtual.</p>
   </div>
 </div>
 
@@ -1015,7 +1015,7 @@ sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-copy]
   (navigator.clipboard ? navigator.clipboard.writeText(b.dataset.copy) : Promise.reject()).then(()=>toast('Pesan DM disalin ✓')).catch(()=>toast('Salin manual teks di atas, ya.')); });
 function stageHTML(){
   return `<div class="kicker">Distrik Pusat · Plaza Proklamasi</div><h2>Panggung Presiden</h2>
-    <p style="font-size:14px;line-height:1.55;margin:0">Di sini <b>Bapak Presiden Mr. Bung</b> menyampaikan setiap pengumuman negara: hasil Undian Rumah, UUN baru, dan pembukaan distrik.</p>
+    <p style="font-size:14px;line-height:1.55;margin:0">Di sini <b>Bapak Presiden Nusawara</b> menyampaikan setiap pengumuman negara: hasil Undian Rumah, UUN baru, dan pembukaan distrik.</p>
     <div class="card"><h3>Backdrop sponsor</h3><p>Papan di belakang panggung adalah ruang iklan, seperti backdrop jumpa pers. Cocok untuk sponsor besar Nusawara.</p>${boardPreview('BACKDROP','')}${editBtn('BACKDROP')}</div>`;
 }
 function counterHTML(){
@@ -1043,7 +1043,7 @@ function select(obj){
 }
 function presHTML(){
   return `<div class="kicker">Kepala Negara</div><h2>Presiden Republik Nusawara</h2>
-    <dl><dt>Nama</dt><dd>Mr. Bung</dd><dt>Sapaan</dt><dd>Bapak Presiden</dd><dt>Suara khas</dt><dd>Mark – Natural Conversations (ElevenLabs v4)</dd></dl>
+    <dl><dt>Nama</dt><dd>Bapak Presiden Nusawara</dd><dt>Sapaan</dt><dd>Bapak Presiden</dd><dt>Suara khas</dt><dd>Mark – Natural Conversations (ElevenLabs v4)</dd></dl>
     <p style="font-size:14px;line-height:1.55;margin:0">Jas navy dengan lencana logo Nusawara dan lambang negara. Jalan-jalan keliling kota untuk menyapa warga.</p>
     <button class="btn ghost" id="voiceBtn">🔊 Dengar suara Presiden</button>
     <button class="btn" id="ctrlBtn" style="margin-top:8px">${playing ? 'Lanjut berjalan' : '🕹️ Kendalikan Presiden'}</button>`;
@@ -1166,10 +1166,11 @@ const hint = document.getElementById('hint');
 function hideHint(){ hint.classList.add('hide'); }
 setTimeout(hideHint, 7000);
 
-/* ---------- PRESIDEN MR. BUNG ---------- */
+/* ---------- BAPAK PRESIDEN NUSAWARA (bentuk asli, gaya wajah & jas sama dengan maskot) ---------- */
 const pres = new THREE.Group();
-const SUIT = 0x1c2f52, SKIN = 0xd9a77c;
+const SUIT = 0x253760, LAPEL = 0x344c7a, PANTS = 0x1c2847, SKIN = 0xecbf96, HAIR = 0x1b1b1b, GOLD = 0xe3b03a;
 const B = (w,h,d) => new THREE.BoxGeometry(w,h,d);
+const SPH = (r,sx=1,sy=1,sz=1) => new THREE.SphereGeometry(r,24,18).scale(sx,sy,sz);
 function pm(geo,c,x,y,z,parent){ const m = new THREE.Mesh(geo, M(c)); m.position.set(x,y,z); m.castShadow = true; (parent||pres).add(m); return m; }
 function limb(x,y){ const g = new THREE.Group(); g.position.set(x,y,0); pres.add(g); return g; }
 // Bentuk tetap seperti sebelumnya; gaya wajah & jas disamakan dengan maskot resmi Mr. Bung
@@ -1272,7 +1273,7 @@ function updatePres(dt, time){
     armR.rotation.z += (0 - armR.rotation.z) * Math.min(1, dt*10); armR.rotation.x = sw*.8;
   }
   pres.position.y += (groundY(pres.position.x, pres.position.z) - pres.position.y) * Math.min(1, dt*12);
-  presTag.position.set(pres.position.x, pres.position.y+4.3, pres.position.z);
+  presTag.position.set(pres.position.x, pres.position.y+4.2, pres.position.z);
   if (playing){
     const dx = pres.position.x-before.x, dy = pres.position.y-before.y, dz = pres.position.z-before.z;
     if (anim){ anim.tT.x += dx; anim.tT.z += dz; anim.tC.x += dx; anim.tC.z += dz; }
@@ -1774,7 +1775,7 @@ sheetBody.addEventListener('click', async e=>{
 });
 edEl.addEventListener('click', e=>{ if (e.target===edEl || e.target.hasAttribute('data-close')) closeEditor(); });
 
-/* ---------- AYAM PENDAMPING PRESIDEN ---------- */
+/* ---------- JAGO, AYAM PENDAMPING PRESIDEN ---------- */
 const chick = new THREE.Group();
 function cbx(w,h,d,c,x,y,z,parent){ const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), M(c)); m.position.set(x,y,z); m.castShadow = true; (parent||chick).add(m); return m; }
 const chLegs = [.12,-.12].map(sx=>{ const g = new THREE.Group(); g.position.set(sx,.42,0); chick.add(g);
