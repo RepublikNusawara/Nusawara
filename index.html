@@ -1172,32 +1172,30 @@ const SUIT = 0x1c2f52, SKIN = 0xd9a77c;
 const B = (w,h,d) => new THREE.BoxGeometry(w,h,d);
 function pm(geo,c,x,y,z,parent){ const m = new THREE.Mesh(geo, M(c)); m.position.set(x,y,z); m.castShadow = true; (parent||pres).add(m); return m; }
 function limb(x,y){ const g = new THREE.Group(); g.position.set(x,y,0); pres.add(g); return g; }
-// Gaya chibi (maskot resmi Mr. Bung): kepala bulat besar, kacamata bulat, mata cokelat besar, jas navy
-const NAVY = 0x22396b, NAVY2 = 0x2f4d8a, SKIN2 = 0xf1c79c;
-const S = (r,ws,hs) => new THREE.SphereGeometry(r, ws||20, hs||14);
-const legL = limb(.24,.88), legR = limb(-.24,.88);
-[legL,legR].forEach(l=>{ pm(B(.34,.8,.38),0x1a2c52,0,-.4,0,l); const sh = pm(S(.22,14,10),0x161616,0,-.84,.08,l); sh.scale.set(1,.55,1.45); });
-pm(B(1.0,1.1,.62), NAVY, 0,1.42,0);                         // jas
-pm(B(.36,.62,.05), 0xffffff, 0,1.62,.32);                    // kemeja
-pm(B(.11,.5,.06), 0x1a2c52, 0,1.56,.35);                     // dasi navy
-[-1,1].forEach(sd=>{ const l = pm(B(.2,.7,.05), NAVY2, sd*.2,1.6,.33); l.rotation.z = sd*.28; });   // kerah jas
-pm(B(.15,.18,.05), 0xf2b134, .3,1.66,.34);                   // lencana Nusawara
-[1.3,1.08].forEach(y=>pm(S(.045,8,6),0xf2b134,0,y,.33));     // kancing emas
-const armL = limb(.62,1.86), armR = limb(-.62,1.86);
-[armL,armR].forEach(a=>{ pm(B(.28,.78,.32),NAVY,0,-.36,0,a); pm(S(.15,12,8),SKIN2,0,-.8,0,a); });
-const head = new THREE.Group(); head.position.y = 2.62; pres.add(head);
-pm(S(.68,28,20), SKIN2, 0,0,0, head);                        // kepala bulat
-[-1,1].forEach(sd=>pm(S(.14,12,8),SKIN2,sd*.67,-.02,0,head));    // telinga
-const hairM = M(0x1b1b1b);
-const cap = new THREE.Mesh(new THREE.SphereGeometry(.7,28,16,0,Math.PI*2,0,Math.PI*.44), hairM); cap.rotation.x = -.42; cap.position.set(0,.04,-.02); head.add(cap);
-const back = new THREE.Mesh(new THREE.SphereGeometry(.695,24,16,0,Math.PI*2,0,Math.PI*.5), hairM); back.rotation.x = -1.75; back.position.z = -.02; head.add(back);
-[-1,1].forEach(sd=>{ const ey = pm(S(.19,16,12),0x5a2e12,sd*.25,.02,.55,head); ey.scale.z = .45;      // mata cokelat besar
-  pm(S(.06,8,6),0xffffff,sd*.25+.06,.09,.64,head);                                                  // kilau mata
-  const r = new THREE.Mesh(new THREE.TorusGeometry(.25,.04,8,24), M(0x111111)); r.position.set(sd*.26,.02,.62); head.add(r);   // kacamata bulat
-  const bl = pm(S(.09,10,8),0xf3a3a3,sd*.42,-.2,.5,head); bl.scale.set(1,.6,.4); });                 // pipi merah muda
-pm(B(.06,.04,.04),0x111111,0,.05,.66,head);                // jembatan kacamata
-const mouth = new THREE.Mesh(new THREE.TorusGeometry(.09,.025,6,14,Math.PI), M(0xb3261e)); mouth.rotation.z = Math.PI; mouth.position.set(0,-.3,.6); head.add(mouth);
-pres.scale.setScalar(1.3);
+// Bentuk tetap seperti sebelumnya; gaya wajah & jas disamakan dengan maskot resmi Mr. Bung
+const NAVY2 = 0x2f4d8a;
+const legL = limb(.28,1.2), legR = limb(-.28,1.2);
+[legL,legR].forEach(l=>{ pm(B(.38,1.05,.42),0x16233d,0,-.52,0,l); pm(B(.42,.2,.62),0x111111,0,-1.1,.08,l); });
+pm(B(1.15,1.35,.62), SUIT, 0,1.88,0);                       // jas navy
+pm(B(.34,.7,.05), 0xffffff, 0,2.2,.32);                      // kemeja
+[-1,1].forEach(sd=>{ const l = pm(B(.2,.85,.05), NAVY2, sd*.22,2.15,.33); l.rotation.z = sd*.25; });   // kerah jas lebih terang
+pm(B(.12,.62,.06), 0x16233d, 0,2.12,.36);                    // dasi navy
+pm(B(.17,.21,.05), 0xf2b134, .36,2.2,.34);                   // lencana logo Nusawara (emas)
+[1.75,1.45].forEach(y=>pm(new THREE.SphereGeometry(.05,8,6),0xf2b134,0,y,.33));   // kancing emas
+const armL = limb(.74,2.45), armR = limb(-.74,2.45);
+[armL,armR].forEach(a=>{ pm(B(.32,1.1,.36),SUIT,0,-.52,0,a); pm(new THREE.SphereGeometry(.17,10,8),SKIN,0,-1.15,0,a); });
+pm(B(.3,.2,.3), SKIN, 0,2.62,0);                             // leher
+const head = new THREE.Group(); head.position.y = 3.05; pres.add(head);
+pm(B(.72,.78,.7), SKIN, 0,0,0, head);
+pm(B(.76,.24,.74), 0x1b1b1b, 0,.42,-.02, head);              // rambut hitam
+pm(B(.76,.42,.12), 0x1b1b1b, 0,.2,-.36, head);
+[-1,1].forEach(sd=>{
+  const ey = pm(new THREE.SphereGeometry(.1,14,10),0x5a2e12,sd*.17,.06,.35,head); ey.scale.z = .4;     // mata cokelat besar
+  pm(new THREE.SphereGeometry(.032,8,6),0xffffff,sd*.17+.035,.1,.39,head);                              // kilau mata
+  const r = new THREE.Mesh(new THREE.TorusGeometry(.14,.026,8,24), M(0x111111)); r.position.set(sd*.17,.06,.37); head.add(r);   // kacamata bulat
+  pm(B(.11,.07,.02),0xf3a3a3,sd*.26,-.12,.355,head); });                                                // pipi merah muda
+pm(B(.06,.03,.03),0x111111,0,.08,.38,head);                 // jembatan kacamata
+const mouth = new THREE.Mesh(new THREE.TorusGeometry(.07,.02,6,14,Math.PI), M(0xb3261e)); mouth.rotation.z = Math.PI; mouth.position.set(0,-.2,.36); head.add(mouth);   // senyum
 pres.position.set(18,1.5,-6.8);
 pres.userData = {type:'president'};
 scene.add(pres); pickables.push(pres);
@@ -1274,7 +1272,7 @@ function updatePres(dt, time){
     armR.rotation.z += (0 - armR.rotation.z) * Math.min(1, dt*10); armR.rotation.x = sw*.8;
   }
   pres.position.y += (groundY(pres.position.x, pres.position.z) - pres.position.y) * Math.min(1, dt*12);
-  presTag.position.set(pres.position.x, pres.position.y+5.0, pres.position.z);
+  presTag.position.set(pres.position.x, pres.position.y+4.3, pres.position.z);
   if (playing){
     const dx = pres.position.x-before.x, dy = pres.position.y-before.y, dz = pres.position.z-before.z;
     if (anim){ anim.tT.x += dx; anim.tT.z += dz; anim.tC.x += dx; anim.tC.z += dz; }
@@ -1779,21 +1777,17 @@ edEl.addEventListener('click', e=>{ if (e.target===edEl || e.target.hasAttribute
 /* ---------- AYAM PENDAMPING PRESIDEN ---------- */
 const chick = new THREE.Group();
 function cbx(w,h,d,c,x,y,z,parent){ const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), M(c)); m.position.set(x,y,z); m.castShadow = true; (parent||chick).add(m); return m; }
-// ayam putih bulat (gaya maskot resmi): jengger merah, kalung navy dengan lencana emas
-const CS = (r,c,x,y,z,p) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r,16,12), M(c)); m.position.set(x,y,z); m.castShadow = true; (p||chick).add(m); return m; };
-const chLegs = [.11,-.11].map(sx=>{ const g = new THREE.Group(); g.position.set(sx,.4,0); chick.add(g);
-  cbx(.06,.38,.06,0xf2a23a,0,-.19,0,g); cbx(.18,.04,.24,0xf2a23a,0,-.38,.05,g); return g; });
-CS(.4,0xffffff,0,.72,0).scale.set(1,.95,1.08);
-[[0,.86,-.42,.13],[.08,.98,-.38,.1],[-.08,.98,-.38,.1]].forEach(([x,y,z,r])=>CS(r,0xf4f4f4,x,y,z));     // ekor
-const chWings = [1,-1].map(sd=>{ const g = new THREE.Group(); g.position.set(sd*.36,.78,-.02); chick.add(g); CS(.18,0xf2f2f2,0,-.04,0,g).scale.set(.45,1,1.2); return g; });
-const chHead = new THREE.Group(); chHead.position.set(0,1.05,.18); chick.add(chHead);
-CS(.26,0xffffff,0,.08,0,chHead);
-[[0,.38,.02,.08],[0,.4,-.08,.07],[0,.36,.11,.065]].forEach(([x,y,z,r])=>CS(r,0xd8312b,x,y,z,chHead)); // jengger
-const bk = new THREE.Mesh(new THREE.ConeGeometry(.06,.14,8), M(0xf2a23a)); bk.rotation.x = Math.PI/2; bk.position.set(0,.06,.28); chHead.add(bk);
-CS(.05,0xd8312b,0,-.06,.22,chHead);                                                   // pial
-[-1,1].forEach(sd=>{ CS(.045,0x111111,sd*.12,.14,.22,chHead); CS(.04,0xf3a3a3,sd*.17,.02,.19,chHead).scale.z = .4; });
-const chCol = new THREE.Mesh(new THREE.TorusGeometry(.25,.05,8,20), M(0x22396b)); chCol.rotation.x = Math.PI/2; chCol.position.set(0,.92,.08); chick.add(chCol);
-CS(.05,0xf2b134,0,.88,.32);                                                           // lencana kalung
+const chLegs = [.12,-.12].map(sx=>{ const g = new THREE.Group(); g.position.set(sx,.42,0); chick.add(g);
+  cbx(.07,.4,.07,0xe8a33a,0,-.2,0,g); cbx(.2,.04,.26,0xe8a33a,0,-.4,.06,g); return g; });
+cbx(.62,.52,.78,0xfafafa,0,.7,-.02); cbx(.5,.3,.5,0xf6f6f6,0,.52,.1);
+cbx(.36,.42,.22,0xf0f0f0,0,1.02,-.42).rotation.x = -.35;
+const chWings = [1,-1].map(sd=>{ const g = new THREE.Group(); g.position.set(sd*.33,.86,-.04); chick.add(g); cbx(.08,.36,.52,0xe9e9e9,0,-.16,0,g); return g; });
+const chHead = new THREE.Group(); chHead.position.set(0,1.0,.34); chick.add(chHead);
+cbx(.3,.36,.3,0xfcfcfc,0,.12,0,chHead); cbx(.07,.16,.24,0xd8312b,0,.36,-.02,chHead);
+cbx(.1,.08,.16,0xf2a23a,0,.1,.2,chHead); cbx(.06,.13,.06,0xd8312b,0,-.04,.16,chHead);
+cbx(.05,.05,.05,0x111111,.152,.17,.07,chHead); cbx(.05,.05,.05,0x111111,-.152,.17,.07,chHead);
+cbx(.42,.1,.4,0x22396b,0,.98,.28);                     // kalung navy
+cbx(.1,.1,.04,0xf2b134,0,.94,.49);                     // lencana emas kalung
 chick.scale.setScalar(.85);
 chick.position.set(19.55,1.5,-5.5); chick.rotation.y = -.3;
 chick.userData = {type:'chicken'};
