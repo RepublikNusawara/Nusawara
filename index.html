@@ -970,7 +970,7 @@ const sheet = document.getElementById('sheet'), sheetBody = document.getElementB
 function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 let sheetFn = null;
 function openSheet(x){ sheetFn = typeof x==='function' ? x : null; sheetBody.innerHTML = sheetFn ? sheetFn() : x; sheet.classList.add('open'); document.body.classList.add('sheet-open'); sheet.scrollTop=0; }
-function closeSheet(){ sheet.classList.remove('open'); document.body.classList.remove('sheet-open'); select(null); }
+function closeSheet(){ sheet.classList.remove('open'); document.body.classList.remove('sheet-open'); document.body.classList.remove('fas-open'); select(null); }
 document.getElementById('sheetClose').onclick = closeSheet;
 
 const validAsset = a => typeof a==='string' && /^[A-Za-z0-9_.:\-]{1,200}$/.test(a);
@@ -1099,7 +1099,7 @@ let down = null;
 renderer.domElement.addEventListener('pointerdown', e=>{ down = {x:e.clientX, y:e.clientY}; });
 renderer.domElement.addEventListener('pointerup', e=>{
   if (!down) return;
-  if (typeof ctl !== 'undefined' && ctl.key) { down = null; return; }
+  if (typeof ctl !== 'undefined' && ctl.key) { const mv = Math.hypot(e.clientX-down.x, e.clientY-down.y); down = null; if (mv <= 7 && typeof fasTap === 'function') fasTap(e); return; }
   const moved = Math.hypot(e.clientX-down.x, e.clientY-down.y); down = null;
   if (moved > 7) return;
   if (shotMode) { document.body.classList.toggle('shot-clean'); return; }
@@ -2568,7 +2568,7 @@ function updateWalkers(dt, time){
   if (!buka && typeof pres !== 'undefined' && nearG(pres.position)) buka = true;
   gateOpen += ((buka ? 1 : 0) - gateOpen) * Math.min(1, dt*4); GATE_ARM.rotation.x = gateOpen * 1.45;
   updateFollow(dt);
-  updateCtl(dt, time);
+  updateCtl(dt, time); if (typeof fasNear === 'function') fasNear();
   updateBubbles(dt);
   BIG_LABELS.forEach(l=>{ l.visible = camera.position.y > 30 && camera.position.distanceTo(l.position) > 48; });   // label distrik disembunyikan saat kamera dekat
 }
@@ -2776,6 +2776,8 @@ const gStyle = document.createElement('style');
 gStyle.textContent = `
 .gpad{position:fixed;inset:auto 0 calc(14px + env(safe-area-inset-bottom)) 0;z-index:12;display:none;justify-content:space-between;align-items:flex-end;padding:0 14px;pointer-events:none}
 body.ctl .gpad{display:flex}
+body.ctl.fas-open .sheet{display:block!important}
+body.ctl.fas-open .gpad, body.ctl.fas-open .near{display:none!important}
 body.ctl .actions, body.ctl .sheet, body.ctl .hint, body.ctl .play-btns, .dpad{display:none!important}
 body.ctl .play-ui{display:block!important}
 body.ctl .gpad{justify-content:flex-end}
@@ -3248,12 +3250,12 @@ function fasHTML(id){
   const F = FAS[id]; if (!F) return '';
   const isi = {}; Object.entries(KERJA).forEach(([u,k])=>{ if (k.fasilitas === id) (isi[k.posisi] = isi[k.posisi] || []).push(u); });
   const tot = F.pos.reduce((a,p)=>a+p[1],0), terisi = Object.values(isi).reduce((a,l)=>a+l.length,0);
-  const rows = F.pos.map(([p,q,ic])=>{ const l = isi[p] || [], full = l.length >= q;
-    return `<div class="jrow"><div class="ji">${ic}</div><div class="jt"><b>${esc(p)}</b><small>${l.length}/${q} terisi${l.length ? ' · ' + l.map(u=>'@'+esc(u)).join(', ') : ''}</small></div>
-      <button class="btn${full ? ' ghost' : ''}" ${full ? 'disabled' : `data-kerja="${esc(id)}|${esc(p)}"`}>${full ? 'Penuh' : 'Daftar'}</button></div>`; }).join('');
+  const rows = F.pos.map(([p,q,ic],i)=>{ const l = isi[p] || [], full = l.length >= q, top = i === 0;
+    return `<div class="jrow"><div class="ji">${ic}</div><div class="jt"><b>${esc(p)}</b><small>${top ? (l.length ? 'Ditunjuk Presiden' : 'Ditunjuk langsung oleh Presiden · masih kosong') : `${l.length}/${q} terisi`}${l.length ? ' · ' + l.map(u=>'@'+esc(u)).join(', ') : ''}</small></div>
+      ${top ? '<span style="font-size:12px;font-weight:700;color:#8a6d1f;flex:none">👑 Jabatan</span>' : `<button class="btn${full ? ' ghost' : ''}" ${full ? 'disabled' : `data-kerja="${esc(id)}|${esc(p)}"`}>${full ? 'Penuh' : 'Daftar'}</button>`}</div>`; }).join('');
   return `<div class="kicker">Fasilitas Republik Nusawara</div><h2>${F.ikon} ${esc(F.nama)}</h2>
     <p style="font-size:13px;margin:0 0 10px">Dibangun ${F.hari} dari usulan warga @${esc(F.usul)}.</p>
-    <div class="card"><h3>🖼️ Billboard gedung</h3>${boardPreview(id, '')}<p class="note">Isi billboard diatur oleh ${esc(F.pos[0][0])} gedung ini.</p>${editBtn(id)}</div>
+    <div class="card"><h3>🖼️ Billboard gedung</h3>${boardPreview(id, '')}${editBtn(id)}</div>
     <div class="card"><h3>💼 Lowongan kerja · ${terisi}/${tot} terisi</h3><p class="note">Hanya untuk Warga Republik Nusawara. Satu warga satu pekerjaan; daftar dengan Kata Sandi Warga.</p>${rows}</div>
     <div class="card" id="jform" style="display:none"><h3 id="jfT">Daftar kerja</h3>
       <input id="jfU" placeholder="Username Instagram" autocomplete="off" autocapitalize="none" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccd;margin:4px 0">
@@ -3284,6 +3286,28 @@ sheetBody.addEventListener('click', async e=>{
     try { const r = await SB.rpc('keluar_kerja', {p_user:u, p_sandi:UNLOCK[u]}); if (r === 'ok'){ delete KERJA[u]; toast('Kamu sudah keluar dari pekerjaan.'); if (sheetFn) sheetBody.innerHTML = sheetFn(); } }
     catch(_){ toast('Gagal tersambung.'); } }
 });
+// saat warga memainkan karakternya: ketuk gedung, atau tekan tombol yang muncul saat berada di dekat gedung
+const FAS_POS = {'RS-NUSAWARA':[98,-33,22], 'KOPI-NUSAWARA':[68,-29,19]};
+function openFasPlay(id){ if (typeof ctl !== 'undefined' && ctl.key){ Object.keys(ctl.d).forEach(k=>ctl.d[k] = 0); ctl.run = false; document.body.classList.add('fas-open'); } openSheet(()=>fasHTML(id)); }
+function fasTap(e){
+  ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr, camera);
+  const hit = ray.intersectObjects(pickables, true)[0]; if (!hit) return;
+  let o = hit.object; while (o && !(o.userData && o.userData.type)) o = o.parent;
+  if (o && o.userData.type === 'fasilitas') openFasPlay(o.userData.data.id);
+}
+const fasNearEl = document.createElement('button'); fasNearEl.className = 'near'; fasNearEl.style.bottom = 'calc(210px + env(safe-area-inset-bottom))'; document.body.appendChild(fasNearEl);
+let fasNearId = null;
+function fasNear(){
+  let id = null;
+  if (ctl.key && WALKERS[ctl.key] && !document.body.classList.contains('fas-open')){
+    const p = WALKERS[ctl.key].av.g.position;
+    for (const [k,[x,z,r]] of Object.entries(FAS_POS)) if (Math.hypot(p.x - x, p.z - z) < r){ id = k; break; }
+  }
+  if (id === fasNearId) return; fasNearId = id;
+  if (!id){ fasNearEl.classList.remove('show'); return; }
+  fasNearEl.innerHTML = `${FAS[id].ikon} ${esc(FAS[id].nama)} · <b>Lihat lowongan</b>`; fasNearEl.classList.add('show');
+}
+fasNearEl.onclick = ()=>{ if (fasNearId) openFasPlay(fasNearId); };
 function sbApplyKerja(rows){ (rows || []).forEach(r=>{ if (!r || !r.username) return; if (r.fasilitas) KERJA[r.username] = {fasilitas:r.fasilitas, posisi:r.posisi}; else delete KERJA[r.username]; });
   if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); }
 /* ---------- LOOP ---------- */
