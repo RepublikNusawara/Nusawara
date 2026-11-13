@@ -2239,10 +2239,10 @@ const EKSPRESI = [['netral','🙂 Netral'],['santai','😌 Santai'],['senyum','�
 const AVA_OPT = {
   rambutModel: HAIR_PRIA.concat(HAIR_WANITA),
   ekspresi:    EKSPRESI,
-  bajuModel:   [['sweater','Sweater'],['kaos','Kaos'],['hoodie','Hoodie'],['kemeja','Kemeja'],['jas','Jas']],
+  bajuModel:   [['sweater','Sweater'],['kaos','Kaos'],['sporty','Kaos Sporty'],['hoodie','Hoodie'],['kemeja','Kemeja'],['jas','Jas']],
   celanaModel: [['panjang','Panjang'],['pendek','Pendek'],['rok','Rok lipit']],
   kacamata:    [['tidak','Tidak'],['hitam','Hitam'],['bening','Bening']],
-  topi:        [['tidak','Tidak'],['cap','Cap'],['kupluk','Kupluk']],
+  topi:        [['tidak','Tidak'],['cap','Cap'],['kupluk','Kupluk'],['ikat','Ikat kepala']],
   kopi:        [['tidak','Tidak'],['ya','Bawa kopi']]
 };
 function hashStr(s){ let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -2337,6 +2337,11 @@ function shellGeo(o, clip){
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return g;
 }
 const nrm = (x,y,z) => { const l = Math.hypot(x,y,z) || 1; return [x/l, y/l, z/l]; };
+let RB_CACHE = null;
+function RB_BASE(){ if (RB_CACHE) return RB_CACHE; const g = new THREE.BoxGeometry(1,1,1,3,3,3);
+  return RB_CACHE = {p: Array.from(g.attributes.position.array), n: Array.from(g.attributes.normal.array), i: Array.from(g.index.array)}; }
+// ekspresi yang dibuat timbul 3D (mata, alis, hidung, mulut); ekspresi khusus lain tetap memakai wajah piksel
+const FACE3D = ['senyum','netral','serius','sedih','marah','bingung','kaget'];
 function makeAvatar(sp){
   // Karakter warga bergaya VOXEL (patokan: referensi/karakter/patokan-voxel.jpg):
   // kepala kubus besar dengan wajah piksel tajam, rambut & topi tersusun dari kotak-kotak kecil,
@@ -2351,6 +2356,14 @@ function makeAvatar(sp){
     this.box = (x,y,z,w,h,d,c) => { c = hx(c); const r = ((c>>16)&255)/255, gg = ((c>>8)&255)/255, b = (c&255)/255;
       F.forEach(([n,vs])=>{ const o = pos.length/3; vs.forEach(v=>{ pos.push(x + v[0]*w/2, y + v[1]*h/2, z + v[2]*d/2); nor.push(n[0],n[1],n[2]);
         const sh = n[1] > 0 ? 1.06 : n[1] < 0 ? .78 : 1; col.push(r*sh, gg*sh, b*sh); }); idx.push(o, o+1, o+2, o, o+2, o+3); }); return this; };
+    // balok bersudut membulat (gaya mainan): dibangun dari kubus bersegmen yang sudutnya "ditumpulkan"
+    this.rbox = (x,y,z,w,h,d,c,r) => { c = hx(c); const cr = ((c>>16)&255)/255, cg = ((c>>8)&255)/255, cb = (c&255)/255;
+      r = Math.min(r || .06, w/2 - .001, h/2 - .001, d/2 - .001); const B = RB_BASE(), o = pos.length/3, ix = w/2 - r, iy = h/2 - r, iz = d/2 - r;
+      for (let i = 0; i < B.p.length; i += 3){ const px = B.p[i]*w, py = B.p[i+1]*h, pz = B.p[i+2]*d;
+        const qx = Math.max(-ix, Math.min(ix, px)), qy = Math.max(-iy, Math.min(iy, py)), qz = Math.max(-iz, Math.min(iz, pz));
+        let nx = px - qx, ny = py - qy, nz = pz - qz, l = Math.hypot(nx, ny, nz); if (l < 1e-6){ nx = B.n[i]; ny = B.n[i+1]; nz = B.n[i+2]; l = 1; }
+        nx /= l; ny /= l; nz /= l; pos.push(x + qx + nx*r, y + qy + ny*r, z + qz + nz*r); nor.push(nx, ny, nz); col.push(cr, cg, cb); }
+      B.i.forEach(k=>idx.push(o + k)); return this; };
     this.mesh = (parent, x, y, z) => { if (!pos.length) return null; const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos,3));
       geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor,3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(col,3)); geo.setIndex(idx);
       const m = new THREE.Mesh(geo, AG('voxM', ()=>new THREE.MeshPhongMaterial({vertexColors:true, shininess:6, specular:0x111111}))); m.position.set(x||0, y||0, z||0); m.castShadow = true; (parent||body).add(m); return m; }; }
@@ -2360,16 +2373,20 @@ function makeAvatar(sp){
   const rok = sp.celanaModel === 'rok', pendek = sp.celanaModel === 'pendek';
   const legL = new THREE.Group(), legR = new THREE.Group(); legL.position.set(.16,1.06,0); legR.position.set(-.16,1.06,0); body.add(legL, legR);
   [legL, legR].forEach(l=>{ const v = new VB();
-    if (pendek || rok){ if (pendek) v.box(0,-.15,0,.28,.3,.32, sp.celana); v.box(0, rok ? -.4 : -.5, 0, .2, rok ? .62 : .42, .22, sp.kulit); v.box(0,-.8,0,.22,.16,.24, 0xf4f2ec); }
-    else { v.box(0,-.38,0,.28,.76,.32, sp.celana); v.box(0,-.74,0,.29,.08,.33, tone(sp.celana,.82)); }
-    v.box(0,-.93,.05,.3,.18,.44, sp.sepatu); v.box(0,-1.0,.05,.31,.04,.45, 0xe6e3dc); v.box(0,-.87,.2,.2,.04,.06, 0xdedbd3);
+    if (pendek || rok){ if (pendek) v.rbox(0,-.15,0,.3,.32,.34, sp.celana,.05); v.rbox(0, rok ? -.4 : -.5, 0, .22, rok ? .62 : .42, .24, sp.kulit,.05); v.rbox(0,-.8,0,.24,.16,.26, 0xf4f2ec,.04); }
+    else { v.rbox(0,-.38,0,.3,.78,.34, sp.celana,.06); v.rbox(0,-.74,0,.31,.08,.35, tone(sp.celana,.82),.03); }
+    v.rbox(0,-.91,.05,.32,.2,.46, sp.sepatu,.07); v.rbox(0,-.99,.05,.34,.06,.48, 0xe6e3dc,.03); v.box(0,-.86,.22,.2,.04,.06, 0xdedbd3);
     v.mesh(l); });
 
   // ---------- badan & model baju ----------
   const v = new VB(), B = sp.baju, D = tone(B,.8), Zf = .21;
   v.box(0,1.08,0,.62,.12,.4, rok ? sp.celana : sp.celana);                      // pinggang
   if (sp.bajuModel === 'kaos'){ for (let i=0;i<7;i++) v.box(0,1.17 + i*.1 + .05,0,.64,.1,.42, i%2 ? 0xf2f2ee : B); v.box(0,1.86,.0,.3,.04,.2, D); }   // kaos garis
-  else v.box(0,1.5,0,.64,.72,.42, B);
+  else v.rbox(0,1.5,0,.66,.74,.44, B,.08);
+  if (sp.bajuModel === 'sporty'){                                                // kaos sporty: bahu dua warna, kerah & badge
+    const A = sp.topi === 'ikat' ? sp.topiWarna : '#1f9d55';
+    v.rbox(0,1.76,0,.68,.24,.46, tone(B,.82),.08); v.rbox(0,1.88,0,.3,.06,.24, A,.025);
+    v.rbox(.15,1.5,Zf+.025,.13,.13,.04, A,.02); v.rbox(.15,1.5,Zf+.045,.06,.06,.02, 0xffffff,.01); }
   if (sp.bajuModel === 'sweater'){                                               // kardigan rajut
     v.box(0,1.5,Zf+.005,.16,.66,.02, sp.celana); [-.1,.1].forEach(x=>v.box(x,1.5,Zf+.01,.05,.72,.03, D));
     for (let i=0;i<4;i++) v.box(.1,1.75 - i*.16,Zf+.03,.04,.04,.02, 0xb48a62);
@@ -2396,19 +2413,39 @@ function makeAvatar(sp){
   const armL = new THREE.Group(), armR = new THREE.Group(); armL.position.set(.42,1.8,0); armR.position.set(-.42,1.8,0); body.add(armL, armR);
   [armL, armR].forEach(a=>{ const w = new VB();
     if (sp.bajuModel === 'kaos'){ w.box(0,-.1,0,.2,.22,.24, B); w.box(0,-.2,0,.21,.04,.25, 0xf2f2ee); w.box(0,-.43,0,.17,.44,.2, sp.kulit); }
-    else { w.box(0,-.27,0,.2,.58,.24, B); w.box(0,-.58,0,.21,.07,.25, D); }
-    w.box(0,-.71,.0,.17,.18,.2, sp.kulit); w.mesh(a); });
+    else if (sp.bajuModel === 'sporty'){ w.rbox(0,-.12,0,.23,.28,.27, tone(B,.82),.06); w.rbox(0,-.42,0,.18,.36,.21, sp.kulit,.05); }
+    else { w.rbox(0,-.27,0,.21,.6,.25, B,.06); w.rbox(0,-.58,0,.22,.07,.26, D,.03); }
+    w.rbox(0,-.71,.0,.19,.2,.22, sp.kulit,.06); w.mesh(a); });
 
   // ---------- kepala kubus ----------
   const head = new THREE.Group(); head.position.y = 2.36; body.add(head);
   const skin = AM(sp.kulit, .85);
-  const hm = new THREE.Mesh(AG('headBox', ()=>new THREE.BoxGeometry(.8,.8,.8)), [skin, skin, skin, skin, faceMat8(sp.ekspresi, sp.kulit), skin]);
-  hm.castShadow = true; head.add(hm);
-  const fv = new VB(); fv.box(0,-.06,.425,.08,.1,.05, tone(sp.kulit,.92));        // hidung timbul
-  [.41,-.41].forEach(x=>fv.box(x,-.05,0,.04,.14,.1, tone(sp.kulit,.95)));          // telinga
+  const f3 = FACE3D.includes(sp.ekspresi || 'senyum'), fv = new VB();
+  if (f3){                                                                         // kepala kubus membulat + wajah timbul
+    fv.rbox(0,0,0,.84,.82,.8, sp.kulit,.1);
+    const ex = sp.ekspresi || 'senyum', INK = 0x1a120d, BRW = tone(sp.rambut,.75), MO = 0x7a3324, Zs = .4;
+    [-.17,.17].forEach(cx=>{ const big = ex === 'kaget', sq = ex === 'serius' || ex === 'marah';
+      fv.rbox(cx,.02,Zs+.01,.2,big ? .25 : sq ? .17 : .22,.04, 0xe9e6df,.025);                     // putih mata
+      fv.rbox(cx - Math.sign(cx)*.015,.0,Zs+.03,.12,big ? .17 : sq ? .11 : .15,.03, INK,.02);       // bola mata
+      fv.rbox(cx - Math.sign(cx)*.015 + .03,.045,Zs+.047,.04,.04,.01, 0xffffff,.008);              // kilau
+      const by = ex === 'kaget' ? .23 : .19, tilt = ex === 'marah' ? .12 : ex === 'sedih' ? -.12 : ex === 'bingung' && cx > 0 ? .1 : 0;
+      const bm = new VB(); bm.rbox(0,0,0,.2,.05,.04, BRW,.015); const m = bm.mesh(head, cx, by, Zs+.02); if (m) m.rotation.z = (cx > 0 ? 1 : -1)*tilt; });
+    fv.rbox(0,-.1,Zs+.025,.07,.08,.05, tone(sp.kulit,.93),.02);                        // hidung
+    [-.27,.27].forEach(x=>fv.rbox(x,-.13,Zs+.005,.15,.07,.02, 0xe58a7c,.02));          // pipi merona
+    if (ex === 'kaget') fv.rbox(0,-.24,Zs+.01,.07,.08,.03, MO,.02);
+    else if (ex === 'senyum'){ fv.rbox(0,-.25,Zs+.01,.13,.035,.03, MO,.012); [-.075,.075].forEach(x=>fv.rbox(x,-.225,Zs+.01,.035,.035,.03, MO,.012)); }
+    else if (ex === 'sedih' || ex === 'marah'){ fv.rbox(0,-.23,Zs+.01,.13,.035,.03, MO,.012); [-.075,.075].forEach(x=>fv.rbox(x,-.255,Zs+.01,.035,.035,.03, MO,.012)); }
+    else fv.rbox(0,-.24,Zs+.01,.13,.04,.03, MO,.012);
+    [.43,-.43].forEach(x=>fv.rbox(x,-.04,0,.07,.17,.13, tone(sp.kulit,.95),.03));   // telinga
+  } else {
+    const hm = new THREE.Mesh(AG('headBox', ()=>new THREE.BoxGeometry(.8,.8,.8)), [skin, skin, skin, skin, faceMat8(sp.ekspresi, sp.kulit), skin]);
+    hm.castShadow = true; head.add(hm);
+    fv.box(0,-.06,.425,.08,.1,.05, tone(sp.kulit,.92));                             // hidung timbul
+    [.41,-.41].forEach(x=>fv.box(x,-.05,0,.04,.14,.1, tone(sp.kulit,.95)));          // telinga
+  }
   const hat = sp.topi === 'cap' || sp.topi === 'kupluk';
   if (sp.kacamata === 'bening' || sp.kacamata === 'hitam'){                         // kacamata bulat piksel timbul
-    const fc = sp.kacamata === 'hitam' ? 0x111111 : 0x3a261b, Z = .43;
+    const fc = sp.kacamata === 'hitam' ? 0x111111 : 0x3a261b, Z = f3 ? .47 : .43;
     [-.17,.17].forEach(cx=>{ [[-.1,0,.03,.14],[.1,0,.03,.14],[0,.085,.14,.03],[0,-.085,.14,.03],[-.075,.065,.03,.03],[.075,.065,.03,.03],[-.075,-.065,.03,.03],[.075,-.065,.03,.03]]
       .forEach(([x,y,w,h])=>fv.box(cx + x, .02 + y, Z, w, h, .04, fc));
       if (sp.kacamata === 'hitam') fv.box(cx, .02, Z - .01, .17, .14, .01, 0x151515); });
@@ -2424,6 +2461,12 @@ function makeAvatar(sp){
     for (let i=0;i<9;i++){ const a = (i%3) - 1, b = Math.floor(i/3) - 1; k.box(a*.06, .96 + ((i*5)%3)*.02, b*.06, .08,.08,.08, i%2 ? tone(c,1.1) : c); }
     k.mesh(head);
   }
+  if (sp.topi === 'ikat'){                                                         // ikat kepala sporty dengan simpul & dua ekor di belakang
+    const k = new VB(), c = sp.topiWarna, y = .3;
+    k.rbox(0,y,.43,.9,.13,.06, c,.03); k.rbox(0,y,-.43,.9,.13,.06, c,.03); k.rbox(.45,y,0,.06,.13,.9, c,.03); k.rbox(-.45,y,0,.06,.13,.9, c,.03);
+    k.rbox(.12,y,-.49,.12,.12,.08, tone(c,.85),.03); k.mesh(head);
+    [[.2,.5],[.08,-.4]].forEach(([dx,rz])=>{ const t = new VB(); t.rbox(0,-.12,0,.08,.26,.03, c,.015); const m = t.mesh(head, .12 + dx*.3, y, -.52); if (m) { m.rotation.z = rz; m.rotation.x = -.35; } });
+  }
   if (sp.topi === 'cap'){ const k = new VB(), c = sp.topiWarna; k.box(0,.48,0,.86,.16,.86, c); k.box(0,.6,0,.72,.1,.72, tone(c,.95)); k.box(0,.68,0,.5,.06,.5, c);
     k.box(0,.41,.6,.8,.04,.36, tone(c,.9)); k.box(0,.73,0,.08,.04,.08, tone(c,.8)); k.mesh(head); }
 
@@ -2437,7 +2480,19 @@ function makeAvatar(sp){
   function hairOf(model){
     if (model === 'botak') return;
     const h = new VB(), C = sp.rambut, C2 = tone(C,.8);
-    let n = 0; const vx = (x,y,z,w,hh,d,c) => { if (hat && y + hh/2 > .32 && Math.abs(x) < .52 && Math.abs(z) < .52) return; h.box(x,y,z,w,hh,d, c || vary(C, n++)); };
+    if (sp.topi === 'ikat'){                                                      // rambut balok tebal bertumpuk di atas ikat kepala
+      const C3 = tone(C,1.12);
+      h.rbox(0,.45,0,.9,.2,.88, C,.05);
+      h.rbox(-.2,.58,.06,.46,.13,.74, C3,.05); h.rbox(.2,.59,-.04,.46,.13,.76, C,.05); h.rbox(.02,.68,-.02,.56,.09,.5, C2,.04);
+      h.rbox(-.16,.42,.45,.52,.12,.07, C3,.03); h.rbox(.24,.43,.45,.3,.1,.07, C,.03);
+      h.rbox(0,.04,-.445,.88,.42,.09, C,.04); h.rbox(0,.45,-.42,.9,.18,.12, C2,.04);
+      [-1,1].forEach(sg=>h.rbox(sg*.445,.08,-.3,.09,.3,.3, C,.03));
+      h.mesh(head); return;
+    }
+    const ikat = sp.topi === 'ikat';
+    let n = 0; const vx = (x,y,z,w,hh,d,c) => { if (hat && y + hh/2 > .32 && Math.abs(x) < .52 && Math.abs(z) < .52) return;
+      if (ikat && (Math.abs(x) > .38 || Math.abs(z) > .38) && ((y + hh/2 > .235 && y - hh/2 < .365) || (z > .38 && y < .3))) return;   // ikat kepala tetap terlihat, rambut tidak menembus
+      h.box(x,y,z,w,hh,d, c || vary(C, n++)); };
     const top = (yy, ext) => { for (let i=0;i<9;i++) for (let j=0;j<9;j++) vx(-.4 + i*.1, (yy||.45), -.4 + j*.1, .1, .1, .1); if (ext) for (let i=0;i<7;i++) for (let j=0;j<7;j++) if ((i+j)%2) vx(-.3 + i*.1, .53, -.3 + j*.1, .1,.06,.1); };
     const back = (len) => { for (let i=0;i<9;i++) for (let r=0;r<len;r++) vx(-.4 + i*.1, .35 - r*.1, -.45, .1,.1,.1); };
     const side = (len, front) => [1,-1].forEach(s=>{ for (let j=0;j<9;j++){ const z = -.4 + j*.1, L = z > (front||.05) ? Math.max(1, len - 3) : len; for (let r=0;r<L;r++) vx(s*.45, .35 - r*.1, z, .1,.1,.1); } });
