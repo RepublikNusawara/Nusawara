@@ -18,7 +18,7 @@ const legL = limb(.27,1.0), legR = limb(-.27,1.0);
 pm(B(1.12,1.25,.62), SUIT, 0,1.6,0);
 pm(B(.34,.6,.04), 0xffffff, 0,1.98,.32);
 pm(B(.1,.56,.05), 0x1f2f55, 0,1.9,.345);
-[1,-1].forEach(sd=>{ const l = pm(B(.17,.78,.04), LAPEL, sd*.2,1.88,.33); l.rotation.z = sd*.38; });
+[1,-1].forEach(sd=>{ const l = pm(B(.17,.78,.04), LAPEL, sd*.2,1.88,.33); l.rotation.z = -sd*.38; });
 pm(B(.16,.18,.05), GOLD, .34,1.98,.35);                         // lencana Nusawara (perisai rumah)
 pm(B(.07,.06,.06), 0x8a5a16, .34,1.99,.37);
 [1.42,1.2].forEach(y=>pm(SPH(.045),GOLD,0,y,.32));               // kancing emas
@@ -27,11 +27,11 @@ const armL = limb(.68,2.12), armR = limb(-.68,2.12);
 [armL,armR].forEach(a=>{ pm(B(.3,.9,.36),SUIT,0,-.44,0,a); pm(SPH(.17),SKIN,0,-.98,0,a); });
 pm(new THREE.CylinderGeometry(.16,.18,.2,16), SKIN, 0,2.3,0);   // leher
 // kepala besar bulat
-const head = new THREE.Group(); head.position.y = 2.95; pres.add(head);
+const head = new THREE.Group(); head.position.y = 3.02; head.scale.setScalar(1.12); pres.add(head);
 pm(SPH(.78,1,.96,.95), SKIN, 0,0,0, head);
 [1,-1].forEach(sd=>pm(SPH(.15,.6,1,1),0xdfa982,sd*.78,-.04,0,head));          // telinga
 const hairTop = pm(new THREE.SphereGeometry(.82,28,16,0,Math.PI*2,0,Math.PI*.42), HAIR, 0,.02,-.04, head);
-hairTop.rotation.x = -.3;
+hairTop.rotation.x = -.12;
 pm(SPH(.8,1,.9,.9), HAIR, 0,.06,-.16, head).scale.set(1,1,.9);
 // kacamata bulat, mata besar cokelat, pipi merona
 [1,-1].forEach(sd=>{
