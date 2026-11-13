@@ -12,14 +12,16 @@ jobs:
       - uses: actions/checkout@v4
       - name: Unduh file
         run: |
-          mkdir -p aset14
-          curl -sSfL -o aset14/p74.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/3yvNF8cFPUQ0eDqEXIG9/cAXo8ViiIhMPaktE8bTm/content.mp3?Expires=1794600000&KeyName=assets-cdn-key-1&Signature=bvy2CzRyYYoSZPNXsEscTTExPlM="
-          curl -sSfL -o aset14/j74.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/gojsRzHdfFArTVPiVIU2/YMfAuT5DWsBUNH1G29vM/content.mp3?Expires=1794600000&KeyName=assets-cdn-key-1&Signature=V4qPJmKVTnoNdIHF2A4i6Wxbsxg="
-          ls -la aset14
+          mkdir -p aset15
+          curl -sSfL -o aset15/dimas.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/MZbGoBCauv6oOAoVj7Lc/grxJSeYyyFmiWJf2g4c4/content.mp3?Expires=1794621600&KeyName=assets-cdn-key-1&Signature=i0GDgJTssxxC3KHMxI3YRMbXhpc="
+          curl -sSfL -o aset15/sari.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/xNdANdit1hHnOjA6Oi1N/67oJldSUvDVd1dJS5g6K/content.mp3?Expires=1794621600&KeyName=assets-cdn-key-1&Signature=8cPzMumicp5iIvWKLF2ICZUjPEQ="
+          curl -sSfL -o aset15/bayu.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/TGmOD7911oQN7CmU1w8u/sRN2jHQ2mmmmjo3qGVPX/content.mp3?Expires=1794621600&KeyName=assets-cdn-key-1&Signature=7fvlcd5x1jG_OqTo_dfvlCfmBYo="
+          curl -sSfL -o aset15/nadia.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/fblURO0F4PLrpOU4bV0p/j3isSYQKN2T8xDpmA2cN/content.mp3?Expires=1794621600&KeyName=assets-cdn-key-1&Signature=8oP051QJ6EoekKgsutgnqKCgBYo="
+          ls -la aset15
       - name: Simpan ke branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add aset14
-          git commit -m "Aset video sementara 14"
+          git add aset15
+          git commit -m "Aset video sementara 15"
           git push
