@@ -1,6 +1,6 @@
 {
- "updatedAt": "2026-11-14T05:14:09+11:00",
- "penduduk": 85,
+ "updatedAt": "2026-11-14T10:52:39+11:00",
+ "penduduk": 83,
  "warga": {
   "julianto_jul": {
    "username": "Julianto_Jul",
@@ -54,20 +54,6 @@
   "martunis": {
    "username": "Martunis",
    "niwn": "NUS-000006",
-   "terdaftar": "12 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "ma__19..": {
-   "username": "Ma__19..",
-   "niwn": "NUS-000007",
-   "terdaftar": "12 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "ma__rtunis19..": {
-   "username": "Ma__rtunis19..",
-   "niwn": "NUS-000008",
    "terdaftar": "12 Nov 2026",
    "houseId": null,
    "follow": true
@@ -363,7 +349,7 @@
    "username": "aadamaalto",
    "niwn": "NUS-000050",
    "terdaftar": "13 Nov 2026",
-   "houseId": null,
+   "houseId": "BHR-MAWAR-001",
    "follow": true
   },
   "martin": {
@@ -621,8 +607,240 @@
    "fg": "#ffffff"
   }
  },
- "rumah": {},
- "undian": [],
+ "rumah": {
+  "BHR-MAWAR-001": {
+   "houseId": "BHR-MAWAR-001",
+   "alamat": "Jalan Mawar No. 1, Distrik Bahari",
+   "username": "aadamaalto",
+   "niwn": "NUS-000050",
+   "since": "14 Nov 2026",
+   "undianNo": 1,
+   "status": "tanah",
+   "desain": null
+  }
+ },
+ "undian": [
+  {
+   "no": 1,
+   "tanggal": "14 Nov 2026",
+   "houseId": "BHR-MAWAR-001",
+   "alamat": "Jalan Mawar No. 1, Distrik Bahari",
+   "peserta": [
+    {
+     "username": "remetemeh",
+     "niwn": "NUS-000002"
+    },
+    {
+     "username": "liam",
+     "niwn": "NUS-000003"
+    },
+    {
+     "username": "harviansyahs",
+     "niwn": "NUS-000004"
+    },
+    {
+     "username": "yamaalghazali",
+     "niwn": "NUS-000005"
+    },
+    {
+     "username": "SabriGeboy",
+     "niwn": "NUS-000009"
+    },
+    {
+     "username": "kamugppsab",
+     "niwn": "NUS-000010"
+    },
+    {
+     "username": "Khanza",
+     "niwn": "NUS-000011"
+    },
+    {
+     "username": "msyaquilaazzahra",
+     "niwn": "NUS-000012"
+    },
+    {
+     "username": "malikha",
+     "niwn": "NUS-000013"
+    },
+    {
+     "username": "rerey",
+     "niwn": "NUS-000014"
+    },
+    {
+     "username": "izaa",
+     "niwn": "NUS-000015"
+    },
+    {
+     "username": "Frii.hart",
+     "niwn": "NUS-000016"
+    },
+    {
+     "username": "hakimdunia",
+     "niwn": "NUS-000017"
+    },
+    {
+     "username": "rainman",
+     "niwn": "NUS-000018"
+    },
+    {
+     "username": "erlanggamakanserangga",
+     "niwn": "NUS-000019"
+    },
+    {
+     "username": "mar.vinn2299",
+     "niwn": "NUS-000020"
+    },
+    {
+     "username": "_12k1la",
+     "niwn": "NUS-000021"
+    },
+    {
+     "username": "29_Rezky",
+     "niwn": "NUS-000022"
+    },
+    {
+     "username": "adityaaaaa_prtm",
+     "niwn": "NUS-000023"
+    },
+    {
+     "username": "el_ysiaaaa",
+     "niwn": "NUS-000024"
+    },
+    {
+     "username": "_ayaaeriee",
+     "niwn": "NUS-000025"
+    },
+    {
+     "username": "kalilaaa_12",
+     "niwn": "NUS-000026"
+    },
+    {
+     "username": "nailaaacuteeecantikkkkkkk",
+     "niwn": "NUS-000027"
+    },
+    {
+     "username": "liaaaa",
+     "niwn": "NUS-000028"
+    },
+    {
+     "username": "starr_light",
+     "niwn": "NUS-000029"
+    },
+    {
+     "username": "_onyotgeboy",
+     "niwn": "NUS-000030"
+    },
+    {
+     "username": "ardhiaadia",
+     "niwn": "NUS-000031"
+    },
+    {
+     "username": "zuhana",
+     "niwn": "NUS-000032"
+    },
+    {
+     "username": "mingz_019",
+     "niwn": "NUS-000033"
+    },
+    {
+     "username": "ilham",
+     "niwn": "NUS-000034"
+    },
+    {
+     "username": "rinynatyansya",
+     "niwn": "NUS-000035"
+    },
+    {
+     "username": "__v4nnnnn__",
+     "niwn": "NUS-000036"
+    },
+    {
+     "username": "rapaaa_105",
+     "niwn": "NUS-000037"
+    },
+    {
+     "username": "Farhan",
+     "niwn": "NUS-000038"
+    },
+    {
+     "username": "dapincupuu",
+     "niwn": "NUS-000039"
+    },
+    {
+     "username": "Itsme.violaw",
+     "niwn": "NUS-000040"
+    },
+    {
+     "username": "Adrel",
+     "niwn": "NUS-000041"
+    },
+    {
+     "username": "Roro",
+     "niwn": "NUS-000042"
+    },
+    {
+     "username": "gwen",
+     "niwn": "NUS-000043"
+    },
+    {
+     "username": "rangga",
+     "niwn": "NUS-000044"
+    },
+    {
+     "username": "kayla",
+     "niwn": "NUS-000045"
+    },
+    {
+     "username": "yunyun_016",
+     "niwn": "NUS-000046"
+    },
+    {
+     "username": "SERAPHINE224",
+     "niwn": "NUS-000047"
+    },
+    {
+     "username": "sheinaputriii",
+     "niwn": "NUS-000048"
+    },
+    {
+     "username": "caca",
+     "niwn": "NUS-000049"
+    },
+    {
+     "username": "aadamaalto",
+     "niwn": "NUS-000050"
+    },
+    {
+     "username": "Martin",
+     "niwn": "NUS-000051"
+    },
+    {
+     "username": "aatlorenza",
+     "niwn": "NUS-000052"
+    },
+    {
+     "username": "Ehan",
+     "niwn": "NUS-000053"
+    },
+    {
+     "username": "rhnmlnibrhm_",
+     "niwn": "NUS-000054"
+    },
+    {
+     "username": "Vioo",
+     "niwn": "NUS-000055"
+    },
+    {
+     "username": "Poengky_poer",
+     "niwn": "NUS-000056"
+    }
+   ],
+   "winner": {
+    "username": "aadamaalto",
+    "niwn": "NUS-000050"
+   }
+  }
+ ],
  "kunci": {
   "julianto_jul": "0c29b97300c8d682961c4763e3af2b49c6fb1cbf8bdc827834a8a994f52da8f8",
   "liam": "391aa01f7e098b1ef07a08153348ca164b4c4049b6e9a7858489376066f5c192"
