@@ -1,0 +1,78 @@
+<!doctype html><html><body style="margin:0;background:#5a8c86">
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>
+const M = c => new THREE.MeshLambertMaterial({color:c});
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x5a8c86);
+scene.add(new THREE.HemisphereLight(0xffffff,0x6a7a80,.85)); const dl=new THREE.DirectionalLight(0xffffff,.6); dl.position.set(4,8,10); scene.add(dl);
+/* ---------- BAPAK PRESIDEN NUSAWARA (gaya chibi, sama dengan maskot video) ---------- */
+const pres = new THREE.Group();
+const SUIT = 0x253760, LAPEL = 0x344c7a, PANTS = 0x1c2847, SKIN = 0xecbf96, HAIR = 0x1b1b1b, GOLD = 0xe3b03a;
+const B = (w,h,d) => new THREE.BoxGeometry(w,h,d);
+const SPH = (r,sx=1,sy=1,sz=1) => new THREE.SphereGeometry(r,24,18).scale(sx,sy,sz);
+function pm(geo,c,x,y,z,parent){ const m = new THREE.Mesh(geo, M(c)); m.position.set(x,y,z); m.castShadow = true; (parent||pres).add(m); return m; }
+function limb(x,y){ const g = new THREE.Group(); g.position.set(x,y,0); pres.add(g); return g; }
+// kaki + sepatu
+const legL = limb(.27,1.0), legR = limb(-.27,1.0);
+[legL,legR].forEach(l=>{ pm(B(.36,.92,.4),PANTS,0,-.46,0,l); pm(SPH(.24,1,.55,1.5),0x151515,0,-.95,.1,l); });
+// jas, kemeja, kerah, dasi
+pm(B(1.12,1.25,.62), SUIT, 0,1.6,0);
+pm(B(.34,.6,.04), 0xffffff, 0,1.98,.32);
+pm(B(.1,.56,.05), 0x1f2f55, 0,1.9,.345);
+[1,-1].forEach(sd=>{ const l = pm(B(.17,.78,.04), LAPEL, sd*.2,1.88,.33); l.rotation.z = sd*.38; });
+pm(B(.16,.18,.05), GOLD, .34,1.98,.35);                         // lencana Nusawara (perisai rumah)
+pm(B(.07,.06,.06), 0x8a5a16, .34,1.99,.37);
+[1.42,1.2].forEach(y=>pm(SPH(.045),GOLD,0,y,.32));               // kancing emas
+// lengan
+const armL = limb(.68,2.12), armR = limb(-.68,2.12);
+[armL,armR].forEach(a=>{ pm(B(.3,.9,.36),SUIT,0,-.44,0,a); pm(SPH(.17),SKIN,0,-.98,0,a); });
+pm(new THREE.CylinderGeometry(.16,.18,.2,16), SKIN, 0,2.3,0);   // leher
+// kepala besar bulat
+const head = new THREE.Group(); head.position.y = 2.95; pres.add(head);
+pm(SPH(.78,1,.96,.95), SKIN, 0,0,0, head);
+[1,-1].forEach(sd=>pm(SPH(.15,.6,1,1),0xdfa982,sd*.78,-.04,0,head));          // telinga
+const hairTop = pm(new THREE.SphereGeometry(.82,28,16,0,Math.PI*2,0,Math.PI*.42), HAIR, 0,.02,-.04, head);
+hairTop.rotation.x = -.3;
+pm(SPH(.8,1,.9,.9), HAIR, 0,.06,-.16, head).scale.set(1,1,.9);
+// kacamata bulat, mata besar cokelat, pipi merona
+[1,-1].forEach(sd=>{
+  const ex = sd*.27;
+  const ring = pm(new THREE.TorusGeometry(.24,.035,10,32), 0x222222, ex,.02,.69, head); ring.rotation.y = sd*.32;
+  const eye = pm(SPH(.16,1,1.15,.45), 0x3e2416, ex,.0,.66, head); eye.rotation.y = sd*.32;
+  pm(SPH(.055), 0xffffff, ex+.05,.08,.72, head);
+  pm(SPH(.025), 0xffffff, ex-.04,-.06,.72, head);
+  pm(SPH(.13,1,.6,.3), 0xf2a49a, sd*.47,-.26,.58, head);
+  const brow = pm(B(.26,.05,.05), HAIR, ex,.32,.66, head); brow.rotation.z = -sd*.08;
+});
+pm(B(.1,.03,.03), 0x222222, 0,.05,.75, head);                      // jembatan kacamata
+const smile = pm(new THREE.TorusGeometry(.13,.025,8,16,Math.PI), 0x8c2a22, 0,-.27,.7, head); smile.rotation.z = Math.PI;
+const mouth = pm(SPH(.12,1,.1,.3), 0x7a1f1a, 0,-.33,.7, head);   // terbuka saat bicara
+
+/* ---------- JAGO, AYAM PENDAMPING PRESIDEN (gaya chibi) ---------- */
+const chick = new THREE.Group();
+function cbx(w,h,d,c,x,y,z,parent){ const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), M(c)); m.position.set(x,y,z); m.castShadow = true; (parent||chick).add(m); return m; }
+function csp(r,sx,sy,sz,c,x,y,z,parent){ const m = new THREE.Mesh(new THREE.SphereGeometry(r,22,16).scale(sx,sy,sz), M(c)); m.position.set(x,y,z); m.castShadow = true; (parent||chick).add(m); return m; }
+const chLegs = [.13,-.13].map(sx=>{ const g = new THREE.Group(); g.position.set(sx,.42,0); chick.add(g);
+  cbx(.06,.4,.06,0xf0a030,0,-.2,0,g); cbx(.22,.04,.24,0xf0a030,0,-.4,.06,g); return g; });
+csp(.5,1,.95,1.05,0xfafafa,0,.82,-.02);                               // badan bulat
+csp(.22,1,.8,.8,0xe4e6ea,0,1.0,-.5); csp(.16,1,.8,.8,0xeeeff2,0,1.18,-.48);   // ekor
+const chWings = [1,-1].map(sd=>{ const g = new THREE.Group(); g.position.set(sd*.42,.92,-.06); chick.add(g); csp(.24,.35,.75,1.05,0xeceef2,0,-.14,0,g); return g; });
+const collar = new THREE.Mesh(new THREE.TorusGeometry(.3,.06,10,28), M(0x253760)); collar.rotation.x = Math.PI/2; collar.position.set(0,1.12,.12); chick.add(collar);
+cbx(.1,.1,.04,0xe3b03a,0,1.06,.42);                                   // lencana emas
+const chHead = new THREE.Group(); chHead.position.set(0,1.18,.14); chick.add(chHead);
+csp(.34,1,1,1,0xfcfcfc,0,.22,0,chHead);                               // kepala
+[[.58,-.12,.1],[.63,0,.12],[.58,.12,.1]].forEach(([y,z,r])=>csp(r,.8,1,1,0xe0342b,0,y,z,chHead));   // jengger merah
+const beak = new THREE.Mesh(new THREE.ConeGeometry(.08,.2,12), M(0xf09a28)); beak.rotation.x = Math.PI/2; beak.position.set(0,.2,.4); chHead.add(beak);
+csp(.06,1,1.4,1,0xe0342b,0,.04,.32,chHead);                           // pial
+[1,-1].forEach(sd=>{
+  csp(.075,1,1.15,.6,0x1a1a1a,sd*.14,.3,.29,chHead);                   // mata hitam besar
+  csp(.025,1,1,1,0xffffff,sd*.14+.025,.34,.33,chHead);
+  csp(.06,1,.6,.3,0xf6a8a8,sd*.22,.16,.26,chHead);                     // pipi
+});
+
+chick.scale.setScalar(.85); chick.position.set(1.7,0,.4); chick.rotation.y=-.35;
+scene.add(pres); scene.add(chick);
+const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); r.setSize(900,900); document.body.appendChild(r.domElement);
+const cam=new THREE.PerspectiveCamera(32,1,.1,100);
+const views=[[0.8,2.1,9.5],[6,2.6,6],[-7,2.4,3]]; const v=views[+(location.hash.slice(1)||0)];
+cam.position.set(...v); cam.lookAt(0.8,1.9,0); r.render(scene,cam);
+</script></body></html>

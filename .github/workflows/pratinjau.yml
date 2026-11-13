@@ -1,0 +1,17 @@
+name: Pratinjau 3D
+on:
+  push:
+    paths: ['pratinjau/index.html']
+jobs:
+  shot:
+    runs-on: ubuntu-latest
+    permissions: {contents: write}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          for v in 0 1 2; do
+            google-chrome --headless=new --no-sandbox --use-gl=swiftshader --enable-unsafe-swiftshader --window-size=900,900 --virtual-time-budget=8000 --screenshot=pratinjau/v$v.png "file://$PWD/pratinjau/index.html#$v"
+          done
+          ls -la pratinjau
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git add pratinjau/*.png && git commit -m "Pratinjau 3D" && git push
