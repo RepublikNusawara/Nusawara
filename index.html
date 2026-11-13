@@ -1048,6 +1048,7 @@ function presHTML(){
 }
 function focusObj(obj){
   const t = obj.userData.type, p = obj.getWorldPosition(new THREE.Vector3());
+  if (t==='fasilitas'){ select(null); openSheet(()=>fasHTML(obj.userData.data.id)); hideHint(); return; }
   if (t==='counter'){
     select(null); openSheet(counterHTML); hideHint(); return;
   }
@@ -2592,6 +2593,7 @@ pStyle.textContent = `
 .idcard .ip img{width:100%;height:100%;object-fit:cover;display:block}
 .idcard .ip span{position:absolute;left:0;right:0;bottom:0;background:rgba(31,58,95,.85);font-size:10px;font-weight:800;padding:3px 0;color:#fff}
 .idcard .if{flex:1;min-width:0;font-size:12px;line-height:1.35}
+.jrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #eee}.jrow .ji{font-size:22px;width:30px;text-align:center}.jrow .jt{flex:1;min-width:0}.jrow .jt b{display:block;font-size:14px}.jrow .jt small{color:#667;font-size:12px;word-break:break-all}.jrow .btn{width:auto;margin:0;padding:8px 14px;flex:none}
 .idcard .if b{display:block;font-size:17px;word-break:break-all;margin-bottom:4px}
 .idcard .if div{opacity:.75;font-size:10px;letter-spacing:.06em;margin-top:5px}
 .idcard .if p{margin:0;font-weight:700}
@@ -2654,14 +2656,14 @@ function profileHTML(key){
   return `<div class="kicker">Warga Republik Nusawara</div>
     <div class="idcard"><div class="ih">🛡️ REPUBLIK NUSAWARA · KARTU WARGA</div>
       <div class="ib"><button class="ip" ${unlocked ? `data-follow="${esc(key)}"` : `data-unlock="${esc(key)}"`} aria-label="Lihat karakter">${img ? `<img src="${img}" alt="">` : ''}<span>${unlocked ? '🧍 Lihat karakter' : '🔒 Terkunci'}</span></button>
-        <div class="if"><b>@${esc(u)}</b><div>NIWN</div><p class="mono">${esc(w.niwn || '-')}</p><div>STATUS</div><p>Warga (WRN)</p><div>TERDAFTAR</div><p>${esc(w.terdaftar || '-')}</p></div></div>
+        <div class="if"><b>@${esc(u)}</b><div>NIWN</div><p class="mono">${esc(w.niwn || '-')}</p><div>STATUS</div><p>Warga (WRN)</p><div>TERDAFTAR</div><p>${esc(w.terdaftar || '-')}</p><div>PEKERJAAN</div><p>${esc(typeof kerjaLabel === 'function' ? kerjaLabel(key) : 'Belum bekerja')}</p></div></div>
       <div class="ifoot"><span>${esc(w.niwn || '')}</span><span>${und.split(' ')[0]}</span></div></div>
     <p style="margin:0 0 10px;font-size:13px">${und}</p>
     ${unlocked ? '' : `<div class="card"><h3>🔒 Profil ini terkunci</h3><p>Hanya pemilik @${esc(u)} yang bisa membuka rumah, gaya karakter, dan memainkan karakter ini. Masukkan Kata Sandi Warga untuk membuka.</p>
       <button class="btn" data-unlock="${esc(key)}">🔓 Buka profil dengan kata sandi</button></div>`}
     ${unlocked ? `<div class="prow"><button class="btn" data-follow="${esc(key)}">🧍 Lihat karakter</button><button class="btn" data-gaya="${esc(key)}">🎨 Ganti gaya${isOwner ? '' : ' 🔑'}</button></div>
     <button class="btn" data-main="${esc(key)}" style="margin-top:8px;background:#f2b134;color:#2a1b00">🎮 Main karakter (jalan, lompat, lari)</button>
-    ${land}${own}` : ''}`;
+    ${land}${typeof kerjaOf === 'function' && kerjaOf(key) ? `<div class="card"><h3>💼 Pekerjaan</h3><p>${esc(kerjaLabel(key))}</p><button class="btn ghost" data-keluar="${esc(key)}">Keluar dari pekerjaan</button></div>` : `<div class="card"><h3>💼 Pekerjaan</h3><p>Belum bekerja. Ketuk Rumah Sakit, Kopi Nusawara, atau gedung lain di peta untuk melihat lowongan.</p></div>`}${own}` : ''}`;
 }
 function sandiCard(key, u){
   const k = typeof SANDI !== 'undefined' ? SANDI[key] : null;
@@ -2949,6 +2951,7 @@ window.nusawaraChatKirim = async ({k, u, t}) => {
   try { sbApplyGaya(await SB.get('gaya?select=username,avatar')); } catch(_) {}
   try { sbApplyWarga(await SB.get('warga?select=username,nama,niwn,terdaftar&order=niwn')); } catch(_) {}
   try { (await SB.get('billboard?select=rumah,judul,ket,bg,fg')).forEach(sbApplyBoard); } catch(_) {}
+  try { sbApplyKerja(await SB.get('pekerja?select=username,fasilitas,posisi')); } catch(_) {}
   try { const rows = await SB.get('obrolan?select=username,nama,teks,dibuat&order=dibuat.desc&limit=40');
     CHAT = rows.reverse().map(r=>({k:r.username, u:r.nama || r.username, t:r.teks, at:Date.parse(r.dibuat)})); chatPaint(); } catch(_) {}
   // realtime (langsung muncul di semua HP)
@@ -2958,6 +2961,7 @@ window.nusawaraChatKirim = async ({k, u, t}) => {
     cli.channel('nusawara').on('postgres_changes', {event:'INSERT', schema:'public', table:'obrolan'}, p=>sbTerimaObrolan(p.new))
       .on('postgres_changes', {event:'*', schema:'public', table:'gaya'}, p=>sbApplyGaya([p.new]))
       .on('postgres_changes', {event:'INSERT', schema:'public', table:'warga'}, p=>sbApplyWarga([p.new]))
+      .on('postgres_changes', {event:'*', schema:'public', table:'pekerja'}, p=>sbApplyKerja([p.new && p.new.username ? p.new : {username: p.old && p.old.username}]))
       .on('postgres_changes', {event:'*', schema:'public', table:'billboard'}, p=>{ if (p.new && p.new.rumah) sbApplyBoard(p.new); else if (p.old && p.old.rumah){ delete BB[p.old.rumah]; applyBoard(p.old.rumah); } }).subscribe();
   } catch(_) {} };
   document.head.appendChild(s);
@@ -3172,9 +3176,102 @@ sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-main]
   const amb = new THREE.Group(); HS.add(amb); amb.position.set(9,0,10.5);
   hb(2.2,1.9,4.2,0xffffff,0,1.25,0,amb); hb(2.25,.35,4.25,0xd8262b,0,1.15,0,amb); hb(2,.8,1.2,0x7fc4dc,0,1.6,2.2,amb); hb(.6,.25,.6,0x2f7bff,0,2.3,.8,amb);
   [[-1,-1.3],[1,-1.3],[-1,1.3],[1,1.3]].forEach(([x,z])=>hb(.3,.7,.7,0x222222,x,.35,z,amb));
-  HS.userData = {type:'rumahsakit'};
+  HS.userData = {type:'fasilitas', data:{id:'RS-NUSAWARA'}}; pickables.push(HS);
   if (typeof COLL !== 'undefined') COLL.push([HX, HZ-1, 11.5, 7.5]);
 })();
+// ---------- KOPI NUSAWARA (usulan warga @nrllzizaa__, dibangun DAY 3) ----------
+function buildKopi(par, x, z){
+  const G = new THREE.Group(); G.position.set(x, 0, z); par.add(G);
+  const kb = (w,h,d,c,X,Y,Z,p) => box(w,h,d,c,X,Y,Z,p||G);
+  const GL = new THREE.MeshPhongMaterial({color:0x9fd3e0, shininess:90, specular:0xbbddee, transparent:true, opacity:.75});
+  kb(17,.12,15,0xd9c9a8,0,.06,0);                                  // pelataran
+  kb(12,4.2,8,0xf3e6cf,0,2.1,-2.5);                                 // bangunan
+  kb(12.2,.5,8.2,0x8b5a35,0,.25,-2.5);                              // alas kayu
+  [-5.4,-2.7,2.7,5.4].forEach(X=>kb(.6,4.2,.25,0x8b5a35,X,2.1,1.55)); // tiang kayu depan
+  const gl = new THREE.Mesh(new THREE.BoxGeometry(10.2,2.9,.15), GL); gl.position.set(0,1.95,1.5); G.add(gl);
+  kb(2,2.6,.2,0x5a3a22,0,1.3,1.62);                                 // pintu
+  kb(8,1.1,1.4,0x6b4a2e,0,.8,-3.5); kb(8,.15,1.6,0xe8d9bd,0,1.42,-3.5); // meja bar di dalam
+  kb(12.8,.45,8.8,0x4a3426,0,4.42,-2.5);                            // atap
+  // kanopi bergaris
+  const aw = new THREE.Group(); aw.position.set(0,3.55,2.9); aw.rotation.x = .38; G.add(aw);
+  for (let i=0;i<6;i++) kb(2,.12,2.2,i%2?0xffffff:0x2fb5a8,-5+i*2,0,0,aw);
+  // papan nama
+  const tex = canvasTex(1024,160,(g,w,h)=>{ g.fillStyle='#3b2618'; g.fillRect(0,0,w,h); g.fillStyle='#f2b134'; g.fillRect(0,h-12,w,12);
+    g.fillStyle='#f3e6cf'; g.font=`900 84px ${FONT}`; g.textAlign='center'; g.textBaseline='middle'; g.fillText('☕ KOPI NUSAWARA', w/2, h/2-4); });
+  const sg = new THREE.Mesh(new THREE.PlaneGeometry(9.6,1.5), new THREE.MeshBasicMaterial({map:tex})); sg.position.set(0,5.5,1.62); G.add(sg);
+  kb(9.9,1.8,.2,0x2a1a10,0,5.5,1.48);
+  // cangkir raksasa di atap
+  const cup = new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.0,1.9,20), M(0xffffff)); cup.position.set(3.6,5.6,-4); G.add(cup);
+  const cof = new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.15,.1,20), M(0x5a3a22)); cof.position.set(3.6,6.52,-4); G.add(cof);
+  kb(.35,1.1,.35,0xffffff,5.05,5.6,-4); kb(.6,.3,.35,0xffffff,4.8,6.05,-4); kb(.6,.3,.35,0xffffff,4.8,5.15,-4);
+  // meja luar + payung
+  [[-4.6,5.2],[0,5.6],[4.6,5.2]].forEach(([X,Z])=>{
+    const t = new THREE.Mesh(new THREE.CylinderGeometry(.75,.75,.1,16), M(0xf3e6cf)); t.position.set(X,1.05,Z); G.add(t);
+    kb(.12,1,.12,0x333333,X,.5,Z); kb(.5,.5,.5,0x8b5a35,X-1.1,.25,Z); kb(.5,.5,.5,0x8b5a35,X+1.1,.25,Z);
+    kb(.08,2.6,.08,0xdddddd,X,1.4,Z);
+    const um = new THREE.Mesh(new THREE.ConeGeometry(1.6,.7,8), M(0x2fb5a8)); um.position.set(X,2.9,Z); G.add(um); });
+  [[-7.6,1.6],[7.6,1.6],[-7.6,-6],[7.6,-6]].forEach(([X,Z])=>{ kb(.8,.7,.8,0x8b5a35,X,.35,Z); kb(.9,.9,.9,0x3f8d40,X,1.15,Z); });
+  return G;
+}
+const KOPI = buildKopi(scene, 68, -29);
+KOPI.userData = {type:'fasilitas', data:{id:'KOPI-NUSAWARA'}}; pickables.push(KOPI);
+if (typeof COLL !== 'undefined') COLL.push([68, -31.5, 6.4, 4.4]);
+box(17,.12,5,0x4b5059, 68,.07,-20.3);                               // jalan masuk dari jalan timur
+
+// ---------- LOWONGAN KERJA DI FASILITAS ----------
+const FAS = {
+  'RS-NUSAWARA': {nama:'Rumah Sakit Nusawara', ikon:'🏥', usul:'ma____rtunis1961', hari:'DAY 2', pos:[
+    ['Direktur Rumah Sakit',1,'👔'],['Dokter Umum',4,'🩺'],['Dokter Spesialis',3,'👨‍⚕️'],['Dokter Gigi',1,'🦷'],['Perawat',8,'👩‍⚕️'],['Bidan',2,'🤱'],
+    ['Apoteker',2,'💊'],['Analis Laboratorium',2,'🧪'],['Radiografer',1,'🩻'],['Ahli Gizi',1,'🥗'],['Resepsionis',2,'🛎️'],['Staf Administrasi',2,'🗂️'],
+    ['Sopir Ambulans',2,'🚑'],['Satpam',4,'👮'],['Petugas Kebersihan',4,'🧹'],['Juru Masak',2,'🍳']]},
+  'KOPI-NUSAWARA': {nama:'Kopi Nusawara', ikon:'☕', usul:'nrllzizaa__', hari:'DAY 3', pos:[
+    ['Manager',1,'🧑‍💼'],['Kepala Barista',1,'☕'],['Barista',3,'🫖'],['Kasir',2,'💵'],['Pelayan',3,'🍽️'],['Pembuat Kue',1,'🧁'],
+    ['Petugas Kebersihan',1,'🧹'],['Satpam',1,'👮']]}
+};
+window.KERJA = {};                                                   // username → {fasilitas, posisi}
+function kerjaOf(u){ const k = KERJA[String(u||'').toLowerCase()]; return k && FAS[k.fasilitas] ? k : null; }
+function kerjaLabel(u){ const k = kerjaOf(u); return k ? `${k.posisi} · ${FAS[k.fasilitas].nama}` : 'Belum bekerja'; }
+function fasHTML(id){
+  const F = FAS[id]; if (!F) return '';
+  const isi = {}; Object.entries(KERJA).forEach(([u,k])=>{ if (k.fasilitas === id) (isi[k.posisi] = isi[k.posisi] || []).push(u); });
+  const tot = F.pos.reduce((a,p)=>a+p[1],0), terisi = Object.values(isi).reduce((a,l)=>a+l.length,0);
+  const rows = F.pos.map(([p,q,ic])=>{ const l = isi[p] || [], full = l.length >= q;
+    return `<div class="jrow"><div class="ji">${ic}</div><div class="jt"><b>${esc(p)}</b><small>${l.length}/${q} terisi${l.length ? ' · ' + l.map(u=>'@'+esc(u)).join(', ') : ''}</small></div>
+      <button class="btn${full ? ' ghost' : ''}" ${full ? 'disabled' : `data-kerja="${esc(id)}|${esc(p)}"`}>${full ? 'Penuh' : 'Daftar'}</button></div>`; }).join('');
+  return `<div class="kicker">Fasilitas Republik Nusawara</div><h2>${F.ikon} ${esc(F.nama)}</h2>
+    <p style="font-size:13px;margin:0 0 10px">Dibangun ${F.hari} dari usulan warga @${esc(F.usul)}.</p>
+    <div class="card"><h3>💼 Lowongan kerja · ${terisi}/${tot} terisi</h3><p class="note">Hanya untuk Warga Republik Nusawara. Satu warga satu pekerjaan; daftar dengan Kata Sandi Warga.</p>${rows}</div>
+    <div class="card" id="jform" style="display:none"><h3 id="jfT">Daftar kerja</h3>
+      <input id="jfU" placeholder="Username Instagram" autocomplete="off" autocapitalize="none" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccd;margin:4px 0">
+      <input id="jfP" type="password" placeholder="Kata Sandi Warga" autocomplete="off" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccd;margin:4px 0">
+      <p class="note" id="jfM"></p><button class="btn" id="jfB">Kirim lamaran</button></div>`;
+}
+let jSel = null;
+sheetBody.addEventListener('click', async e=>{
+  const kb = e.target.closest('[data-kerja]');
+  if (kb){ const [id, p] = kb.dataset.kerja.split('|'); jSel = {id, p};
+    const f = sheetBody.querySelector('#jform'); f.style.display = ''; sheetBody.querySelector('#jfT').textContent = `Daftar: ${p} · ${FAS[id].nama}`;
+    const un = Object.keys(UNLOCK || {})[0]; if (un){ sheetBody.querySelector('#jfU').value = un; sheetBody.querySelector('#jfP').value = UNLOCK[un]; }
+    sheetBody.querySelector('#jfM').textContent = ''; f.scrollIntoView({behavior:'smooth', block:'center'}); return; }
+  if (e.target.id === 'jfB' && jSel){
+    const u = sheetBody.querySelector('#jfU').value.trim().replace(/^@+/,'').toLowerCase(), pw = normPw(sheetBody.querySelector('#jfP').value), m = sheetBody.querySelector('#jfM');
+    if (!/^[a-z0-9._]{1,30}$/.test(u)) { m.textContent = 'Tulis username Instagram-mu.'; return; }
+    if (!wInfo(u)) { m.textContent = '@' + u + ' belum terdaftar sebagai warga. Komentar DAFTAR dulu, ya!'; return; }
+    if (!/^[A-Z0-9]{4,20}$/.test(pw)) { m.textContent = 'Masukkan Kata Sandi Warga.'; return; }
+    e.target.disabled = true; m.textContent = 'Mengirim…';
+    try { const r = await SB.rpc('daftar_kerja', {p_user:u, p_sandi:pw, p_fasilitas:jSel.id, p_posisi:jSel.p}); e.target.disabled = false;
+      const msg = {ok:'', sandi:'❌ Kata sandi salah.', penuh:'Posisi ini sudah penuh. Pilih posisi lain.', sudah:'Kamu sudah punya pekerjaan. Keluar dulu dari profilmu kalau mau pindah.', warga:'Username belum terdaftar sebagai warga.'}[r] ;
+      if (r === 'ok'){ KERJA[u] = {fasilitas:jSel.id, posisi:jSel.p}; UNLOCK[u] = pw; toast(`🎉 Selamat! @${u} sekarang ${jSel.p} di ${FAS[jSel.id].nama}`); if (sheetFn) sheetBody.innerHTML = sheetFn(); }
+      else m.textContent = msg || 'Gagal mendaftar. Coba lagi.'; }
+    catch(_){ e.target.disabled = false; m.textContent = 'Gagal tersambung. Periksa internet lalu coba lagi.'; }
+    return; }
+  const kk = e.target.closest('[data-keluar]');
+  if (kk){ const u = kk.dataset.keluar; if (!UNLOCK[u]) return;
+    try { const r = await SB.rpc('keluar_kerja', {p_user:u, p_sandi:UNLOCK[u]}); if (r === 'ok'){ delete KERJA[u]; toast('Kamu sudah keluar dari pekerjaan.'); if (sheetFn) sheetBody.innerHTML = sheetFn(); } }
+    catch(_){ toast('Gagal tersambung.'); } }
+});
+function sbApplyKerja(rows){ (rows || []).forEach(r=>{ if (!r || !r.username) return; if (r.fasilitas) KERJA[r.username] = {fasilitas:r.fasilitas, posisi:r.posisi}; else delete KERJA[r.username]; });
+  if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); }
 /* ---------- LOOP ---------- */
 addEventListener('resize', ()=>{
   camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
