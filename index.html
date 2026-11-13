@@ -987,6 +987,8 @@ function boardPreview(id, fb){
   return r.kind==='video' ? `<video class="mediaprev" src="${src}" muted loop autoplay playsinline></video>` : `<img class="mediaprev" src="${src}" alt="Isi billboard">`;
 }
 function editBtn(id){
+  if (typeof FAS !== 'undefined' && FAS[id] && !isOwner){ const t = facTop(id), jab = FAS[id].pos[0][0];
+    return t ? `<button class="btn" data-edit="${esc(id)}">✏️ Ganti isi billboard <span style="opacity:.7;font-weight:600">· khusus ${esc(jab)} @${esc(t)} 🔑</span></button>` : `<p class="note">Billboard ini nanti diatur oleh ${esc(jab)}. Posisi ${esc(jab)} masih kosong.</p>`; }
   if (isOwner) return `<button class="btn" data-edit="${esc(id)}">✏️ Ganti isi billboard</button>`;
   const g = houseGroups[id];
   return (g && g.userData.data.owner) ? `<button class="btn" data-edit="${esc(id)}">✏️ Ganti isi billboard <span style="opacity:.7;font-weight:600">· khusus pemilik 🔑</span></button>` : '';
@@ -1532,7 +1534,7 @@ document.body.appendChild(lkEl);
 lkEl.addEventListener('click', e=>{ if (e.target===lkEl || e.target.hasAttribute('data-close')) lkEl.classList.remove('open'); });
 let lkUser = null, lkPurpose = 'billboard', lkCtx = null, lkStage = 'old';
 const normPw = v => String(v||'').replace(/\s+/g,'').toUpperCase();
-function userOfHouse(id){ const g = houseGroups[id]; return g ? String(g.userData.data.owner||'').replace(/^@+/,'').toLowerCase() : ''; }
+function userOfHouse(id){ if (typeof FAS !== 'undefined' && FAS[id]) return facTop(id); const g = houseGroups[id]; return g ? String(g.userData.data.owner||'').replace(/^@+/,'').toLowerCase() : ''; }
 function openLock(target, purpose){
   lkPurpose = purpose || 'billboard'; lkCtx = target; lkStage = 'old';
   const u = (lkPurpose === 'billboard' || lkPurpose === 'desain') ? userOfHouse(target) : String(target).toLowerCase();
@@ -1652,7 +1654,7 @@ function openEditor(id){
   const r = BB[id] || null, h = houses.find(x=>x.id===id);
   ed = {id, kind: r && ['text','image','gif','video'].includes(r.kind) ? r.kind : 'text', file:null, url:null};
   document.getElementById('edTitle').textContent = id==='BACKDROP' ? 'Backdrop Panggung' : id;
-  document.getElementById('edKicker').textContent = id==='BACKDROP' ? 'Distrik Pusat · Panggung Presiden' : 'Billboard rumah';
+  document.getElementById('edKicker').textContent = id==='BACKDROP' ? 'Distrik Pusat · Panggung Presiden' : (typeof FAS !== 'undefined' && FAS[id]) ? 'Billboard ' + FAS[id].nama : 'Billboard rumah';
   const base = r && r.kind==='text' ? r
     : h && h.ad ? h.ad : {title: id==='BACKDROP' ? 'NUSAWARA' : 'RUANG IKLAN', sub:'', bg:'#1f3a5f', fg:'#ffffff'};
   edT.value = String(base.title||''); edS.value = String(base.sub||'');
@@ -3228,7 +3230,18 @@ const FAS = {
     ['Manager',1,'🧑‍💼'],['Kepala Barista',1,'☕'],['Barista',3,'🫖'],['Kasir',2,'💵'],['Pelayan',3,'🍽️'],['Pembuat Kue',1,'🧁'],
     ['Petugas Kebersihan',1,'🧹'],['Satpam',1,'👮']]}
 };
-window.KERJA = {};                                                   // username → {fasilitas, posisi}
+window.KERJA = {};
+function facTop(id){ const F = FAS[id]; if (!F) return ''; const top = F.pos[0][0]; return Object.keys(KERJA).find(u=>KERJA[u].fasilitas === id && KERJA[u].posisi === top) || ''; }
+// billboard di setiap gedung fasilitas (bawaan; bisa diganti oleh pemegang jabatan tertinggi)
+function facBoard(id, title, sub, bg, fg, w, hh, x, y, z, g){
+  [-w*.32, w*.32].forEach(px=>box(.35, y - hh/2, .35, 0x2a2f38, x + px, (y - hh/2)/2, z - .2, g));
+  houseBoard({id}, w, hh, x, y, z, g);
+  const b = boards[id], t = canvasTex(1024, Math.round(1024*hh/w), (c,W,H)=>drawBoardText(c, W, H, title, sub, bg, fg, ''));
+  b.defTex = t; b.cur = {tex:t}; b.mesh.material[4].map = t; b.mesh.material[4].needsUpdate = true;
+}                                                   // username → {fasilitas, posisi}
+{ const rs = scene.children.find(o=>o.userData && o.userData.data && o.userData.data.id === 'RS-NUSAWARA');
+  if (rs) facBoard('RS-NUSAWARA', 'RUMAH SAKIT NUSAWARA', 'Melayani warga 24 jam', '#ffffff', '#c62828', 7.5, 4.2, -9.5, 5.2, 10.5, rs);
+  facBoard('KOPI-NUSAWARA', 'KOPI NUSAWARA', 'Ngopi bareng warga, yuk!', '#3b2618', '#f2b134', 6.6, 3.6, -3, 7.7, -4.5, KOPI); }
 function kerjaOf(u){ const k = KERJA[String(u||'').toLowerCase()]; return k && FAS[k.fasilitas] ? k : null; }
 function kerjaLabel(u){ const k = kerjaOf(u); return k ? `${k.posisi} · ${FAS[k.fasilitas].nama}` : 'Belum bekerja'; }
 function fasHTML(id){
@@ -3240,6 +3253,7 @@ function fasHTML(id){
       <button class="btn${full ? ' ghost' : ''}" ${full ? 'disabled' : `data-kerja="${esc(id)}|${esc(p)}"`}>${full ? 'Penuh' : 'Daftar'}</button></div>`; }).join('');
   return `<div class="kicker">Fasilitas Republik Nusawara</div><h2>${F.ikon} ${esc(F.nama)}</h2>
     <p style="font-size:13px;margin:0 0 10px">Dibangun ${F.hari} dari usulan warga @${esc(F.usul)}.</p>
+    <div class="card"><h3>🖼️ Billboard gedung</h3>${boardPreview(id, '')}<p class="note">Isi billboard diatur oleh ${esc(F.pos[0][0])} gedung ini.</p>${editBtn(id)}</div>
     <div class="card"><h3>💼 Lowongan kerja · ${terisi}/${tot} terisi</h3><p class="note">Hanya untuk Warga Republik Nusawara. Satu warga satu pekerjaan; daftar dengan Kata Sandi Warga.</p>${rows}</div>
     <div class="card" id="jform" style="display:none"><h3 id="jfT">Daftar kerja</h3>
       <input id="jfU" placeholder="Username Instagram" autocomplete="off" autocapitalize="none" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccd;margin:4px 0">
