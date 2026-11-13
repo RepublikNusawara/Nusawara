@@ -1539,7 +1539,23 @@ lkEl.innerHTML = `<div class="box"><button class="x" data-close aria-label="Tutu
 document.body.appendChild(lkEl);
 lkEl.addEventListener('click', e=>{ if (e.target===lkEl || e.target.hasAttribute('data-close')) lkEl.classList.remove('open'); });
 let lkUser = null, lkPurpose = 'billboard', lkCtx = null, lkStage = 'old';
-const normPw = v => String(v||'').replace(/\s+/g,'').toUpperCase();
+const normPw = v => String(v||'').replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+// Tanda kata sandi salah: pesan merah, kotak bergetar & merah, notifikasi, kolom dikosongkan
+const lkCss = document.createElement('style');
+lkCss.textContent = '#lkM.salah{color:#c0392b;font-weight:800;font-size:15px;background:#fdecea;border:1px solid #f5c2bd;border-radius:10px;padding:10px 12px;text-align:center}'
+  + '#modal-kunci input.salah{border:2px solid #c0392b!important;background:#fff5f4;animation:lkGetar .4s}'
+  + '@keyframes lkGetar{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}';
+document.head.appendChild(lkCss);
+let lkSalah = 0;
+function tandaSalah(teks, inputId){
+  const m = document.getElementById('lkM'); lkSalah++;
+  m.textContent = teks + (lkSalah > 1 ? ' (percobaan ke-' + lkSalah + ')' : ''); m.classList.add('salah');
+  const el = document.getElementById(inputId || 'lkI');
+  if (el){ el.classList.remove('salah'); void el.offsetWidth; el.classList.add('salah'); el.value = ''; el.focus(); }
+  if (navigator.vibrate) try { navigator.vibrate(200); } catch(_) {}
+  toast(teks);
+}
+function tandaBersih(){ const m = document.getElementById('lkM'); m.classList.remove('salah'); ['lkI','lkN1','lkN2'].forEach(i=>document.getElementById(i).classList.remove('salah')); }
 function userOfHouse(id){ const g = houseGroups[id]; return g ? String(g.userData.data.owner||'').replace(/^@+/,'').toLowerCase() : ''; }
 function openLock(target, purpose){
   lkPurpose = purpose || 'billboard'; lkCtx = target; lkStage = 'old';
@@ -1552,7 +1568,7 @@ function openLock(target, purpose){
   document.getElementById('lkH').textContent = lkPurpose === 'sandi' ? '🔑 Kata sandi lama' : '🔑 Masukkan Kata Sandi Warga';
   document.getElementById('lkP').textContent = 'Khusus @' + u + '. Masukkan Kata Sandi Warga kamu.';
   document.getElementById('lkNew').style.display = 'none'; document.getElementById('lkI').style.display = '';
-  ['lkI','lkN1','lkN2'].forEach(i=>document.getElementById(i).value = ''); document.getElementById('lkM').textContent = '';
+  ['lkI','lkN1','lkN2'].forEach(i=>document.getElementById(i).value = ''); document.getElementById('lkM').textContent = ''; tandaBersih(); lkSalah = 0;
   lkEl.classList.add('open'); setTimeout(()=>document.getElementById('lkI').focus(), 60);
 }
 async function kunciHash(u, pw){
@@ -1582,6 +1598,7 @@ function afterUnlock(){
 document.getElementById('lkF').addEventListener('submit', async e=>{
   e.preventDefault();
   const m = document.getElementById('lkM'), btn = document.getElementById('lkB');
+  tandaBersih();
   if (lkStage === 'new'){
     const a = normPw(document.getElementById('lkN1').value), b = normPw(document.getElementById('lkN2').value);
     if (!/^[A-Z0-9]{6,20}$/.test(a)) { m.textContent = 'Kata sandi baru 6–20 huruf/angka.'; return; }
@@ -1589,20 +1606,22 @@ document.getElementById('lkF').addEventListener('submit', async e=>{
     if (a === UNLOCK[lkUser]) { m.textContent = 'Kata sandi baru sama dengan yang lama.'; return; }
     const bb = document.getElementById('lkB'); bb.disabled = true; m.textContent = 'Menyimpan…';
     try { const ok = await SB.ganti(lkUser, UNLOCK[lkUser], a); bb.disabled = false;
-      if (!ok){ m.textContent = '❌ Kata sandi lama sudah tidak cocok. Tutup lalu coba lagi.'; return; }
+      if (!ok){ tandaSalah('❌ Kata sandi lama salah atau sudah berubah. Tutup lalu coba lagi.', 'lkN1'); return; }
       UNLOCK[lkUser] = a; lkEl.classList.remove('open'); toast('✓ Kata sandi baru langsung aktif. Jangan berikan kepada siapa pun.'); }
     catch(_){ bb.disabled = false; m.textContent = 'Gagal tersambung. Periksa internet lalu coba lagi.'; }
     return;
   }
   const pw = normPw(document.getElementById('lkI').value);
-  if (!/^[A-Z0-9]{4,20}$/.test(pw)) { m.textContent = 'Kata sandi berisi huruf dan angka.'; return; }
+  if (!pw) { tandaSalah('❌ Kata sandi belum diisi.'); return; }
+  if (!/^[A-Z0-9]{4,20}$/.test(pw)) { tandaSalah('❌ Kata sandi salah. Coba lagi.'); return; }
   btn.disabled = true; m.textContent = 'Memeriksa…';
   let ok = false;
   let net = false;
   try { ok = await SB.cek(lkUser, pw) === true; net = true; } catch(_) {}          // diperiksa di server Supabase
   if (!net){ try { ok = (await kunciHash(lkUser, pw)) === KUNCI[lkUser]; } catch(_) { m.textContent = 'Browser ini tidak bisa memeriksa kata sandi.'; btn.disabled = false; return; } }
   btn.disabled = false;
-  if (!ok) { m.textContent = '❌ Kata sandi salah. Coba lagi.'; return; }
+  if (!ok) { tandaSalah('❌ Kata sandi salah. Coba lagi.'); return; }
+  lkSalah = 0;
   UNLOCK[lkUser] = pw;
   if (lkPurpose === 'sandi'){
     lkStage = 'new'; m.textContent = '';
@@ -1632,8 +1651,8 @@ function guestSave(){
     const [bg, fg] = q.get('warna').split(','), user = q.get('username');
     edSay('Menyimpan…');
     SB.rpc('simpan_billboard', {p_user:user, p_sandi:kode, p_rumah:id, p_judul:q.get('judul'), p_ket:q.get('keterangan'), p_bg:bg, p_fg:fg}).then(r=>{
-      const pesan = {ok:'✓ Billboard tersimpan & langsung terlihat semua warga', sandi:'❌ Kata sandi sudah berubah. Kunci lalu buka profil lagi.', bukan_pemilik:'❌ Rumah ini bukan milikmu.', belum_dibangun:'Billboard bisa diisi setelah rumahmu dibangun.', teks:'❌ Judul 1–40 huruf, keterangan maks. 60.'}[r] || 'Gagal menyimpan.';
-      if (r === 'ok'){ BB[id] = {kind:'text', title:q.get('judul'), sub:q.get('keterangan'), bg, fg}; closeEditor(); toast(pesan); } else { applyBoard(id); edSay(pesan); }
+      const pesan = {ok:'✓ Billboard tersimpan & langsung terlihat semua warga', sandi:'❌ Kata sandi salah atau sudah berubah. Kunci lalu buka profil lagi.', bukan_pemilik:'❌ Rumah ini bukan milikmu.', belum_dibangun:'Billboard bisa diisi setelah rumahmu dibangun.', teks:'❌ Judul 1–40 huruf, keterangan maks. 60.'}[r] || 'Gagal menyimpan.';
+      if (r === 'ok'){ BB[id] = {kind:'text', title:q.get('judul'), sub:q.get('keterangan'), bg, fg}; closeEditor(); toast(pesan); } else { applyBoard(id); edSay(pesan); if (r === 'sandi') toast('❌ Kata sandi salah'); }
     }).catch(()=>edSay('Gagal tersambung. Periksa internet lalu coba lagi.'));
     return;
   }
@@ -2770,7 +2789,7 @@ document.getElementById('stS').onclick = async ()=>{
     if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); return;
   }
   msg.textContent = 'Menyimpan…';
-  try { const ok = await SB.gaya(key, UNLOCK[key], avatar); if (!ok){ msg.textContent = '❌ Kata sandi sudah berubah. Kunci lalu buka profil lagi.'; return; } SB_GAYA[key] = avatar; }
+  try { const ok = await SB.gaya(key, UNLOCK[key], avatar); if (!ok){ msg.textContent = '❌ Kata sandi salah atau sudah berubah. Kunci lalu buka profil lagi.'; toast('❌ Kata sandi salah'); return; } SB_GAYA[key] = avatar; }
   catch(_){ try { localStorage.setItem('nusawara.gaya.' + key, JSON.stringify(avatar)); } catch(__) {} toast('Jaringan lemah: gaya tersimpan di HP ini dulu.'); }
   syncWalkers({[key]: Object.assign({}, wInfo(key), {avatar})});
   closeStyle(); startFollow(key);
@@ -2953,7 +2972,7 @@ function sbTerimaObrolan(r){
 window.nusawaraChatKirim = async ({k, u, t}) => {
   const s = UNLOCK[k]; if (!s) return;
   SB_PENDING.push({u: k, t});
-  try { const ok = await SB.kirim(k, s, u, t); if (!ok) toast('Pesan tidak terkirim: kata sandi berubah. Buka profil lagi.'); }
+  try { const ok = await SB.kirim(k, s, u, t); if (!ok) toast('❌ Pesan tidak terkirim: kata sandi salah atau sudah berubah. Buka profil lagi.'); }
   catch(e){ toast(/terlalu cepat/.test(e.message) ? 'Tunggu sebentar sebelum mengirim lagi.' : 'Pesan belum terkirim ke warga lain (jaringan).'); }
 };
 (async ()=>{
