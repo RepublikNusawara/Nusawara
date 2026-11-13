@@ -12,14 +12,32 @@ jobs:
       - uses: actions/checkout@v4
       - name: Unduh file
         run: |
-          mkdir -p aset3
-          curl -sSfL -o aset3/p9.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/UZ5SJ90ihIbi1q8texkD/VqHcHPNFVGorVfq5VMJq/content.mp3?Expires=1794531600&KeyName=assets-cdn-key-1&Signature=WGIAd0HLsUJM1nDOfH7uxieZnbE="
-          curl -sSfL -o aset3/j9.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/pA2wrzBWeT0vKRUKd9b4/RFsKF3EgBfLmBv44YBM7/content.mp3?Expires=1794531600&KeyName=assets-cdn-key-1&Signature=SVprljrP3ppewonBbpb1qmpzSLg="
-          ls -la aset3
+          mkdir -p aset4
+          curl -sSfL -o aset4/j10.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/GawZLctiiPsi6EstWKsw/rHDnFIZl1i4k30fsf62W/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=HP4iYwOXC0FlKhwHVYOW-I2RDak="
+          curl -sSfL -o aset4/j11.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/OTe5SuL6TXhVc0jvucgg/SLxzsyx8XxuCUcoONlXU/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=TmPPjCDe3IcMZx3GsxWZecoOkjI="
+          curl -sSfL -o aset4/j12.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/cnANKv5TVnuIWGm9rGEj/mUu39BbfqVWonbtXX750/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=4CtauM5Av13tB_lTSAVFJE_hkLM="
+          curl -sSfL -o aset4/j13.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/FF7tK8OFu3E1ZeJP3YT6/CgFkchFlHdnwY56ahgUR/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=af-l1Nr4hEMNJvxDkM-VE4j3NI8="
+          curl -sSfL -o aset4/j14.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/kWGqfP5gvurhSJLyfVR7/IBpZq0RU6qre0fE3xgNn/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=fCqpeZnH3tsX_K5VefFqhKrgXKU="
+          curl -sSfL -o aset4/j15.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/sepRPr86yOze1j2aG48Q/wNGJUerdTqPjUAltg5BE/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=ZjtoJHrOY0tF42Nj8PotOKJTM3I="
+          curl -sSfL -o aset4/j16.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/zuvXVy2S6chZRUvezKMH/qr2v3hWdD9RQN7AKSpBk/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=dIB741JUb4VcluyS1Wd4LB7iGEw="
+          curl -sSfL -o aset4/j17.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/iJtTwjJc3CoIxMoFiG7U/HKE1cYIAoxipR71hRggP/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=T3tZoxVSr1wAQr4NIticLLlEIeg="
+          curl -sSfL -o aset4/j18.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/CHbeLYKGy4cO9ZoXLNlm/oKAAHU1X9dxDkO2DWyNj/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=lG1W1VzH_KLkKJQcqXySFUg2ipo="
+          curl -sSfL -o aset4/j19.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/muSkcSKCkGeSrC1RmawV/YBgb0zYGj1iQZV8at7mY/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=IPehkhePjtD6Bh4kA1hx4bE0L6A="
+          curl -sSfL -o aset4/p10.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/C3934G5hAg6vtjfuEjRL/ooytdqvJS5hWFe58Gt5W/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=y8hn5J9WyVuNcB4b9BR01qjSz90="
+          curl -sSfL -o aset4/p11.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/JHazgPloWRfl9iUB7KeV/coUwZQaX6T1VHpRxslYP/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=QIaX3oaIq7oKkdWzDSvYJQ-mFHM="
+          curl -sSfL -o aset4/p12.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/hs7HG2TMlmO58H7fDol8/z7ou5jEcerUnUvec3Mgd/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=IoMnDMyz-likFP8tyMC27RfgBW8="
+          curl -sSfL -o aset4/p13.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/fzZOgfbwz1dOiJcohzpG/dWGt5N8BjILXRfnZ1ape/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=1OmfXBxPqpjxD_Sn7P4N5pKgmb4="
+          curl -sSfL -o aset4/p14.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/TGls9T4oSqZPTqPnSGX7/GfRakUQbURifH0xJCATx/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=zZDLZ7rEoAc0fq3m-wK9a2bPbaY="
+          curl -sSfL -o aset4/p15.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/hDiWrl0ypX1yxGIsl5JQ/ZzQlxI3oxIGZORrb0MhT/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=CZ88D30mZOjuYn7Tm8rawx-NTAw="
+          curl -sSfL -o aset4/p16.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/f0cmBVkssjfTeu7Sr43z/yeGV2fKimkRtpzUlN2Gu/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=Xp5Q7TNQvrrPhE9YTK2cMvHFMr4="
+          curl -sSfL -o aset4/p17.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/19lOJq1pgvr65Rht0lZV/JDILVYIx5ys4ggEilrWo/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=M2bgp9TCnImJuGwW5urObY1uQDw="
+          curl -sSfL -o aset4/p18.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/GQd7AUiuQhJDyokWJMAV/Rflitl1oKezkL0V4av9H/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=XFJ4snFZMLn6da9Nm26vw6CuEK0="
+          curl -sSfL -o aset4/p19.mp3 "https://elevenlabsusercontent.com/database/workspace/4ee4162183f742c7886151fbe9d03a47/content_generation/kvb7dCaBQnwL2xMCCw1a/PkQbmA6k4pdCsVlojMJh/content.mp3?Expires=1794542400&KeyName=assets-cdn-key-1&Signature=hUsePhFZ1PHoHh7agaWi8obhEjI="
+          ls -la aset4
       - name: Simpan ke branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add aset3
-          git commit -m "Aset video sementara 2"
+          git add aset4
+          git commit -m "Aset video sementara 4"
           git push
