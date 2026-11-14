@@ -3915,23 +3915,24 @@ tgsMuat(); setInterval(()=>{ if (AKUN.u && !document.hidden) tgsMuat(); }, 60000
 /* ---------- KARAKTER DASAR BARU + WARDROBE + BUTIK NUSAWARA ---------- */
 // Semua warga memakai satu karakter dasar (chibi, botak, satu warna kulit). Penampilan hanya dari item Butik.
 // Catatan: hanya memakai function declaration + cache di window, karena makeAvatar bisa dipanggil sebelum blok ini dijalankan.
-function _avG(){ return window._AVG || (window._AVG = { s: new THREE.SphereGeometry(1,12,9), h: new THREE.SphereGeometry(1,20,14), c: new THREE.CylinderGeometry(1,1,1,12), b: new THREE.BoxGeometry(1,1,1),
+function _avG(){ return window._AVG || (window._AVG = { s: new THREE.SphereGeometry(1,12,9), h: new THREE.SphereGeometry(1,20,14), c: new THREE.CylinderGeometry(1,1,1,12), b: new THREE.BoxGeometry(1,1,1), k: new THREE.ConeGeometry(1,1,8), t: new THREE.TorusGeometry(1,.13,6,16),
   m: new THREE.MeshPhongMaterial({vertexColors:true, shininess:14, specular:0x161616}) }); }
-function Mrg(){ this.p = []; this.n = []; this.c = []; this.i = []; }
+function Mrg(){ this.vp = []; this.vn = []; this.vc = []; this.vi = []; }
 Mrg.prototype.add = function(geo,x,y,z,sx,sy,sz,col,rx,rz){
   const M4 = new THREE.Matrix4().compose(new THREE.Vector3(x,y,z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx||0,0,rz||0)), new THREE.Vector3(sx,sy,sz));
-  const N3 = new THREE.Matrix3().getNormalMatrix(M4), P = geo.attributes.position, N = geo.attributes.normal, base = this.p.length/3, v = new THREE.Vector3(), c = new THREE.Color(col);
-  for (let k=0;k<P.count;k++){ v.fromBufferAttribute(P,k).applyMatrix4(M4); this.p.push(v.x,v.y,v.z); v.fromBufferAttribute(N,k).applyMatrix3(N3).normalize(); this.n.push(v.x,v.y,v.z); this.c.push(c.r,c.g,c.b); }
-  const I = geo.index.array; for (let k=0;k<I.length;k++) this.i.push(I[k] + base); return this; };
+  const N3 = new THREE.Matrix3().getNormalMatrix(M4), P = geo.attributes.position, N = geo.attributes.normal, base = this.vp.length/3, v = new THREE.Vector3(), c = new THREE.Color(col);
+  for (let k=0;k<P.count;k++){ v.fromBufferAttribute(P,k).applyMatrix4(M4); this.vp.push(v.x,v.y,v.z); v.fromBufferAttribute(N,k).applyMatrix3(N3).normalize(); this.vn.push(v.x,v.y,v.z); this.vc.push(c.r,c.g,c.b); }
+  const I = geo.index.array; for (let k=0;k<I.length;k++) this.vi.push(I[k] + base); return this; };
 Mrg.prototype.s = function(x,y,z,sx,sy,sz,col){ return this.add(_avG().s,x,y,z,sx,sy,sz,col); };
 Mrg.prototype.c = function(x,y,z,r,h,rz2,col,rx,rz){ return this.add(_avG().c,x,y,z,r,h,rz2,col,rx,rz); };
 Mrg.prototype.b = function(x,y,z,w,h,d,col,rx,rz){ return this.add(_avG().b,x,y,z,w,h,d,col,rx,rz); };
+Mrg.prototype.k = function(x,y,z,r,h,r2,col,rx,rz){ return this.add(_avG().k,x,y,z,r,h,r2,col,rx,rz); };
 Mrg.prototype.mesh = function(parent){ const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(this.p,3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(this.n,3)); g.setAttribute('color', new THREE.Float32BufferAttribute(this.c,3));
-  g.setIndex(this.i); const m = new THREE.Mesh(g, _avG().m); m.castShadow = true; parent.add(m); return m; };
+  g.setAttribute('position', new THREE.Float32BufferAttribute(this.vp,3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(this.vn,3)); g.setAttribute('color', new THREE.Float32BufferAttribute(this.vc,3));
+  g.setIndex(this.vi); const m = new THREE.Mesh(g, _avG().m); m.castShadow = true; parent.add(m); return m; };
 
 function butikDef(){ return window._BDEF || (window._BDEF = {
-  slot: ['clothes','pants','shoes'],
+  slot: ['clothes','pants','shoes','hair','hats','glasses','wings','weapons','props','emote'],
   def: {clothes:'shirt_default', pants:'shorts_default', shoes:'barefoot', hair:'bald', hats:'no_hat', glasses:'no_glasses', wings:'no_wings', weapons:'no_weapon', props:'no_prop', emote:'normal'},
   clothes: {
     shirt_default:{c:0xf7f7f5, sl:'short', x:'flag'}, shirt_casual_navy:{c:0x1f2f55, sl:'short'}, shirt_casual_black:{c:0x202226, sl:'short'}, shirt_polo:{c:0xf7f7f5, sl:'short', x:'polo'},
@@ -3962,19 +3963,90 @@ function makeAvatar(sp){
   if (sh.x === 'hood'){ T.s(0,1.13,-.11,.17,.12,.13,sh.c).b(0,.8,.168,.17,.07,.02,0x18254a).b(0,1.0,.176,.07,.05,.012,0xffffff); }
   if (sh.x === 'zip'){ T.b(0,.93,.19,.014,.42,.012,NV).c(0,1.135,0,.105,.05,.105,NV).c(0,.72,0,.236,.04,.182,NV); }
   if (sh.x === 'gold'){ T.c(0,.72,0,.236,.04,.182,GD).c(0,1.135,0,.105,.05,.105,GD).b(0,.93,.19,.014,.42,.012,GD); }
+  const WG = {wings_white:[0xffffff,0xe3ebf5,1], wings_gold:[0xf2c21a,0xd9a520,1], wings_dark:[0x2a2a33,0x8a1f1f,1], wings_energy:[0x39d0ff,0x2f6fe0,1], wings_honor_lv30:[0xffffff,0xf2c21a,1.7]}[sp.wings];
+  if (WG) [1,-1].forEach(s=>{ for (let i=0;i<4;i++) T.add(_avG().s, s*(.28+.11*i)*WG[2], 1.02+(.2-.13*i)*WG[2], -.22, (.34-.05*i)*WG[2], .085*WG[2], .025, i%2 ? WG[1] : WG[0], 0, s*(.75-.4*i)); });
+  if (sp.props === 'backpack') T.b(0,.93,-.25,.3,.36,.14,0x8a5a33).b(0,.86,-.33,.2,.14,.03,0x6b4423);
+  if (sp.props === 'camera') T.b(0,.9,.215,.16,.11,.07,0x2a2a2e).c(0,.9,.265,.04,.05,.04,0x555b66,Math.PI/2).b(0,1.02,.195,.012,.16,.012,0x222222);
   T.mesh(m);
   // ----- kepala (botak, satu ekspresi dasar) -----
   const head = new THREE.Group(); head.position.set(0,1.585,0); m.add(head);
-  const fz = (x,y)=>.37*Math.sqrt(Math.max(0, 1 - (x/.405)**2 - (y/.4)**2)), H = new Mrg();
+  const fz = (x,y)=>.37*Math.sqrt(Math.max(0, 1 - (x/.405)**2 - (y/.4)**2)), H = new Mrg(), DK = 0x241a16, MR = 0x7a342c, em = sp.emote || 'normal';
   H.add(_avG().h,0,0,0,.405,.4,.37,SK).s(.4,-.01,-.01,.055,.085,.06,SK).s(-.4,-.01,-.01,.055,.085,.06,SK).s(0,-.06,fz(0,-.06)-.004,.03,.022,.022,0xdca47c);
-  [1,-1].forEach(s=>{ H.s(s*.135,.01,fz(.135,.01)-.012,.052,.078,.03,0x241a16).s(s*.135+.016,.04,fz(.15,.04)+.012,.017,.022,.008,0xffffff).s(s*.2,-.095,fz(.2,-.095)-.012,.045,.026,.012,0xf0988c); });
-  H.s(0,-.135,fz(0,-.135),.05,.013,.012,0x7a342c).s(-.045,-.127,fz(.045,-.127),.014,.014,.01,0x7a342c).s(.045,-.127,fz(.045,-.127),.014,.014,.01,0x7a342c);
+  // ekspresi: mata, alis, mulut
+  const ez = fz(.135,.01), mz = fz(0,-.135), alis = {semangat:.35, marah:.5, sedih:-.4, kaget:0}[em];
+  [1,-1].forEach(s=>{
+    if (em === 'senang' || em === 'tertawa') H.s(s*.135,.02,ez-.004,.062,.016,.014,DK);
+    else H.s(s*.135,.01,ez-.012,.052,em === 'kaget' ? .095 : .078,.03,DK).s(s*.135+.016,.04,fz(.15,.04)+.012,.017,.022,.008,0xffffff);
+    H.s(s*.2,-.095,fz(.2,-.095)-.012,.045,.026,.012,0xf0988c);
+    if (alis !== undefined) H.b(s*.135, em === 'kaget' ? .155 : .128, ez+.004, .1,.02,.012, DK, 0, s*alis);
+    if (em === 'berpikir') H.b(s*.135, s === 1 ? .155 : .125, ez+.004, .1,.02,.012, DK, 0, s === 1 ? .2 : 0);
+  });
+  if (em === 'tertawa') H.s(0,-.14,mz-.006,.075,.05,.015,MR).s(0,-.162,mz+.004,.04,.02,.01,0xe8787a);
+  else if (em === 'kaget') H.s(0,-.14,mz-.004,.03,.042,.014,MR);
+  else if (em === 'berpikir') H.b(.03,-.135,mz,.07,.014,.01,MR);
+  else if (em === 'sedih' || em === 'marah'){ H.s(0,-.13,mz,.05,.013,.012,MR).s(-.045,-.142,fz(.045,-.142),.014,.014,.01,MR).s(.045,-.142,fz(.045,-.142),.014,.014,.01,MR);
+    if (em === 'sedih') H.s(.165,-.075,fz(.165,-.075)+.004,.018,.03,.012,0x5ab4f0);
+    else H.b(.27,.22,fz(.27,.22)+.012,.07,.014,.01,0xe5484d).b(.27,.22,fz(.27,.22)+.012,.014,.07,.01,0xe5484d); }
+  else { const w = em === 'senang' || em === 'semangat' ? 1.35 : 1;
+    H.s(0,-.135,mz,.05*w,.013,.012,MR).s(-.045*w,-.127,fz(.045*w,-.127),.014,.014,.01,MR).s(.045*w,-.127,fz(.045*w,-.127),.014,.014,.01,MR); }
+  // rambut (di bawah topi dibuat tipis supaya tidak menembus topi)
+  const HC = 0x1d1a18, hat = sp.hats && sp.hats !== 'no_hat' ? sp.hats : null; let hr = sp.hair;
+  if (hat && hr && hr !== 'bald' && hr !== 'hair_long') hr = 'hair_crew';
+  if (hr && hr !== 'bald' && /^hair_/.test(hr)){
+    if (hr === 'hair_undercut') H.s(0,.27,-.02,.33,.2,.32,HC).s(0,.33,.17,.26,.09,.14,HC); else H.s(0,.13,-.06,.41,.33,.38,HC);
+    if (!hat){
+      if (hr === 'hair_neat') H.s(0,.31,.19,.3,.09,.13,HC);
+      if (hr === 'hair_sidepart') H.add(_avG().s,.08,.33,.18,.3,.09,.15,HC,0,.25);
+      if (hr === 'hair_messy'){ for (let i=0;i<9;i++){ const a = i*2.4; H.s(Math.cos(a)*.22,.4+(i%3)*.03,Math.sin(a)*.2-.02,.11,.09,.11,HC); } H.s(0,.3,.2,.28,.08,.12,HC); }
+      if (hr === 'hair_spike') for (let i=0;i<7;i++){ const a = i*.9, r = i ? .18 : 0; H.k(Math.cos(a)*r,.52,Math.sin(a)*r-.02,.09,.24,.09,HC); }
+      if (hr === 'hair_wavy') for (let i=0;i<10;i++){ const a = i/10*Math.PI*2; H.s(Math.cos(a)*.36,.17+.05*Math.sin(3*a),Math.sin(a)*.32-.04,.1,.1,.1,HC); }
+      if (hr === 'hair_manbun') H.s(0,.5,-.08,.12,.12,.12,HC);
+    }
+    if (hr === 'hair_long') H.s(0,-.12,-.13,.43,.42,.32,HC);
+  }
+  // topi
+  const dome = (c, ry) => H.s(0,.2,-.01,.425,ry||.3,.395,c);
+  if (hat === 'hat_casual'){ dome(NV); H.b(0,.2,.5,.46,.03,.3,NV,.12).b(0,.33,.352,.1,.07,.012,0xffffff); }
+  if (hat === 'hat_sport'){ dome(0xf7f7f5); H.b(0,.2,.5,.46,.03,.3,NV,.12).b(0,.33,.352,.1,.07,.012,NV); }
+  if (hat === 'bucket_hat'){ dome(0x2a2c30,.28); H.c(0,.17,0,.57,.035,.53,0x2a2c30); }
+  if (hat === 'hat_worker'){ dome(0xf2c21a); H.b(0,.2,.46,.4,.03,.2,0xf2c21a).b(0,.5,-.01,.07,.04,.6,0xd9a520); }
+  if (hat === 'hat_field'){ dome(0xcdb58a,.27); H.c(0,.17,0,.64,.03,.6,0xcdb58a).c(0,.24,0,.432,.05,.402,0x6b4a2e); }
+  if (hat === 'hat_formal') H.c(0,.42,0,.3,.24,.28,0x2a2a2e).c(0,.29,0,.56,.03,.52,0x2a2a2e).c(0,.32,0,.305,.05,.285,0x111111);
+  if (hat === 'pilot_hat') H.c(0,.36,0,.36,.12,.34,NV).c(0,.45,0,.44,.05,.42,NV).b(0,.3,.42,.4,.025,.18,0x111111,.15).s(0,.38,.35,.05,.05,.02,GD);
+  if (hat === 'military_beret') H.s(.04,.36,-.01,.43,.11,.4,0x3f6b35).s(-.2,.37,.27,.04,.05,.02,0xd62828);
+  if (hat === 'crown'){ H.c(0,.42,0,.27,.1,.25,GD).s(0,.42,.25,.03,.03,.02,0xd62828); for (let i=0;i<6;i++){ const a = i/6*Math.PI*2; H.k(Math.cos(a)*.25,.54,Math.sin(a)*.23,.06,.14,.06,GD); } }
+  // kacamata
+  const gl = sp.glasses, gz = ez + .03, fr = (x,w,h2,t,c) => H.b(x,.01+h2/2,gz,w+t,t,.014,c).b(x,.01-h2/2,gz,w+t,t,.014,c).b(x-w/2,.01,gz,t,h2,.014,c).b(x+w/2,.01,gz,t,h2,.014,c);
+  if (gl === 'glasses_basic'){ fr(.135,.15,.11,.016,0x1a1a1a); fr(-.135,.15,.11,.016,0x1a1a1a); H.b(0,.02,gz,.12,.014,.014,0x1a1a1a); }
+  if (gl === 'glasses_square'){ fr(.135,.17,.13,.024,0x1a1a1a); fr(-.135,.17,.13,.024,0x1a1a1a); H.b(0,.02,gz,.1,.02,.014,0x1a1a1a); }
+  if (gl === 'gold_glasses'){ fr(.135,.15,.1,.016,GD); fr(-.135,.15,.1,.016,GD); H.b(0,.02,gz,.12,.014,.014,GD); }
+  if (gl === 'glasses_round'){ H.add(_avG().t,.135,.01,gz,.085,.085,.085,0x1a1a1a).add(_avG().t,-.135,.01,gz,.085,.085,.085,0x1a1a1a).b(0,.02,gz,.1,.014,.014,0x1a1a1a); }
+  if (gl === 'monocle') H.add(_avG().t,-.135,.01,gz,.09,.09,.09,GD).b(-.215,-.1,gz-.03,.008,.17,.008,GD);
+  if (gl === 'sunglasses') H.b(.135,.01,gz,.17,.1,.016,0x111111).b(-.135,.01,gz,.17,.1,.016,0x111111).b(0,.03,gz,.12,.016,.014,0x111111);
+  if (gl === 'glasses_sport') H.b(0,.01,gz,.44,.09,.02,0xf28c1a).b(0,.062,gz,.46,.02,.026,0x222222);
+  if (gl === 'vr_glasses') H.b(0,.02,gz+.03,.46,.16,.1,0x1b1d26).b(0,.02,gz+.082,.36,.04,.01,0x39d0ff);
+  if (gl === 'visor') H.b(0,.03,gz,.48,.1,.02,0x9fd8f0).b(0,.088,gz,.5,.02,.03,0xe8e8ee);
   H.mesh(head);
   // ----- lengan (pivot di bahu) -----
   const arm = s => { const a = new THREE.Group(); a.position.set(s*.235,1.07,0); a.rotation.z = s*.12; m.add(a); const A = new Mrg(), sc = sh.sc || sh.c;
     A.c(0,-.2,0,.065,.4,.065,SK).s(0,-.44,0,.075,.07,.06,SK);
     if (sh.sl === 'none') A.s(0,0,0,.07,.07,.07,SK);
     else { A.s(0,0,0,.086,.086,.086,sc); if (sh.sl === 'short') A.c(0,-.08,0,.082,.18,.082,sc); else A.c(0,-.19,0,.08,.4,.08,sc); }
+    const R = Math.PI/2, wp = s === -1 ? sp.weapons : null, pr = s === 1 ? sp.props : null;
+    if (wp === 'sword') A.c(0,-.44,.02,.022,.14,.022,0x5a3a22,R).b(0,-.44,.1,.16,.035,.035,GD).b(0,-.44,.4,.06,.018,.56,0x9fd8f0);
+    if (wp === 'katana') A.c(0,-.44,.02,.02,.16,.02,0x1a1a1a,R).c(0,-.44,.11,.04,.015,.04,GD,R).b(0,-.44,.46,.03,.014,.68,0xdfe3e8);
+    if (wp === 'spear') A.c(0,-.44,.25,.018,1.2,.018,0x8a5a33,R).k(0,-.44,.93,.045,.16,.045,0xcfd4da,R);
+    if (wp === 'bow_arrow') A.b(0,-.3,.1,.02,.3,.02,0x8a5a33,-.35).b(0,-.58,.1,.02,.3,.02,0x8a5a33,.35).b(0,-.44,.04,.006,.54,.006,0xeeeeee).c(0,-.44,.22,.008,.4,.008,0xcdb58a,R);
+    if (wp === 'magic_staff') A.c(0,-.44,.2,.02,1,.02,0x6b4423,R).c(0,-.44,.67,.04,.03,.04,GD,R).s(0,-.44,.75,.07,.07,.07,0x9b51e0);
+    if (wp === 'trident') A.c(0,-.44,.2,.018,1,.018,GD,R).b(0,-.44,.72,.2,.02,.02,GD).b(0,-.44,.82,.02,.02,.2,GD).b(.09,-.44,.8,.02,.02,.16,GD).b(-.09,-.44,.8,.02,.02,.16,GD);
+    if (pr === 'lollipop') A.c(0,-.36,.05,.008,.2,.008,0xffffff).s(0,-.24,.05,.07,.07,.02,0xff6fa5);
+    if (pr === 'candy_cane') A.c(0,-.36,.05,.014,.26,.014,0xe5484d).c(.03,-.23,.05,.014,.06,.014,0xffffff,0,R);
+    if (pr === 'bucket') A.c(0,-.58,0,.08,.13,.08,0xf2c21a).b(0,-.49,0,.012,.06,.012,0x888888);
+    if (pr === 'frying_pan') A.c(0,-.44,.12,.014,.2,.014,0x222222,R).c(0,-.44,.3,.1,.025,.1,0x2e2e33);
+    if (pr === 'lantern') A.b(0,-.56,.02,.08,.12,.08,0xf2c21a).b(0,-.49,.02,.1,.02,.1,0x2a2a2e).b(0,-.63,.02,.1,.02,.1,0x2a2a2e);
+    if (pr === 'nusawara_flag') A.c(0,-.2,.06,.012,.7,.012,0xdddddd).b(.12,.08,.06,.24,.07,.01,0xd62828).b(.12,.01,.06,.24,.07,.01,0xffffff);
+    if (pr === 'radio') A.b(0,-.44,.06,.06,.12,.035,0x222222).c(.015,-.33,.06,.006,.1,.006,0x222222);
+    if (pr === 'mascot_plush') A.s(0,-.5,.08,.07,.07,.06,0xf2a04a).s(0,-.4,.08,.06,.055,.055,0xf2a04a).k(.035,-.34,.08,.02,.04,.02,0xf2a04a).k(-.035,-.34,.08,.02,.04,.02,0xf2a04a);
     A.mesh(a); return a; };
   const armL = arm(1), armR = arm(-1);
   // ----- kaki (pivot di pinggul) -----
@@ -3991,7 +4063,7 @@ function makeAvatar(sp){
 }
 
 // ----- Wardrobe (menggantikan Studio Gaya) -----
-const BUTIK = {item: [], punya: new Set(), kat: {clothes:'👕 Baju', pants:'👖 Celana', shoes:'👟 Sepatu'}};
+const BUTIK = {item: [], punya: new Set(), kat: {clothes:'👕 Baju', pants:'👖 Celana', shoes:'👟 Sepatu', hair:'💇 Rambut', hats:'🧢 Topi', glasses:'👓 Kacamata', wings:'🪽 Sayap', weapons:'⚔️ Senjata (hiasan)', props:'🎁 Aksesori', emote:'😀 Ekspresi'}};
 async function butikMuat(key){
   if (!BUTIK.item.length){ try { BUTIK.item = await SB.get('butik_item?select=*&order=kategori,urut') || []; } catch(_) {} }
   if (key && UNLOCK[key]){ try { const r = await SB.rpc('koleksi_saya', {p_user: key, p_sandi: UNLOCK[key]}); if (r && r.ok) BUTIK.punya = new Set(r.item); } catch(_) {} }
@@ -3999,10 +4071,10 @@ async function butikMuat(key){
 function stOptions(){
   const sp = st.spec, D = butikDef(); let h = '';
   D.slot.forEach(k=>{ const ls = BUTIK.item.filter(i=>i.kategori === k), cur = ls.find(i=>i.kode === sp[k]), milik = i => i.harga === 0 || BUTIK.punya.has(i.kode);
-    h += `<div class="sg"><h4>${BUTIK.kat[k].toUpperCase()}</h4><div class="ch">${ls.map(i=>`<button data-k="${k}" data-v="${i.kode}" class="${sp[k] === i.kode ? 'on' : ''}">${esc(i.nama)} · ${milik(i) ? (i.harga ? '✓' : 'Gratis') : N$(i.harga)}</button>`).join('')}</div>
-      ${cur && !milik(cur) ? `<button class="btn" data-belibutik="${cur.kode}" style="margin-top:8px">🪙 Beli ${esc(cur.nama)} · ${N$(cur.harga)}</button>` : ''}</div>`; });
+    h += `<div class="sg"><h4>${BUTIK.kat[k].toUpperCase()}</h4><div class="ch">${ls.map(i=>`<button data-k="${k}" data-v="${i.kode}" class="${sp[k] === i.kode ? 'on' : ''}">${esc(i.nama)} · ${milik(i) ? (i.harga ? '✓' : 'Gratis') : i.harga == null ? '🔒 Lv ' + (i.lv || 30) : N$(i.harga)}</button>`).join('')}</div>
+      ${cur && !milik(cur) && cur.harga != null ? `<button class="btn" data-belibutik="${cur.kode}" style="margin-top:8px">🪙 Beli ${esc(cur.nama)} · ${N$(cur.harga)}</button>` : ''}</div>`; });
   if (!BUTIK.item.length) h = '<p class="note">Memuat katalog Butik…</p>';
-  h += '<p class="note">Rambut, topi, kacamata, sayap, senjata, aksesori, dan ekspresi segera hadir di Butik.</p>';
+  h += '<p class="note">Semua item hanya untuk gaya, tidak menambah kekuatan. Sayap Kehormatan Nusawara tidak dijual: hadiah untuk warga Level 30.</p>';
   document.getElementById('stO').innerHTML = h;
 }
 document.getElementById('stR').style.display = 'none';
@@ -4026,11 +4098,11 @@ document.getElementById('stS').onclick = async ()=>{
     document.getElementById('stM').textContent = 'Geser karakter untuk memutar. Ketuk item untuk mencoba; item yang belum dimiliki harus dibeli dulu sebelum disimpan.';
     butikMuat(key).then(()=>{ if (st && st.key === key) stOptions(); }); }; }
 function butikHTML(){
-  const n = BUTIK.item.filter(i=>butikDef().slot.includes(i.kategori)).length;
+  const n = BUTIK.item.filter(i=>i.harga !== 0).length;
   return `<div class="kicker">Milik Negara</div><h2>🛍️ Butik Nusawara</h2>
-    <p class="note">Beli baju, celana, dan sepatu untuk karaktermu. Barang yang dibeli tersimpan permanen di koleksi, dan kamu bisa ganti pakaian kapan saja lewat Wardrobe. Pakaian hanya untuk gaya, tidak menambah kekuatan atau penghasilan. Uang pembelian masuk Kas Negara.</p>
+    <p class="note">Beli baju, celana, sepatu, rambut, topi, kacamata, sayap, senjata hiasan, aksesori, dan ekspresi untuk karaktermu. Barang yang dibeli tersimpan permanen di koleksi, dan kamu bisa ganti pakaian kapan saja lewat Wardrobe. Pakaian hanya untuk gaya, tidak menambah kekuatan atau penghasilan. Uang pembelian masuk Kas Negara.</p>
     ${AKUN.data ? `<button class="btn" data-wardrobe>👕 Buka Wardrobe & belanja${n ? ' (' + n + ' item)' : ''}</button>${saldoBar()}` : perluMasuk()}
-    <div class="card"><h3>Semua warga mulai dari karakter dasar</h3><p class="note">Baju Warga Nusawara, Celana Pendek, dan tanpa sepatu (gratis). Rambut, topi, kacamata, sayap, senjata, aksesori, dan ekspresi segera hadir.</p></div>`;
+    <div class="card"><h3>Semua warga mulai dari karakter dasar</h3><p class="note">Botak, Baju Warga Nusawara, Celana Pendek, tanpa sepatu, dan ekspresi Normal (gratis). Sisanya dibeli di sini.</p></div>`;
 }
 sheetBody.addEventListener('click', e=>{ const t = e.target.closest('[data-wardrobe]'); if (!t || !AKUN.u) return; UNLOCK[AKUN.u] = AKUN.s; closeSheet(); openStyle(AKUN.u); });
 // gedung Butik (area fasilitas, timur Toko Matcha)
