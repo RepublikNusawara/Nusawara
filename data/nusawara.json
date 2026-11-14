@@ -1,848 +1,1642 @@
 {
- "updatedAt": "2026-11-14T10:52:39+11:00",
- "penduduk": 83,
- "warga": {
-  "julianto_jul": {
-   "username": "Julianto_Jul",
-   "niwn": "NUS-000001",
-   "terdaftar": "11 Nov 2026",
-   "houseId": null,
-   "follow": true,
-   "avatar": {
-    "baju": "#1f3a5f",
-    "bajuModel": "jas",
-    "celana": "#c8b48a",
-    "celanaModel": "pendek",
-    "kacamata": "tidak",
-    "kopi": "ya",
-    "kulit": "#e0ac69",
-    "rambut": "#6b4423",
-    "rambutModel": "panjang",
-    "sepatu": "#e74c3c",
-    "topi": "kupluk",
-    "topiWarna": "#f4f1ea"
-   }
-  },
-  "ramatemeh": {
-   "username": "ramatemeh",
-   "niwn": "NUS-000002",
-   "terdaftar": "12 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "liam": {
-   "username": "liam",
-   "niwn": "NUS-000003",
-   "terdaftar": "12 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "harviansyahs": {
-   "username": "harviansyahs",
-   "niwn": "NUS-000004",
-   "terdaftar": "12 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "yamaalghazali": {
-   "username": "yamaalghazali",
-   "niwn": "NUS-000005",
-   "terdaftar": "12 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "martunis": {
-   "username": "Martunis",
-   "niwn": "NUS-000006",
-   "terdaftar": "12 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "sabrigeboy": {
-   "username": "SabriGeboy",
-   "niwn": "NUS-000009",
-   "terdaftar": "12 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "kamugppsab": {
-   "username": "kamugppsab",
-   "niwn": "NUS-000010",
-   "terdaftar": "12 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "khanza": {
-   "username": "Khanza",
-   "niwn": "NUS-000011",
-   "terdaftar": "12 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "msyaquilaazzahra": {
-   "username": "msyaquilaazzahra",
-   "niwn": "NUS-000012",
-   "terdaftar": "12 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "malikha": {
-   "username": "malikha",
-   "niwn": "NUS-000013",
-   "terdaftar": "12 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "rerey": {
-   "username": "rerey",
-   "niwn": "NUS-000014",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "izaa": {
-   "username": "izaa",
-   "niwn": "NUS-000015",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "frii.hart": {
-   "username": "Frii.hart",
-   "niwn": "NUS-000016",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "hakimdunia": {
-   "username": "hakimdunia",
-   "niwn": "NUS-000017",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "rainman": {
-   "username": "rainman",
-   "niwn": "NUS-000018",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "erlanggamakanserangga": {
-   "username": "erlanggamakanserangga",
-   "niwn": "NUS-000019",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "mar.vinn2299": {
-   "username": "mar.vinn2299",
-   "niwn": "NUS-000020",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "_12k1la": {
-   "username": "_12k1la",
-   "niwn": "NUS-000021",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "29_rezky": {
-   "username": "29_Rezky",
-   "niwn": "NUS-000022",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "adityaaaaa_prtm": {
-   "username": "adityaaaaa_prtm",
-   "niwn": "NUS-000023",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "el_ysiaaaa": {
-   "username": "el_ysiaaaa",
-   "niwn": "NUS-000024",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "_ayaaeriee": {
-   "username": "_ayaaeriee",
-   "niwn": "NUS-000025",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "kalilaaa_12": {
-   "username": "kalilaaa_12",
-   "niwn": "NUS-000026",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "nailaaacuteeecantikkkkkkk": {
-   "username": "nailaaacuteeecantikkkkkkk",
-   "niwn": "NUS-000027",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "liaaaa": {
-   "username": "liaaaa",
-   "niwn": "NUS-000028",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "starr_light": {
-   "username": "starr_light",
-   "niwn": "NUS-000029",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "_onyotgeboy": {
-   "username": "_onyotgeboy",
-   "niwn": "NUS-000030",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "ardhiaadia": {
-   "username": "ardhiaadia",
-   "niwn": "NUS-000031",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "zuhana": {
-   "username": "zuhana",
-   "niwn": "NUS-000032",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "mingz_019": {
-   "username": "mingz_019",
-   "niwn": "NUS-000033",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "ilham": {
-   "username": "ilham",
-   "niwn": "NUS-000034",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "rinynatyansya": {
-   "username": "rinynatyansya",
-   "niwn": "NUS-000035",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "__v4nnnnn__": {
-   "username": "__v4nnnnn__",
-   "niwn": "NUS-000036",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "rapaaa_105": {
-   "username": "rapaaa_105",
-   "niwn": "NUS-000037",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "farhan": {
-   "username": "Farhan",
-   "niwn": "NUS-000038",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "dapincupuu": {
-   "username": "dapincupuu",
-   "niwn": "NUS-000039",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "itsme.violaw": {
-   "username": "Itsme.violaw",
-   "niwn": "NUS-000040",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "adrel": {
-   "username": "Adrel",
-   "niwn": "NUS-000041",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "roro": {
-   "username": "Roro",
-   "niwn": "NUS-000042",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "gwen": {
-   "username": "gwen",
-   "niwn": "NUS-000043",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "rangga": {
-   "username": "rangga",
-   "niwn": "NUS-000044",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "kayla": {
-   "username": "kayla",
-   "niwn": "NUS-000045",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "yunyun_016": {
-   "username": "yunyun_016",
-   "niwn": "NUS-000046",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "seraphine224": {
-   "username": "SERAPHINE224",
-   "niwn": "NUS-000047",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "sheinaputriii": {
-   "username": "sheinaputriii",
-   "niwn": "NUS-000048",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "caca": {
-   "username": "caca",
-   "niwn": "NUS-000049",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "aadamaalto": {
-   "username": "aadamaalto",
-   "niwn": "NUS-000050",
-   "terdaftar": "13 Nov 2026",
-   "houseId": "BHR-MAWAR-001",
-   "follow": true
-  },
-  "martin": {
-   "username": "Martin",
-   "niwn": "NUS-000051",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "aatlorenza": {
-   "username": "aatlorenza",
-   "niwn": "NUS-000052",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "ehan": {
-   "username": "Ehan",
-   "niwn": "NUS-000053",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "rhnmlnibrhm_": {
-   "username": "rhnmlnibrhm_",
-   "niwn": "NUS-000054",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "vioo": {
-   "username": "Vioo",
-   "niwn": "NUS-000055",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "poengky_poer": {
-   "username": "Poengky_poer",
-   "niwn": "NUS-000056",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "rizam": {
-   "username": "rizam",
-   "niwn": "NUS-000057",
-   "terdaftar": "13 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "darlingnyasiapa_12": {
-   "username": "Darlingnyasiapa_12",
-   "niwn": "NUS-000058",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "ramnzzz": {
-   "username": "Ramnzzz",
-   "niwn": "NUS-000059",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "olivia__": {
-   "username": "olivia__",
-   "niwn": "NUS-000060",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "restu": {
-   "username": "Restu",
-   "niwn": "NUS-000061",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "rizz_08": {
-   "username": "Rizz_08",
-   "niwn": "NUS-000062",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "abdillahyusufprima": {
-   "username": "Abdillahyusufprima",
-   "niwn": "NUS-000063",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "fajri": {
-   "username": "Fajri",
-   "niwn": "NUS-000064",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "kenzo": {
-   "username": "kenzo",
-   "niwn": "NUS-000065",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "indahhhcuyyy": {
-   "username": "Indahhhcuyyy",
-   "niwn": "NUS-000066",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "muhammaddwiafrizal": {
-   "username": "Muhammaddwiafrizal",
-   "niwn": "NUS-000067",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "adolf_hitlerpikar.28": {
-   "username": "adolf_hitlerpikar.28",
-   "niwn": "NUS-000068",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "vian_ai": {
-   "username": "vian ai",
-   "niwn": "NUS-000069",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "carmecar._": {
-   "username": "carmecar. _",
-   "niwn": "NUS-000070",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "abyan_ganteng": {
-   "username": "abyan ganteng",
-   "niwn": "NUS-000071",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "malik_tawoto": {
-   "username": "malik tawoto",
-   "niwn": "NUS-000072",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "aini_azzahra": {
-   "username": "Aini Azzahra",
-   "niwn": "NUS-000073",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "intan_angraeni": {
-   "username": "Intan Angraeni",
-   "niwn": "NUS-000074",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "aril_joo": {
-   "username": "Aril joo",
-   "niwn": "NUS-000075",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "abiii_baiikbanget": {
-   "username": "abiii baiikbanget",
-   "niwn": "NUS-000076",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "rendra_ayoga": {
-   "username": "Rendra ayoga",
-   "niwn": "NUS-000077",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "rehan_alfa_rizi": {
-   "username": "Rehan Alfa Rizi",
-   "niwn": "NUS-000078",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "rahmat_rafli_saputra": {
-   "username": "Rahmat Rafli Saputra",
-   "niwn": "NUS-000079",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "kona_tiffanyarka": {
-   "username": "Kona Tiffanyarka",
-   "niwn": "NUS-000080",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "egi_panjaitan": {
-   "username": "Egi Panjaitan",
-   "niwn": "NUS-000081",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "akademi_nusawara": {
-   "username": "Akademi Nusawara",
-   "niwn": "NUS-000082",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "zzam": {
-   "username": "zzam",
-   "niwn": "NUS-000083",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "rizilubis_": {
-   "username": "Rizilubis_",
-   "niwn": "NUS-000084",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  },
-  "akademi.nusawara": {
-   "username": "Akademi.Nusawara",
-   "niwn": "NUS-000085",
-   "terdaftar": "14 Nov 2026",
-   "houseId": null,
-   "follow": true
-  }
- },
- "billboards": {
-  "BACKDROP": {
-   "kind": "text",
-   "title": "Republik Nusawara",
-   "sub": "",
-   "bg": "#1f3a5f",
-   "fg": "#ffffff"
-  }
- },
- "rumah": {
-  "BHR-MAWAR-001": {
-   "houseId": "BHR-MAWAR-001",
-   "alamat": "Jalan Mawar No. 1, Distrik Bahari",
-   "username": "aadamaalto",
-   "niwn": "NUS-000050",
-   "since": "14 Nov 2026",
-   "undianNo": 1,
-   "status": "tanah",
-   "desain": null
-  }
- },
- "undian": [
-  {
-   "no": 1,
-   "tanggal": "14 Nov 2026",
-   "houseId": "BHR-MAWAR-001",
-   "alamat": "Jalan Mawar No. 1, Distrik Bahari",
-   "peserta": [
-    {
-     "username": "remetemeh",
-     "niwn": "NUS-000002"
+  "updatedAt": "2026-11-14T18:25:01+11:00",
+  "penduduk": 173,
+  "warga": {
+    "29_rezky": {
+      "username": "29_Rezky",
+      "niwn": "NUS-000022",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "liam",
-     "niwn": "NUS-000003"
+    "4bidz4r": {
+      "username": "4bidz4r",
+      "niwn": "NUS-000111",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "harviansyahs",
-     "niwn": "NUS-000004"
+    "_12k1la": {
+      "username": "_12k1la",
+      "niwn": "NUS-000021",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "yamaalghazali",
-     "niwn": "NUS-000005"
+    "__v4nnnnn__": {
+      "username": "__v4nnnnn__",
+      "niwn": "NUS-000036",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "SabriGeboy",
-     "niwn": "NUS-000009"
+    "_ayaaeriee": {
+      "username": "_ayaaeriee",
+      "niwn": "NUS-000025",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "kamugppsab",
-     "niwn": "NUS-000010"
+    "_onyotgeboy": {
+      "username": "_onyotgeboy",
+      "niwn": "NUS-000030",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "Khanza",
-     "niwn": "NUS-000011"
+    "aadamaalto": {
+      "username": "aadamaalto",
+      "niwn": "NUS-000050",
+      "terdaftar": "13 Nov 2026",
+      "houseId": "BHR-MAWAR-001",
+      "follow": true
     },
-    {
-     "username": "msyaquilaazzahra",
-     "niwn": "NUS-000012"
+    "aatlorenza": {
+      "username": "aatlorenza",
+      "niwn": "NUS-000052",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "malikha",
-     "niwn": "NUS-000013"
+    "abdillahyusufprima": {
+      "username": "Abdillahyusufprima",
+      "niwn": "NUS-000063",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "rerey",
-     "niwn": "NUS-000014"
+    "abiii_baiikbanget": {
+      "username": "abiii baiikbanget",
+      "niwn": "NUS-000076",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "izaa",
-     "niwn": "NUS-000015"
+    "abiiibaiikbanget": {
+      "username": "abiiibaiikbanget",
+      "niwn": "NUS-000156",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "Frii.hart",
-     "niwn": "NUS-000016"
+    "abyan_ganteng": {
+      "username": "abyan ganteng",
+      "niwn": "NUS-000071",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "hakimdunia",
-     "niwn": "NUS-000017"
+    "abyanganteng": {
+      "username": "abyanganteng",
+      "niwn": "NUS-000151",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "rainman",
-     "niwn": "NUS-000018"
+    "adityaaaaa_prtm": {
+      "username": "adityaaaaa_prtm",
+      "niwn": "NUS-000023",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "erlanggamakanserangga",
-     "niwn": "NUS-000019"
+    "adolf_hitlerpikar.28": {
+      "username": "adolf_hitlerpikar.28",
+      "niwn": "NUS-000068",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "mar.vinn2299",
-     "niwn": "NUS-000020"
+    "adrel": {
+      "username": "Adrel",
+      "niwn": "NUS-000041",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "_12k1la",
-     "niwn": "NUS-000021"
+    "aini_azzahra": {
+      "username": "Aini Azzahra",
+      "niwn": "NUS-000073",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "29_Rezky",
-     "niwn": "NUS-000022"
+    "ainiazzahra": {
+      "username": "ainiazzahra",
+      "niwn": "NUS-000153",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "adityaaaaa_prtm",
-     "niwn": "NUS-000023"
+    "akademi.nusawara": {
+      "username": "Akademi.Nusawara",
+      "niwn": "NUS-000085",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "el_ysiaaaa",
-     "niwn": "NUS-000024"
+    "akademi_nusawara": {
+      "username": "Akademi Nusawara",
+      "niwn": "NUS-000082",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "_ayaaeriee",
-     "niwn": "NUS-000025"
+    "akimayato2828": {
+      "username": "AKIMAYATO2828",
+      "niwn": "NUS-000105",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "kalilaaa_12",
-     "niwn": "NUS-000026"
+    "alvaro": {
+      "username": "ALVARO",
+      "niwn": "NUS-000134",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "nailaaacuteeecantikkkkkkk",
-     "niwn": "NUS-000027"
+    "andynieputri": {
+      "username": "AndyniePutri",
+      "niwn": "NUS-000110",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "liaaaa",
-     "niwn": "NUS-000028"
+    "anyong": {
+      "username": "anyong",
+      "niwn": "NUS-000124",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "starr_light",
-     "niwn": "NUS-000029"
+    "ardhiaadia": {
+      "username": "ardhiaadia",
+      "niwn": "NUS-000031",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "_onyotgeboy",
-     "niwn": "NUS-000030"
+    "ariel_satriska": {
+      "username": "ariel satriska",
+      "niwn": "NUS-000132",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "ardhiaadia",
-     "niwn": "NUS-000031"
+    "arielsatriska": {
+      "username": "arielsatriska",
+      "niwn": "NUS-000168",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "zuhana",
-     "niwn": "NUS-000032"
+    "aril_joo": {
+      "username": "Aril joo",
+      "niwn": "NUS-000075",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "mingz_019",
-     "niwn": "NUS-000033"
+    "ariljoo": {
+      "username": "ariljoo",
+      "niwn": "NUS-000155",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "ilham",
-     "niwn": "NUS-000034"
+    "bajrilstyle": {
+      "username": "bajrilstyle",
+      "niwn": "NUS-000129",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "rinynatyansya",
-     "niwn": "NUS-000035"
+    "bangrajab84": {
+      "username": "bangrajab84",
+      "niwn": "NUS-000092",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "__v4nnnnn__",
-     "niwn": "NUS-000036"
+    "billsky": {
+      "username": "billsky",
+      "niwn": "NUS-000113",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "rapaaa_105",
-     "niwn": "NUS-000037"
+    "caca": {
+      "username": "caca",
+      "niwn": "NUS-000049",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "Farhan",
-     "niwn": "NUS-000038"
+    "carmecar._": {
+      "username": "carmecar. _",
+      "niwn": "NUS-000070",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "dapincupuu",
-     "niwn": "NUS-000039"
+    "dapincupuu": {
+      "username": "dapincupuu",
+      "niwn": "NUS-000039",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "Itsme.violaw",
-     "niwn": "NUS-000040"
+    "darlingnyasiapa_12": {
+      "username": "Darlingnyasiapa_12",
+      "niwn": "NUS-000058",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "Adrel",
-     "niwn": "NUS-000041"
+    "dhani": {
+      "username": "dhani",
+      "niwn": "NUS-000125",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "Roro",
-     "niwn": "NUS-000042"
+    "djani": {
+      "username": "djani",
+      "niwn": "NUS-000123",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "gwen",
-     "niwn": "NUS-000043"
+    "donydee": {
+      "username": "donydee",
+      "niwn": "NUS-000128",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "rangga",
-     "niwn": "NUS-000044"
+    "egi_panjaitan": {
+      "username": "Egi Panjaitan",
+      "niwn": "NUS-000081",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "kayla",
-     "niwn": "NUS-000045"
+    "egipanjaitan": {
+      "username": "egipanjaitan",
+      "niwn": "NUS-000160",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "yunyun_016",
-     "niwn": "NUS-000046"
+    "eh_eh_eh": {
+      "username": "eh eh eh",
+      "niwn": "NUS-000089",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "SERAPHINE224",
-     "niwn": "NUS-000047"
+    "ehan": {
+      "username": "Ehan",
+      "niwn": "NUS-000053",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "sheinaputriii",
-     "niwn": "NUS-000048"
+    "eheheh": {
+      "username": "eheheh",
+      "niwn": "NUS-000161",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "caca",
-     "niwn": "NUS-000049"
+    "el_ysiaaaa": {
+      "username": "el_ysiaaaa",
+      "niwn": "NUS-000024",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "aadamaalto",
-     "niwn": "NUS-000050"
+    "elfrado.mrbnn": {
+      "username": "elfrado.mrbnn",
+      "niwn": "NUS-000170",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "Martin",
-     "niwn": "NUS-000051"
+    "erlanggamakanserangga": {
+      "username": "erlanggamakanserangga",
+      "niwn": "NUS-000019",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
     },
-    {
-     "username": "aatlorenza",
-     "niwn": "NUS-000052"
+    "f.rikoo": {
+      "username": "f.rikoo",
+      "niwn": "NUS-000173",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "Ehan",
-     "niwn": "NUS-000053"
+    "fadil": {
+      "username": "fadil",
+      "niwn": "NUS-000090",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "rhnmlnibrhm_",
-     "niwn": "NUS-000054"
+    "fadil_ebelzz": {
+      "username": "fadil_ebelzz",
+      "niwn": "NUS-000115",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "Vioo",
-     "niwn": "NUS-000055"
+    "fahri_pratama": {
+      "username": "fahri_pratama",
+      "niwn": "NUS-000139",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
-    {
-     "username": "Poengky_poer",
-     "niwn": "NUS-000056"
+    "fahripratama": {
+      "username": "fahripratama",
+      "niwn": "NUS-000169",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "fajri": {
+      "username": "Fajri",
+      "niwn": "NUS-000064",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "farhan": {
+      "username": "Farhan",
+      "niwn": "NUS-000038",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "fenndii": {
+      "username": "fenndii",
+      "niwn": "NUS-000138",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "fiqihhh_69": {
+      "username": "fiqihhh_69",
+      "niwn": "NUS-000102",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "frii.hart": {
+      "username": "Frii.hart",
+      "niwn": "NUS-000016",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "galang_lalinglung": {
+      "username": "galang_lalinglung",
+      "niwn": "NUS-000118",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "gaznx": {
+      "username": "gaznx",
+      "niwn": "NUS-000131",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "ghaisanhatta": {
+      "username": "Ghaisanhatta",
+      "niwn": "NUS-000088",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "gwen": {
+      "username": "gwen",
+      "niwn": "NUS-000043",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "hakimdunia": {
+      "username": "hakimdunia",
+      "niwn": "NUS-000017",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "harviansyahs": {
+      "username": "harviansyahs",
+      "niwn": "NUS-000004",
+      "terdaftar": "12 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "hasna_maryam": {
+      "username": "hasna maryam",
+      "niwn": "NUS-000122",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "hasnamaryam": {
+      "username": "hasnamaryam",
+      "niwn": "NUS-000167",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "ilham": {
+      "username": "ilham",
+      "niwn": "NUS-000034",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "indahhcuyy": {
+      "username": "Indahhcuyy",
+      "niwn": "NUS-000112",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "indahhhcuyyy": {
+      "username": "Indahhhcuyyy",
+      "niwn": "NUS-000066",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "intan_angraeni": {
+      "username": "Intan Angraeni",
+      "niwn": "NUS-000074",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "intanangraeni": {
+      "username": "intanangraeni",
+      "niwn": "NUS-000154",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "iruzz": {
+      "username": "iruzz",
+      "niwn": "NUS-000137",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "itsme.violaw": {
+      "username": "Itsme.violaw",
+      "niwn": "NUS-000040",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "izaa": {
+      "username": "izaa",
+      "niwn": "NUS-000015",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "julianto_jul": {
+      "username": "Julianto_Jul",
+      "niwn": "NUS-000001",
+      "terdaftar": "11 Nov 2026",
+      "houseId": null,
+      "follow": true,
+      "avatar": {
+        "baju": "#1f3a5f",
+        "bajuModel": "jas",
+        "celana": "#c8b48a",
+        "celanaModel": "pendek",
+        "kacamata": "tidak",
+        "kopi": "ya",
+        "kulit": "#e0ac69",
+        "rambut": "#6b4423",
+        "rambutModel": "panjang",
+        "sepatu": "#e74c3c",
+        "topi": "kupluk",
+        "topiWarna": "#f4f1ea"
+      }
+    },
+    "kalilaaa_12": {
+      "username": "kalilaaa_12",
+      "niwn": "NUS-000026",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "kamu_gpp_sab": {
+      "username": "kamu gpp sab",
+      "niwn": "NUS-000104",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "kamugppsab": {
+      "username": "kamugppsab",
+      "niwn": "NUS-000010",
+      "terdaftar": "12 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "kanz_kic": {
+      "username": "kanz kic",
+      "niwn": "NUS-000093",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "kanzkic": {
+      "username": "kanzkic",
+      "niwn": "NUS-000163",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "kayla": {
+      "username": "kayla",
+      "niwn": "NUS-000045",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "kejaalucu": {
+      "username": "kejaalucu",
+      "niwn": "NUS-000130",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "kenzo": {
+      "username": "kenzo",
+      "niwn": "NUS-000065",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "keyypretty": {
+      "username": "keyypretty",
+      "niwn": "NUS-000096",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "khanza": {
+      "username": "Khanza",
+      "niwn": "NUS-000011",
+      "terdaftar": "12 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "kimmi": {
+      "username": "kimmi",
+      "niwn": "NUS-000099",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "kkx": {
+      "username": "kkx",
+      "niwn": "NUS-000175",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "kona_tiffanyarka": {
+      "username": "Kona Tiffanyarka",
+      "niwn": "NUS-000080",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "laila_ii": {
+      "username": "laila_ii",
+      "niwn": "NUS-000126",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "levelupgaming078": {
+      "username": "levelupgaming078",
+      "niwn": "NUS-000174",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "liaaaa": {
+      "username": "liaaaa",
+      "niwn": "NUS-000028",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "liam": {
+      "username": "liam",
+      "niwn": "NUS-000003",
+      "terdaftar": "12 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "m.junaedi_rajab": {
+      "username": "M.junaedi rajab",
+      "niwn": "NUS-000091",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "m.junaedirajab": {
+      "username": "m.junaedirajab",
+      "niwn": "NUS-000162",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "malik_tawoto": {
+      "username": "malik tawoto",
+      "niwn": "NUS-000072",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "malikha": {
+      "username": "malikha",
+      "niwn": "NUS-000013",
+      "terdaftar": "12 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "maliktawoto": {
+      "username": "maliktawoto",
+      "niwn": "NUS-000152",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "manzz_kidz": {
+      "username": "manzz kidz",
+      "niwn": "NUS-000121",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "manzzkidz": {
+      "username": "manzzkidz",
+      "niwn": "NUS-000166",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "mar.vinn2299": {
+      "username": "mar.vinn2299",
+      "niwn": "NUS-000020",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "martin": {
+      "username": "Martin",
+      "niwn": "NUS-000051",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "martunis": {
+      "username": "Martunis",
+      "niwn": "NUS-000006",
+      "terdaftar": "12 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "matowkyyy.071126": {
+      "username": "matowkyyy.071126",
+      "niwn": "NUS-000133",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "mingz_019": {
+      "username": "mingz_019",
+      "niwn": "NUS-000033",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "mpruyy": {
+      "username": "mpruyy",
+      "niwn": "NUS-000097",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "msyaquilaazzahra": {
+      "username": "msyaquilaazzahra",
+      "niwn": "NUS-000012",
+      "terdaftar": "12 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "muhamad_ilham": {
+      "username": "Muhamad ilham",
+      "niwn": "NUS-000107",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "muhamadilham": {
+      "username": "muhamadilham",
+      "niwn": "NUS-000164",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "muhammaddwiafrizal": {
+      "username": "Muhammaddwiafrizal",
+      "niwn": "NUS-000067",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "nailaaacuteeecantikkkkkkk": {
+      "username": "nailaaacuteeecantikkkkkkk",
+      "niwn": "NUS-000027",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "nandaboy": {
+      "username": "NANDABOY",
+      "niwn": "NUS-000114",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "natasya": {
+      "username": "natasya",
+      "niwn": "NUS-000087",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "nazwa": {
+      "username": "Nazwa",
+      "niwn": "NUS-000098",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "niyus": {
+      "username": "niyus",
+      "niwn": "NUS-000120",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "olivia__": {
+      "username": "olivia__",
+      "niwn": "NUS-000060",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "opalmorata": {
+      "username": "opalmorata",
+      "niwn": "NUS-000109",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "pahriprtama": {
+      "username": "pahriprtama",
+      "niwn": "NUS-000140",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "poengky_poer": {
+      "username": "Poengky_poer",
+      "niwn": "NUS-000056",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "princee_yanzz01": {
+      "username": "Princee_Yanzz01",
+      "niwn": "NUS-000095",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "radoguanteng": {
+      "username": "radoguanteng",
+      "niwn": "NUS-000172",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "rahmat016": {
+      "username": "Rahmat016",
+      "niwn": "NUS-000094",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "rahmat_rafli_saputra": {
+      "username": "Rahmat Rafli Saputra",
+      "niwn": "NUS-000079",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "rahmatraflisaputra": {
+      "username": "rahmatraflisaputra",
+      "niwn": "NUS-000159",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "rainman": {
+      "username": "rainman",
+      "niwn": "NUS-000018",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "ramatemeh": {
+      "username": "ramatemeh",
+      "niwn": "NUS-000002",
+      "terdaftar": "12 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "ramnzzz": {
+      "username": "Ramnzzz",
+      "niwn": "NUS-000059",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "rangga": {
+      "username": "rangga",
+      "niwn": "NUS-000044",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "rapaaa_105": {
+      "username": "rapaaa_105",
+      "niwn": "NUS-000037",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "rehan_alfa_rizi": {
+      "username": "Rehan Alfa Rizi",
+      "niwn": "NUS-000078",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "rehanalfarizi": {
+      "username": "rehanalfarizi",
+      "niwn": "NUS-000158",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "rendra_ayoga": {
+      "username": "Rendra ayoga",
+      "niwn": "NUS-000077",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "rendraayoga": {
+      "username": "rendraayoga",
+      "niwn": "NUS-000157",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "rerey": {
+      "username": "rerey",
+      "niwn": "NUS-000014",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "restu": {
+      "username": "Restu",
+      "niwn": "NUS-000061",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "rhnmlnibrhm_": {
+      "username": "rhnmlnibrhm_",
+      "niwn": "NUS-000054",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "rinynatyansya": {
+      "username": "rinynatyansya",
+      "niwn": "NUS-000035",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "rizam": {
+      "username": "rizam",
+      "niwn": "NUS-000057",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "rizilubis_": {
+      "username": "Rizilubis_",
+      "niwn": "NUS-000084",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "rizz_08": {
+      "username": "Rizz_08",
+      "niwn": "NUS-000062",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "roro": {
+      "username": "Roro",
+      "niwn": "NUS-000042",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "sabrigeboy": {
+      "username": "SabriGeboy",
+      "niwn": "NUS-000009",
+      "terdaftar": "12 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "seraphine224": {
+      "username": "SERAPHINE224",
+      "niwn": "NUS-000047",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "sheinaputriii": {
+      "username": "sheinaputriii",
+      "niwn": "NUS-000048",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "shiato_kojiro": {
+      "username": "shiato kojiro",
+      "niwn": "NUS-000106",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "shiato_kojirom.raihan_afiq": {
+      "username": "Shiato kojiroM.Raihan Afiq",
+      "niwn": "NUS-000101",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "shiatokojiro": {
+      "username": "shiatokojiro",
+      "niwn": "NUS-000127",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "sikatkain": {
+      "username": "Sikatkain",
+      "niwn": "NUS-000108",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "starr_light": {
+      "username": "starr_light",
+      "niwn": "NUS-000029",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "syha_latuconsina0609": {
+      "username": "Syha_latuconsina0609",
+      "niwn": "NUS-000117",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "ufairahhcall": {
+      "username": "ufairahhcall",
+      "niwn": "NUS-000100",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "upsititutt": {
+      "username": "upsititutt",
+      "niwn": "NUS-000171",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "vian_ai": {
+      "username": "vian ai",
+      "niwn": "NUS-000069",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "viirgogo_": {
+      "username": "viirgogo_",
+      "niwn": "NUS-000135",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "vioo": {
+      "username": "Vioo",
+      "niwn": "NUS-000055",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "warga_06450678": {
+      "username": "warga_06450678",
+      "niwn": "NUS-000149",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_115f1e0f": {
+      "username": "warga_115f1e0f",
+      "niwn": "NUS-000146",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_22262ef6": {
+      "username": "warga_22262ef6",
+      "niwn": "NUS-000142",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_2e2b4a69": {
+      "username": "warga_2e2b4a69",
+      "niwn": "NUS-000143",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_4d20ec6e": {
+      "username": "warga_4d20ec6e",
+      "niwn": "NUS-000141",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_64b613bb": {
+      "username": "warga_64b613bb",
+      "niwn": "NUS-000150",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_9ef42724": {
+      "username": "warga_9ef42724",
+      "niwn": "NUS-000147",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_b1cbc21d": {
+      "username": "warga_b1cbc21d",
+      "niwn": "NUS-000144",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_c69f5c82": {
+      "username": "warga_c69f5c82",
+      "niwn": "NUS-000148",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_d3b8ede3": {
+      "username": "warga_d3b8ede3",
+      "niwn": "NUS-000119",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_df465f8c": {
+      "username": "warga_df465f8c",
+      "niwn": "NUS-000145",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "yamaalghazali": {
+      "username": "yamaalghazali",
+      "niwn": "NUS-000005",
+      "terdaftar": "12 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "yolatuuuu874": {
+      "username": "yolatuuuu874",
+      "niwn": "NUS-000103",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "younkbayu": {
+      "username": "younkbayu",
+      "niwn": "NUS-000086",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "yuda_pratama": {
+      "username": "Yuda Pratama",
+      "niwn": "NUS-000116",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "yudapratama": {
+      "username": "yudapratama",
+      "niwn": "NUS-000165",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "yunyun_016": {
+      "username": "yunyun_016",
+      "niwn": "NUS-000046",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "zuhana": {
+      "username": "zuhana",
+      "niwn": "NUS-000032",
+      "terdaftar": "13 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "zuhana836": {
+      "username": "zuhana836",
+      "niwn": "NUS-000136",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
+    },
+    "zzam": {
+      "username": "zzam",
+      "niwn": "NUS-000083",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": true
     }
-   ],
-   "winner": {
-    "username": "aadamaalto",
-    "niwn": "NUS-000050"
-   }
+  },
+  "billboards": {
+    "BACKDROP": {
+      "kind": "text",
+      "title": "Republik Nusawara",
+      "sub": "",
+      "bg": "#1f3a5f",
+      "fg": "#ffffff"
+    }
+  },
+  "rumah": {
+    "BHR-MAWAR-001": {
+      "houseId": "BHR-MAWAR-001",
+      "alamat": "Jalan Mawar No. 1, Distrik Bahari",
+      "username": "aadamaalto",
+      "niwn": "NUS-000050",
+      "since": "14 Nov 2026",
+      "undianNo": 1,
+      "status": "dibangun",
+      "desain": "merah"
+    }
+  },
+  "undian": [
+    {
+      "no": 1,
+      "tanggal": "14 Nov 2026",
+      "houseId": "BHR-MAWAR-001",
+      "alamat": "Jalan Mawar No. 1, Distrik Bahari",
+      "peserta": [
+        {
+          "username": "remetemeh",
+          "niwn": "NUS-000002"
+        },
+        {
+          "username": "liam",
+          "niwn": "NUS-000003"
+        },
+        {
+          "username": "harviansyahs",
+          "niwn": "NUS-000004"
+        },
+        {
+          "username": "yamaalghazali",
+          "niwn": "NUS-000005"
+        },
+        {
+          "username": "SabriGeboy",
+          "niwn": "NUS-000009"
+        },
+        {
+          "username": "kamugppsab",
+          "niwn": "NUS-000010"
+        },
+        {
+          "username": "Khanza",
+          "niwn": "NUS-000011"
+        },
+        {
+          "username": "msyaquilaazzahra",
+          "niwn": "NUS-000012"
+        },
+        {
+          "username": "malikha",
+          "niwn": "NUS-000013"
+        },
+        {
+          "username": "rerey",
+          "niwn": "NUS-000014"
+        },
+        {
+          "username": "izaa",
+          "niwn": "NUS-000015"
+        },
+        {
+          "username": "Frii.hart",
+          "niwn": "NUS-000016"
+        },
+        {
+          "username": "hakimdunia",
+          "niwn": "NUS-000017"
+        },
+        {
+          "username": "rainman",
+          "niwn": "NUS-000018"
+        },
+        {
+          "username": "erlanggamakanserangga",
+          "niwn": "NUS-000019"
+        },
+        {
+          "username": "mar.vinn2299",
+          "niwn": "NUS-000020"
+        },
+        {
+          "username": "_12k1la",
+          "niwn": "NUS-000021"
+        },
+        {
+          "username": "29_Rezky",
+          "niwn": "NUS-000022"
+        },
+        {
+          "username": "adityaaaaa_prtm",
+          "niwn": "NUS-000023"
+        },
+        {
+          "username": "el_ysiaaaa",
+          "niwn": "NUS-000024"
+        },
+        {
+          "username": "_ayaaeriee",
+          "niwn": "NUS-000025"
+        },
+        {
+          "username": "kalilaaa_12",
+          "niwn": "NUS-000026"
+        },
+        {
+          "username": "nailaaacuteeecantikkkkkkk",
+          "niwn": "NUS-000027"
+        },
+        {
+          "username": "liaaaa",
+          "niwn": "NUS-000028"
+        },
+        {
+          "username": "starr_light",
+          "niwn": "NUS-000029"
+        },
+        {
+          "username": "_onyotgeboy",
+          "niwn": "NUS-000030"
+        },
+        {
+          "username": "ardhiaadia",
+          "niwn": "NUS-000031"
+        },
+        {
+          "username": "zuhana",
+          "niwn": "NUS-000032"
+        },
+        {
+          "username": "mingz_019",
+          "niwn": "NUS-000033"
+        },
+        {
+          "username": "ilham",
+          "niwn": "NUS-000034"
+        },
+        {
+          "username": "rinynatyansya",
+          "niwn": "NUS-000035"
+        },
+        {
+          "username": "__v4nnnnn__",
+          "niwn": "NUS-000036"
+        },
+        {
+          "username": "rapaaa_105",
+          "niwn": "NUS-000037"
+        },
+        {
+          "username": "Farhan",
+          "niwn": "NUS-000038"
+        },
+        {
+          "username": "dapincupuu",
+          "niwn": "NUS-000039"
+        },
+        {
+          "username": "Itsme.violaw",
+          "niwn": "NUS-000040"
+        },
+        {
+          "username": "Adrel",
+          "niwn": "NUS-000041"
+        },
+        {
+          "username": "Roro",
+          "niwn": "NUS-000042"
+        },
+        {
+          "username": "gwen",
+          "niwn": "NUS-000043"
+        },
+        {
+          "username": "rangga",
+          "niwn": "NUS-000044"
+        },
+        {
+          "username": "kayla",
+          "niwn": "NUS-000045"
+        },
+        {
+          "username": "yunyun_016",
+          "niwn": "NUS-000046"
+        },
+        {
+          "username": "SERAPHINE224",
+          "niwn": "NUS-000047"
+        },
+        {
+          "username": "sheinaputriii",
+          "niwn": "NUS-000048"
+        },
+        {
+          "username": "caca",
+          "niwn": "NUS-000049"
+        },
+        {
+          "username": "aadamaalto",
+          "niwn": "NUS-000050"
+        },
+        {
+          "username": "Martin",
+          "niwn": "NUS-000051"
+        },
+        {
+          "username": "aatlorenza",
+          "niwn": "NUS-000052"
+        },
+        {
+          "username": "Ehan",
+          "niwn": "NUS-000053"
+        },
+        {
+          "username": "rhnmlnibrhm_",
+          "niwn": "NUS-000054"
+        },
+        {
+          "username": "Vioo",
+          "niwn": "NUS-000055"
+        },
+        {
+          "username": "Poengky_poer",
+          "niwn": "NUS-000056"
+        }
+      ],
+      "winner": {
+        "username": "aadamaalto",
+        "niwn": "NUS-000050"
+      }
+    }
+  ],
+  "kunci": {
+    "29_rezky": "8119aace1ae0c07d838aaf20d91a8e0f2f499d72ab34c4bd0bc388d4af0832b3",
+    "4bidz4r": "85fb7187d6cb272db91850f898fc3747c1ae86293f70e576d300441c1b784859",
+    "_12k1la": "747f5134f9141de7e4fd3f676391b2024a5b4964953bc13c0635c2f87a4bd8a7",
+    "__v4nnnnn__": "cb9dc84fb4b18985fc32ea7c1060795f3c94ac319946e930124edd341bafff5d",
+    "_ayaaeriee": "294ad840e9b6f5363cc790f87d40086dbb7e20094e1571fd9363e617b76c405c",
+    "_onyotgeboy": "c7ca021eefc8804387912bb5f4ff6e6287aaeef134d115e451f002fca0d847df",
+    "aadamaalto": "cca450c351c5570a781f97187495c1dc44b852d924649c1a3a4ca65fc2641e29",
+    "aatlorenza": "7948497c69c9159a56311ec0830f6fc2aba1bbbe1fc457a7b66cf12f90c050d6",
+    "abdillahyusufprima": "d65ad6f9e75b2725bb85e1b930dc90863989ca74b720cb5678122fce8b688bac",
+    "abiii_baiikbanget": "791e64214bd0d136da270365c64e43aaba9df5beab92b31f0555ed308315780a",
+    "abiiibaiikbanget": "cf3d7dcc5fa3e304abea07196119652ac68b3bc2378e614311765b6d97b0ed4f",
+    "abyan_ganteng": "9c166d26436aa29a1fe2aeb074b4d661fb61a078a780108bbc1b9ba1433ad982",
+    "abyanganteng": "098bac75e11aa0002f80c19f87e10df88e1683e78ca14aab9740969e15c583d8",
+    "adityaaaaa_prtm": "f94b57634ef71b3b3df86c93e4b0e3424dcbfa6e0c78945bcd343fd683053800",
+    "adolf_hitlerpikar.28": "24824dabc3d41e9baf276a1157043a04896d73791ade2485ce674fb55479cd66",
+    "adrel": "514c6a1561688b06d93489c025bd917256661b123a049123cc814d47e79b3e08",
+    "aini_azzahra": "162fc3d4af7d85c468c8b3f78db44e35972b9a110c7c1a365610f834539e3f5e",
+    "ainiazzahra": "dc263dab2362c77ff8de656504324181ada7505200736b56b96babf6dc81d74b",
+    "akademi_nusawara": "c6e7b438458a0e20b232f65fc9494a38a3ab76f3f43f908a6ab858368e8c66a7",
+    "akimayato2828": "4c08028121eab6b890a58d12f5b10f09be25ef15631e4cdc674c4f27de47214d",
+    "alvaro": "e0ffd87c318dd5abec91409d0d2b5d9ccc81187ab59a71300f597bbb18734fa9",
+    "andynieputri": "17d0b8cb64a2746f2775ce8ef59f87af58ba45fb5478527bf4799141ace25e64",
+    "anyong": "3a50ddef3cf06933ad59e949c17f6822f6805f838549c89bef5ab0a01766ff63",
+    "ardhiaadia": "3022a56eccb908874ca06ca3da9c8f00c23c92bab0e0d4146d5a553b81b6617f",
+    "ariel_satriska": "6eee02b368c8eea3e24302e40a7950d41b5d333ee934643f4f5b24d697476efa",
+    "arielsatriska": "c0d57cc7afee675192772d3679b5437c023f68cfa960a2cf95e7a7c2705a1221",
+    "aril_joo": "16fa5ff83422572c646171d55c67fb93f5c9ddb69ef81cd9d042a33147ef3b04",
+    "ariljoo": "e87223111df95d5d92949e057921ef38bbf905824374f43a6b3767b484c7c627",
+    "bajrilstyle": "31f23aecbe77616a49f417467ccdd4f1e30c3e4ab2ed4ff3cdd91f46f25d483b",
+    "bangrajab84": "028c1ee16afbfda45a4b00f288d7fbf65cbcb5f6fdd5e0fbf15f9862a3830128",
+    "billsky": "58b5f1ca92a5a654c9740bb6abdbec04975998cf1f4cbdb9080c8589593ea30a",
+    "carmecar._": "51653d6ac8eb5f9fb5af74c9977e399ef72dc60ac1e612764a86b4aa515a8b40",
+    "darlingnyasiapa_12": "dfedf4fd692ad8fd0fee8e9d93a27dd01b7a9f941a8bbc3df8263d72c551bd64",
+    "dhani": "f54372badee3da7f0e647a7da19247d68d2696c60b52f272c145a1c7a2e82dcf",
+    "djani": "9080303525be9bd5e30e5c6c1636c548b7b04199bc77ecb1a5e63ab8c4508a3b",
+    "donydee": "41050fa76942497c273522670317dd6b82f2bd5c9396ca0392b0ff8bb59733cc",
+    "egi_panjaitan": "7140f08b07ffdb4b5f30ef7741b302bb7c088e1cc2e681be74b78e26b6b21d68",
+    "egipanjaitan": "236248fe93bb8186aaeb9a7c97f680b2927fa1f5aa378ff17934f0c5f77d41f6",
+    "eh_eh_eh": "322f808400e4f5bfed3985f983c243e9b96a8d83f57aa46db9e871072fc71c64",
+    "ehan": "34c394ca087bccbe48da3ac96f2768174efab97458aac1a64bb566b7f2b8dd6f",
+    "eheheh": "0b5cb37e6ad122f224bbcaf83b9c9cd06c2d2c6d540bc00ae907be8365ff97ab",
+    "el_ysiaaaa": "e155defb5a574190e55d29368a112fb045d41d39e376d82a13654ca062b6156e",
+    "elfrado.mrbnn": "fd34ea99891fd0694a52831b07607dee27fe577bd15b46cd1c8b56988e7c9cd4",
+    "erlanggamakanserangga": "a4ac6319100010a5173733dfc2644b603b09b97550abd195b9ec22f8119b3708",
+    "f.rikoo": "e8d1f5742ba103917da968029433fcf948e1a98d794d1f40e4296cc7eccaa296",
+    "fadil": "d0d3b120bba2e7370d2971c38b3c5d83a277cdafee5e67f03cfd3621858c3102",
+    "fadil_ebelzz": "6e8c4f005b6db10254f2a7ea3882900af33bb5b11d4e4bbf6ea14527a0d1e1cd",
+    "fahri_pratama": "8fedb13d63fe5a9ac2f3d1026eba382c73d64875939e66745045d07dce5991a8",
+    "fahripratama": "f7086304f338c2c7ae333ce8727ded04df6a17b78eb84d15413ea842c9efe22c",
+    "fajri": "e3566c5177c20142383e5c0c8ecf7686944ac62884035a618ff6b0bf30121b12",
+    "farhan": "60c5108deb61dd7785ee0e150b789bed776cbb7377a883d21ebe56d022aced2b",
+    "fenndii": "06acc071b66574ff9483d08f41dd27fe9d65d2885d55f9568f90abebbd94689d",
+    "fiqihhh_69": "f91f65250dfca9cc2305fd04a0b7fef25916b1fc5b792de12ab9c23cd47e5bf5",
+    "frii.hart": "5eaf4763cdb940054ee74832a4db2f73978c9a8c83eb9f4334491de43cc701a1",
+    "galang_lalinglung": "6f7085bd1fc469697c4ac5b2ad9e90e5c242b8cfcf615b4973fe82486e1ec675",
+    "gaznx": "ca539646a87419876e0eed9341d5407e99862bff878c38f5f724c1b96dc80e43",
+    "ghaisanhatta": "354bd854066c4d65d039baef7a44473bfa30358621e70f48702d1fa787c5e528",
+    "gwen": "032ac4e8d14b00bd2e0062a10bbf2a73f9f9bfb3229f4963e401889a0e32438a",
+    "hakimdunia": "06f727a2cd55e1919e2da37d20f39f4d9ec41ac9b6897982fe0ec6268f4d5ba9",
+    "harviansyahs": "3c1bbd10bacec386a7354b6134b1cf44412ff47b9a442e2133c1057d7d8506ff",
+    "hasna_maryam": "34f33d8159a975793c643bccc2807b067635041bc9fdf4e835fb56438b9ad39c",
+    "hasnamaryam": "8b1753dddeb2a2e8b52529b3ca0dea0f99c98fa8c63d7d21b1796d7609e145b8",
+    "ilham": "a285c5481b810aabf811a0d490fdc6cc7364fd184f4f12fa23deba5ba40a7cbf",
+    "indahhcuyy": "a43352b773a402a77cd65ad67f3443d3ba39a1c88411de12bd96102b52ee4719",
+    "indahhhcuyyy": "e8b7f52ed4d8191807a074c7d7ad99e11effceb4ba4980bd7cd2b290798e3cab",
+    "intan_angraeni": "eb28bb0cda0ea8d3c445277b304f1342dff35b43f9da0dfe9ff7a1f5be5c15b8",
+    "intanangraeni": "cf4f0cbefff8fd1e3bc4fe5d3d2fdcd79b643e2aee9d656935bf86d9d3cfa3aa",
+    "iruzz": "823b65c35ff7c3350b91da1a379c05868a5365cbdfe77752d0b4b890e0592d54",
+    "itsme.violaw": "4c91f186472895a9811a7583788fc206779c1dba4d2c09586c1a5ecbd015e58b",
+    "izaa": "56df38831b5c7ab04578c886d4950e9b01bee6d7b5d78a285235bd29e6f0391e",
+    "julianto_jul": "57408c2153bace76e076921f04b8d5513cd282609ae56dc2c985a149b57eaf8b",
+    "kamu_gpp_sab": "e45f54a73a092b2b1aa2fa5275d0c70d17d221ba0b1f2bed51ff837bd58d75b4",
+    "kamugppsab": "d2f5a9ab45d7aa1e28525d5b895bd83b8aa99174af2979cf765dcdcdfc89b19b",
+    "kanz_kic": "b04349b931488da178cafe62af73a9b0913e8aeedef6b02ac6ac5c722ffe6fc3",
+    "kayla": "d902616bc6aaf4d224f9901fa4655a06aae63da8d662ad7d18063b6e047b0dcf",
+    "kejaalucu": "001051b38fd9b8cdeee969c50e6b23cbb1009ef73e27c120a27d6332e2b64b2c",
+    "kenzo": "593de6d9ba3741905ccc42ac830055f9a110dd1e2bc4c18f57a37781d2cd4441",
+    "keyypretty": "437a42db9c59e1088671a41a8af7d9e375b1971bd59b9b6965c59842b1baf448",
+    "khanza": "9e4be24374c276a92db439a35147a6457c7c95d66b43b77b7e094e5e3ebe7d89",
+    "kimmi": "9e8839c877243222c6ee94b6b998444e5b5952e34c0e20ba389d3b7042dfe87c",
+    "kkx": "49f358ec1892b0c450d168eddfccb121f72f29180972fcb4e4f51083e437fcdd",
+    "kona_tiffanyarka": "961bc01ba362dfbd5da1a8400428ea86e67b50e57ebab7c757d73c760acc4297",
+    "laila_ii": "1e3e422079a27f2368c79c69b73464eea2a1aa64b112dbd5a48893f912c592d5",
+    "levelupgaming078": "e091e5219839d635688bc747beb0a9d96076f2707a282e1cfe63498b53a3205f",
+    "liam": "391aa01f7e098b1ef07a08153348ca164b4c4049b6e9a7858489376066f5c192",
+    "m.junaedi_rajab": "511bcb20809cd240188ed15eae81521532996b305c17f528f62ed7630fd5356d",
+    "m.junaedirajab": "e1554a43021f266d4f96beba6fef261f1db8b490f24d187aff419ff2faef3f22",
+    "malik_tawoto": "e0228f18b7baf626b8c82271874669c4b4c4a7ece3c983bd6656c52b41cf8a20",
+    "malikha": "f649bb781c58e87fd600c7677af41ec2b168cf291f022f6a4b41f20ca49aa3bf",
+    "maliktawoto": "3193036f31d90a10c568a7236abc8a7c850690a01fa83d814fccf173adb0b601",
+    "manzz_kidz": "ba9338c0ec96672c636518b50173c010ac4a85c0e5edeeafc673f562aa757d5e",
+    "manzzkidz": "d471b15f932657888bb33ad5a98c0c6d07ba9e7cb58b0c7428e5521662e4d58e",
+    "mar.vinn2299": "23c657c1bb547b7516239c1002731e43d5361fef527cc5a4bd2121fb3c1b2434",
+    "martin": "c1ffb90eef73800a7a47c6d27a57b45263fcecd27741ef21e8b471fc9a616f3b",
+    "martunis": "8956256af474282c11c67dd953488e7fc3ddb431d26a02abeb808642e568a764",
+    "matowkyyy.071126": "8c487d519784f1b64e21f519d7e6582181a9e5cdf00eff33af419053034ded07",
+    "mingz_019": "b6775630f6f9d287cb9ce7360baa85bbd446b9d0edc58c6d4bf846208ce647bc",
+    "mpruyy": "17709f5e038c7170eefcbac8d7133dd365b77dae8cffde79729db33ab716b1e8",
+    "msyaquilaazzahra": "46ab839bb186806269188a1f997c8bb3a1db085f52028eb1aeb401605572bc5e",
+    "muhamad_ilham": "73d4c32b4046c5d8b829c74a0f1b2ef3aad45f97c6498e37565e6e9caa2157c3",
+    "muhamadilham": "a456616278de2a81ee01333026eb551bc382a77f4aa3a06aed37215b1497ce2d",
+    "muhammaddwiafrizal": "ff6a605ba0926a15cf036bbc22258786a164fb29cd6b707d1680187fadf52986",
+    "nailaaacuteeecantikkkkkkk": "f642f2abd0d2f2fb28e00d45de825a2c532d58bd028fbc71084a9f12041e4187",
+    "nandaboy": "af533e6f260a2e0abbfdadee96393841eb9c2e9166dc9e51a79c076262cbcb4c",
+    "natasya": "de69cef099d47ba7bac211486e70bc50167758637168ef4ed68880e6aca1da02",
+    "nazwa": "c2c685fe83745b4d76ecd146ac1fa7b86c663cab42ab229a83855af176240c01",
+    "niyus": "81c80a1cc58b84a65ae163f70b10c868e746df60c8faee29accbd535b8b4b3b8",
+    "olivia__": "a89f30da5b3f74d665162ca4c7744c7fe0215acf70badd39728198fe3c3ea8c9",
+    "opalmorata": "4c5f2b9bf62c9cc8c767ab76855e5cd22588731dac9bb7b829db1d7d8c426d26",
+    "pahriprtama": "6523279e460cd77401f5fb7f6b19d3e3250710eed30b997b83e6736aa0e9d4ab",
+    "poengky_poer": "7e123d031954cade8473049db6fdf4e2d85b9de9f92a7f24a5153409d5ef2121",
+    "princee_yanzz01": "89d2492b9e272a614935a58cd4930ee70d2d19183a60a7f3723dcbf898691435",
+    "radoguanteng": "17ca114280e34e5b4adfc1cbfaba46be9bcc3659b26c997975e08a8130678f6d",
+    "rahmat016": "3438926e5a5debfb0f44400b6b766f9482dca8660a3a39818c4003acfe069b4e",
+    "rahmat_rafli_saputra": "6b169b7e0e1afe78656390005536a7d928cb2ed088ba86573dc74e047427a7df",
+    "rahmatraflisaputra": "5185aad8095bbaa4410f886e2cdae5e5943cccf7d84e0cc1c6916385aae2323e",
+    "rainman": "f6a9c473b50c9fba427bf491b2f2297ae5b959017c183522f9b1ba71187cd65c",
+    "ramatemeh": "0ed511ad4e9e8e990a2b3539ad4ddf1b436a1e1630bd75ee7b3a7ebb3e816576",
+    "ramnzzz": "00677c26cd8917281b7528ec9c006b9b1d4c63dbca3bb10a6137ef4a94bfc58a",
+    "rangga": "4e4e5199e233d296ec1876d0d6938ad96dc9441333f0d67929330b8e935229a9",
+    "rapaaa_105": "5011d6769adf472b5913bfeba6058b2cf1f9e915d257ec39ad8b90197967d3b9",
+    "rehan_alfa_rizi": "40f0c9240b1266354b32abc35fc73b33c2dddc8fc463d24fb9609ecd813d75b2",
+    "rehanalfarizi": "aef819a862064c2092f2dfca9eaa72db210eb42e98124c2cfd952c37f3b2ad91",
+    "rendra_ayoga": "acc3ed32c7ef1348bba3d39b54c2ff86a1557fa3cf9c08408c0bf516047a047f",
+    "rendraayoga": "4eb50ed84a0d824cb71556581b7ed6d69ec34b9486a939d2a0255c987117379b",
+    "rerey": "f0132e99834a911119d1f7c1ee3aaf6d31aa197f3c30113519dec3795fa6417e",
+    "restu": "688ab975270d18098f2726378d0fd4fe678c153afbebb30ae9a1145b96805d1f",
+    "rhnmlnibrhm_": "a2e3e70e86c02ea62c6dc8d30234802083015f218060325f110bc0d685af11c4",
+    "rinynatyansya": "fa4f17edb26ff2cad823a08f290c948e72c91fde0f671f1136a7d48ce8406684",
+    "rizilubis_": "328cf059f26cadc8df0537ac0a0ade7b5ea3bab196274ffe703c18b12aae901b",
+    "rizz_08": "337a6b5d3491194e15f24351959a86fc3649ee07af4d9105584639fb20c31a2d",
+    "roro": "a1aa07db92077537f8ae26870ac78c27223b9045e367ba06a5305c29875735e2",
+    "sabrigeboy": "c021f32c25bef98d8eade500c743a2d5df457b7a0d3428d832cebede5c1aaf9f",
+    "seraphine224": "e7fb69b9a41a37da1b69babd1f6a16d39bd8684ac81ad7386a601f30cd0ff713",
+    "sheinaputriii": "a839737dbe0998ee53bdd62847e26247f169091168c7b4861ee12c2718b881ac",
+    "shiato_kojiro": "224bcc5da8cca9ea43800e33af19564db30c401efbceee2a71a8572b521c54d2",
+    "shiato_kojirom.raihan_afiq": "b48df027537041a0c73574c78ae09928f8d2e23aa6c1ea976d6601cea6858f2c",
+    "shiatokojiro": "91959e777ee299c8fd40f5f3efa36703e8e739d0d5e69c346469ddb3ec966906",
+    "sikatkain": "321624010b4fe17921a41414607a4312fc6b0d92fd4bf589e787e111e1a00fd5",
+    "starr_light": "817e2c475325ed59e97e3d9ce21c98f41fe9746ff767502c5bcaa2d8b5c4f2d3",
+    "syha_latuconsina0609": "b6845eb897886d5a7cc3169e7fb5f23aba8e31b722a88bb58fa5f2522d6c06e7",
+    "ufairahhcall": "3caea1c5f4a259f93db06ae9b646b7481615e32b8900e2ad74ad91eadb08ef65",
+    "upsititutt": "0e7206193ce31955e760922766f33ef72e7308fe0be9c157a5148bd1b057d20c",
+    "vian_ai": "adfb2390c7fbd0c7ccab4c54fef867c4b4a27d2271827a2cc1616ad35d893c77",
+    "viirgogo_": "2a73543ed5b8eae9f66ba763009e22eadf434fbf8588e868dec24d590c411a66",
+    "vioo": "bf5f131269c356ab24d81745b8eb03a6ffe12bdf26a4187af6765083a09c5590",
+    "warga_06450678": "f73ae540d58039788c56f548ec8f415530b0f1b6714eb66b435bef6eb8139637",
+    "warga_115f1e0f": "2d02249d44321277af17eb2a9a91d23706654c3787c200d248e7aaa8d3c662ac",
+    "warga_22262ef6": "6480562f8fec6a51cd545cf411f519fd206f3071115da8eb4bc5fff5b35205a7",
+    "warga_2e2b4a69": "e9a570f8bcd6b6660240a777251c815d47bf81b05216f8c20826b3b5d327e4d6",
+    "warga_4d20ec6e": "5cc6f95965a1ba29cfc2cdad892e05d5a03563a80d582fb4b7b54366c66e59eb",
+    "warga_64b613bb": "84d4ca6fa9a60ae83f4ab2dc5faebcc42f072c2e653a2d20bf67fae37662ad18",
+    "warga_9ef42724": "137c2ae9aeb3ae5067988f93e99ef934a94c84441b85f0082c4416c57b2a9186",
+    "warga_b1cbc21d": "e120b5adf9a6537dc317cb927a6dd336ba079e9e137b3afa436211808a3ca22a",
+    "warga_c69f5c82": "d653419a030783777b0d3bf978ed8a1211a519ed60290f03310c93b3fc805af8",
+    "warga_d3b8ede3": "9510020f8a27710a6995210f10deae772a210d0c9104433a67275ce0341e2e1f",
+    "warga_df465f8c": "246845bc4b0c4b47320ee57c713b2f0dfe92e0438707f0570e41c3c392c446a9",
+    "yamaalghazali": "818f00ae4f50c9cb764a6828ec13ad81ac413cbc37e8fb8f2308a4d8364a9c39",
+    "yolatuuuu874": "f2ddc2ceec7df511426fe142eb7b489a744233a9624c073d67b3b3921d7a0d76",
+    "younkbayu": "a9ed9381029d43364a25cfc19498ed8926276620df3e5375147b88ebfb8b1a8c",
+    "yuda_pratama": "f2369e57ffd0078c4a39985779f18a0b7a3d62ece09e081eb2da6fe2160f9eb0",
+    "yudapratama": "ceec025cb4f9cb6e65933cbe960d85560d1c710ca4b033fa5243a01693b6cbf0",
+    "yunyun_016": "3f62e2361481733b13a0d8d9c0df3fd6b3f09d7534f10c62e5eca8b159e45c71",
+    "zuhana": "d1702eb0819e0ebe3325b3540792f297358bda9b714460ded1205ae41a44099c",
+    "zuhana836": "d3ecf7316ca1ad1b5157f54d17f097a3fa79ecfac73807fa94cda7a66647a833",
+    "zzam": "aa25b44f6ae55d177e149d4a8dc2cc4c2e99c118222eeac60ce74bdcc55bc7fc"
   }
- ],
- "kunci": {
-  "julianto_jul": "0c29b97300c8d682961c4763e3af2b49c6fb1cbf8bdc827834a8a994f52da8f8",
-  "liam": "391aa01f7e098b1ef07a08153348ca164b4c4049b6e9a7858489376066f5c192"
- }
 }
