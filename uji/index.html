@@ -3208,8 +3208,9 @@ function akunHTML(){
     <p class="note">Hari 1–2: N$50 · Hari 3–5: N$75 · Hari 6 dst: N$100 per hari. Lewat sehari (reset 00.00 WIB) = bolos, ulang dari hari 1.</p>
     ${d.sudah_absen ? `<button class="btn ghost" disabled>✓ Sudah absen hari ini · besok ${N$(HADIAH_HARI(next))}</button>`
       : `<button class="btn" id="akAbsen">Klaim absen · +${N$(HADIAH_HARI(next))}</button>`}</div>
+  ${tanahCard()}
   <div class="card"><h3>🎒 Tas</h3><div class="tasg">${tas || '<p class="note">Memuat…</p>'}</div></div>
-  <div class="prow" style="margin-top:8px"><button class="btn ghost" data-pergi="tambang">⛏️ Tambang</button><button class="btn ghost" data-pergi="industri">🏭 Pabrik</button><button class="btn ghost" data-pergi="prn">🏪 Pasar (PRN)</button></div>
+  <div class="prow" style="margin-top:8px"><button class="btn ghost" data-pergi="kavling">🏞️ Kavling</button><button class="btn ghost" data-pergi="donasi">🤝 Donasi</button></div><div class="prow"><button class="btn ghost" data-pergi="tambang">⛏️ Tambang</button><button class="btn ghost" data-pergi="industri">🏭 Pabrik</button><button class="btn ghost" data-pergi="prn">🏪 Pasar (PRN)</button></div>
   <div class="prow" style="margin-top:8px"><button class="btn ghost" id="akProfil">🪪 Kartu Warga</button><button class="btn ghost" id="akOut">🚪 Keluar</button></div>`;
 }
 akunBtn.addEventListener('click', async ()=>{ openSheet(akunHTML); if (AKUN.u) await akunMuat(); });
@@ -3392,6 +3393,8 @@ const sisaDetik = kode => { const t = AKUN.data && AKUN.data.tambang && AKUN.dat
 const perluMasuk = () => `<div class="card"><p>Masuk dulu supaya hasilnya tersimpan di akunmu.</p><button class="btn" data-eko-masuk>🔑 Masuk</button></div>`;
 const saldoBar = () => AKUN.data ? `<p class="note">Saldo: <b>${N$(AKUN.data.saldo)}</b></p>` : '';
 function ekoHTML(id){
+  if (/^PST-BLK-/.test(id)) return kavHTML(id);
+  if (id === 'EKO-DONASI') return donasiHTML();
   const e = EKO[id]; if (!e) return '';
   let h = `<div class="kicker">Kawasan Industri Nusawara</div><h2>${esc(e.nama)}</h2>${saldoBar()}`;
   if (e.k === 'tambang'){
@@ -3420,7 +3423,7 @@ function ekoHTML(id){
   }
   return h;
 }
-const ALASAN = {sandi:'❌ Kata sandi berubah. Masuk lagi.', batas:'Sudah 10× hari ini. Kembali besok!', tunggu:'⏳ Belum bisa, tunggu sebentar.', saldo_kurang:'❌ Saldo N$ tidak cukup.', barang_kurang:'❌ Bahan di tas tidak cukup.', jumlah:'❌ Jumlah tidak valid.'};
+const ALASAN = {sandi:'❌ Kata sandi berubah. Masuk lagi.', batas:'Sudah 10× hari ini. Kembali besok!', tunggu:'⏳ Belum bisa, tunggu sebentar.', saldo_kurang:'❌ Saldo N$ tidak cukup.', barang_kurang:'❌ Bahan di tas tidak cukup.', jumlah:'❌ Jumlah tidak valid.', sudah_punya:'❌ Kamu sudah punya kavling/tanah. Satu warga satu kavling.', terjual:'❌ Kavling ini sudah terjual.', lengkap:'✓ Bahan ini sudah lengkap.', tidak_perlu:'Bahan ini tidak dibutuhkan.', tanpa_kavling:'Kamu belum punya kavling.'};
 async function ekoAksi(btn, fn, args, sukses){
   btn.disabled = true;
   try { const r = await SB.rpc(fn, Object.assign({p_user: AKUN.u, p_sandi: AKUN.s}, args));
@@ -3431,7 +3434,7 @@ async function ekoAksi(btn, fn, args, sukses){
 sheetBody.addEventListener('click', e=>{
   const t = e.target.closest('button'); if (!t) return;
   if (t.hasAttribute('data-eko-masuk')) { openSheet(akunHTML); return; }
-  if (t.dataset.pergi){ const e2 = t.dataset.pergi === 'prn' ? EKO['EKO-PRN'] : t.dataset.pergi === 'tambang' ? {x:-59, z:150} : {x:-62, z:-100}; closeSheet();
+  if (t.dataset.pergi){ const e2 = t.dataset.pergi === 'kavling' ? {x:19, z:-128} : t.dataset.pergi === 'donasi' ? {x:50, z:-30} : t.dataset.pergi === 'prn' ? EKO['EKO-PRN'] : t.dataset.pergi === 'tambang' ? {x:-59, z:150} : {x:-62, z:-100}; closeSheet();
     flyTo(new THREE.Vector3(e2.x, 2, e2.z), t.dataset.pergi === 'tambang' ? new THREE.Vector3(e2.x + 70, 80, e2.z + 40) : new THREE.Vector3(e2.x + 10, 30, e2.z + 38)); return; }
   if (t.dataset.tambang) ekoAksi(t, 'menambang', {p_tambang: t.dataset.tambang}, r=>{ const b = brg(r.barang);
     popHadiah('+' + r.jumlah + ' ' + b.ikon); sfx(220, .12, 'square', .07, 0, 140); toast(`${b.ikon} +${r.jumlah} ${b.nama} masuk tas (${r.kali}/${r.batas} hari ini)`); });
@@ -3448,6 +3451,106 @@ setInterval(()=>{ document.querySelectorAll('[data-cd]').forEach(el=>{ const s =
   if (s > 0) el.textContent = '⏳ Tunggu ' + s + ' detik'; else if (sheetFn) sheetBody.innerHTML = sheetFn(); }); }, 1000);
 (async ()=>{ try { (await SB.get('tambang?select=*&order=urut')).forEach(x=>TAMBANG.push(x)); (await SB.get('resep?select=*&order=urut')).forEach(x=>RESEP.push(x)); } catch(_) {}
   if (sheet.classList.contains('open') && sheetFn && sheetFn.eko) sheetBody.innerHTML = sheetFn(); })();
+
+/* ---------- TAHAP 3: kavling negara, bahan bangunan rumah, donasi fasilitas ---------- */
+const KAV = {}, KEB = {}, PROYEK = [], PKEB = {}; let PAPAN = [];
+const LBL = {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'};
+const kavPos = k => ({x: -12 + (k.kolom-1)*12.5, z: -110 - (k.baris-1)*15});
+const kavMesh = {};
+(()=>{ box(78,.12,4,0x4b5059,19,.06,-101.5); [-2.4,51].forEach(x=>box(3,.12,66,0x4b5059,x,.06,-134));
+  const l = label('🏞️ KAVLING NEGARA · N$1.000', LBL); l.position.set(19, 9, -100); scene.add(l); })();
+function kavGambar(id){
+  const k = KAV[id]; if (!k) return; const P = kavPos(k);
+  let g = kavMesh[id]; if (!g){ g = new THREE.Group(); g.position.set(P.x, 0, P.z); scene.add(g); kavMesh[id] = g; g.userData = {type:'eko', data:{id}}; pickables.push(g); }
+  while (g.children.length) g.remove(g.children[0]);
+  const milik = !!k.username, saya = AKUN.u && k.username === AKUN.u;
+  box(10,.25,12,milik ? (k.status === 'siap' ? 0x9ccf7a : 0xd8c08f) : 0xc9b48a,0,.13,0,g);
+  [[-5,-6],[5,-6],[-5,6],[5,6]].forEach(([x,z])=>box(.25,.9,.25,saya ? 0xf2b134 : 0xffffff,x,.45,z,g));
+  box(.2,2.2,.2,0x6b4a2e,3.8,1.1,5.4,g);
+  const w = milik ? wInfo(k.username) : null;
+  const t = milik ? '@' + String((w && w.username) || k.username).replace(/^@+/,'') + (k.status === 'siap' ? ' · bahan lengkap' : '')
+                  : '🪧 DIJUAL · ' + N$(k.harga);
+  const lb = label(t, {h:.9, size:28, bg: milik ? 'rgba(255,253,248,.95)' : 'rgba(242,177,52,.96)', fg: milik ? '#1f3a5f' : '#3a2600'});
+  lb.position.set(0, 3.2, 5.4); g.add(lb);
+}
+// Papan Donasi (menghadap +z, dekat lahan fasilitas usulan warga)
+const DON = new THREE.Group(); DON.position.set(50, 0, -30); scene.add(DON); DON.userData = {type:'eko', data:{id:'EKO-DONASI'}}; pickables.push(DON);
+[-4.2,4.2].forEach(x=>box(.4,7,.4,0x3a3f46,x,3.5,0,DON)); box(9.2,5.6,.3,0x1f3a5f,0,5,-.05,DON);
+const donMat = new THREE.MeshBasicMaterial({}); const donPlane = new THREE.Mesh(new THREE.PlaneGeometry(8.8,5.2), donMat); donPlane.position.set(0,5,.12); DON.add(donPlane);
+{ const l = label('🤝 PAPAN DONASI', LBL); l.position.set(0, 9.2, 0); DON.add(l); }
+function donGambar(){
+  donMat.map = canvasTex(880, 520, (c,W,H)=>{ c.fillStyle = '#1f3a5f'; c.fillRect(0,0,W,H); c.fillStyle = '#f2b134'; c.fillRect(0,0,W,78);
+    c.fillStyle = '#1f3a5f'; c.font = `800 44px ${FONT}`; c.textAlign = 'center'; c.fillText('PAHLAWAN PEMBANGUNAN', W/2, 54);
+    c.textAlign = 'left'; c.font = `700 36px ${FONT}`;
+    if (!PAPAN.length){ c.fillStyle = '#fff'; c.textAlign = 'center'; c.fillText('Belum ada donasi. Jadilah yang pertama!', W/2, 280); return; }
+    PAPAN.slice(0,6).forEach((r,i)=>{ const y = 140 + i*66; c.fillStyle = i < 3 ? '#f2b134' : '#ffffff';
+      c.fillText(`${i+1}. @${String(r.nama || r.username).replace(/^@+/,'').slice(0,20)}`, 40, y); c.textAlign = 'right'; c.fillText(N$(r.nilai), W-40, y); c.textAlign = 'left'; }); });
+  donMat.needsUpdate = true;
+}
+donGambar();
+async function tahap3Muat(){
+  try { (await SB.get('kavling?select=id,baris,kolom,harga,username,status&order=id')).forEach(k=>{ KAV[k.id] = k; }); } catch(_) {}
+  try { for (const k in KEB) delete KEB[k]; (await SB.get('bangun_kebutuhan?select=kavling,barang,jumlah,terkumpul')).forEach(r=>{ (KEB[r.kavling] = KEB[r.kavling] || []).push(r); }); } catch(_) {}
+  try { const p = await SB.get('proyek?select=kode,nama,ikon,status&status=eq.dibangun&order=urut'); PROYEK.length = 0; p.forEach(x=>PROYEK.push(x)); } catch(_) {}
+  try { for (const k in PKEB) delete PKEB[k]; (await SB.get('proyek_kebutuhan?select=proyek,barang,jumlah,terkumpul')).forEach(r=>{ (PKEB[r.proyek] = PKEB[r.proyek] || []).push(r); }); } catch(_) {}
+  try { PAPAN = await SB.rpc('papan_donasi', {}) || []; } catch(_) {}
+  Object.keys(KAV).forEach(kavGambar); donGambar();
+  if (sheet.classList.contains('open') && sheetFn && (sheetFn === akunHTML || sheetFn.eko)) sheetBody.innerHTML = sheetFn();
+}
+tahap3Muat(); setInterval(tahap3Muat, 60000);
+const kavSaya = () => AKUN.u ? Object.values(KAV).find(k=>k.username === AKUN.u) : null;
+const bar = (a,b) => `<div style="height:8px;border-radius:6px;background:#e3e6ea;overflow:hidden;margin-top:4px"><div style="height:100%;width:${Math.min(100, b ? a/b*100 : 0)}%;background:#2fb5a8"></div></div>`;
+function tanahCard(){
+  const k = kavSaya(); if (!k) return `<div class="card"><h3>🏞️ Tanah</h3><p class="note">Belum punya kavling. Beli kavling negara seharga ${N$(1000)} di belakang Distrik Pusat.</p></div>`;
+  const keb = KEB[k.id] || [], ok = keb.filter(r=>r.terkumpul >= r.jumlah).length;
+  return `<div class="card"><h3>🏞️ Tanah · ${esc(k.id)}</h3><p class="note">${k.status === 'siap' ? '✅ Bahan lengkap, menunggu dibangun Presiden.' : keb.length ? `Bahan terkumpul ${ok}/${keb.length} jenis.` : 'Kirim desain rumahmu, lalu Presiden menetapkan bahan yang dibutuhkan.'}</p>
+    <button class="btn ghost" data-kav="${esc(k.id)}">Buka kavling</button></div>`;
+}
+function bahanRows(list, attr, sumber){
+  return list.map(r=>{ const b = brg(r.barang), kurang = r.jumlah - r.terkumpul;
+    return `<div class="jrow"><span class="ji">${b.ikon}</span><span class="jt"><b>${esc(b.nama)} · ${r.terkumpul}/${r.jumlah}</b>${bar(r.terkumpul, r.jumlah)}<small>${kurang > 0 ? 'Kurang ' + kurang : '✓ Lengkap'}${AKUN.data ? ' · di tas ' + punya(r.barang) : ''}</small></span>
+      ${AKUN.data && kurang > 0 ? `<input type="number" min="1" value="${Math.max(1, Math.min(kurang, punya(r.barang)))}" id="${attr}-${esc(sumber)}-${r.barang}" style="font:inherit;width:56px;padding:7px;border:1px solid var(--line);border-radius:10px">
+      <button class="btn" data-${attr}="${esc(sumber)}|${r.barang}" ${punya(r.barang) ? '' : 'disabled'}>Setor</button>` : ''}</div>`; }).join('');
+}
+function kavHTML(id){
+  const k = KAV[id]; if (!k) return '<p class="note">Memuat…</p>';
+  let h = `<div class="kicker">Kavling Negara · Distrik Pusat</div><h2>🏞️ ${esc(k.id)}</h2>${saldoBar()}`;
+  if (!k.username){
+    h += `<div class="card"><h3>Dijual · ${N$(k.harga)}</h3><p>Beli tanah ini, kumpulkan bahan bangunan sesuai desain rumahmu, lalu Presiden membangunnya di sini. Satu warga hanya boleh punya satu kavling.</p>
+      ${AKUN.data ? `<button class="btn" data-beli="${esc(k.id)}" ${AKUN.data.saldo < k.harga ? 'disabled' : ''}>${AKUN.data.saldo < k.harga ? 'Saldo belum cukup (' + N$(AKUN.data.saldo) + ')' : 'Beli kavling · ' + N$(k.harga)}</button>` : ''}</div>`;
+    return h + (AKUN.data ? '' : perluMasuk());
+  }
+  const w = wInfo(k.username), nm = '@' + String((w && w.username) || k.username).replace(/^@+/,''), saya = AKUN.u === k.username, keb = KEB[k.id] || [];
+  h += `<div class="card"><h3>Pemilik</h3><p><b>${esc(nm)}</b></p></div>`;
+  if (k.status === 'siap') h += `<div class="card"><h3>✅ Bahan lengkap</h3><p>Semua bahan sudah terkumpul. Rumah akan segera dibangun oleh Presiden.</p></div>`;
+  if (!saya) return h + (keb.length ? `<div class="card"><h3>🧱 Bahan bangunan</h3>${bahanRows(keb, 'x', k.id)}</div>` : '');
+  if (!keb.length){
+    const q = new URLSearchParams({username: String((w && w.username) || k.username).replace(/^@+/,''), niwn: (w && w.niwn) || '', kavling: k.id, kode: AKUN.s});
+    h += `<div class="card"><h3>📐 Langkah berikutnya</h3><p>1. Kirim desain rumah impianmu (wajib rumah/ruko dengan billboard).<br>2. Presiden menetapkan bahan yang dibutuhkan.<br>3. Kumpulkan & setor bahannya di sini.<br>4. Presiden membangun rumahmu.</p>
+      <a class="btn" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box" href="https://tally.so/r/gbdDpK?${q}" target="_blank" rel="noopener">Kirim desain rumah</a></div>`;
+  } else if (k.status !== 'siap') h += `<div class="card"><h3>🧱 Bahan yang dibutuhkan</h3><p class="note">Setor bahan dari tasmu. Ditetapkan Presiden sesuai desain rumahmu.</p>${bahanRows(keb, 'setor', k.id)}</div>`;
+  return h;
+}
+function donasiHTML(){
+  let h = `<div class="kicker">Membangun Republik Bersama</div><h2>🤝 Papan Donasi</h2>${saldoBar()}`;
+  if (!PROYEK.length) h += `<div class="card"><h3>🏗️ Fasilitas yang sedang dibangun</h3><p class="note">Belum ada fasilitas yang membutuhkan bahan saat ini.</p></div>`;
+  PROYEK.forEach(p=>{ h += `<div class="card"><h3>${p.ikon} ${esc(p.nama)}</h3><p class="note">Bahan yang masih dibutuhkan. Setiap bahan yang kamu donasikan tercatat di Papan Donasi.</p>${bahanRows(PKEB[p.kode] || [], 'don', p.kode)}</div>`; });
+  if (!AKUN.data) h += perluMasuk();
+  h += `<div class="card"><h3>🏆 Pahlawan Pembangunan</h3>${PAPAN.length ? PAPAN.map((r,i)=>`<div class="jrow"><span class="ji">${i < 3 ? ['🥇','🥈','🥉'][i] : i+1}</span><span class="jt"><b>@${esc(String(r.nama || r.username).replace(/^@+/,''))}</b><small>${r.jumlah} bahan disumbangkan</small></span><b>${N$(r.nilai)}</b></div>`).join('') : '<p class="note">Belum ada donasi.</p>'}
+    <p class="note">Nilai donasi dihitung dari harga beli bahan di PRN.</p></div>`;
+  return h;
+}
+sheetBody.addEventListener('click', e=>{
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.kav){ const k = KAV[t.dataset.kav]; closeSheet(); const P = kavPos(k); flyTo(new THREE.Vector3(P.x, 1, P.z), new THREE.Vector3(P.x + 6, 18, P.z + 24));
+    setTimeout(()=>{ const f = ()=>kavHTML(k.id); f.eko = 1; openSheet(f); }, 900); return; }
+  if (t.dataset.beli) ekoAksi(t, 'beli_kavling', {p_id: t.dataset.beli}, r=>{ popHadiah('🏞️ ' + r.id); sfx(520, .25, 'sine', .08, 0, 1040);
+    toast('🎉 Selamat! Kavling ' + r.id + ' sekarang milikmu.'); tahap3Muat(); });
+  const sb = t.dataset.setor || t.dataset.don; if (sb){ const [src, kode] = sb.split('|'), pre = t.dataset.setor ? 'setor' : 'don';
+    const n = Math.max(1, parseInt((document.getElementById(pre + '-' + src + '-' + kode)||{}).value) || 1), b = brg(kode);
+    if (pre === 'setor') ekoAksi(t, 'setor_bangun', {p_barang: kode, p_jumlah: n}, r=>{ popHadiah('🧱 ' + r.jumlah + ' ' + b.ikon); toast(`Setor ${r.jumlah} ${b.nama} ke kavlingmu`); tahap3Muat(); });
+    else ekoAksi(t, 'donasi_bahan', {p_proyek: src, p_barang: kode, p_jumlah: n}, r=>{ popHadiah('🤝 ' + r.jumlah + ' ' + b.ikon); toast(`Terima kasih! Donasi ${r.jumlah} ${b.nama} (${N$(r.nilai)}) tercatat.`); tahap3Muat(); }); }
+});
 
 renderer.domElement.addEventListener('pointerdown', e=>{ if (ctl.key) ctl.drag = {x:e.clientX, y:e.clientY, id:e.pointerId}; });
 addEventListener('pointermove', e=>{ if (!ctl.key || !ctl.drag || e.pointerId !== ctl.drag.id) return;
