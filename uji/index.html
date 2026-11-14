@@ -1124,6 +1124,7 @@ function presHTML(){
     <button class="btn" id="ctrlBtn" style="margin-top:8px">${playing ? 'Lanjut berjalan' : '🕹️ Kendalikan Presiden'}</button>`;
 }
 function focusObj(obj){
+  if (typeof followKey !== 'undefined') followKey = null;
   const t = obj.userData.type, p = obj.getWorldPosition(new THREE.Vector3());
   if (t==='fasilitas'){ select(null); openSheet(()=>fasHTML(obj.userData.data.id)); hideHint(); return; }
   if (t==='eko'){ select(null); const f = ()=>ekoHTML(obj.userData.data.id); f.eko = 1; openSheet(f); hideHint(); return; }
@@ -2696,7 +2697,7 @@ function syncWalkers(list){
     const sig = JSON.stringify(avatarSpec(WINFO[key]));
     const ex = WALKERS[key];
     if (ex && ex.sig === sig) return;
-    if (!ex){ const zk = isFollow(WINFO[key].follow) ? 'kota' : 'pelabuhan';
+    if (!ex && !(window.FORCE_WALK && FORCE_WALK[key])){ const zk = isFollow(WINFO[key].follow) ? 'kota' : 'pelabuhan';
       if (Object.values(WALKERS).filter(x=>(isFollow((WINFO[x.key]||{}).follow) ? 'kota' : 'pelabuhan') === zk).length >= MAX_WALKERS) return; }
     if (ex){ scene.remove(ex.av.g); [ex.av.g, ex.tag].forEach(o=>{ const pi = pickables.indexOf(o); if (pi >= 0) pickables.splice(pi,1); }); }
     const av = makeAvatar(avatarSpec(WINFO[key]));
@@ -2761,14 +2762,25 @@ function updateWalkers(dt, time){
 
 /* ---------- KAMERA MENGIKUTI KARAKTER ---------- */
 let followKey = null;
-controls.addEventListener('start', ()=>{ followKey = null; });
-function startFollow(key){ if (!WALKERS[key]) { toast('Karakter belum muncul di peta.'); return; } if (playing) setPlay(false); anim = null; followKey = key; }
+let followLast = null, followFly = 0;
+function startFollow(key){
+  if (!WALKERS[key]){ const w = wInfo(key); if (w){ (window.FORCE_WALK = window.FORCE_WALK || {})[key] = 1; syncWalkers({[key]: w}); } }   // munculkan karakternya walau kuota pejalan penuh
+  if (!WALKERS[key]) { toast('Karakter belum muncul di peta.'); return; }
+  if (playing) setPlay(false); anim = null; closeSheet(); followKey = key; followLast = null; followFly = 1.2;
+}
+const fBtn = document.createElement('button'); fBtn.className = 'akunbtn'; fBtn.style.cssText = 'position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:6;display:none';
+fBtn.textContent = '✕ Berhenti mengikuti'; fBtn.onclick = ()=>{ followKey = null; }; document.body.appendChild(fBtn);
 function updateFollow(dt){
-  if (!followKey || !WALKERS[followKey] || anim) return;
-  const p = WALKERS[followKey].av.g.position, open = sheet.classList.contains('open');
-  const tg = new THREE.Vector3(p.x, 1.4, p.z + (open ? 4.2 : 0)), cam = tg.clone().add(new THREE.Vector3(3.5, open ? 8 : 6, open ? 14 : 11));
-  const k = Math.min(1, dt*3.5);
-  controls.target.lerp(tg, k); camera.position.lerp(cam, k);
+  const on = !!(followKey && WALKERS[followKey]); fBtn.style.display = on ? '' : 'none';
+  if (!on || anim) return;
+  const p = WALKERS[followKey].av.g.position;
+  if (followFly > 0){                       // terbang ke karakter
+    followFly -= dt; const tg = new THREE.Vector3(p.x, 1.4, p.z), k = Math.min(1, dt*4);
+    controls.target.lerp(tg, k); camera.position.lerp(tg.clone().add(new THREE.Vector3(3.5, 6, 11)), k); followLast = p.clone(); return; }
+  // lalu ikut bergerak bersama karakter; kamera bebas diputar & di-zoom ke segala arah
+  if (!followLast) followLast = p.clone();
+  const d = new THREE.Vector3(p.x - followLast.x, 0, p.z - followLast.z);
+  controls.target.add(d); camera.position.add(d); followLast.copy(p);
 }
 
 /* ---------- KARTU PROFIL WARGA ---------- */
@@ -3195,7 +3207,7 @@ function akunHTML(){
     ${d.sudah_absen ? `<button class="btn ghost" disabled>✓ Sudah absen hari ini · besok ${N$(HADIAH_HARI(next))}</button>`
       : `<button class="btn" id="akAbsen">Klaim absen · +${N$(HADIAH_HARI(next))}</button>`}</div>
   <div class="card"><h3>🎒 Tas</h3><div class="tasg">${tas || '<p class="note">Memuat…</p>'}</div></div>
-  <div class="prow" style="margin-top:8px"><button class="btn ghost" data-pergi="industri">🏭 Kawasan Industri</button><button class="btn ghost" data-pergi="prn">🏪 Pasar (PRN)</button></div>
+  <div class="prow" style="margin-top:8px"><button class="btn ghost" data-pergi="tambang">⛏️ Tambang</button><button class="btn ghost" data-pergi="industri">🏭 Pabrik</button><button class="btn ghost" data-pergi="prn">🏪 Pasar (PRN)</button></div>
   <div class="prow" style="margin-top:8px"><button class="btn ghost" id="akProfil">🪪 Kartu Warga</button><button class="btn ghost" id="akOut">🚪 Keluar</button></div>`;
 }
 akunBtn.addEventListener('click', async ()=>{ openSheet(akunHTML); if (AKUN.u) await akunMuat(); });
@@ -3232,9 +3244,9 @@ sheetBody.addEventListener('click', async e=>{
 // Letak: utara Pelabuhan Nusawara (sisi barat). Semua papan nama menghadap +z, searah podium.
 const TAMBANG = [], RESEP = [];
 const EKO = {
-  'EKO-BESI':  {k:'tambang', kode:'besi',  nama:'Tambang Besi', x:-80, z:-70},
-  'EKO-HUTAN': {k:'tambang', kode:'hutan', nama:'Hutan Produksi', x:-62, z:-70},
-  'EKO-PASIR': {k:'tambang', kode:'pasir', nama:'Tambang Pasir & Batu', x:-44, z:-70},
+  'EKO-BESI':  {k:'tambang', kode:'besi',  nama:'Tambang Besi', x:-59, z:118},
+  'EKO-HUTAN': {k:'tambang', kode:'hutan', nama:'Hutan Produksi', x:-59, z:164},
+  'EKO-PASIR': {k:'tambang', kode:'pasir', nama:'Tambang Pasir & Batu', x:-59, z:210},
   'EKO-BAJA':  {k:'pabrik', pabrik:'Pabrik Baja', nama:'Pabrik Baja', x:-75, z:-92},
   'EKO-KAYU':  {k:'pabrik', pabrik:'Pabrik Kayu', nama:'Pabrik Kayu', x:-47, z:-92},
   'EKO-MATERIAL': {k:'pabrik', pabrik:'Pabrik Material', nama:'Pabrik Material', x:-75, z:-116},
@@ -3245,6 +3257,8 @@ const EKO = {
   box(54,.1,68,0xd6d0c2,-61,.05,-96);                                   // lantai kawasan industri
   box(4,.12,10,0x4b5059,-62,.06,-57);                                   // jalan dari Pelabuhan
   box(54,.12,4,0x4b5059,-61,.07,-80.5); box(54,.12,4,0x4b5059,-61,.07,-104.5);   // jalan depan pabrik
+  box(3.2,.12,214,0xc9b28a,-77,.06,123);                               // jalan tanah pantai ke kawasan tambang
+  const lbT = label('⛏️ KAWASAN TAMBANG', {h:2.2, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); lbT.position.set(-59, 22, 92); scene.add(lbT);
   const lbl = label('🏭 KAWASAN INDUSTRI NUSAWARA', {h:2.2, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); lbl.position.set(-62, 14, -60); scene.add(lbl);
   const cyl = (rt,rb,h,c,x,y,z,g,seg=12) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg), typeof c==='object'?c:M(c)); m.position.set(x,y,z); m.castShadow = true; g.add(m); return m; };
   const cone = (r,h,c,x,y,z,g,seg=8) => cyl(0,r,h,c,x,y,z,g,seg);
@@ -3257,13 +3271,69 @@ const EKO = {
     box(1.6,1.9,4.2,0xf4f4f2,0,1.45,-.6,t); box(1.6,.25,4.2,c,0,2.3,-.6,t); box(1.5,1.4,1.3,0xf4f4f2,0,1.1,2.2,t); box(1.3,.6,.05,GLS,0,1.5,2.86,t);
     [[-.7,-2],[.7,-2],[-.7,1.9],[.7,1.9]].forEach(([a,b])=>{ const w = cyl(.35,.35,.3,0x222222,a,.35,b,t,10); w.rotation.z = Math.PI/2; }); };
   const garis = (x0, z, n, step, g) => { for (let i=0;i<n;i++) box(.12,.03,3,0xffffff,x0+i*step,.12,z,g); };
+  // bingkai persegi (teras galian): 4 balok membentuk cincin
+  const frame = (w,d,t,h,c,top,x,z,g) => { [[0,(d-t)/2,w,t],[0,-(d-t)/2,w,t],[(w-t)/2,0,t,d-2*t],[-(w-t)/2,0,t,d-2*t]].forEach(([a,b,ww,dd])=>{
+      box(ww,h,dd,c,x+a,h/2,z+b,g); box(ww,.15,dd,top,x+a,h+.07,z+b,g); }); };
+  const dump = (x,y,z,c,g,rot) => { const t = new THREE.Group(); t.position.set(x,y,z); t.rotation.y = rot; g.add(t);
+    box(2.4,1.3,3.2,c,0,1.4,-.6,t); cone(1.1,.9,0x2b2f36,0,2.4,-.6,t,6); box(2.2,1.5,1.4,c,0,1.3,1.8,t); box(1.8,.6,.05,GLS,0,1.6,2.52,t);
+    [[-1.1,-1.4],[1.1,-1.4],[-1.1,1.6],[1.1,1.6]].forEach(([a,b])=>{ const w = cyl(.55,.55,.45,0x222222,a,.55,b,t,12); w.rotation.z = Math.PI/2; }); };
+  const exc = (x,y,z,g,rot) => { const t = new THREE.Group(); t.position.set(x,y,z); t.rotation.y = rot; g.add(t);
+    box(2.6,.7,3,0x3a3f46,0,.35,0,t); box(2.4,1.6,2.4,0xf2b134,0,1.5,-.2,t); box(1,1,.05,GLS,.5,1.8,1.02,t);
+    const a1 = box(.5,.5,3.4,0xf2b134,-.6,2.6,2.2,t); a1.rotation.x = -.5; const a2 = box(.45,.45,2.6,0xf2b134,-.6,2.4,4.2,t); a2.rotation.x = .9; box(1,.8,.8,0x3a3f46,-.6,1.2,5,t); };
+  const drill = (x,y,z,g) => { box(3,1.2,3.6,0xf2b134,x,y+.6,z,g); const d = cyl(.6,.9,3,0x9aa3ad,x,y+1.3,z+2.8,g,10); d.rotation.x = Math.PI/2; };
+  const rel = (x,z,len,g) => { box(len,.15,2.2,0x6b5a4a,x,.2,z,g); [-.7,.7].forEach(o=>box(len,.15,.15,0x9aa0a6,x,.35,z+o,g));
+    for (let i=0;i<4;i++){ box(2,1,1.6,0xc98a2b,x-len/2+3+i*2.6,.95,z,g); cone(.7,.6,0x23272e,x-len/2+3+i*2.6,1.7,z,g,6); } };
+  const orang = (x,z,g) => { box(.5,.9,.35,0x2c3a55,x,.85,z,g); box(.55,.8,.4,0xf2b134,x,1.65,z,g); cyl(.24,.24,.4,0xe0b48a,x,2.3,z,g,8); box(.55,.18,.55,0xf2d23a,x,2.55,z,g); };
+  const tree = (x,y,z,jenis,g) => { cyl(.3,.4,1.6,0x6b4a2e,x,y+.8,z,g,6); if (jenis === 'cemara') cone(1.5,4,0x2f8d3a,x,y+3.4,z,g,7); else { const b = new THREE.Mesh(new THREE.SphereGeometry(1.9,10,8), M(0x6fbf3f)); b.position.set(x,y+3,z); g.add(b); } };
+  const tall = (x,z,h,g) => { cyl(.55,.95,h,0x7a5236,x,h/2,z,g,8); cone(1.6,1.8,0x7a5236,x,.9,z,g,6);
+    [[0,0,3.4],[1.6,-.8,2.4],[-1.5,.6,2.5],[.4,1.4,2.2]].forEach(([a,b,r],i)=>{ const c = new THREE.Mesh(new THREE.SphereGeometry(r,9,7), M(i%2 ? 0x5fae3c : 0x4f9c35)); c.scale.y = .6; c.position.set(x+a,h+.4+i*.5,z+b); c.castShadow = true; g.add(c); }); };
+  const semak = (x,z,g) => { [[0,0,1.8],[1.4,.5,1.3],[-1.2,.3,1.4]].forEach(([a,b,r])=>{ const c = new THREE.Mesh(new THREE.SphereGeometry(r,8,6), M(0x3f8d32)); c.position.set(x+a,r*.7,z+b); g.add(c); }); };
+  const tenda = (x,z,g) => { const t = new THREE.Mesh(new THREE.CylinderGeometry(2.6,2.6,5,3,1), M(0xece6d2)); t.rotation.z = Math.PI/2; t.rotation.x = Math.PI/2; t.position.set(x,1.6,z); t.castShadow = true; g.add(t);
+    box(5.4,.25,4,0x8a5a2b,x,.4,z,g); };
+  const pondok = (x,z,g) => { box(3.6,2.8,3.2,0x8a5a36,x,1.8,z,g); box(1,1.8,.1,0x5a3a22,x,1.3,z+1.65,g); const r = box(4.6,.25,4.2,0xf08a2c,x,3.6,z,g); r.rotation.x = .3; };
+  const menara = (x,z,g) => { [[-1.4,-1.4],[1.4,-1.4],[-1.4,1.4],[1.4,1.4]].forEach(([a,b])=>{ const l = box(.3,14,.3,0x2f2f33,x+a*.6,7,z+b*.6,g); l.rotation.z = -a*.04; l.rotation.x = b*.04; });
+    for (let i=1;i<6;i++) box(2.2-i*.15,.15,2.2-i*.15,0x2f2f33,x,i*2.4,z,g);
+    const r = new THREE.Mesh(new THREE.TorusGeometry(1.1,.15,6,16), M(0x2f2f33)); r.position.set(x,14.6,z); g.add(r); box(2.4,2,2.6,0xa0603a,x,1,z+2.6,g); };
   const BUAT = {
-    'EKO-BESI': g=>{ cone(5,6,0x6e6a66,0,3,0,g,7); cone(3.2,4,0x857f78,-3,2,2,g,6); box(2.4,2.6,.3,0x2b2b2b,0,1.3,4.6,g); box(3,.3,.5,0x8a5a2b,0,2.7,4.6,g);
-      box(1.6,.9,1.1,0x7a7f86,2.6,.7,5.2,g); cone(.5,.5,0xb5651d,2.6,1.3,5.2,g,5); },
-    'EKO-HUTAN': g=>{ [[-3,-2],[0,-3],[3,-2],[-4,1],[4,1],[-1.5,0],[1.5,.5]].forEach(([x,z],i)=>{ cyl(.25,.3,1.6,0x6b4a2e,x,.8,z,g,6); cone(1.4,3.6+(i%3)*.6,0x2f7d3a,x,3.2,z,g,7); });
-      for (let i=0;i<4;i++){ const l = cyl(.35,.35,3.4,0x9b6b3d,0,.4+(i>2?.6:0),3.8+(i%3)*.7-(i>2?.35:0),g,8); l.rotation.z = Math.PI/2; } },
-    'EKO-PASIR': g=>{ cone(4,3,0xe2c78f,-2,1.5,-1,g,10); cone(3,2.4,0x9a948b,2.6,1.2,-.5,g,7); box(2.6,1.4,1.6,0xf2b134,1,.9,3.6,g); box(.3,2.2,.3,0x3a3f46,2.2,2.2,3.6,g);
-      const arm = box(3,.3,.3,0x3a3f46,3.4,3.1,3.6,g); arm.rotation.z = -.5; },
+    // Tambang 2× ukuran Rumah Sakit (± 44 × 42). Bangunan & papan menghadap +z.
+    'EKO-BESI': g=>{ const W = 44, D = 42, R = 0x4a5160, T = 0x8b94a3;
+      box(W+2,.3,D+2,0xb9bcc2,0,.15,0,g);
+      for (let k=0;k<4;k++) frame(W-k*7, D-k*7, 3.5, 8-k*1.9, k%2 ? R : 0x3d4350, T, 0, -2, g);       // teras galian bertingkat
+      box(W-28,.3,D-28,0x2f343d,0,.3,-2,g);
+      box(W,.6,7,0x7cbc52,0,8.3,-D/2+1.5,g); box(W,.5,1,0xe2b45a,0,8.2,-D/2+5.3,g);                 // tepi atas berumput
+      [-16,-6,6,15].forEach((x,i)=>tree(x,8.6,-D/2+1.5,i%2 ? 'cemara' : 'bulat',g));
+      [[-6,2.2,4],[5,4.1,-6],[9,.6,5],[-10,6,-9]].forEach(([x,y,z])=>cone(1.6,1.6,0x23272e,x,y+.8,z,g,6));   // tumpukan bijih
+      dump(-4,.6,4,0xf2b134,g,0); dump(8,2.5,-4,0xf2b134,g,Math.PI/2); exc(4,.6,8,g,-.6); exc(-11,6,-8,g,.8);
+      drill(12,6,-10,g);
+      cyl(2.4,2.4,12,0x6b7a8f,-15,6,10,g,16); cyl(1.8,1.8,9,0x7d8ca0,-10.6,4.5,13,g,16);            // silo biru-abu
+      box(12,4.5,8,0x55606f,-13,2.25,D/2-3,g); box(13,.6,9,0xf2b134,-13,4.8,D/2-3,g);                 // kantor atap oranye
+      box(9,1.2,.1,0xfff7d6,-13,2.6,D/2+1.05,g);
+      rel(15,D/2-2.5,16,g);                                                                         // rel & lori bijih
+      [[-17,D/2+1],[-9,D/2+1.4],[3,D/2-1]].forEach(([x,z])=>orang(x,z,g)); },
+    'EKO-HUTAN': g=>{ const W = 44, D = 42;
+      box(W,.4,D,0x6fb24f,0,.2,0,g);
+      [[-18,-15,14],[-8,-17,16],[4,-16,15],[15,-14,17],[-19,-3,12],[19,-2,13],[-17,10,11],[18,11,12],[9,-6,14],[-7,-6,13]].forEach(([x,z,h])=>tall(x,z,h,g));
+      [[-12,4],[12,3],[-2,-12],[6,14],[-16,16]].forEach(([x,z])=>semak(x,z,g));
+      box(4,.2,22,0xc9a37a,2,.42,5,g); for (let i=0;i<8;i++) box(1.8,.08,1.4,0xb98d63,1+(i%2)*1.6,.56,-5+i*2.8,g);   // jalan setapak batu
+      tenda(-8,2,g); pondok(7,3,g);
+      for (let i=0;i<6;i++){ const l = cyl(.55,.55,5,0x9b6b3d,-12+(i%3)*.05,.6+Math.floor(i/3)*1,14+(i%3)*1.15-(i>2?.55:0),g,10); l.rotation.z = Math.PI/2; }  // tumpukan kayu
+      [[-14,8],[13,9],[16,-8],[-3,13],[11,-9],[-15,-9]].forEach(([x,z])=>cyl(.7,.8,1,0x9b6b3d,x,.9,z,g,10));                   // tunggul
+      box(4,.15,1,0x9b6b3d,-2,1.4,17,g); [-3.6,-.4].forEach(x=>{ box(.3,1.4,.3,0x6b4a2e,x,.7,16.6,g); box(.3,1.4,.3,0x6b4a2e,x,.7,17.4,g); });   // kuda-kuda gergaji
+      const air = new THREE.Mesh(new THREE.CylinderGeometry(2.6,2.6,.12,20), M(0x52b6e0)); air.position.set(13,.46,14); g.add(air);
+      [[-6,15],[4,10],[12,16]].forEach(([x,z])=>orang(x,z,g)); },
+    'EKO-PASIR': g=>{ const W = 44, D = 42, S = [0xd8b98a,0xcaa676,0xbf9a6a,0xb08b5c];
+      box(W+2,.3,D+2,0xe2cfa6,0,.15,0,g);
+      [[-16,-21,12],[-4,-23,15],[9,-22,13],[19,-20,10]].forEach(([x,z,h])=>cone(9,h,0x8a7766,x,h/2,z,g,7));   // pegunungan belakang
+      for (let k=0;k<4;k++) frame(W-6-k*7, D-14-k*6, 3.2, 5.5-k*1.3, S[k], 0xf1e3c4, 0, 3, g);          // galian bertingkat pasir
+      box(W-34,.3,D-38,0xa9875a,0,.3,3,g);
+      dump(-8,4.2,-1,0xf2b134,g,0); dump(9,2.9,6,0xf2b134,g,Math.PI); dump(-2,.6,4,0xf2b134,g,.3); exc(6,1.6,1,g,-.4);
+      [[-12,9],[13,-4],[-15,-6]].forEach(([x,z])=>cone(2.6,2.4,0x8f8d88,x,1.4+(x>0?4:0),z,g,8));
+      menara(-3,-12,g);                                                                             // menara kerekan
+      [[-17,-13,0x8a5e46,9],[-12.5,-13,0x7a5340,11]].forEach(([x,z,c,h])=>{ box(3.6,h,3.6,c,x,h/2,z,g); box(4,.6,4,0x5d3d2d,x,h+.3,z,g); for (let f=0;f<3;f++) box(.8,1,.1,0x2c2c2c,x,h-2-f*2.4,z+1.85,g); });
+      [[13,-12],[17.5,-12]].forEach(([x,z])=>{ cyl(1.6,1.6,5,0xbfc4c9,x,8,z,g,14); cone(1.6,1.2,0xa7adb3,x,4.9,z,g,14).rotation.x = Math.PI;
+        [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>box(.2,5,.2,0x555b62,x+a*1.1,2.5,z+b*1.1,g)); cone(2.2,1.8,0x8f8d88,x,.9,z+3.5,g,8); });
+      const kon = box(16,.5,1.4,0x3e4248,5,7,-13,g); kon.rotation.z = .25;                          // ban berjalan
+      orang(-6,D/2-1,g); orang(4,D/2-2,g); },
     // 1. Pabrik Kayu: gudang abu-abu beratap pelana, lampu atap, aksen hijau, pintu bongkar muat
     'EKO-KAYU': g=>{ const W = 18, D = 12, H = 5.5;
       box(W,H,D,0xc9ced3,0,H/2,0,g); box(W+.05,.5,D+.05,0x2e9e48,0,1.6,0,g);
@@ -3310,7 +3380,7 @@ const EKO = {
   };
   for (const id in EKO){ const e = EKO[id]; if (e.ada) continue;
     const g = new THREE.Group(); g.position.set(e.x, 0, e.z); scene.add(g); BUAT[id](g);
-    const L = label(e.nama, {h:1.3, size:30}); L.position.set(0, e.k === 'pabrik' ? 11 : 8.2, 0); g.add(L);
+    const L = label(e.nama, {h:1.3, size:30}); L.position.set(0, e.k === 'pabrik' ? 11 : 18, e.k === 'tambang' ? 6 : 0); g.add(L);
     g.userData = {type:'eko', data:{id}}; pickables.push(g); }
   const pl = label('🏪 Pasar Republik Nusawara (PRN)', {h:1.6, size:30, bg:'rgba(242,177,52,.96)', fg:'#3a2600'}); pl.position.set(18, 30, -78); scene.add(pl);
 })();
@@ -3359,8 +3429,8 @@ async function ekoAksi(btn, fn, args, sukses){
 sheetBody.addEventListener('click', e=>{
   const t = e.target.closest('button'); if (!t) return;
   if (t.hasAttribute('data-eko-masuk')) { openSheet(akunHTML); return; }
-  if (t.dataset.pergi){ const e2 = t.dataset.pergi === 'prn' ? EKO['EKO-PRN'] : {x:-62, z:-84}; closeSheet();
-    flyTo(new THREE.Vector3(e2.x, 2, e2.z), new THREE.Vector3(e2.x + 10, 30, e2.z + 38)); return; }
+  if (t.dataset.pergi){ const e2 = t.dataset.pergi === 'prn' ? EKO['EKO-PRN'] : t.dataset.pergi === 'tambang' ? {x:-59, z:150} : {x:-62, z:-100}; closeSheet();
+    flyTo(new THREE.Vector3(e2.x, 2, e2.z), t.dataset.pergi === 'tambang' ? new THREE.Vector3(e2.x + 70, 80, e2.z + 40) : new THREE.Vector3(e2.x + 10, 30, e2.z + 38)); return; }
   if (t.dataset.tambang) ekoAksi(t, 'menambang', {p_tambang: t.dataset.tambang}, r=>{ const b = brg(r.barang);
     popHadiah('+' + r.jumlah + ' ' + b.ikon); sfx(220, .12, 'square', .07, 0, 140); toast(`${b.ikon} +${r.jumlah} ${b.nama} masuk tas (${r.kali}/${r.batas} hari ini)`); });
   if (t.dataset.olah){ const n = Math.max(1, parseInt((document.getElementById('q-' + t.dataset.olah)||{}).value) || 1);
