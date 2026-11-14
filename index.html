@@ -3290,23 +3290,15 @@ const music = (()=>{
       nextT += BAR; step++;
     }
   }
+  // Musik dari file MP3 (elemen <audio>): tetap bunyi di iPhone/Instagram, juga saat HP mode senyap.
+  const bgm = new Audio('media/musik-peta.mp3'); bgm.loop = true; bgm.preload = 'auto'; bgm.volume = .55; bgm.setAttribute('playsinline','');
+  window.__nusaBgm = bgm;
   function start(){
-    if (started || !on) return;
-    ensureAudioGraph(); if (!actx) return;
-    started = true; nodes = [];
-    master = actx.createGain(); master.gain.setValueAtTime(0, actx.currentTime); master.gain.linearRampToValueAtTime(.6, actx.currentTime + 3);
-    const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5000;
-    master.connect(lp); lp.connect(actx.destination); master._lp = lp;
-    loopNoise(420, .4, .05, .07, .03);                  // angin lembut
-    loopNoise(1800, 1.2, .012, .3, .006, 'bandpass');    // gemericik air
-    nextT = actx.currentTime + .2; timer = setInterval(schedule, 400); schedule();
+    if (!on) return;
+    started = true; bgm.muted = false;
+    const pp = bgm.play(); if (pp && pp.catch) pp.catch(()=>{ started = false; });
   }
-  function stop(){
-    if (!started) return; started = false; clearInterval(timer); timer = null;
-    const m = master, n = nodes; master = null; nodes = [];
-    try { m.gain.cancelScheduledValues(actx.currentTime); m.gain.setValueAtTime(m.gain.value, actx.currentTime); m.gain.linearRampToValueAtTime(0, actx.currentTime + .15); } catch(_) {}
-    setTimeout(()=>{ n.forEach(x=>{ try { x.stop(); } catch(_) {} }); try { m.disconnect(); m._lp.disconnect(); } catch(_) {} }, 250);
-  }
+  function stop(){ started = false; bgm.pause(); }
   btn.addEventListener('pointerdown', e=>e.stopPropagation());
   btn.onclick = e=>{ e.stopPropagation(); unlock(); on = !on; window.NUSA_SOUND = on; try { localStorage.setItem('nusawara.music', on ? 'on' : 'off'); } catch(_) {} paint(); if (on) start(); else stop(); };
   // iPhone/Instagram: musik Web Audio dibisukan saat HP mode senyap & butuh ketukan 'click/touchend'.
@@ -3314,16 +3306,9 @@ const music = (()=>{
   let unlocked = false;
   function unlock(){
     try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch(_) {}
-    if (!unlocked){ unlocked = true;
-      try { const sr = 8000, n = sr, buf = new ArrayBuffer(44 + n*2), v = new DataView(buf), w = (o,t)=>{ for (let i=0;i<t.length;i++) v.setUint8(o+i, t.charCodeAt(i)); };
-        w(0,'RIFF'); v.setUint32(4,36+n*2,true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
-        v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true); w(36,'data'); v.setUint32(40,n*2,true);
-        const el = new Audio(URL.createObjectURL(new Blob([buf],{type:'audio/wav'}))); el.loop = true; el.setAttribute('playsinline',''); el.volume = .01;
-        const pp = el.play(); if (pp && pp.catch) pp.catch(()=>{ unlocked = false; }); window.__nusaSilent = el;
-      } catch(_) { unlocked = false; } }
     if (actx && actx.state !== 'running') actx.resume().catch(()=>{});
   }
-  const kick = ()=>{ if (!on) return; unlock(); if (!started) start(); else if (actx && actx.state !== 'running') actx.resume().catch(()=>{}); };
+  const kick = ()=>{ if (!on) return; unlock(); if (!started || bgm.paused) start(); };
   ['pointerdown','touchend','click','keydown'].forEach(ev=>addEventListener(ev, kick, {passive:true}));
   document.addEventListener('visibilitychange', ()=>{ if (document.hidden) stop(); else if (on) start(); });
   return { start, stop };
