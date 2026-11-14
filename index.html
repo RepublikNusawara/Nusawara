@@ -2620,7 +2620,8 @@ function syncWalkers(list){
     const sig = JSON.stringify(avatarSpec(WINFO[key]));
     const ex = WALKERS[key];
     if (ex && ex.sig === sig) return;
-    if (!ex && Object.keys(WALKERS).length >= MAX_WALKERS) return;
+    if (!ex){ const zk = isFollow(WINFO[key].follow) ? 'kota' : 'pelabuhan';
+      if (Object.values(WALKERS).filter(x=>(isFollow((WINFO[x.key]||{}).follow) ? 'kota' : 'pelabuhan') === zk).length >= MAX_WALKERS) return; }
     if (ex){ scene.remove(ex.av.g); [ex.av.g, ex.tag].forEach(o=>{ const pi = pickables.indexOf(o); if (pi >= 0) pickables.splice(pi,1); }); }
     const av = makeAvatar(avatarSpec(WINFO[key]));
     const tag = ex ? ex.tag : label('@' + String(w.username).replace(/^@+/,''), {h:.75, size:28, bg:'rgba(255,253,248,.95)', fg:'#1f3a5f', onTop:true});
@@ -2632,7 +2633,7 @@ function syncWalkers(list){
     av.g.position.copy(p); if (ex) av.g.rotation.y = ex.av.g.rotation.y;
     av.g.userData = {type:'warga', data:{username: key}}; tag.userData = {type:'warga', data:{username: key}};
     scene.add(av.g); pickables.push(av.g, tag);
-    WALKERS[key] = {av, tag, sig, node: ex ? ex.node : start, target: ex ? ex.target : null, wait: ex ? ex.wait : 1 + Math.random()*2, phase: Math.random()*6, speed: 2 + Math.random()*.8,
+    WALKERS[key] = {key, av, tag, sig, node: ex ? ex.node : start, target: ex ? ex.target : null, wait: ex ? ex.wait : 1 + Math.random()*2, phase: Math.random()*6, speed: 2 + Math.random()*.8,
       zone: ex ? ex.zone : (ok ? 'kota' : 'pelabuhan'), path: ex ? ex.path : null, toZone: ex ? ex.toZone : null};
   });
 }
