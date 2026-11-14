@@ -3720,7 +3720,7 @@ function gHTML(){
   return `<div class="kicker">Gmail terverifikasi</div><h2>✅ ${esc(GINFO.email)}</h2>
     <div class="card"><h3>🆕 Saya warga baru</h3><p class="note">Daftar jadi Warga Republik Nusawara dan dapat N$300.</p>
       <form id="gF" data-mode="baru">${inp('gU1','Username Instagram, mis. @namakamu')}${pwInput('gP1','Buat Kata Sandi Warga (6–20 huruf/angka)')}<button class="btn">Daftar jadi warga</button></form></div>
-    <div class="card"><h3>🔁 Saya warga lama (daftar ulang)</h3><p class="note">Tautkan Gmail ke akun lamamu. NIWN, saldo, tas, dan tanah tetap sama.</p>
+    <div class="card"><h3>🔁 Saya warga lama (daftar ulang)</h3><p class="note">Tautkan Gmail ke akun lamamu. NIWN, saldo, tas, dan tanah tetap sama, plus <b>hadiah warga lama N$500</b> (sekali saja).</p>
       <form id="gF2" data-mode="lama">${inp('gU2','Username lama')}${pwInput('gP2','Kata Sandi Warga lama')}<button class="btn">Tautkan & masuk</button></form></div>
     <p class="note" id="gM"></p>`;
 }
@@ -3740,7 +3740,8 @@ sheetBody.addEventListener('submit', async e=>{
     const { data: r, error } = await c.rpc(mode === 'baru' ? 'daftar_google' : 'tautkan_google', {p_username: undefined, ...(mode === 'baru' ? {p_username: u, p_sandi: pw} : {p_user: u, p_sandi: pw})});
     if (error || !r || !r.ok){ m.textContent = GALASAN[r && r.alasan] || '❌ Gagal. Coba lagi.'; btn.disabled = false; return; }
     if (mode === 'baru' && typeof sbApplyWarga === 'function') sbApplyWarga([{username: r.username, nama: u, niwn: r.niwn, terdaftar: ''}]);
-    toast(mode === 'baru' ? '🎉 Kamu resmi jadi Warga Republik Nusawara! NIWN ' + r.niwn : '✅ Akun lama tertaut ke Gmail. NIWN tetap ' + r.niwn);
+    toast(mode === 'baru' ? '🎉 Kamu resmi jadi Warga Republik Nusawara! NIWN ' + r.niwn : '✅ Akun tertaut ke Gmail. NIWN tetap ' + r.niwn + (r.bonus ? ' · Hadiah warga lama +' + N$(r.bonus) : ''));
+    if (mode !== 'baru' && r.bonus) popHadiah('+' + N$(r.bonus) + ' 🎁');
     await gLoginSelesai(r.username, pw, mode === 'baru');
   } catch(_) { m.textContent = 'Jaringan bermasalah. Coba lagi.'; btn.disabled = false; }
 });
