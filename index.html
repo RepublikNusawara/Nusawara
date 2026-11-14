@@ -254,7 +254,16 @@
     <div class="kicker">Kewarganegaraan</div>
     <h2>Cara jadi Warga Republik Nusawara</h2>
     <p class="note" style="margin-top:6px">Siapa pun bisa menjadi <b>Warga Republik Nusawara (WRN)</b>. Cukup daftar, tanpa syarat lain:</p>
-    <a class="btn" id="daftarGo" href="https://tally.so/r/Z9or5e" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;background:var(--gold);color:#3a2600;font-size:16px;margin:12px 0 4px">📝 Daftar</a>
+    <a class="btn" id="daftarGo" href="https://tally.so/r/Z9or5e" target="_blank" rel="noopener" onclick="return bukaDaftar(event)" style="display:block;text-align:center;text-decoration:none;background:var(--gold);color:#3a2600;font-size:16px;margin:12px 0 4px">📝 Daftar</a>
+    <script>
+    function bukaDaftar(e){
+      e.preventDefault();
+      var u = (window.prompt('Tulis username Instagram kamu (tanpa @):') || '').trim().replace(/^@/, '');
+      if (!u) return false;
+      window.open('https://tally.so/r/Z9or5e?username=' + encodeURIComponent(u), '_blank', 'noopener');
+      return false;
+    }
+    </script>
     <ol class="steps">
       <li>Tekan tombol <b>Daftar</b> di atas, atau <b>komentar "DAFTAR"</b> di postingan Republik Nusawara.</li>
       <li>Isi <b>username Instagram</b>-mu, buat <b>Kata Sandi Warga</b> 🔑 (6–20 huruf/angka, rahasia), lalu kirim.</li>
