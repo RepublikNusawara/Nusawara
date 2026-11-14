@@ -1966,8 +1966,8 @@ function setShot(on){
   document.body.classList.toggle('shot', on);
   document.body.classList.remove('shot-clean');
   presTag.visible = !on; ring.visible = false;
-  controls.minDistance = on ? 3 : 14;
-  controls.maxPolarAngle = on ? 1.55 : 1.32;
+  controls.minDistance = 3;
+  controls.maxPolarAngle = on ? 1.55 : 1.54;
   if (on){ pres.position.set(18,1.5+PY,-6.8); pres.rotation.y = 0; chick.position.set(19.55,1.5+PY,-5.5); chick.rotation.y = -.3; hideHint(); goShot(1); }
   else { stopVoice(); flyTo(HOME_T, HOME_C); }
 }
