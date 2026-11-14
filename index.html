@@ -258,8 +258,14 @@
     <script>
     function bukaDaftar(e){
       e.preventDefault();
-      var u = (window.prompt('Tulis username Instagram kamu (tanpa @):') || '').trim().replace(/^@/, '');
-      if (!u) return false;
+      var u = null;
+      while (true){
+        var v = window.prompt('Tulis username Instagram kamu (tanpa @):');
+        if (v === null){ var sec = document.getElementById('daftarGo'); if (sec) sec.scrollIntoView({behavior:'smooth', block:'center'}); return false; }
+        u = v.trim().replace(/^@/, '');
+        if (u) break;
+        window.alert('Username tidak boleh kosong. Silakan isi username Instagram kamu.');
+      }
       window.open('https://tally.so/r/Z9or5e?username=' + encodeURIComponent(u), '_blank', 'noopener');
       return false;
     }
