@@ -96,6 +96,10 @@
   .tasg div.nol{opacity:.45}.tasg i{font-style:normal;font-size:24px;display:block}.tasg b{display:block;font-size:17px}.tasg small{font-size:11px;color:#667;line-height:1.2;display:block}
   .streak{display:flex;gap:4px;margin:10px 0 2px}.streak span{flex:1;text-align:center;font-size:11px;font-weight:700;padding:6px 0;border-radius:8px;background:#eef1f4;color:#667}
   .streak span.on{background:#f2b134;color:#1f3a5f}
+  .hud{position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 74px);z-index:5;width:178px;pointer-events:none;display:none;
+    background:rgba(255,253,248,.92);border:1px solid var(--line);border-radius:12px;padding:7px 9px;box-shadow:0 6px 18px rgba(31,58,95,.12);font-size:11px;font-weight:800;color:#1f3a5f}
+  .hud .r{display:flex;justify-content:space-between;margin-top:3px}.hud .b{height:9px;border-radius:5px;background:#e3e6ea;overflow:hidden;display:flex;margin-top:2px}
+  .hud .b.k{height:5px}.hud .b i{display:block;height:100%}
   .pop{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) scale(.6);z-index:30;font-size:34px;font-weight:900;color:#1f3a5f;
     background:#fffdf8;border:2px solid #f2b134;border-radius:18px;padding:14px 22px;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:all .35s}
   .pop.show{opacity:1;transform:translate(-50%,-60%) scale(1)}
@@ -220,6 +224,7 @@
   </div>
   <button id="akunBtn" class="akunbtn" type="button">🔑 Masuk</button>
 </header>
+<div class="hud" id="hud"></div>
 
 <form class="search" id="search" autocomplete="off">
   <input id="q" placeholder="Ketik username Instagram-mu, mis. @namakamu" aria-label="Cari warga dengan username" autocapitalize="none" autocorrect="off" spellcheck="false">
@@ -3177,7 +3182,17 @@ const AKUN = {u:null, s:null, data:null}, BARANG = []; let KAS = 0;
 const N$ = n => 'N$' + Number(n||0).toLocaleString('id-ID');
 const akunBtn = document.getElementById('akunBtn');
 try { const r = JSON.parse(localStorage.getItem('nusawara_akun') || 'null'); if (r && r.u && r.s){ AKUN.u = r.u; AKUN.s = r.s; UNLOCK[r.u] = r.s; } } catch(_) {}
-function akunTombol(){ akunBtn.textContent = AKUN.data ? '💰 ' + N$(AKUN.data.saldo) : '🔑 Masuk'; akunBtn.classList.toggle('in', !!AKUN.data); }
+function hudHTML(d){
+  const cap = d.kapasitas || 100, st = d.stamina || 0, dasar = Math.min(st, cap), ekstra = Math.max(0, st - cap), tot = cap + 20;
+  const xpP = d.xp_perlu ? Math.min(100, Math.round((d.xp||0) / d.xp_perlu * 100)) : 100;
+  return `<div class="r"><span>❤️ Darah</span><span>${d.darah ?? 100}/100</span></div><div class="b"><i style="width:${Math.min(100, d.darah ?? 100)}%;background:#e5484d"></i></div>
+    <div class="r"><span>⚡ Stamina</span><span>${dasar}${ekstra ? '+' + ekstra : ''}/${cap}</span></div>
+    <div class="b"><i style="width:${dasar/tot*100}%;background:#f2b134"></i><i style="width:${ekstra/tot*100}%;background:#ff7a1a"></i></div>
+    <div class="r"><span>🟢 Lv ${d.lv || 0}${d.xp_perlu ? '' : ' MAX'}</span><span>${d.xp_perlu ? (d.xp||0) + '/' + d.xp_perlu + ' · ' + xpP + '%' : 'kapasitas ' + cap}</span></div>
+    <div class="b k"><i style="width:${xpP}%;background:#2fb57a"></i></div>`; }
+function hudTampil(){ const h = document.getElementById('hud'); if (!h) return; if (!AKUN.data){ h.style.display = 'none'; return; } h.style.display = 'block'; h.innerHTML = hudHTML(AKUN.data); }
+setInterval(()=>{ if (AKUN.u && !document.hidden) akunMuat(); }, 60000);
+function akunTombol(){ hudTampil(); akunBtn.textContent = AKUN.data ? '💰 ' + N$(AKUN.data.saldo) : '🔑 Masuk'; akunBtn.classList.toggle('in', !!AKUN.data); }
 function popHadiah(t){ const el = document.createElement('div'); el.className = 'pop'; el.textContent = t; document.body.appendChild(el);
   requestAnimationFrame(()=>el.classList.add('show')); setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 400); }, 1500); }
 async function akunMuat(){
@@ -3186,6 +3201,7 @@ async function akunMuat(){
   try { const r = await SB.rpc('akun_saya', {p_user: AKUN.u, p_sandi: AKUN.s});
     if (r && (r.alasan === 'perlu_google' || r.alasan === 'masuk_google')){ akunKeluar(true); toast('🔐 Masuk dengan Gmail dulu, lalu Kata Sandi Warga.'); return false; }
     if (!r || !r.ok){ akunKeluar(true); toast('❌ Kata sandi sudah berubah. Silakan masuk lagi.'); return false; }
+    if (r.bonus_stamina_baru && AKUN.data !== undefined) setTimeout(()=>{ popHadiah('⚡ +20 stamina harian'); }, 600);
     AKUN.data = r; akunTombol(); AKUN.at = Date.now(); if (sheet.classList.contains('open') && sheetFn && (sheetFn === akunHTML || sheetFn.eko)) sheetBody.innerHTML = sheetFn(); return true;
   } catch(_) { return false; }
 }
@@ -3212,6 +3228,9 @@ function akunHTML(){
   const hari = [1,2,3,4,5,6,7].map(i=>`<span class="${i <= st ? 'on' : ''}">H${i}${i === 7 ? '+' : ''}</span>`).join('');
   const tas = BARANG.map(b=>{ const n = (d.tas || {})[b.kode] || 0; return `<div class="${n ? '' : 'nol'}"><i>${b.ikon}</i><b>${n}</b><small>${esc(b.nama)}</small></div>`; }).join('');
   return `<div class="kicker">Akun Warga · ${esc(w.niwn || '')}</div><h2>@${esc(String(w.username || AKUN.u).replace(/^@+/,''))}</h2>
+  <div class="card"><h3>⚡ Stamina & Darah</h3>${hudHTML(d).replace(/font-size:11px/g,'')}
+    <p class="note">Stamina pulih +5 setiap jam sampai kapasitas, dan dapat bonus +20 setiap hari saat masuk (bisa melebihi kapasitas, tertulis 100+20). Menambang menguras stamina.<br>
+    Naikkan level di bar hijau dengan bekerja di pabrik & kebun Negara: Lv1 100 poin (+10 kapasitas), Lv2 200 (+10), Lv3 300 (+10), Lv4 500 (+20). Level bersifat permanen.${d.regen_detik != null ? '<br>⏳ +5 stamina berikutnya dalam ' + Math.ceil(d.regen_detik/60) + ' menit.' : ''}</p></div>
   <div class="card"><h3>💰 Saldo</h3><div class="saldo">${N$(d.saldo)}</div><p class="note">Mata uang Republik Nusawara: Nusa (NSA).</p></div>
   <div class="card"><h3>📅 Absen harian · hari ke-${st || 0}</h3>
     <div class="streak">${hari}</div>
@@ -3413,12 +3432,14 @@ function ekoHTML(id){
   if (e.k === 'tambang'){
     const t = TAMBANG.find(x=>x.kode===e.kode); if (!t) return h + '<p class="note">Memuat…</p>';
     const b = brg(t.barang), st = (AKUN.data && AKUN.data.tambang && AKUN.data.tambang[t.kode]) || {kali:0}, sisa = sisaDetik(t.kode), habis = st.kali >= t.batas_harian;
-    h += `<div class="card"><h3>${t.ikon} Hasil tambang</h3><p>1× klik = <b>+${t.hasil} ${b.ikon} ${esc(b.nama)}</b>. Tunggu ${t.jeda_detik} detik tiap klik, maksimal <b>${t.batas_harian}× per hari</b> (reset 00.00 WIB).</p>`;
+    const kurangSt = AKUN.data && (AKUN.data.stamina || 0) < (t.stamina || 0);
+    h += `<div class="card"><h3>${t.ikon} Hasil tambang</h3><p>1× klik = <b>+${t.hasil} ${b.ikon} ${esc(b.nama)}</b> dan menguras <b>⚡ ${t.stamina} stamina</b>. Tunggu ${t.jeda_detik} detik tiap klik, maksimal <b>${t.batas_harian}× per hari</b> (reset 00.00 WIB).</p>`;
     if (!AKUN.data) h += `</div>` + perluMasuk();
     else h += `<p class="note">Hari ini: <b>${st.kali}/${t.batas_harian}</b> · di tas: ${punya(t.barang)} ${b.ikon}</p>
       ${habis ? `<button class="btn ghost" disabled>Sudah ${t.batas_harian}× hari ini. Kembali besok!</button>`
       : sisa > 0 ? `<button class="btn ghost" disabled data-cd="${t.kode}">⏳ Tunggu ${sisa} detik</button>`
-      : `<button class="btn" data-tambang="${t.kode}">${t.ikon} Tambang · +${t.hasil} ${b.ikon}</button>`}</div>`;
+      : kurangSt ? `<button class="btn ghost" disabled>⚡ Stamina kurang (perlu ${t.stamina})</button>`
+      : `<button class="btn" data-tambang="${t.kode}">${t.ikon} Tambang · +${t.hasil} ${b.ikon} · ⚡−${t.stamina}</button>`}</div>`;
   } else if (e.k === 'pabrik'){
     const rs = RESEP.filter(r=>r.pabrik===e.pabrik); if (!rs.length) return h + '<p class="note">Memuat…</p>';
     h += rs.map(r=>{ const a = brg(r.bahan), o = brg(r.hasil), maks = AKUN.data ? Math.min(Math.floor(punya(r.bahan)/r.bahan_jumlah), Math.floor(AKUN.data.saldo/r.biaya)) : 0;
@@ -3436,7 +3457,7 @@ function ekoHTML(id){
   }
   return h;
 }
-const ALASAN = {sandi:'❌ Kata sandi berubah. Masuk lagi.', batas:'Sudah 10× hari ini. Kembali besok!', tunggu:'⏳ Belum bisa, tunggu sebentar.', saldo_kurang:'❌ Saldo N$ tidak cukup.', barang_kurang:'❌ Bahan di tas tidak cukup.', jumlah:'❌ Jumlah tidak valid.', sudah_punya:'❌ Kamu sudah punya kavling/tanah. Satu warga satu kavling.', terjual:'❌ Kavling ini sudah terjual.', lengkap:'✓ Bahan ini sudah lengkap.', tidak_perlu:'Bahan ini tidak dibutuhkan.', tanpa_kavling:'Kamu belum punya kavling.', stok_kurang:'❌ Stok Negara tidak cukup.', kas_kurang:'❌ Kas Negara sedang tidak cukup untuk membeli.', sudah_lunas:'Bahan/biaya kavling ini sudah lunas.', belum_siap:'Selesaikan bahan atau bayar dulu.', bukan_pemilik:'❌ Ini bukan kavlingmu.', desain_salah:'Desain ini tidak cocok untuk tanahmu.', kupon_tidak_ada:'Kupon sudah dipakai atau tidak ada.'};
+const ALASAN = {sandi:'❌ Kata sandi berubah. Masuk lagi.', batas:'Sudah 10× hari ini. Kembali besok!', tunggu:'⏳ Belum bisa, tunggu sebentar.', saldo_kurang:'❌ Saldo N$ tidak cukup.', barang_kurang:'❌ Bahan di tas tidak cukup.', jumlah:'❌ Jumlah tidak valid.', sudah_punya:'❌ Kamu sudah punya kavling/tanah. Satu warga satu kavling.', terjual:'❌ Kavling ini sudah terjual.', lengkap:'✓ Bahan ini sudah lengkap.', tidak_perlu:'Bahan ini tidak dibutuhkan.', tanpa_kavling:'Kamu belum punya kavling.', stok_kurang:'❌ Stok Negara tidak cukup.', kas_kurang:'❌ Kas Negara sedang tidak cukup untuk membeli.', sudah_lunas:'Bahan/biaya kavling ini sudah lunas.', belum_siap:'Selesaikan bahan atau bayar dulu.', bukan_pemilik:'❌ Ini bukan kavlingmu.', desain_salah:'Desain ini tidak cocok untuk tanahmu.', kupon_tidak_ada:'Kupon sudah dipakai atau tidak ada.', stamina_kurang:'⚡ Stamina tidak cukup. Tunggu pulih +5/jam atau makan di Coffee Shop.'};
 async function ekoAksi(btn, fn, args, sukses){
   btn.disabled = true;
   try { const r = await SB.rpc(fn, Object.assign({p_user: AKUN.u, p_sandi: AKUN.s}, args));
@@ -3746,7 +3767,8 @@ async function gLoginSelesai(u, pw, baru){
   const r = await SB.rpc('akun_saya', {p_user: u, p_sandi: pw});
   if (!r || !r.ok){ toast('Gagal masuk. Coba lagi.'); return; }
   Object.assign(AKUN, {u, s: pw, data: r}); UNLOCK[u] = pw; try { localStorage.setItem('nusawara_akun', JSON.stringify({u, s: pw})); } catch(_) {}
-  akunTombol(); if (baru || r.baru){ const f = ()=>sambutanHTML(); f.eko = 1; openSheet(f); } else { openSheet(akunHTML); toast('✓ Selamat datang, ' + namaW(u) + '!'); }
+  akunTombol(); if (r.bonus_stamina_baru) setTimeout(()=>popHadiah('⚡ +20 stamina harian'), 900);
+  if (baru || r.baru){ const f = ()=>sambutanHTML(); f.eko = 1; openSheet(f); } else { openSheet(akunHTML); toast('✓ Selamat datang, ' + namaW(u) + '!'); }
 }
 sheetBody.addEventListener('submit', async e=>{
   const f = e.target; if (f.id !== 'gF' && f.id !== 'gF2') return; e.preventDefault();
