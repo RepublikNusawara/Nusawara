@@ -593,7 +593,69 @@ function makeKaca(h){
   houseBoard(h, 4.6, 2.65, 0, 8.7, F+.18, g, 0xc9a24a);
   finishHouse(h, g);
 }
-Object.assign(DESAIN, {modern: makeModern, kaca: makeKaca});
+// Desain BHR-MAWAR-001: (a) foto desain sebagai tampak depan, (b) rumah merah modern 2 lantai dengan billboard
+function makeFoto(h){
+  const g = new THREE.Group(), F = 2.25;
+  box(6.4,.3,5.2, 0xd9d6cf, 0,.15,.3, g);                                    // lantai dasar
+  const tex = new THREE.TextureLoader().load('media/desain/mawar-001-modern-merah.png');
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 6.4*941/1672), new THREE.MeshBasicMaterial({map:tex}));
+  face.position.set(0, .3 + (6.4*941/1672)/2, F+.05); g.add(face);
+  finishHouse(h, g);
+}
+// Rumah Modern merah 2 lantai (desain @aadamaalto, BHR-MAWAR-001): merah penuh dari bawah ke atas,
+// lampu LED merah di tepi pelat, kaca besar dengan interior terang, balkon kaca, billboard merah di atap.
+function makeMerah(h){
+  const g = new THREE.Group(), RED = 0xd0141c, DRED = 0x9a0e14, DK = 0x161616;
+  const LED = new THREE.MeshBasicMaterial({color:0xff3b2e});
+  const LIT = new THREE.MeshStandardMaterial({color:0xffdca0, emissive:0x9a6a2a, roughness:.25});
+  const RAIL = new THREE.MeshStandardMaterial({color:0xd6ecf7, transparent:true, opacity:.4, roughness:.05});
+  const pane = (w,hh,x,y,z,n)=>{ box(w+.16,hh+.16,.1, DK, x,y,z, g); box(w,hh,.05, LIT, x,y,z+.05, g);
+    for (let i=1;i<n;i++) box(.05,hh,.08, DK, x - w/2 + i*w/n,y,z+.08, g); };
+  box(7.0,.25,5.6, 0x8f8d88, 0,.12,.3, g);                                   // lantai dasar
+  // LANTAI 1 (lebar, rendah): kaca besar kiri-kanan, pintu ganda gelap, pilar merah
+  box(6.6,2.7,4.0, RED, 0,1.6,-.3, g);
+  const f1 = 1.72;
+  pane(2.3,2.0,-2.0,1.4,f1,4); pane(2.3,2.0,2.0,1.4,f1,4);
+  box(1.05,2.1,.1, 0x2b1712, 0,1.3,f1+.02, g); box(.03,2.1,.12, DK, 0,1.3,f1+.06, g);
+  [-.1,.1].forEach(x=>box(.04,.55,.06, 0xd8a948, x,1.3,f1+.12, g));
+  [-3.2,-.7,.7,3.2].forEach(x=>box(.22,2.7,.25, DRED, x,1.6,f1+.08, g));
+  [0,1,2].forEach(i=>box(1.6 - i*.2,.1,.4, 0x9c9a95, 0,.3 + i*.1,f1+.9 - i*.3, g));
+  // PELAT TENGAH menjorok (balkon) + plafon kayu + LED
+  box(7.0,.35,5.0, RED, 0,3.12,.2, g); box(6.8,.05,1.6, WOOD, 0,2.93,f1+.25, g);
+  box(7.0,.06,.06, LED, 0,2.96,2.72, g); box(.06,.06,5.0, LED, -3.52,2.96,.2, g); box(.06,.06,5.0, LED, 3.52,2.96,.2, g);
+  [-2.4,-.8,.8,2.4].forEach(x=>box(.14,.03,.14, WARM, x,2.9,f1+.5, g));
+  // LANTAI 2 mundur: kaca penuh dengan bingkai gelap
+  box(6.2,2.6,3.2, RED, 0,4.6,-.7, g);
+  const f2 = .92;
+  pane(2.7,2.1,-1.5,4.5,f2,5); pane(2.7,2.1,1.5,4.5,f2,5);
+  box(.25,2.6,.2, DRED, 0,4.6,f2+.05, g);
+  // Balkon kaca selebar rumah + tanaman pot
+  const rail = new THREE.Mesh(new THREE.BoxGeometry(6.8,.8,.04), RAIL); rail.position.set(0,3.7,2.6); g.add(rail);
+  [-3.38,3.38].forEach(x=>{ const r2 = new THREE.Mesh(new THREE.BoxGeometry(.04,.8,1.6), RAIL); r2.position.set(x,3.7,1.8); g.add(r2); });
+  box(6.8,.05,.05, 0x2a2a2a, 0,4.1,2.6, g);
+  [-2.7,-1.0,1.0,2.7].forEach((x,i)=>{ box(.4,.4,.4, 0xd9d6cf, x,3.5,1.6, g); box(.6,.7,.6, i%2 ? 0x4f8a3c : 0x3d7330, x,4.0,1.6, g); });
+  // ATAP menjorok tebal + plafon kayu + LED
+  box(7.2,.45,4.8, RED, 0,6.12,-.2, g); box(7.0,.05,1.5, WOOD, 0,5.88,1.4, g);
+  box(7.2,.06,.06, LED, 0,5.92,2.2, g); box(.06,.06,4.8, LED, -3.62,5.92,-.2, g); box(.06,.06,4.8, LED, 3.62,5.92,-.2, g);
+  [-2.4,-.8,.8,2.4].forEach(x=>box(.14,.03,.14, WARM, x,5.85,1.5, g));
+  // BILLBOARD besar di atap: rangka hitam, lampu sorot, LED bawah
+  [-2.3,2.3].forEach(x=>box(.14,1.1,.14, DK, x,6.9,.3, g));
+  box(5.6,.12,.6, DK, 0,7.42,.3, g);
+  houseBoard(h, 5.4, 2.3, 0, 8.7, .45, g, DK);
+  box(5.6,.06,.06, LED, 0,7.5,.6, g);
+  // PAGAR DEPAN + papan nama kavling + taman
+  const sign = canvasTex(512,128,(c,W,H)=>{ c.fillStyle='#1b1b1b'; c.fillRect(0,0,W,H);
+    c.fillStyle='#f3f1ec'; c.font=`700 64px ${FONT}`; c.textAlign='center'; c.textBaseline='middle'; c.fillText(h.id || 'BHR-MAWAR-001', W/2, H/2+4); });
+  box(2.0,.9,.3, 0x7d7b76, 2.3,.7,3.6, g);
+  const sp = new THREE.Mesh(new THREE.PlaneGeometry(1.8,.42), new THREE.MeshBasicMaterial({map:sign})); sp.position.set(2.3,.75,3.76); g.add(sp);
+  [-2.5,-1.4].forEach(x=>{ box(1.0,.8,.06, DK, x,.65,3.6, g); for (let i=0;i<6;i++) box(.04,.8,.08, 0x2a2a2a, x-.45+i*.18,.65,3.6, g); });
+  [-3.2,3.4].forEach(x=>box(.35,1.1,.35, 0xa8a6a0, x,.8,3.6, g));
+  for (let i=0;i<6;i++) box(.42,.35,.42, i%2 ? 0x5d9a48 : 0xb3262a, -3.0 + i*.42,.42,3.1, g);
+  for (let i=0;i<4;i++) box(.42,.35,.42, i%2 ? 0x467f37 : 0xc23a2e, 1.4 + i*.42,.42,3.1, g);
+  [-2.6,-1.5,1.5,3.0].forEach(x=>box(.06,.25,.06, WARM, x,.4,3.3, g));
+  finishHouse(h, g);
+}
+Object.assign(DESAIN, {modern: makeModern, kaca: makeKaca, foto: makeFoto, merah: makeMerah});
 function makeHouse(h){ if (h.status === 'tanah') return makePlot(h); return (DESAIN[h.desain] || makeRuko)(h); }
 function plotSign(h){
   return canvasTex(512, 300, (g,W,H)=>{
