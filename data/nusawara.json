@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-14T18:25:01+11:00",
-  "penduduk": 173,
+  "updatedAt": "2026-11-15T00:29:25+11:00",
+  "penduduk": 186,
   "warga": {
     "29_rezky": {
       "username": "29_Rezky",
@@ -1115,6 +1115,34 @@
       "houseId": null,
       "follow": null
     },
+    "warga_34e0fb4d": {
+      "username": "warga_34e0fb4d",
+      "niwn": "NUS-000178",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_48730443": {
+      "username": "warga_48730443",
+      "niwn": "NUS-000183",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_49440534": {
+      "username": "warga_49440534",
+      "niwn": "NUS-000176",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_4a1ca25d": {
+      "username": "warga_4a1ca25d",
+      "niwn": "NUS-000181",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "warga_4d20ec6e": {
       "username": "warga_4d20ec6e",
       "niwn": "NUS-000141",
@@ -1122,9 +1150,51 @@
       "houseId": null,
       "follow": null
     },
+    "warga_5706e676": {
+      "username": "warga_5706e676",
+      "niwn": "NUS-000177",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "warga_64b613bb": {
       "username": "warga_64b613bb",
       "niwn": "NUS-000150",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_6e605820": {
+      "username": "warga_6e605820",
+      "niwn": "NUS-000180",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_7662333c": {
+      "username": "warga_7662333c",
+      "niwn": "NUS-000182",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_7942afce": {
+      "username": "warga_7942afce",
+      "niwn": "NUS-000179",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_7d77aa7d": {
+      "username": "warga_7d77aa7d",
+      "niwn": "NUS-000186",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_9474c509": {
+      "username": "warga_9474c509",
+      "niwn": "NUS-000185",
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": null
@@ -1139,6 +1209,13 @@
     "warga_b1cbc21d": {
       "username": "warga_b1cbc21d",
       "niwn": "NUS-000144",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_be6b9485": {
+      "username": "warga_be6b9485",
+      "niwn": "NUS-000188",
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": null
@@ -1160,6 +1237,20 @@
     "warga_df465f8c": {
       "username": "warga_df465f8c",
       "niwn": "NUS-000145",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_f0369848": {
+      "username": "warga_f0369848",
+      "niwn": "NUS-000184",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_f34d6644": {
+      "username": "warga_f34d6644",
+      "niwn": "NUS-000187",
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": null
@@ -1235,6 +1326,13 @@
       "sub": "",
       "bg": "#1f3a5f",
       "fg": "#ffffff"
+    },
+    "BHR-MAWAR-001": {
+      "kind": "text",
+      "title": "AdamJohnAaro",
+      "sub": "The Phantom Thieves of Hearts",
+      "bg": "#1f3a5f",
+      "fg": "#ff0000"
     }
   },
   "rumah": {
@@ -1622,13 +1720,26 @@
     "warga_115f1e0f": "2d02249d44321277af17eb2a9a91d23706654c3787c200d248e7aaa8d3c662ac",
     "warga_22262ef6": "6480562f8fec6a51cd545cf411f519fd206f3071115da8eb4bc5fff5b35205a7",
     "warga_2e2b4a69": "e9a570f8bcd6b6660240a777251c815d47bf81b05216f8c20826b3b5d327e4d6",
+    "warga_34e0fb4d": "eb57574ca95c0bb874a15bc51b05cf3b27593742163e491dd50cb19c1346c1e0",
+    "warga_48730443": "7d8c02270aa58eca3cf009bf55e04e450d3da29617d4f80da1b2c0067393f3e3",
+    "warga_49440534": "d11dcbc23fd3478da4ecaa5111e04afb2579abcf08205f0050a8d698f925c9a2",
+    "warga_4a1ca25d": "80d5cc45ae5b585dd04193f636b840bfc82fd0b4f20f6cfc7b34d96f15c5c4de",
     "warga_4d20ec6e": "5cc6f95965a1ba29cfc2cdad892e05d5a03563a80d582fb4b7b54366c66e59eb",
+    "warga_5706e676": "69d52e16dc09c409f8241a579a0c9a84856aa2ca80ea2c4969a17d9905cf314c",
     "warga_64b613bb": "84d4ca6fa9a60ae83f4ab2dc5faebcc42f072c2e653a2d20bf67fae37662ad18",
+    "warga_6e605820": "76fe580e20aa7eb6c801a6f98b0062b18dc758f0f23a33a4c1a7926a520e65e1",
+    "warga_7662333c": "9fa82c8bcbbd51852d7b08c48fb27f44b3951ca79ef005f9c29dacf73d6f7685",
+    "warga_7942afce": "63a54ffabe851a1f94889e40b6d1829d1eaf26bbba7e9ec6845e8989cc88e7dd",
+    "warga_7d77aa7d": "7d37d9174dc124c1339909825fe2f0afed4f85a8c8cbd2ad90e1ce6cb8664e4a",
+    "warga_9474c509": "68b176b528fe1d0934da88914b0c5aab9270d07e1579fd0d16c6279d434a5726",
     "warga_9ef42724": "137c2ae9aeb3ae5067988f93e99ef934a94c84441b85f0082c4416c57b2a9186",
     "warga_b1cbc21d": "e120b5adf9a6537dc317cb927a6dd336ba079e9e137b3afa436211808a3ca22a",
+    "warga_be6b9485": "0e78b21485d2bec38876057c5bc22543b9ff3c2b21cd93d407890c77df9c4a48",
     "warga_c69f5c82": "d653419a030783777b0d3bf978ed8a1211a519ed60290f03310c93b3fc805af8",
     "warga_d3b8ede3": "9510020f8a27710a6995210f10deae772a210d0c9104433a67275ce0341e2e1f",
     "warga_df465f8c": "246845bc4b0c4b47320ee57c713b2f0dfe92e0438707f0570e41c3c392c446a9",
+    "warga_f0369848": "dbb2583df6aebf9be1e7601ac0657102691f8bea4297de1f5e87646f5b7ba22c",
+    "warga_f34d6644": "5a35e0524b5da6d8064e341ae32636559039fcc7b6f1b7ea9019ee69a750d312",
     "yamaalghazali": "818f00ae4f50c9cb764a6828ec13ad81ac413cbc37e8fb8f2308a4d8364a9c39",
     "yolatuuuu874": "f2ddc2ceec7df511426fe142eb7b489a744233a9624c073d67b3b3921d7a0d76",
     "younkbayu": "a9ed9381029d43364a25cfc19498ed8926276620df3e5375147b88ebfb8b1a8c",
