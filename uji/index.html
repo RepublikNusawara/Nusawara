@@ -2870,7 +2870,7 @@ function profileHTML(key){
     <p style="margin:0 0 10px;font-size:13px">${und}</p>
     ${unlocked ? '' : `<div class="card"><h3>🔒 Profil ini terkunci</h3><p>Hanya pemilik @${esc(u)} yang bisa membuka rumah, gaya karakter, dan memainkan karakter ini. Masukkan Kata Sandi Warga untuk membuka.</p>
       <button class="btn" data-unlock="${esc(key)}">🔓 Buka profil dengan kata sandi</button></div>`}
-    ${unlocked ? `<div class="prow"><button class="btn" data-follow="${esc(key)}">🧍 Lihat karakter</button><button class="btn" data-gaya="${esc(key)}">🎨 Ganti gaya${isOwner ? '' : ' 🔑'}</button></div>
+    ${unlocked ? `<div class="prow"><button class="btn" data-follow="${esc(key)}">🧍 Lihat karakter</button><button class="btn" data-gaya="${esc(key)}">👕 Wardrobe${isOwner ? '' : ' 🔑'}</button></div>
     <button class="btn" data-main="${esc(key)}" style="margin-top:8px;background:#f2b134;color:#2a1b00">🎮 Main karakter (jalan, lompat, lari)</button>
     ${land}${typeof kerjaOf === 'function' && kerjaOf(key) ? `<div class="card"><h3>💼 Pekerjaan</h3><p>${esc(kerjaLabel(key))}</p><button class="btn ghost" data-keluar="${esc(key)}">Keluar dari pekerjaan</button></div>` : `<div class="card"><h3>💼 Pekerjaan</h3><p>Belum bekerja. Ketuk Rumah Sakit, Kopi Nusawara, atau gedung lain di peta untuk melihat lowongan.</p></div>`}${own}` : ''}`;
 }
@@ -3244,7 +3244,7 @@ function akunHTML(){
   ${tanahCard()}
   <div class="card"><h3>🎒 Tas</h3><div class="tasg">${tas || '<p class="note">Memuat…</p>'}</div></div>
   <div class="prow" style="margin-top:8px"><button class="btn ghost" data-pergi="kavling">🏞️ Kavling</button><button class="btn ghost" data-pergi="donasi">🤝 Donasi</button></div><div class="prow"><button class="btn ghost" data-pergi="tambang">⛏️ Tambang</button><button class="btn ghost" data-pergi="kebun">🌾 Kebun & Pabrik</button><button class="btn ghost" data-pergi="industri">🏭 Pabrik</button><button class="btn ghost" data-pergi="prn">🏪 Pasar (PRN)</button></div>
-  <div class="prow" style="margin-top:8px"><button class="btn ghost" data-cara>📖 Cara Main</button></div>
+  <div class="prow" style="margin-top:8px"><button class="btn ghost" data-wardrobe>👕 Wardrobe</button><button class="btn ghost" data-cara>📖 Cara Main</button></div>
   <div class="prow" style="margin-top:8px"><button class="btn ghost" id="akProfil">🪪 Kartu Warga</button><button class="btn ghost" id="akOut">🚪 Keluar</button></div>`;
 }
 akunBtn.addEventListener('click', async ()=>{ openSheet(akunHTML); if (AKUN.u) await akunMuat(); });
@@ -3429,6 +3429,7 @@ const sisaDetik = kode => { const t = AKUN.data && AKUN.data.tambang && AKUN.dat
 const perluMasuk = () => `<div class="card"><p>Masuk dulu supaya hasilnya tersimpan di akunmu.</p><button class="btn" data-eko-masuk>🔑 Masuk</button></div>`;
 const saldoBar = () => AKUN.data ? `<p class="note">Saldo: <b>${N$(AKUN.data.saldo)}</b></p>` : '';
 function ekoHTML(id){
+  if (id === 'BUTIK') return butikHTML();
   if (id.startsWith('TMP-')) return tempatHTML(id.slice(4));
   if (KAV[id]) return kavHTML(id);
   if (id === 'EKO-DONASI') return donasiHTML();
@@ -3910,6 +3911,139 @@ setInterval(()=>{
     SIAPT[id].visible = !!(AKUN.data && ts.some(t=>tgsSisa(t.kode) === 0)); }
 }, 1000);
 tgsMuat(); setInterval(()=>{ if (AKUN.u && !document.hidden) tgsMuat(); }, 60000);
+
+/* ---------- KARAKTER DASAR BARU + WARDROBE + BUTIK NUSAWARA ---------- */
+// Semua warga memakai satu karakter dasar (chibi, botak, satu warna kulit). Penampilan hanya dari item Butik.
+// Catatan: hanya memakai function declaration + cache di window, karena makeAvatar bisa dipanggil sebelum blok ini dijalankan.
+function _avG(){ return window._AVG || (window._AVG = { s: new THREE.SphereGeometry(1,12,9), h: new THREE.SphereGeometry(1,20,14), c: new THREE.CylinderGeometry(1,1,1,12), b: new THREE.BoxGeometry(1,1,1),
+  m: new THREE.MeshPhongMaterial({vertexColors:true, shininess:14, specular:0x161616}) }); }
+function Mrg(){ this.p = []; this.n = []; this.c = []; this.i = []; }
+Mrg.prototype.add = function(geo,x,y,z,sx,sy,sz,col,rx,rz){
+  const M4 = new THREE.Matrix4().compose(new THREE.Vector3(x,y,z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx||0,0,rz||0)), new THREE.Vector3(sx,sy,sz));
+  const N3 = new THREE.Matrix3().getNormalMatrix(M4), P = geo.attributes.position, N = geo.attributes.normal, base = this.p.length/3, v = new THREE.Vector3(), c = new THREE.Color(col);
+  for (let k=0;k<P.count;k++){ v.fromBufferAttribute(P,k).applyMatrix4(M4); this.p.push(v.x,v.y,v.z); v.fromBufferAttribute(N,k).applyMatrix3(N3).normalize(); this.n.push(v.x,v.y,v.z); this.c.push(c.r,c.g,c.b); }
+  const I = geo.index.array; for (let k=0;k<I.length;k++) this.i.push(I[k] + base); return this; };
+Mrg.prototype.s = function(x,y,z,sx,sy,sz,col){ return this.add(_avG().s,x,y,z,sx,sy,sz,col); };
+Mrg.prototype.c = function(x,y,z,r,h,rz2,col,rx,rz){ return this.add(_avG().c,x,y,z,r,h,rz2,col,rx,rz); };
+Mrg.prototype.b = function(x,y,z,w,h,d,col,rx,rz){ return this.add(_avG().b,x,y,z,w,h,d,col,rx,rz); };
+Mrg.prototype.mesh = function(parent){ const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(this.p,3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(this.n,3)); g.setAttribute('color', new THREE.Float32BufferAttribute(this.c,3));
+  g.setIndex(this.i); const m = new THREE.Mesh(g, _avG().m); m.castShadow = true; parent.add(m); return m; };
+
+function butikDef(){ return window._BDEF || (window._BDEF = {
+  slot: ['clothes','pants','shoes'],
+  def: {clothes:'shirt_default', pants:'shorts_default', shoes:'barefoot', hair:'bald', hats:'no_hat', glasses:'no_glasses', wings:'no_wings', weapons:'no_weapon', props:'no_prop', emote:'normal'},
+  clothes: {
+    shirt_default:{c:0xf7f7f5, sl:'short', x:'flag'}, shirt_casual_navy:{c:0x1f2f55, sl:'short'}, shirt_casual_black:{c:0x202226, sl:'short'}, shirt_polo:{c:0xf7f7f5, sl:'short', x:'polo'},
+    shirt_work:{c:0x1f2f55, sl:'short', x:'work'}, vest_worker:{c:0xf2c21a, sl:'none', x:'vest'}, shirt_formal:{c:0xfafafa, sl:'long', x:'tie'}, hoodie:{c:0x1f2f55, sl:'long', x:'hood'},
+    jacket:{c:0xf2f2f0, sl:'long', sc:0x1f2f55, x:'zip'}, jacket_premium:{c:0x1c1c1e, sl:'long', x:'gold'} },
+  pants: { shorts_default:{c:0x202226, len:'short'}, pants_long:{c:0x202226, len:'long'}, pants_cargo:{c:0xc9a56b, len:'long', x:'cargo'}, pants_work:{c:0x1f2f55, len:'long', x:'band'}, pants_formal:{c:0x151a2c, len:'long'} },
+  shoes: { barefoot:null, sneakers:{c:0xfafafa, s:0xdedede}, work_shoes:{c:0x26262a, s:0x111111}, boots:{c:0x8a5a33, s:0x3b2616, cuff:1}, formal_shoes:{c:0x141416, s:0x000000}, sport_shoes:{c:0xfafafa, s:0xf2c21a, st:0x1f2f55} }
+}); }
+function avatarSpec(w){
+  const D = butikDef(), p = (w && w.avatar && typeof w.avatar === 'object' && w.avatar.pakai && typeof w.avatar.pakai === 'object') ? w.avatar.pakai : {}, o = {};
+  for (const k in D.def) o[k] = typeof p[k] === 'string' ? p[k] : D.def[k];
+  ['clothes','pants','shoes'].forEach(k=>{ if (!(o[k] in D[k])) o[k] = D.def[k]; });
+  return o;
+}
+function makeAvatar(sp){
+  const D = butikDef(), g = new THREE.Group(), body = new THREE.Group(); g.add(body);
+  const m = new THREE.Group(); m.scale.setScalar(1.45); body.add(m);
+  const SK = 0xe9b58f, NV = 0x1f2f55, GR = 0xb9bec6, GD = 0xd9a520;
+  const sh = D.clothes[sp.clothes] || D.clothes.shirt_default, pt = D.pants[sp.pants] || D.pants.shorts_default, so = D.shoes[sp.shoes] || null;
+  // ----- badan -----
+  const T = new Mrg();
+  T.c(0,1.15,0,.085,.14,.085,SK).s(0,.68,0,.228,.15,.178,pt.c).s(0,.93,0,.25,.268,.19,sh.c);
+  if (sh.x === 'flag' || sh.x === 'polo'){ T.b(.09,1.005,.171,.06,.018,.012,0xd62828).b(.09,.987,.171,.06,.018,.012,0xffffff); }
+  if (sh.x === 'polo') T.c(0,1.135,0,.105,.05,.105,NV);
+  if (sh.x === 'work'){ T.c(0,.9,0,.256,.035,.196,GR).c(0,1.135,0,.105,.05,.105,NV).b(.09,1.005,.171,.06,.018,.012,0xd62828); }
+  if (sh.x === 'vest'){ T.c(0,.99,0,.25,.035,.19,GR).c(0,.84,0,.246,.035,.188,GR).b(0,.92,.186,.014,.36,.012,0x8a6d00); }
+  if (sh.x === 'tie'){ T.c(0,1.135,0,.105,.05,.105,0xffffff).b(0,.96,.19,.034,.22,.014,NV); }
+  if (sh.x === 'hood'){ T.s(0,1.13,-.11,.17,.12,.13,sh.c).b(0,.8,.168,.17,.07,.02,0x18254a).b(0,1.0,.176,.07,.05,.012,0xffffff); }
+  if (sh.x === 'zip'){ T.b(0,.93,.19,.014,.42,.012,NV).c(0,1.135,0,.105,.05,.105,NV).c(0,.72,0,.236,.04,.182,NV); }
+  if (sh.x === 'gold'){ T.c(0,.72,0,.236,.04,.182,GD).c(0,1.135,0,.105,.05,.105,GD).b(0,.93,.19,.014,.42,.012,GD); }
+  T.mesh(m);
+  // ----- kepala (botak, satu ekspresi dasar) -----
+  const head = new THREE.Group(); head.position.set(0,1.585,0); m.add(head);
+  const fz = (x,y)=>.37*Math.sqrt(Math.max(0, 1 - (x/.405)**2 - (y/.4)**2)), H = new Mrg();
+  H.add(_avG().h,0,0,0,.405,.4,.37,SK).s(.4,-.01,-.01,.055,.085,.06,SK).s(-.4,-.01,-.01,.055,.085,.06,SK).s(0,-.06,fz(0,-.06)-.004,.03,.022,.022,0xdca47c);
+  [1,-1].forEach(s=>{ H.s(s*.135,.01,fz(.135,.01)-.012,.052,.078,.03,0x241a16).s(s*.135+.016,.04,fz(.15,.04)+.012,.017,.022,.008,0xffffff).s(s*.2,-.095,fz(.2,-.095)-.012,.045,.026,.012,0xf0988c); });
+  H.s(0,-.135,fz(0,-.135),.05,.013,.012,0x7a342c).s(-.045,-.127,fz(.045,-.127),.014,.014,.01,0x7a342c).s(.045,-.127,fz(.045,-.127),.014,.014,.01,0x7a342c);
+  H.mesh(head);
+  // ----- lengan (pivot di bahu) -----
+  const arm = s => { const a = new THREE.Group(); a.position.set(s*.235,1.07,0); a.rotation.z = s*.12; m.add(a); const A = new Mrg(), sc = sh.sc || sh.c;
+    A.c(0,-.2,0,.065,.4,.065,SK).s(0,-.44,0,.075,.07,.06,SK);
+    if (sh.sl === 'none') A.s(0,0,0,.07,.07,.07,SK);
+    else { A.s(0,0,0,.086,.086,.086,sc); if (sh.sl === 'short') A.c(0,-.08,0,.082,.18,.082,sc); else A.c(0,-.19,0,.08,.4,.08,sc); }
+    A.mesh(a); return a; };
+  const armL = arm(1), armR = arm(-1);
+  // ----- kaki (pivot di pinggul) -----
+  const leg = s => { const l = new THREE.Group(); l.position.set(s*.115,.6,0); m.add(l); const L = new Mrg();
+    L.c(0,-.25,0,.085,.5,.085,SK);
+    if (pt.len === 'short') L.c(0,-.08,0,.102,.2,.102,pt.c); else L.c(0,-.24,0,.098,.5,.098,pt.c);
+    if (pt.x === 'cargo') L.b(s*.1,-.2,0,.03,.1,.09,0xb08f58);
+    if (pt.x === 'band') L.c(0,-.33,0,.101,.035,.101,GR);
+    if (!so) L.s(0,-.55,.045,.085,.05,.125,SK);
+    else { L.s(0,-.535,.05,.1,.07,.148,so.c).b(0,-.588,.05,.19,.028,.29,so.s); if (so.cuff) L.c(0,-.44,0,.103,.14,.103,so.c); if (so.st) L.b(s*.098,-.53,.05,.012,.03,.14,so.st); }
+    L.mesh(l); return l; };
+  const legL = leg(1), legR = leg(-1);
+  return {g, body, legL, legR, armL, armR, head, cup: null};
+}
+
+// ----- Wardrobe (menggantikan Studio Gaya) -----
+const BUTIK = {item: [], punya: new Set(), kat: {clothes:'👕 Baju', pants:'👖 Celana', shoes:'👟 Sepatu'}};
+async function butikMuat(key){
+  if (!BUTIK.item.length){ try { BUTIK.item = await SB.get('butik_item?select=*&order=kategori,urut') || []; } catch(_) {} }
+  if (key && UNLOCK[key]){ try { const r = await SB.rpc('koleksi_saya', {p_user: key, p_sandi: UNLOCK[key]}); if (r && r.ok) BUTIK.punya = new Set(r.item); } catch(_) {} }
+}
+function stOptions(){
+  const sp = st.spec, D = butikDef(); let h = '';
+  D.slot.forEach(k=>{ const ls = BUTIK.item.filter(i=>i.kategori === k), cur = ls.find(i=>i.kode === sp[k]), milik = i => i.harga === 0 || BUTIK.punya.has(i.kode);
+    h += `<div class="sg"><h4>${BUTIK.kat[k].toUpperCase()}</h4><div class="ch">${ls.map(i=>`<button data-k="${k}" data-v="${i.kode}" class="${sp[k] === i.kode ? 'on' : ''}">${esc(i.nama)} · ${milik(i) ? (i.harga ? '✓' : 'Gratis') : N$(i.harga)}</button>`).join('')}</div>
+      ${cur && !milik(cur) ? `<button class="btn" data-belibutik="${cur.kode}" style="margin-top:8px">🪙 Beli ${esc(cur.nama)} · ${N$(cur.harga)}</button>` : ''}</div>`; });
+  if (!BUTIK.item.length) h = '<p class="note">Memuat katalog Butik…</p>';
+  h += '<p class="note">Rambut, topi, kacamata, sayap, senjata, aksesori, dan ekspresi segera hadir di Butik.</p>';
+  document.getElementById('stO').innerHTML = h;
+}
+document.getElementById('stR').style.display = 'none';
+document.getElementById('stS').textContent = 'Pakai & simpan';
+document.getElementById('stO').addEventListener('click', async e=>{
+  const b = e.target.closest('[data-belibutik]'); if (!b || !st) return; b.disabled = true; const key = st.key;
+  const r = await SB.rpc('beli_item', {p_user: key, p_sandi: UNLOCK[key], p_item: b.dataset.belibutik}).catch(()=>null);
+  if (r && r.ok){ BUTIK.punya.add(r.item); popHadiah('🛍️ ' + r.nama); toast('🛍️ ' + r.nama + ' masuk koleksimu (permanen).'); if (AKUN.u === key) akunMuat(); if (typeof negaraMuat === 'function') negaraMuat(); }
+  else toast(r && r.alasan === 'saldo_kurang' ? '❌ Saldo N$ tidak cukup.' : r && r.alasan === 'sudah_punya' ? 'Sudah dimiliki.' : 'Gagal membeli.');
+  if (st) stOptions();
+});
+document.getElementById('stS').onclick = async ()=>{
+  if (!st) return; const key = st.key, msg = document.getElementById('stM'), pakai = Object.assign({}, st.spec); msg.textContent = 'Menyimpan…';
+  const r = await SB.rpc('pakai_item', {p_user: key, p_sandi: UNLOCK[key], p_pakai: pakai}).catch(()=>null);
+  if (!r || !r.ok){ msg.textContent = r && r.alasan === 'belum_punya' ? '❌ ' + r.item + ' belum dibeli. Beli dulu, atau pilih item lain.' : r && r.alasan === 'sandi' ? '❌ Kata sandi salah atau sudah berubah.' : 'Gagal menyimpan. Coba lagi.'; return; }
+  const avatar = {pakai: r.pakai}; SB_GAYA[key] = avatar; syncWalkers({[key]: Object.assign({}, wInfo(key), {avatar})}); closeStyle(); toast('👕 Penampilan disimpan ✓');
+  if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn();
+};
+{ const _os = openStyle; openStyle = key => { _os(key); const w = wInfo(key);
+    document.getElementById('stT').textContent = '👕 Wardrobe @' + String((w && w.username) || key).replace(/^@+/,'');
+    document.getElementById('stM').textContent = 'Geser karakter untuk memutar. Ketuk item untuk mencoba; item yang belum dimiliki harus dibeli dulu sebelum disimpan.';
+    butikMuat(key).then(()=>{ if (st && st.key === key) stOptions(); }); }; }
+function butikHTML(){
+  const n = BUTIK.item.filter(i=>butikDef().slot.includes(i.kategori)).length;
+  return `<div class="kicker">Milik Negara</div><h2>🛍️ Butik Nusawara</h2>
+    <p class="note">Beli baju, celana, dan sepatu untuk karaktermu. Barang yang dibeli tersimpan permanen di koleksi, dan kamu bisa ganti pakaian kapan saja lewat Wardrobe. Pakaian hanya untuk gaya, tidak menambah kekuatan atau penghasilan. Uang pembelian masuk Kas Negara.</p>
+    ${AKUN.data ? `<button class="btn" data-wardrobe>👕 Buka Wardrobe & belanja${n ? ' (' + n + ' item)' : ''}</button>${saldoBar()}` : perluMasuk()}
+    <div class="card"><h3>Semua warga mulai dari karakter dasar</h3><p class="note">Baju Warga Nusawara, Celana Pendek, dan tanpa sepatu (gratis). Rambut, topi, kacamata, sayap, senjata, aksesori, dan ekspresi segera hadir.</p></div>`;
+}
+sheetBody.addEventListener('click', e=>{ const t = e.target.closest('[data-wardrobe]'); if (!t || !AKUN.u) return; UNLOCK[AKUN.u] = AKUN.s; closeSheet(); openStyle(AKUN.u); });
+// gedung Butik (area fasilitas, timur Toko Matcha)
+{ const BG = new THREE.Group(); BG.position.set(101, 0, -60); scene.add(BG);
+  box(14,.3,12,0xd9d2c3,0,.15,0,BG); box(11,4.6,8,0xfaf3ee,0,2.6,-1,BG); box(11.6,.5,8.6,0x1f2f55,0,5.15,-1,BG);
+  box(4,3,.1,new THREE.MeshPhongMaterial({color:0xffe9c9, emissive:0x553300, shininess:80}),-2.8,1.9,3.06,BG); box(4,3,.1,new THREE.MeshPhongMaterial({color:0xffe9c9, emissive:0x553300, shininess:80}),2.8,1.9,3.06,BG);
+  box(1.6,3,.1,0x5a3a22,0,1.8,3.06,BG);
+  for (let i=0;i<8;i++){ const a = box(1.4,.15,1.8,i%2 ? 0xffffff : 0xe86a92,-4.9+i*1.4,4.1,3.8,BG); a.rotation.x = .35; }
+  [-2.8,2.8].forEach((x,i)=>{ const mn = makeAvatar(avatarSpec({avatar:{pakai: i ? {clothes:'hoodie', pants:'pants_long', shoes:'sneakers'} : {clothes:'shirt_formal', pants:'pants_formal', shoes:'formal_shoes'}}})); mn.g.scale.setScalar(.8); mn.g.position.set(x,.3,2.2); BG.add(mn.g); });
+  papanT('BUTIK NUSAWARA', 8, 1.4, '#1f2f55', '#ffffff', 0, 6.4, 3.3, BG); box(8.3,1.7,.2,0xe86a92,0,6.4,3.18,BG);
+  { const l = label('🛍️ BUTIK NUSAWARA', LBL); l.position.set(0, 9.6, 0); BG.add(l); }
+  BG.userData = {type:'eko', data:{id:'BUTIK'}}; pickables.push(BG); }
+butikMuat();
 
 renderer.domElement.addEventListener('pointerdown', e=>{ if (ctl.key) ctl.drag = {x:e.clientX, y:e.clientY, id:e.pointerId}; });
 addEventListener('pointermove', e=>{ if (!ctl.key || !ctl.drag || e.pointerId !== ctl.drag.id) return;
