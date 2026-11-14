@@ -329,6 +329,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 (function(){
 "use strict";
@@ -3963,7 +3964,8 @@ function makeAvatar(sp){
   if (sh.x === 'hood'){ T.s(0,1.13,-.11,.17,.12,.13,sh.c).b(0,.8,.168,.17,.07,.02,0x18254a).b(0,1.0,.176,.07,.05,.012,0xffffff); }
   if (sh.x === 'zip'){ T.b(0,.93,.19,.014,.42,.012,NV).c(0,1.135,0,.105,.05,.105,NV).c(0,.72,0,.236,.04,.182,NV); }
   if (sh.x === 'gold'){ T.c(0,.72,0,.236,.04,.182,GD).c(0,1.135,0,.105,.05,.105,GD).b(0,.93,.19,.014,.42,.012,GD); }
-  const WG = {wings_white:[0xffffff,0xe3ebf5,1], wings_gold:[0xf2c21a,0xd9a520,1], wings_dark:[0x2a2a33,0x8a1f1f,1], wings_energy:[0x39d0ff,0x2f6fe0,1], wings_honor_lv30:[0xffffff,0xf2c21a,1.7]}[sp.wings];
+  if (sp.wings === 'wings_honor_lv30') honorWings(m);
+  const WG = {wings_white:[0xffffff,0xe3ebf5,1], wings_gold:[0xf2c21a,0xd9a520,1], wings_dark:[0x2a2a33,0x8a1f1f,1], wings_energy:[0x39d0ff,0x2f6fe0,1]}[sp.wings];
   if (WG) [1,-1].forEach(s=>{ for (let i=0;i<4;i++) T.add(_avG().s, s*(.28+.11*i)*WG[2], 1.02+(.2-.13*i)*WG[2], -.22, (.34-.05*i)*WG[2], .085*WG[2], .025, i%2 ? WG[1] : WG[0], 0, s*(.75-.4*i)); });
   if (sp.props === 'backpack') T.b(0,.93,-.25,.3,.36,.14,0x8a5a33).b(0,.86,-.33,.2,.14,.03,0x6b4423);
   if (sp.props === 'camera') T.b(0,.9,.215,.16,.11,.07,0x2a2a2e).c(0,.9,.265,.04,.05,.04,0x555b66,Math.PI/2).b(0,1.02,.195,.012,.16,.012,0x222222);
@@ -4062,6 +4064,21 @@ function makeAvatar(sp){
   return {g, body, legL, legR, armL, armR, head, cup: null};
 }
 
+// ----- Sayap Kehormatan Nusawara (model 3D assets/wings_honor_lv30.glb, Level 30) -----
+// Di file aslinya sayap kanan belum dicerminkan (menumpuk di sisi kiri), jadi dicerminkan di sini (scale.x = -1).
+function honorWings(parent){
+  const W = window._HW || (window._HW = {model: null, wait: [], anim: new Set(), mulai: false});
+  const holder = new THREE.Group(); holder.position.set(0, 1.0, -.2); holder.scale.setScalar(.55); parent.add(holder);
+  const pasang = () => { const src = W.model, L = new THREE.Group(), R = new THREE.Group(), C = new THREE.Group(); R.scale.x = -1;
+    src.children.forEach(o=>{ const k = o.clone(); (o.name.startsWith('WingsLeft') ? L : o.name.startsWith('WingsRight') ? R : C).add(k); });
+    [L, R, C].forEach(x=>{ x.traverse(o=>{ if (o.isMesh) o.castShadow = true; }); holder.add(x); }); W.anim.add({L, R, h: holder}); };
+  if (W.model) pasang();
+  else { W.wait.push(pasang);
+    if (!W.mulai && THREE.GLTFLoader){ W.mulai = true; new THREE.GLTFLoader().load('../assets/wings_honor_lv30.glb', g=>{ W.model = g.scene; W.wait.splice(0).forEach(f=>f()); }, undefined, ()=>{ W.mulai = false; }); } }
+  if (!W.loop){ W.loop = true; (function kepak(t){ const f = Math.sin(t/1000*2) * .1;
+      W.anim.forEach(a=>{ let o = a.h; while (o && o.parent) o = o.parent; if (o.isScene) a.seen = true; else if (a.seen) { W.anim.delete(a); return; } a.L.rotation.z = f; a.R.rotation.z = -f; });
+      requestAnimationFrame(kepak); })(0); }
+}
 // ----- Wardrobe (menggantikan Studio Gaya) -----
 const BUTIK = {item: [], punya: new Set(), kat: {clothes:'👕 Baju', pants:'👖 Celana', shoes:'👟 Sepatu', hair:'💇 Rambut', hats:'🧢 Topi', glasses:'👓 Kacamata', wings:'🪽 Sayap', weapons:'⚔️ Senjata (hiasan)', props:'🎁 Aksesori', emote:'😀 Ekspresi'}};
 async function butikMuat(key){
