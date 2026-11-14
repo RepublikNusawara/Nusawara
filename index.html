@@ -87,18 +87,6 @@
   dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:14px 0;font-size:14px}
   dt{color:var(--muted)} dd{margin:0;font-weight:600}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
-  .akunbtn{pointer-events:auto;font:inherit;font-weight:800;font-size:13px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;
-    background:#1f3a5f;color:#fff;box-shadow:0 6px 18px rgba(31,58,95,.12);white-space:nowrap;cursor:pointer}
-  .akunbtn.in{background:#fffdf8;color:#1f3a5f}
-  .saldo{font-size:30px;font-weight:900;color:#1f3a5f;letter-spacing:.01em}
-  .tasg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
-  .tasg div{border:1px solid #e3e6ea;border-radius:12px;padding:8px 4px;text-align:center;background:#fafbfc}
-  .tasg div.nol{opacity:.45}.tasg i{font-style:normal;font-size:24px;display:block}.tasg b{display:block;font-size:17px}.tasg small{font-size:11px;color:#667;line-height:1.2;display:block}
-  .streak{display:flex;gap:4px;margin:10px 0 2px}.streak span{flex:1;text-align:center;font-size:11px;font-weight:700;padding:6px 0;border-radius:8px;background:#eef1f4;color:#667}
-  .streak span.on{background:#f2b134;color:#1f3a5f}
-  .pop{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) scale(.6);z-index:30;font-size:34px;font-weight:900;color:#1f3a5f;
-    background:#fffdf8;border:2px solid #f2b134;border-radius:18px;padding:14px 22px;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:all .35s}
-  .pop.show{opacity:1;transform:translate(-50%,-60%) scale(1)}
   .card{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:12px;background:#fff}
   .card h3{margin:0 0 6px;font-size:13px;color:var(--navy)}
   .card p{margin:0;font-size:14px;line-height:1.5}
@@ -218,7 +206,6 @@
     <div><b id="sHouse">0</b><span>Rumah</span></div>
     <div><b id="sEmpty">0</b><span>Tanah</span></div>
   </div>
-  <button id="akunBtn" class="akunbtn" type="button">🔑 Masuk</button>
 </header>
 
 <form class="search" id="search" autocomplete="off">
@@ -3155,76 +3142,6 @@ window.nusawaraChatKirim = async ({k, u, t}) => {
   } catch(_) {} };
   document.head.appendChild(s);
 })();
-
-/* ---------- AKUN WARGA: saldo Nusa (N$), tas, absen harian ---------- */
-// Semua hitungan saldo & hadiah ada di server Supabase (akun_saya, klaim_absen); website hanya menampilkan.
-const AKUN = {u:null, s:null, data:null}, BARANG = [];
-const N$ = n => 'N$' + Number(n||0).toLocaleString('id-ID');
-const akunBtn = document.getElementById('akunBtn');
-try { const r = JSON.parse(localStorage.getItem('nusawara_akun') || 'null'); if (r && r.u && r.s){ AKUN.u = r.u; AKUN.s = r.s; UNLOCK[r.u] = r.s; } } catch(_) {}
-function akunTombol(){ akunBtn.textContent = AKUN.data ? '💰 ' + N$(AKUN.data.saldo) : '🔑 Masuk'; akunBtn.classList.toggle('in', !!AKUN.data); }
-function popHadiah(t){ const el = document.createElement('div'); el.className = 'pop'; el.textContent = t; document.body.appendChild(el);
-  requestAnimationFrame(()=>el.classList.add('show')); setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 400); }, 1500); }
-async function akunMuat(){
-  if (!AKUN.u) return false;
-  try { const r = await SB.rpc('akun_saya', {p_user: AKUN.u, p_sandi: AKUN.s});
-    if (!r || !r.ok){ akunKeluar(true); toast('❌ Kata sandi sudah berubah. Silakan masuk lagi.'); return false; }
-    AKUN.data = r; akunTombol(); if (sheet.classList.contains('open') && sheetFn === akunHTML) sheetBody.innerHTML = akunHTML(); return true;
-  } catch(_) { return false; }
-}
-function akunKeluar(diam){ AKUN.u = AKUN.s = AKUN.data = null; try { localStorage.removeItem('nusawara_akun'); } catch(_) {} akunTombol();
-  if (!diam){ closeSheet(); toast('Kamu sudah keluar.'); } }
-const HADIAH_HARI = d => d <= 2 ? 50 : d <= 5 ? 75 : 100;
-function masukHTML(){ return `<div class="kicker">Akun Warga</div><h2>🔑 Masuk</h2>
-  <p style="font-size:14px;line-height:1.5;margin:0 0 6px">Masuk dengan <b>username Instagram</b> dan <b>Kata Sandi Warga</b> untuk mengumpulkan Nusa (N$), absen harian, dan melihat isi tasmu.</p>
-  <form id="akF"><input id="akU" placeholder="@username" autocapitalize="none" autocorrect="off" spellcheck="false"
-    style="font:inherit;font-size:17px;padding:12px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box;margin:6px 0 8px">
-  ${pwInput('akP','Kata Sandi Warga')}<button class="btn" id="akB" style="margin-top:4px">Masuk</button></form><p class="note" id="akM"></p>
-  <p class="note">Belum jadi warga? Komentar/DM <b>DAFTAR</b> di Instagram @republiknusawara.</p>`; }
-function akunHTML(){
-  const d = AKUN.data; if (!d) return masukHTML();
-  const w = wInfo(AKUN.u) || {}, st = d.streak || 0, next = d.sudah_absen ? st + 1 : st + 1;
-  const hari = [1,2,3,4,5,6,7].map(i=>`<span class="${i <= st ? 'on' : ''}">H${i}${i === 7 ? '+' : ''}</span>`).join('');
-  const tas = BARANG.map(b=>{ const n = (d.tas || {})[b.kode] || 0; return `<div class="${n ? '' : 'nol'}"><i>${b.ikon}</i><b>${n}</b><small>${esc(b.nama)}</small></div>`; }).join('');
-  return `<div class="kicker">Akun Warga · ${esc(w.niwn || '')}</div><h2>@${esc(String(w.username || AKUN.u).replace(/^@+/,''))}</h2>
-  <div class="card"><h3>💰 Saldo</h3><div class="saldo">${N$(d.saldo)}</div><p class="note">Mata uang Republik Nusawara: Nusa (NSA).</p></div>
-  <div class="card"><h3>📅 Absen harian · hari ke-${st || 0}</h3>
-    <div class="streak">${hari}</div>
-    <p class="note">Hari 1–2: N$50 · Hari 3–5: N$75 · Hari 6 dst: N$100 per hari. Lewat sehari (reset 00.00 WIB) = bolos, ulang dari hari 1.</p>
-    ${d.sudah_absen ? `<button class="btn ghost" disabled>✓ Sudah absen hari ini · besok ${N$(HADIAH_HARI(next))}</button>`
-      : `<button class="btn" id="akAbsen">Klaim absen · +${N$(HADIAH_HARI(next))}</button>`}</div>
-  <div class="card"><h3>🎒 Tas</h3><div class="tasg">${tas || '<p class="note">Memuat…</p>'}</div></div>
-  <div class="prow" style="margin-top:8px"><button class="btn ghost" id="akProfil">🪪 Kartu Warga</button><button class="btn ghost" id="akOut">🚪 Keluar</button></div>`;
-}
-akunBtn.addEventListener('click', async ()=>{ openSheet(akunHTML); if (AKUN.u) await akunMuat(); });
-sheetBody.addEventListener('submit', async e=>{
-  if (e.target.id !== 'akF') return; e.preventDefault();
-  const u = String(document.getElementById('akU').value || '').trim().toLowerCase().replace(/^@+/,''), pw = normPw(document.getElementById('akP').value), m = document.getElementById('akM'), btn = document.getElementById('akB');
-  if (!/^[a-z0-9._]{1,30}$/.test(u)) { m.textContent = '❌ Username tidak valid.'; return; }
-  if (!wInfo(u)) { m.textContent = '❌ @' + u + ' belum terdaftar sebagai warga.'; return; }
-  if (!/^[A-Z0-9]{4,20}$/.test(pw)) { m.textContent = '❌ Kata sandi salah.'; return; }
-  btn.disabled = true; m.textContent = 'Memeriksa…';
-  try { const r = await SB.rpc('akun_saya', {p_user: u, p_sandi: pw}); btn.disabled = false;
-    if (!r || !r.ok){ m.textContent = '❌ Username atau kata sandi salah.'; return; }
-    Object.assign(AKUN, {u, s: pw, data: r}); UNLOCK[u] = pw;
-    try { localStorage.setItem('nusawara_akun', JSON.stringify({u, s: pw})); } catch(_) {}
-    akunTombol(); sheetBody.innerHTML = akunHTML(); toast('✓ Selamat datang, @' + u + '!');
-  } catch(_) { btn.disabled = false; m.textContent = 'Jaringan bermasalah. Coba lagi.'; }
-});
-sheetBody.addEventListener('click', async e=>{
-  const t = e.target.closest('button'); if (!t) return;
-  if (t.id === 'akOut') akunKeluar();
-  else if (t.id === 'akProfil' && AKUN.u) showProfile(AKUN.u);
-  else if (t.id === 'akAbsen'){
-    t.disabled = true;
-    try { const r = await SB.rpc('klaim_absen', {p_user: AKUN.u, p_sandi: AKUN.s});
-      if (r && r.ok){ popHadiah('+' + N$(r.hadiah) + ' 💰'); sfx(660, .15, 'sine', .08, 0, 990); toast('📅 Absen hari ke-' + r.streak + ' berhasil!'); }
-      else toast(r && r.alasan === 'sudah' ? 'Kamu sudah absen hari ini.' : '❌ Gagal absen. Masuk lagi.');
-    } catch(_) { toast('Jaringan bermasalah. Coba lagi.'); }
-    await akunMuat();
-  }
-});
-(async ()=>{ try { (await SB.get('barang?select=kode,nama,ikon,jenis,harga_beli,harga_jual&order=urut')).forEach(b=>BARANG.push(b)); } catch(_) {} if (AKUN.u) akunMuat(); })();
 
 renderer.domElement.addEventListener('pointerdown', e=>{ if (ctl.key) ctl.drag = {x:e.clientX, y:e.clientY, id:e.pointerId}; });
 addEventListener('pointermove', e=>{ if (!ctl.key || !ctl.drag || e.pointerId !== ctl.drag.id) return;
