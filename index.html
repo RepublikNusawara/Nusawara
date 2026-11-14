@@ -3308,8 +3308,23 @@ const music = (()=>{
     setTimeout(()=>{ n.forEach(x=>{ try { x.stop(); } catch(_) {} }); try { m.disconnect(); m._lp.disconnect(); } catch(_) {} }, 250);
   }
   btn.addEventListener('pointerdown', e=>e.stopPropagation());
-  btn.onclick = e=>{ e.stopPropagation(); on = !on; window.NUSA_SOUND = on; try { localStorage.setItem('nusawara.music', on ? 'on' : 'off'); } catch(_) {} paint(); if (on) start(); else stop(); };
-  addEventListener('pointerdown', ()=>{ if (on && !started) start(); }, {passive:true});
+  btn.onclick = e=>{ e.stopPropagation(); unlock(); on = !on; window.NUSA_SOUND = on; try { localStorage.setItem('nusawara.music', on ? 'on' : 'off'); } catch(_) {} paint(); if (on) start(); else stop(); };
+  // iPhone/Instagram: musik Web Audio dibisukan saat HP mode senyap & butuh ketukan 'click/touchend'.
+  // Putar audio hening berulang lewat elemen <audio> agar sesi suara jadi "playback", lalu lanjutkan AudioContext.
+  let unlocked = false;
+  function unlock(){
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch(_) {}
+    if (!unlocked){ unlocked = true;
+      try { const sr = 8000, n = sr, buf = new ArrayBuffer(44 + n*2), v = new DataView(buf), w = (o,t)=>{ for (let i=0;i<t.length;i++) v.setUint8(o+i, t.charCodeAt(i)); };
+        w(0,'RIFF'); v.setUint32(4,36+n*2,true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+        v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true); w(36,'data'); v.setUint32(40,n*2,true);
+        const el = new Audio(URL.createObjectURL(new Blob([buf],{type:'audio/wav'}))); el.loop = true; el.setAttribute('playsinline',''); el.volume = .01;
+        const pp = el.play(); if (pp && pp.catch) pp.catch(()=>{ unlocked = false; }); window.__nusaSilent = el;
+      } catch(_) { unlocked = false; } }
+    if (actx && actx.state !== 'running') actx.resume().catch(()=>{});
+  }
+  const kick = ()=>{ if (!on) return; unlock(); if (!started) start(); else if (actx && actx.state !== 'running') actx.resume().catch(()=>{}); };
+  ['pointerdown','touchend','click','keydown'].forEach(ev=>addEventListener(ev, kick, {passive:true}));
   document.addEventListener('visibilitychange', ()=>{ if (document.hidden) stop(); else if (on) start(); });
   return { start, stop };
 })();
