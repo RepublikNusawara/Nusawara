@@ -3397,7 +3397,7 @@ const EKO = {
   for (const id in EKO){ const e = EKO[id]; if (e.ada) continue;
     const g = new THREE.Group(); g.position.set(e.x, 0, e.z); scene.add(g); BUAT[id](g);
     const L = label(e.ikon ? e.ikon + ' ' + e.nama.toUpperCase() : e.nama.toUpperCase(), {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); L.position.set(0, e.k === 'pabrik' ? 11 : 18, e.k === 'tambang' ? 6 : 0); g.add(L);
-    g.userData = {type:'eko', data:{id}}; pickables.push(g); }
+    g.userData = {type:'eko', data:{id}}; pickables.push(g); e.g = g; }
   const pl = label('🏪 PASAR REPUBLIK NUSAWARA (PRN)', {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); pl.position.set(18, 30, -78); scene.add(pl);
 })();
 const brg = k => BARANG.find(b=>b.kode===k) || {nama:k, ikon:'📦'};
@@ -3460,6 +3460,24 @@ sheetBody.addEventListener('click', e=>{
       popHadiah((aksi === 'beli' ? '−' : '+') + N$(nilai)); sfx(aksi === 'beli' ? 330 : 660, .12, 'sine', .07, 0, 880);
       toast(aksi === 'beli' ? `🛒 Beli ${n} ${b.ikon} ${b.nama}: −${N$(nilai)}` : `💰 Jual ${n} ${b.ikon} ${b.nama}: +${N$(nilai)}`); }); }
 });
+// ikon "siap dipanen" melayang di atas papan nama tambang saat waktu tunggu selesai
+const PANEN = {};
+function panenSprite(ikon){
+  const tex = canvasTex(256, 256, (c,W,H)=>{ c.fillStyle = 'rgba(255,253,248,.96)'; c.beginPath(); c.arc(W/2, H/2-14, 100, 0, Math.PI*2); c.fill();
+    c.strokeStyle = '#f2b134'; c.lineWidth = 12; c.stroke(); c.beginPath(); c.moveTo(W/2-26, H-46); c.lineTo(W/2+26, H-46); c.lineTo(W/2, H-6); c.fill();
+    c.font = `120px ${FONT}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(ikon, W/2, H/2-8); });
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({map: tex, depthTest: false})); sp.scale.set(5,5,1); sp.renderOrder = 10; return sp;
+}
+function panenCek(){
+  for (const id in EKO){ const e = EKO[id]; if (e.k !== 'tambang' || !e.g) continue;
+    const t = TAMBANG.find(x=>x.kode === e.kode); if (!t) continue;
+    if (!PANEN[id]){ PANEN[id] = panenSprite(brg(t.barang).ikon); PANEN[id].position.set(0, 23.5, 6); e.g.add(PANEN[id]); }
+    const st = (AKUN.data && AKUN.data.tambang && AKUN.data.tambang[t.kode]) || null;
+    PANEN[id].visible = !!(AKUN.data && st && st.kali < t.batas_harian && sisaDetik(t.kode) === 0);
+  }
+}
+(function panenGoyang(){ const tt = performance.now()/1000; for (const id in PANEN){ const sp = PANEN[id]; if (sp.visible){ sp.position.y = 23.5 + Math.sin(tt*3)*.8; const k = 5 + Math.sin(tt*6)*.25; sp.scale.set(k,k,1); } } requestAnimationFrame(panenGoyang); })();
+setInterval(panenCek, 1000);
 setInterval(()=>{ document.querySelectorAll('[data-cd]').forEach(el=>{ const s = sisaDetik(el.dataset.cd);
   if (s > 0) el.textContent = '⏳ Tunggu ' + s + ' detik'; else if (sheetFn) sheetBody.innerHTML = sheetFn(); }); }, 1000);
 (async ()=>{ try { (await SB.get('tambang?select=*&order=urut')).forEach(x=>TAMBANG.push(x)); (await SB.get('resep?select=*&order=urut')).forEach(x=>RESEP.push(x)); } catch(_) {}
