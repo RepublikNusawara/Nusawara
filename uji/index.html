@@ -3195,6 +3195,9 @@ function masukHTML(){ return `<div class="kicker">Akun Warga</div><h2>🔑 Masuk
   <form id="akF"><input id="akU" placeholder="@username" autocapitalize="none" autocorrect="off" spellcheck="false"
     style="font:inherit;font-size:17px;padding:12px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box;margin:6px 0 8px">
   ${pwInput('akP','Kata Sandi Warga')}<button class="btn" id="akB" style="margin-top:4px">Masuk</button></form><p class="note" id="akM"></p>
+  <div style="text-align:center;margin:12px 0 0;color:#667;font-size:12px">— atau —</div>
+  <button class="btn" data-google style="background:#fff;color:#1f2227;border:1px solid #ccd;display:flex;align-items:center;justify-content:center;gap:8px"><b style="color:#4285f4;font-size:18px">G</b> Daftar / Masuk dengan Gmail</button>
+  <p class="note">Warga baru wajib daftar dengan Gmail (1 Gmail = 1 akun). Warga lama: masuk dengan Gmail lalu tautkan akunmu, NIWN tetap sama.</p>
   <button class="btn ghost" data-cara>📖 Cara Main di Republik Nusawara</button>
   <p class="note">Belum jadi warga? Komentar/DM <b>DAFTAR</b> di Instagram @republiknusawara.</p>`; }
 function akunHTML(){
@@ -3224,6 +3227,7 @@ sheetBody.addEventListener('submit', async e=>{
   if (!/^[A-Z0-9]{4,20}$/.test(pw)) { m.textContent = '❌ Kata sandi salah.'; return; }
   btn.disabled = true; m.textContent = 'Memeriksa…';
   try { const r = await SB.rpc('akun_saya', {p_user: u, p_sandi: pw}); btn.disabled = false;
+    if (r && r.alasan === 'perlu_google'){ m.textContent = '🔐 Akunmu perlu daftar ulang dengan Gmail. Tekan "Daftar / Masuk dengan Gmail" di bawah, lalu tautkan akunmu.'; return; }
     if (!r || !r.ok){ m.textContent = '❌ Username atau kata sandi salah.'; return; }
     Object.assign(AKUN, {u, s: pw, data: r}); UNLOCK[u] = pw; if (r.baru) setTimeout(()=>{ const f = ()=>sambutanHTML(); f.eko = 1; openSheet(f); }, 300);
     try { localStorage.setItem('nusawara_akun', JSON.stringify({u, s: pw})); } catch(_) {}
@@ -3688,6 +3692,60 @@ sheetBody.addEventListener('click', e=>{
 });
 sheetBody.addEventListener('click', e=>{ const a = e.target.closest('a[data-kirim]'); if (!a) return;
   setTimeout(()=>{ ekoAksi(a, 'pilih_desain', {p_id: a.dataset.kirim, p_desain: 'kirim'}, ()=>{ toast('📐 Kirim desainmu di formulir. Tanahmu kini jadi proyek pembangunan.'); kavMuat(); }); }, 50); });
+
+/* ---------- DAFTAR / MASUK DENGAN GMAIL (Supabase Auth Google) ---------- */
+let GAUTH = null, GINFO = null;
+function gClient(){ return new Promise(res=>{ if (GAUTH) return res(GAUTH);
+  const go = ()=>{ GAUTH = window.supabase.createClient(SB_URL, SB_KEY, {auth:{persistSession:true, detectSessionInUrl:true, flowType:'pkce', storageKey:'nusawara-google'}}); res(GAUTH); };
+  if (window.supabase && window.supabase.createClient) return go();
+  const t = setInterval(()=>{ if (window.supabase && window.supabase.createClient){ clearInterval(t); go(); } }, 200); }); }
+async function gMasuk(){
+  const c = await gClient(); const to = location.href.split('#')[0].split('?')[0];
+  const { error } = await c.auth.signInWithOAuth({provider:'google', options:{redirectTo: to, queryParams:{prompt:'select_account'}}});
+  if (error) toast('Masuk Gmail belum aktif. Hubungi Republik Nusawara.');
+}
+const GALASAN = {bukan_gmail:'❌ Harus memakai akun Gmail (@gmail.com).', gmail_terpakai:'❌ Gmail ini sudah dipakai akun lain. 1 Gmail = 1 akun.', akun_tertaut:'❌ Akun ini sudah tertaut ke Gmail lain.',
+  sandi:'❌ Username atau Kata Sandi Warga salah.', sandi_baru:'❌ Kata sandi 6–20 huruf/angka.', username:'❌ Username tidak valid.', username_ada:'❌ Username sudah terdaftar. Kalau itu akunmu, pilih "Saya warga lama".', belum_google:'Masuk dengan Gmail dulu.'};
+function gHTML(){
+  if (!GINFO) return '<p class="note">Memeriksa akun Gmail…</p>';
+  const inp = (id, ph, pw) => pw ? pwInput(id, ph) : `<input id="${id}" placeholder="${ph}" autocapitalize="none" autocorrect="off" spellcheck="false" style="font:inherit;font-size:17px;padding:12px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box;margin:6px 0 8px">`;
+  if (GINFO.username) return `<div class="kicker">Gmail terverifikasi</div><h2>✅ ${esc(GINFO.email)}</h2><p>Tertaut ke <b>${esc(namaW(GINFO.username))}</b>. Masukkan Kata Sandi Warga untuk masuk.</p>
+    <form id="gF" data-mode="masuk">${pwInput('gP','Kata Sandi Warga')}<button class="btn">Masuk</button></form><p class="note" id="gM"></p>`;
+  return `<div class="kicker">Gmail terverifikasi</div><h2>✅ ${esc(GINFO.email)}</h2>
+    <div class="card"><h3>🆕 Saya warga baru</h3><p class="note">Daftar jadi Warga Republik Nusawara dan dapat N$300.</p>
+      <form id="gF" data-mode="baru">${inp('gU1','Username Instagram, mis. @namakamu')}${pwInput('gP1','Buat Kata Sandi Warga (6–20 huruf/angka)')}<button class="btn">Daftar jadi warga</button></form></div>
+    <div class="card"><h3>🔁 Saya warga lama (daftar ulang)</h3><p class="note">Tautkan Gmail ke akun lamamu. NIWN, saldo, tas, dan tanah tetap sama.</p>
+      <form id="gF2" data-mode="lama">${inp('gU2','Username lama')}${pwInput('gP2','Kata Sandi Warga lama')}<button class="btn">Tautkan & masuk</button></form></div>
+    <p class="note" id="gM"></p>`;
+}
+async function gLoginSelesai(u, pw, baru){
+  const r = await SB.rpc('akun_saya', {p_user: u, p_sandi: pw});
+  if (!r || !r.ok){ toast('Gagal masuk. Coba lagi.'); return; }
+  Object.assign(AKUN, {u, s: pw, data: r}); UNLOCK[u] = pw; try { localStorage.setItem('nusawara_akun', JSON.stringify({u, s: pw})); } catch(_) {}
+  akunTombol(); if (baru || r.baru){ const f = ()=>sambutanHTML(); f.eko = 1; openSheet(f); } else { openSheet(akunHTML); toast('✓ Selamat datang, ' + namaW(u) + '!'); }
+}
+sheetBody.addEventListener('submit', async e=>{
+  const f = e.target; if (f.id !== 'gF' && f.id !== 'gF2') return; e.preventDefault();
+  const m = document.getElementById('gM'), mode = f.dataset.mode, c = await gClient(), btn = f.querySelector('button'); btn.disabled = true; m.textContent = 'Memproses…';
+  try {
+    if (mode === 'masuk'){ const pw = normPw(document.getElementById('gP').value); const r = await SB.rpc('akun_saya', {p_user: GINFO.username, p_sandi: pw});
+      if (!r || !r.ok){ m.textContent = '❌ Kata sandi salah.'; btn.disabled = false; return; } await gLoginSelesai(GINFO.username, pw, false); return; }
+    const u = String(document.getElementById(mode === 'baru' ? 'gU1' : 'gU2').value).trim().replace(/^@+/,''), pw = normPw(document.getElementById(mode === 'baru' ? 'gP1' : 'gP2').value);
+    const { data: r, error } = await c.rpc(mode === 'baru' ? 'daftar_google' : 'tautkan_google', {p_username: undefined, ...(mode === 'baru' ? {p_username: u, p_sandi: pw} : {p_user: u, p_sandi: pw})});
+    if (error || !r || !r.ok){ m.textContent = GALASAN[r && r.alasan] || '❌ Gagal. Coba lagi.'; btn.disabled = false; return; }
+    if (mode === 'baru' && typeof sbApplyWarga === 'function') sbApplyWarga([{username: r.username, nama: u, niwn: r.niwn, terdaftar: ''}]);
+    toast(mode === 'baru' ? '🎉 Kamu resmi jadi Warga Republik Nusawara! NIWN ' + r.niwn : '✅ Akun lama tertaut ke Gmail. NIWN tetap ' + r.niwn);
+    await gLoginSelesai(r.username, pw, mode === 'baru');
+  } catch(_) { m.textContent = 'Jaringan bermasalah. Coba lagi.'; btn.disabled = false; }
+});
+sheetBody.addEventListener('click', e=>{ const t = e.target.closest('button'); if (t && t.hasAttribute('data-google')) gMasuk(); });
+// kembali dari Google: cek sesi lalu tampilkan langkah berikutnya
+(async ()=>{ if (!/[?&]code=|access_token=/.test(location.href)) { if (!localStorage.getItem('sb-nusawara-google') && !Object.keys(localStorage).some(k=>/nusawara-google/.test(k))) return; }
+  const c = await gClient(); const { data } = await c.auth.getSession(); if (!data || !data.session) return;
+  if (/[?&]code=/.test(location.href)) history.replaceState(null, '', location.pathname);
+  const { data: g } = await c.rpc('google_saya'); GINFO = g && g.ok ? g : null; if (!GINFO) return;
+  if (AKUN.u && GINFO.username === AKUN.u) return;
+  const f = ()=>gHTML(); f.eko = 1; openSheet(f); })();
 
 renderer.domElement.addEventListener('pointerdown', e=>{ if (ctl.key) ctl.drag = {x:e.clientX, y:e.clientY, id:e.pointerId}; });
 addEventListener('pointermove', e=>{ if (!ctl.key || !ctl.drag || e.pointerId !== ctl.drag.id) return;
