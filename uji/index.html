@@ -724,9 +724,9 @@ function plotHTML(h){
 houses.forEach(makeHouse);
 
 /* ---------- DISTRIK PUSAT: PLAZA & PANGGUNG ---------- */
-const plaza = new THREE.Mesh(new THREE.CylinderGeometry(15,15,.25,48), M(0xe9e2d0));
+const plaza = new THREE.Mesh(new THREE.CylinderGeometry(17.6,17.6,.25,56), M(0xe9e2d0));   // diperbesar agar Papan Donasi muat
 plaza.position.set(18,.13,0); plaza.receiveShadow = true; scene.add(plaza);
-const plazaRing = new THREE.Mesh(new THREE.TorusGeometry(15,.35,8,64), M(0xc8bfa8));
+const plazaRing = new THREE.Mesh(new THREE.TorusGeometry(17.6,.35,8,72), M(0xc8bfa8));
 plazaRing.rotation.x = Math.PI/2; plazaRing.position.set(18,.28,0); scene.add(plazaRing);
 
 const stage = new THREE.Group();
@@ -3426,7 +3426,7 @@ function ekoHTML(id){
   }
   return h;
 }
-const ALASAN = {sandi:'❌ Kata sandi berubah. Masuk lagi.', batas:'Sudah 10× hari ini. Kembali besok!', tunggu:'⏳ Belum bisa, tunggu sebentar.', saldo_kurang:'❌ Saldo N$ tidak cukup.', barang_kurang:'❌ Bahan di tas tidak cukup.', jumlah:'❌ Jumlah tidak valid.', sudah_punya:'❌ Kamu sudah punya kavling/tanah. Satu warga satu kavling.', terjual:'❌ Kavling ini sudah terjual.', lengkap:'✓ Bahan ini sudah lengkap.', tidak_perlu:'Bahan ini tidak dibutuhkan.', tanpa_kavling:'Kamu belum punya kavling.', stok_kurang:'❌ Stok Negara tidak cukup.', kas_kurang:'❌ Kas Negara sedang tidak cukup untuk membeli.', sudah_lunas:'Bahan/biaya kavling ini sudah lunas.', belum_siap:'Selesaikan bahan atau bayar dulu.', bukan_pemilik:'❌ Ini bukan kavlingmu.', desain_salah:'Desain ini tidak cocok untuk tanahmu.'};
+const ALASAN = {sandi:'❌ Kata sandi berubah. Masuk lagi.', batas:'Sudah 10× hari ini. Kembali besok!', tunggu:'⏳ Belum bisa, tunggu sebentar.', saldo_kurang:'❌ Saldo N$ tidak cukup.', barang_kurang:'❌ Bahan di tas tidak cukup.', jumlah:'❌ Jumlah tidak valid.', sudah_punya:'❌ Kamu sudah punya kavling/tanah. Satu warga satu kavling.', terjual:'❌ Kavling ini sudah terjual.', lengkap:'✓ Bahan ini sudah lengkap.', tidak_perlu:'Bahan ini tidak dibutuhkan.', tanpa_kavling:'Kamu belum punya kavling.', stok_kurang:'❌ Stok Negara tidak cukup.', kas_kurang:'❌ Kas Negara sedang tidak cukup untuk membeli.', sudah_lunas:'Bahan/biaya kavling ini sudah lunas.', belum_siap:'Selesaikan bahan atau bayar dulu.', bukan_pemilik:'❌ Ini bukan kavlingmu.', desain_salah:'Desain ini tidak cocok untuk tanahmu.', kupon_tidak_ada:'Kupon sudah dipakai atau tidak ada.'};
 async function ekoAksi(btn, fn, args, sukses){
   btn.disabled = true;
   try { const r = await SB.rpc(fn, Object.assign({p_user: AKUN.u, p_sandi: AKUN.s}, args));
@@ -3552,7 +3552,7 @@ kasFront.map = kasTex(0);
 async function negaraMuat(){ try { const r = await SB.get('negara?select=kas,share'); if (r && r[0]){ KAS = r[0].kas; kasFront.map = kasTex(KAS); kasFront.needsUpdate = true; } } catch(_) {} }
 
 // ----- PAPAN DONASI di barat podium (setengah ukuran backdrop) -----
-const DON = new THREE.Group(); DON.position.set(-9.5, 0, -1);   // di dalam lingkaran plaza, barat podium stage.add(DON); DON.userData = {type:'eko', data:{id:'EKO-DONASI'}}; pickables.push(DON);
+const DON = new THREE.Group(); DON.position.set(-11, 0, -3);   // barat podium, di dalam lingkaran plaza stage.add(DON); DON.userData = {type:'eko', data:{id:'EKO-DONASI'}}; pickables.push(DON);
 [-3.1,3.1].forEach(x=>box(.25,8.4,.25,0xf2b134,x,4.2,-.2,DON)); box(6.2,3.2,.3,0x1f3a5f,0,4,-.1,DON); box(6.2,1.7,.3,0x7a1f2b,0,6.9,-.1,DON);
 const terbaikMat = new THREE.MeshBasicMaterial({}); { const m = new THREE.Mesh(new THREE.PlaneGeometry(6,1.55), terbaikMat); m.position.set(0,6.9,.06); DON.add(m); }
 function terbaikGambar(){ const j = JUARA.find(x=>x.peringkat === 1), bl = j ? BULAN[(parseInt(String(j.bulan).slice(5,7)) || 1) - 1] : '';
@@ -3593,6 +3593,7 @@ tahap3Muat(); setInterval(tahap3Muat, 30000);
 
 const HADIAH = i => i === 1 ? '🏡 Tanah + Rumah/Toko Modern 2 Lantai' : i === 2 ? '🏠 Tanah + Rumah/Toko Kecil 1 Lantai' : i === 3 ? '🏞️ Tanah Rumah/Toko Kecil' : i <= 10 ? '💰 N$500' : i <= 20 ? '💰 N$100' : '–';
 const KUPON = {modern:'Tanah + Rumah/Toko Modern 2 Lantai (pilih kavling modern)', tanah_rumah:'Tanah + Rumah/Toko Modern 2 Lantai (pilih kavling modern)', kecil:'Tanah + Rumah/Toko Kecil 1 Lantai (pilih kavling kecil)', tanah:'Tanah gratis (kavling rumah/toko kecil)'};
+const HARGA_KUPON = {modern:4500, tanah_rumah:4500, kecil:2000, tanah:800};
 const kupCocok = k => ((AKUN.data && AKUN.data.kupon) || []).find(j => (j === 'tanah' && /kecil/.test(k.tipe)) || ((j === 'modern' || j === 'tanah_rumah') && /modern/.test(k.tipe)) || (j === 'kecil' && /kecil/.test(k.tipe)));
 const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const kavSaya = () => AKUN.u ? Object.values(KAV).filter(k=>k.username === AKUN.u) : [];
@@ -3601,8 +3602,10 @@ const STATUS = {tanah:'Tanah kosong · kumpulkan bahan atau bayar', siap:'✅ Si
 function tanahCard(){
   const ks = kavSaya(), kp = (AKUN.data && AKUN.data.kupon) || [];
   const kup = kp.length ? `<p class="note">🎟️ Kupon juara: <b>${kp.map(j=>KUPON[j] || j).join(', ')}</b>. Pilih kavling yang cocok lalu tekan tombol kupon: otomatis gratis.</p>` : '';
-  if (!ks.length) return `<div class="card"><h3>🏞️ Tanah</h3><p class="note">Belum punya tanah. Beli kavling rumah, toko, atau pabrik dari Negara.</p>${kup}</div>`;
-  return `<div class="card"><h3>🏞️ Tanah milikmu (${ks.length})</h3>${kup}${ks.map(k=>`<div class="jrow"><span class="ji">${(DSN[k.tipe]||['🏞️'])[0]}</span><span class="jt"><b>${esc(k.id)}</b><small>${STATUS[k.status]}</small></span><button class="btn ghost" data-kav="${esc(k.id)}">Buka</button></div>`).join('')}</div>`;
+  const kpi = (AKUN.data && AKUN.data.kupon_id) || [];
+  const jualK = kpi.length ? `<div class="card"><h3>🎟️ Kupon juara</h3>${kpi.map(x=>`<div class="jrow"><span class="ji">🎟️</span><span class="jt"><b>${esc(KUPON[x.jenis] || x.jenis)}</b><small>Tukar di kavling yang cocok, atau jual ke Negara</small></span><button class="btn ghost" data-jualkupon="${x.id}">Jual ${N$(HARGA_KUPON[x.jenis] || 0)}</button></div>`).join('')}</div>` : '';
+  if (!ks.length) return jualK + `<div class="card"><h3>🏞️ Tanah</h3><p class="note">Belum punya tanah. Beli kavling rumah, toko, atau pabrik dari Negara.</p>${kup}</div>`;
+  return jualK + `<div class="card"><h3>🏞️ Tanah milikmu (${ks.length})</h3>${kup}${ks.map(k=>`<div class="jrow"><span class="ji">${(DSN[k.tipe]||['🏞️'])[0]}</span><span class="jt"><b>${esc(k.id)}</b><small>${STATUS[k.status]}</small></span><button class="btn ghost" data-kav="${esc(k.id)}">Buka</button></div>`).join('')}</div>`;
 }
 function kavHTML(id){
   const k = KAV[id]; if (!k) return '<p class="note">Memuat…</p>'; const t = TIPE[k.tipe] || {}, d = DSN[k.tipe] || ['🏞️', k.tipe];
@@ -3641,7 +3644,7 @@ function donasiHTML(){
   h += `<div class="card"><h3>🔎 Cari peringkatmu</h3><input id="dnCari" placeholder="Ketik nama/username" autocapitalize="none" style="font:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box"><div id="dnHasil"></div></div>
     <div class="card"><h3>🏆 Peringkat & hadiah bulan ini (1–20)</h3>${PAPAN.length ? PAPAN.slice(0,20).map((r,i)=>rowPeringkat(r,i)).join('') : '<p class="note">Belum ada donasi bulan ini.</p>'}
     <p class="note">Juara diumumkan setiap tanggal 1. Semua hadiah diambil dari Kas Negara. Juara 1–3 bebas memilih kavling yang sesuai kuponnya.</p></div>
-    <div class="card"><h3>🎁 Daftar hadiah</h3><p class="note">🥇 Juara 1: Tanah + Rumah/Toko Modern 2 Lantai<br>🥈 Juara 2: Tanah + Rumah/Toko Kecil 1 Lantai<br>🥉 Juara 3: Tanah Rumah/Toko Kecil<br>Juara 4–10: N$500 · Juara 11–20: N$100</p></div>`;
+    <div class="card"><h3>🎁 Daftar hadiah</h3><p class="note">🥇 Juara 1: Tanah + Rumah/Toko Modern 2 Lantai<br>🥈 Juara 2: Tanah + Rumah/Toko Kecil 1 Lantai<br>🥉 Juara 3: Tanah Rumah/Toko Kecil<br>🎟️ Kupon juara bisa dijual ke Negara: Juara 1 N$4.500 · Juara 2 N$2.000 · Juara 3 N$800<br>Juara 4–10: N$500 · Juara 11–20: N$100</p></div>`;
   if (JUARA.length) h += `<div class="card"><h3>👑 Juara bulan ${esc(JUARA[0].bulan)}</h3>${JUARA.filter(j=>j.bulan === JUARA[0].bulan).map(j=>`<div class="jrow"><span class="ji">${j.peringkat}</span><span class="jt"><b>${esc(namaW(j.username))}</b><small>${esc(j.hadiah)}</small></span></div>`).join('')}</div>`;
   return h;
 }
@@ -3666,6 +3669,7 @@ function caraMainHTML(){ return `<div class="kicker">Panduan Warga</div><h2>📖
   <button class="btn" data-klaim>📅 Sekarang klaim N$ harianmu!</button>`; }
 sheetBody.addEventListener('click', e=>{
   const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.jualkupon) ekoAksi(t, 'jual_kupon', {p_id: parseInt(t.dataset.jualkupon)}, r=>{ popHadiah('+' + N$(r.harga)); toast('🎟️ Kupon dijual ke Negara: +' + N$(r.harga)); });
   if (t.hasAttribute('data-klaim')){ openSheet(akunHTML); if (AKUN.u) akunMuat(); return; }
   if (t.hasAttribute('data-cara')){ const f = ()=>caraMainHTML(); f.eko = 1; openSheet(f); return; }
   if (t.dataset.kav){ const k = KAV[t.dataset.kav]; closeSheet(); flyTo(new THREE.Vector3(k.x, 1, k.z), new THREE.Vector3(k.x + 6, 18, k.z + 24));
