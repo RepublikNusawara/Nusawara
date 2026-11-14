@@ -3113,7 +3113,7 @@ const SB_URL = 'https://lvffysleofnbqfjrlboa.supabase.co', SB_KEY = 'sb_publisha
 window.SB_GAYA = {};
 const SB = (()=>{
   const H = { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
-  const rpc = async (fn, args) => { const r = await fetch(SB_URL + '/rest/v1/rpc/' + fn, {method:'POST', headers:H, body:JSON.stringify(args)});
+  const rpc = async (fn, args) => { const r = await fetch(SB_URL + '/rest/v1/rpc/' + fn, {method:'POST', headers:Object.assign({}, H, window.GTOKEN ? {Authorization:'Bearer ' + window.GTOKEN} : {}), body:JSON.stringify(args)});
     const j = await r.json().catch(()=>null); if (!r.ok) throw new Error((j && j.message) || ('HTTP ' + r.status)); return j; };
   const get = async path => { const r = await fetch(SB_URL + '/rest/v1/' + path, {headers:H}); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); };
   return { rpc, get,
@@ -3182,7 +3182,9 @@ function popHadiah(t){ const el = document.createElement('div'); el.className = 
   requestAnimationFrame(()=>el.classList.add('show')); setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 400); }, 1500); }
 async function akunMuat(){
   if (!AKUN.u) return false;
+  if (window.GREADY) await window.GREADY;
   try { const r = await SB.rpc('akun_saya', {p_user: AKUN.u, p_sandi: AKUN.s});
+    if (r && (r.alasan === 'perlu_google' || r.alasan === 'masuk_google')){ akunKeluar(true); toast('🔐 Masuk dengan Gmail dulu, lalu Kata Sandi Warga.'); return false; }
     if (!r || !r.ok){ akunKeluar(true); toast('❌ Kata sandi sudah berubah. Silakan masuk lagi.'); return false; }
     AKUN.data = r; akunTombol(); AKUN.at = Date.now(); if (sheet.classList.contains('open') && sheetFn && (sheetFn === akunHTML || sheetFn.eko)) sheetBody.innerHTML = sheetFn(); return true;
   } catch(_) { return false; }
@@ -3190,7 +3192,11 @@ async function akunMuat(){
 function akunKeluar(diam){ AKUN.u = AKUN.s = AKUN.data = null; try { localStorage.removeItem('nusawara_akun'); } catch(_) {} akunTombol();
   if (!diam){ closeSheet(); toast('Kamu sudah keluar.'); } }
 const HADIAH_HARI = d => d <= 2 ? 50 : d <= 5 ? 75 : 100;
-function masukHTML(){ return `<div class="kicker">Akun Warga</div><h2>🔑 Masuk</h2>
+function masukHTML(){ if (GINFO) return gHTML(); return `<div class="kicker">Akun Warga</div><h2>🔑 Masuk</h2>
+  <p style="font-size:14px;line-height:1.5">Semua warga wajib <b>masuk dengan Gmail</b> terlebih dahulu. Warga lama: setelah masuk Gmail, tautkan akunmu (NIWN, saldo, tas, dan tanah tetap sama).</p>
+  <button class="btn" data-google style="background:#fff;color:#1f2227;border:1px solid #ccd;display:flex;align-items:center;justify-content:center;gap:8px"><b style="color:#4285f4;font-size:18px">G</b> Masuk dengan Gmail</button>
+  <button class="btn ghost" data-cara>📖 Cara Main di Republik Nusawara</button>`; }
+function masukLamaHTML(){ return `<div class="kicker">Akun Warga</div><h2>🔑 Masuk</h2>
   <p style="font-size:14px;line-height:1.5;margin:0 0 6px">Masuk dengan <b>username Instagram</b> dan <b>Kata Sandi Warga</b> untuk mengumpulkan Nusa (N$), absen harian, dan melihat isi tasmu.</p>
   <form id="akF"><input id="akU" placeholder="@username" autocapitalize="none" autocorrect="off" spellcheck="false"
     style="font:inherit;font-size:17px;padding:12px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box;margin:6px 0 8px">
@@ -3227,7 +3233,7 @@ sheetBody.addEventListener('submit', async e=>{
   if (!/^[A-Z0-9]{4,20}$/.test(pw)) { m.textContent = '❌ Kata sandi salah.'; return; }
   btn.disabled = true; m.textContent = 'Memeriksa…';
   try { const r = await SB.rpc('akun_saya', {p_user: u, p_sandi: pw}); btn.disabled = false;
-    if (r && r.alasan === 'perlu_google'){ m.textContent = '🔐 Akunmu perlu daftar ulang dengan Gmail. Tekan "Daftar / Masuk dengan Gmail" di bawah, lalu tautkan akunmu.'; return; }
+    if (r && (r.alasan === 'perlu_google' || r.alasan === 'masuk_google')){ m.textContent = '🔐 Masuk dengan Gmail dulu, lalu tautkan akunmu.'; return; }
     if (!r || !r.ok){ m.textContent = '❌ Username atau kata sandi salah.'; return; }
     Object.assign(AKUN, {u, s: pw, data: r}); UNLOCK[u] = pw; if (r.baru) setTimeout(()=>{ const f = ()=>sambutanHTML(); f.eko = 1; openSheet(f); }, 300);
     try { localStorage.setItem('nusawara_akun', JSON.stringify({u, s: pw})); } catch(_) {}
@@ -3740,8 +3746,12 @@ sheetBody.addEventListener('submit', async e=>{
 });
 sheetBody.addEventListener('click', e=>{ const t = e.target.closest('button'); if (t && t.hasAttribute('data-google')) gMasuk(); });
 // kembali dari Google: cek sesi lalu tampilkan langkah berikutnya
-(async ()=>{ if (!/[?&]code=|access_token=/.test(location.href)) { if (!localStorage.getItem('sb-nusawara-google') && !Object.keys(localStorage).some(k=>/nusawara-google/.test(k))) return; }
-  const c = await gClient(); const { data } = await c.auth.getSession(); if (!data || !data.session) return;
+let _gReady; window.GREADY = new Promise(r=>{ _gReady = r; }); setTimeout(()=>_gReady(), 6000);
+(async ()=>{ let ada = /[?&]code=|access_token=/.test(location.href); try { ada = ada || Object.keys(localStorage).some(k=>/nusawara-google/.test(k)); } catch(_) {}
+  if (!ada){ _gReady(); return; }
+  const c = await gClient(); const { data } = await c.auth.getSession(); window.GTOKEN = data && data.session ? data.session.access_token : null;
+  c.auth.onAuthStateChange((_e, ss)=>{ window.GTOKEN = ss ? ss.access_token : null; });
+  _gReady(); if (!data || !data.session) return;
   if (/[?&]code=/.test(location.href)) history.replaceState(null, '', location.pathname);
   const { data: g } = await c.rpc('google_saya'); GINFO = g && g.ok ? g : null; if (!GINFO) return;
   if (AKUN.u && GINFO.username === AKUN.u) return;
