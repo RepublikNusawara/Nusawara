@@ -377,7 +377,7 @@ camera.position.copy(HOME_C);
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.target.copy(HOME_T);
 controls.enableDamping = true; controls.dampingFactor = 0.08;
-controls.maxPolarAngle = 1.32; controls.minDistance = 14; controls.maxDistance = 230;
+controls.maxPolarAngle = 1.54; controls.minDistance = 3; controls.maxDistance = 230;   // bisa turun sampai sejajar mata karakter
 controls.screenSpacePanning = false;
 // Sentuh: 1 jari geser = kamera bergerak maju/mundur/kiri/kanan mengikuti arah tarikan; 2 jari = cubit zoom + putar arah kamera
 controls.touches = {ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE}; controls.panSpeed = 1.2;
