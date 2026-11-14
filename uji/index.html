@@ -96,10 +96,12 @@
   .tasg div.nol{opacity:.45}.tasg i{font-style:normal;font-size:24px;display:block}.tasg b{display:block;font-size:17px}.tasg small{font-size:11px;color:#667;line-height:1.2;display:block}
   .streak{display:flex;gap:4px;margin:10px 0 2px}.streak span{flex:1;text-align:center;font-size:11px;font-weight:700;padding:6px 0;border-radius:8px;background:#eef1f4;color:#667}
   .streak span.on{background:#f2b134;color:#1f3a5f}
-  .hud{position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 74px);z-index:5;width:178px;pointer-events:none;display:none;
+  .hud{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 66px);z-index:5;width:178px;pointer-events:none;display:none;
     background:rgba(255,253,248,.92);border:1px solid var(--line);border-radius:12px;padding:7px 9px;box-shadow:0 6px 18px rgba(31,58,95,.12);font-size:11px;font-weight:800;color:#1f3a5f}
   .hud .r{display:flex;justify-content:space-between;margin-top:3px}.hud .b{height:9px;border-radius:5px;background:#e3e6ea;overflow:hidden;display:flex;margin-top:2px}
   .hud .b.k{height:5px}.hud .b i{display:block;height:100%}
+  @media (max-width:520px){ .top{gap:6px} .brand{padding:5px 8px 5px 6px} .brand svg{width:24px;height:28px} .brand b{font-size:12px} .brand span{display:none}
+    .stats{padding:3px 2px} .stats div{padding:1px 6px} .stats b{font-size:13px} .stats span{font-size:9px} .akunbtn{padding:8px 9px;font-size:12px} .hud{width:160px} }
   .pop{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) scale(.6);z-index:30;font-size:34px;font-weight:900;color:#1f3a5f;
     background:#fffdf8;border:2px solid #f2b134;border-radius:18px;padding:14px 22px;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:all .35s}
   .pop.show{opacity:1;transform:translate(-50%,-60%) scale(1)}
@@ -1133,7 +1135,7 @@ function presHTML(){
 function focusObj(obj){
   if (typeof followKey !== 'undefined') followKey = null;
   const t = obj.userData.type, p = obj.getWorldPosition(new THREE.Vector3());
-  if (t==='fasilitas'){ select(null); openSheet(()=>fasHTML(obj.userData.data.id)); hideHint(); return; }
+  if (t==='fasilitas'){ select(null); openSheet(()=>fasHTML(obj.userData.data.id)); hideHint(); if (typeof bisnisMuat === 'function') bisnisMuat(obj.userData.data.id); return; }
   if (t==='eko'){ select(null); const f = ()=>ekoHTML(obj.userData.data.id); f.eko = 1; openSheet(f); hideHint(); if (String(obj.userData.data.id).startsWith('TMP-') && typeof tgsMuat === 'function') tgsMuat().then(()=>{ if (sheetFn === f) sheetBody.innerHTML = f(); }); return; }
   if (t==='counter'){
     select(null); openSheet(counterHTML); hideHint(); return;
@@ -3228,6 +3230,8 @@ function akunHTML(){
   const hari = [1,2,3,4,5,6,7].map(i=>`<span class="${i <= st ? 'on' : ''}">H${i}${i === 7 ? '+' : ''}</span>`).join('');
   const tas = BARANG.map(b=>{ const n = (d.tas || {})[b.kode] || 0; return `<div class="${n ? '' : 'nol'}"><i>${b.ikon}</i><b>${n}</b><small>${esc(b.nama)}</small></div>`; }).join('');
   return `<div class="kicker">Akun Warga · ${esc(w.niwn || '')}</div><h2>@${esc(String(w.username || AKUN.u).replace(/^@+/,''))}</h2>
+  <div class="card"><h3>👤 Nama di atas kepala</h3><p class="note">Bebas diganti (nama panggilan). Username & NIWN tetap sama.${GINFO && GINFO.email ? '<br>Gmail terdaftar: <b>' + esc(GINFO.email) + '</b> (hanya terlihat olehmu)' : ''}</p>
+    <div class="prow"><input id="nmBaru" value="${esc((wInfo(AKUN.u) || {}).nama || '')}" maxlength="24" style="font:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:12px;flex:1;margin-top:14px"><button class="btn" data-gantinama>Simpan</button></div></div>
   <div class="card"><h3>⚡ Stamina & Darah</h3>${hudHTML(d).replace(/font-size:11px/g,'')}
     <p class="note">Stamina pulih +5 setiap jam sampai kapasitas, dan dapat bonus +20 setiap hari saat masuk (bisa melebihi kapasitas, tertulis 100+20). Menambang menguras stamina.<br>
     Naikkan level di bar hijau dengan bekerja di pabrik & kebun Negara: Lv1 100 poin (+10 kapasitas), Lv2 200 (+10), Lv3 300 (+10), Lv4 500 (+20). Level bersifat permanen.${d.regen_detik != null ? '<br>⏳ +5 stamina berikutnya dalam ' + Math.ceil(d.regen_detik/60) + ' menit.' : ''}</p></div>
@@ -3717,9 +3721,13 @@ function caraMainHTML(){ return `<div class="kicker">Panduan Warga</div><h2>📖
   <div class="card"><h3>7. Donasi untuk Negara</h3><p>Donasikan bahan atau N$ di Papan Donasi (sebelah barat podium). Setiap bahan dihitung poin, N$1 = 1 poin. Juara diumumkan tiap tanggal 1:<br>🥇 Tanah + Rumah/Toko Modern · 🥈 Tanah + Rumah/Toko Kecil · 🥉 Tanah Rumah/Toko Kecil · Juara 4–10 N$500 · Juara 11–20 N$100.</p></div>
   <div class="card"><h3>8. Aturan penting</h3><p>Satu orang satu akun. Jangan berikan Kata Sandi Warga ke siapa pun. Semua uang, tanah, dan bangunan di Nusawara bersifat virtual.</p></div>
   <button class="btn" data-klaim>📅 Sekarang klaim N$ harianmu!</button>`; }
-sheetBody.addEventListener('click', e=>{
+sheetBody.addEventListener('click', async e=>{
   const t = e.target.closest('button'); if (!t) return;
   if (t.dataset.jualkupon) ekoAksi(t, 'jual_kupon', {p_id: parseInt(t.dataset.jualkupon)}, r=>{ popHadiah('+' + N$(r.harga)); toast('🎟️ Kupon dijual ke Negara: +' + N$(r.harga)); });
+  if (t.hasAttribute('data-gantinama')){ const v = (document.getElementById('nmBaru')||{}).value || ''; t.disabled = true;
+    const r = await SB.rpc('ganti_nama', {p_user: AKUN.u, p_sandi: AKUN.s, p_nama: v}).catch(()=>null); t.disabled = false;
+    if (r && r.ok){ const w = wInfo(AKUN.u) || {}; if (typeof sbApplyWarga === 'function') sbApplyWarga([{username: AKUN.u, nama: r.nama, niwn: w.niwn, terdaftar: w.terdaftar}]); toast('✓ Nama diganti menjadi ' + r.nama); }
+    else toast('❌ Nama 2–24 huruf/angka.'); return; }
   if (t.hasAttribute('data-klaim')){ openSheet(akunHTML); if (AKUN.u) akunMuat(); return; }
   if (t.hasAttribute('data-cara')){ const f = ()=>caraMainHTML(); f.eko = 1; openSheet(f); return; }
   if (t.dataset.kav){ const k = KAV[t.dataset.kav]; closeSheet(); flyTo(new THREE.Vector3(k.x, 1, k.z), new THREE.Vector3(k.x + 6, 18, k.z + 24));
@@ -4172,6 +4180,7 @@ const FAS = {
     ['Manager',1,'🧑‍💼'],['Kepala Barista',1,'☕'],['Barista',3,'🫖'],['Kasir',2,'💵'],['Pelayan',3,'🍽️'],['Pembuat Kue',1,'🧁'],
     ['Petugas Kebersihan',1,'🧹'],['Satpam',1,'👮']]}
 };
+FAS['MATCHA-NUSAWARA'] = {nama:'Toko Matcha Nusawara', ikon:'🍵', usul:'julianto_jul', hari:'November 2026', pos:[['Owner',1,'👑'],['Tea Specialist',4,'🍵']]};
 window.KERJA = {};
 function facTop(id){ const F = FAS[id]; if (!F) return ''; const top = F.pos[0][0]; return Object.keys(KERJA).find(u=>KERJA[u].fasilitas === id && KERJA[u].posisi === top) || ''; }
 // billboard di setiap gedung fasilitas (bawaan; bisa diganti oleh pemegang jabatan tertinggi)
@@ -4183,7 +4192,16 @@ function facBoard(id, title, sub, bg, fg, w, hh, x, y, z, g){
 }                                                   // username → {fasilitas, posisi}
 { const rs = scene.children.find(o=>o.userData && o.userData.data && o.userData.data.id === 'RS-NUSAWARA');
   if (rs) facBoard('RS-NUSAWARA', 'RUMAH SAKIT NUSAWARA', 'Melayani warga 24 jam', '#ffffff', '#c62828', 7.5, 4.2, -9.5, 5.2, 10.5, rs);
-  facBoard('KOPI-NUSAWARA', 'KOPI NUSAWARA', 'Ngopi bareng warga, yuk!', '#3b2618', '#f2b134', 6.6, 3.6, -3, 7.7, -4.5, KOPI); }
+  facBoard('KOPI-NUSAWARA', 'KOPI NUSAWARA', 'Ngopi bareng warga, yuk!', '#3b2618', '#f2b134', 6.6, 3.6, -3, 7.7, -4.5, KOPI);
+  // Toko Matcha (area fasilitas)
+  const MG = new THREE.Group(); MG.position.set(83, 0, -58); scene.add(MG);
+  box(14,.3,12,0xd9d2c3,0,.15,0,MG); box(11,4.2,8,0xf3f7ef,0,2.4,-1,MG); box(11.6,.5,8.6,0x2f6f3a,0,4.75,-1,MG);
+  box(9,2.6,.1,new THREE.MeshPhongMaterial({color:0xffe2a8, emissive:0x553300, shininess:80}),0,1.8,3.06,MG);
+  for (let i=0;i<8;i++){ const a = box(1.4,.15,1.8,i%2 ? 0xffffff : 0x2f6f3a,-4.9+i*1.4,3.9,3.8,MG); a.rotation.x = .35; }
+  [[-5,5],[5,5]].forEach(([x,z])=>{ box(.9,.9,.9,0x8a5a36,x,.6,z,MG); const b = new THREE.Mesh(new THREE.SphereGeometry(.9,8,6), M(0x3f8d32)); b.position.set(x,1.6,z); MG.add(b); });
+  MG.userData = {type:'fasilitas', data:{id:'MATCHA-NUSAWARA'}}; pickables.push(MG);
+  facBoard('MATCHA-NUSAWARA', 'TOKO MATCHA', 'Matcha premium Nusawara', '#2f6f3a', '#ffffff', 6.6, 3.2, 0, 7.6, -3.5, MG);
+  { const l = label('🍵 TOKO MATCHA', {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); l.position.set(0, 11.5, 0); MG.add(l); } }
 function kerjaOf(u){ const k = KERJA[String(u||'').toLowerCase()]; return k && FAS[k.fasilitas] ? k : null; }
 function kerjaLabel(u){ const k = kerjaOf(u); return k ? `${k.posisi} · ${FAS[k.fasilitas].nama}` : 'Belum bekerja'; }
 function fasHTML(id){
@@ -4202,6 +4220,89 @@ function fasHTML(id){
       <input id="jfP" type="password" placeholder="Kata Sandi Warga" autocomplete="off" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccd;margin:4px 0">
       <p class="note" id="jfM"></p><button class="btn" id="jfB">Kirim lamaran</button></div>`;
 }
+// ---------- TAHAP 3: BISNIS (menu, kerja harian, gaji, laporan manager, Toko Matcha) ----------
+const BIZ = {menu:{}, kerja:null, lap:{}, tugas:[], gaji:{}};
+async function bisnisMuat(id){
+  try { BIZ.menu[id] = await SB.rpc('menu_bisnis', {p_bisnis: id}) || []; } catch(_) {}
+  if (!BIZ.tugas.length){ try { BIZ.tugas = await SB.get('kerja_tugas?select=*&order=urut') || []; (await SB.get('gaji_posisi?select=*')).forEach(g=>{ BIZ.gaji[g.fasilitas + '|' + g.posisi] = g.gaji; }); } catch(_) {} }
+  if (AKUN.u){ try { BIZ.kerja = await SB.rpc('kerja_saya', {p_user: AKUN.u, p_sandi: AKUN.s}); } catch(_) {}
+    try { const l = await SB.rpc('laporan_bisnis', {p_user: AKUN.u, p_sandi: AKUN.s, p_bisnis: id}); BIZ.lap[id] = l && l.ok ? l : null; } catch(_) {} }
+  if (sheet.classList.contains('open') && sheetBody.querySelector('[data-biz="' + id + '"]') && sheetFn) sheetBody.innerHTML = sheetFn();
+}
+const pill = (t, bg, fg) => `<span style="display:inline-block;background:${bg};color:${fg};font-weight:800;font-size:12px;border-radius:10px;padding:4px 8px;margin:2px">${t}</span>`;
+const KTAP = {};
+function bisnisHTML(id){
+  if (id !== 'KOPI-NUSAWARA' && id !== 'MATCHA-NUSAWARA') return '';
+  let h = `<div data-biz="${id}"></div>`;
+  const menu = BIZ.menu[id] || [], kj = BIZ.kerja && BIZ.kerja.kerja, sayaKerja = kj && kj.fasilitas === id, lap = BIZ.lap[id];
+  if (id === 'KOPI-NUSAWARA'){
+    h += `<div class="card" style="background:#fbf3e6"><h3>☕ Menu Makanan & Minuman</h3><p class="note">Beli untuk menambah ⚡ stamina (tidak melebihi kapasitas). Setiap pembelian kena pajak 5% untuk Negara.</p>`;
+    ['Minuman','Makanan'].forEach(j=>{ const ls = menu.filter(m=>m.jenis === j); if (!ls.length) return;
+      h += `<p style="font-weight:900;color:#5a3a22;margin:10px 0 4px">${j === 'Minuman' ? '☕' : '🍴'} ${j}</p>` + ls.map(m=>`<div class="jrow" style="background:#fffdf8;border-radius:14px;padding:8px;margin:6px 0;border:1px solid #ead9c0">
+        <span style="font-size:40px;flex:none">${m.ikon}</span><span class="jt"><b>${esc(m.nama)}</b><small>${esc(m.ket)}</small>
+        <span>${pill('🪙 ' + N$(m.harga), '#5a3a22', '#f2c14e')}${pill('⚡ +' + m.stamina + ' Stamina', '#e3f6d8', '#2f7d1a')}${pill(m.stok > 0 ? 'tersedia ' + m.stok : 'habis', '#eef1f4', '#667')}</span></span>
+        ${AKUN.data ? `<button class="btn" data-menu="${m.kode}" ${m.stok > 0 && AKUN.data.saldo >= m.harga ? '' : 'disabled'}>Beli</button>` : ''}</div>`).join(''); });
+    if (!menu.length) h += '<p class="note">Memuat menu…</p>';
+    h += `${AKUN.data ? '' : '<p class="note">Masuk dulu untuk membeli.</p>'}<p class="note">Bahan menu diambil otomatis dari stok Negara. Kalau bahannya belum ada di stok Negara, menunya habis sampai warga memproduksinya di pabrik & kebun.</p></div>`;
+  }
+  if (id === 'MATCHA-NUSAWARA'){
+    const daun = (BARANG.find(b=>b.kode === 'daun_teh') || {}).stok || 0, mh = (BIZ.kerja && BIZ.kerja.matcha) || 0;
+    h += `<div class="card" style="background:#eef7e6"><h3>🍵 Toko Matcha</h3><p class="note">Tea Specialist meracik <b>10 🌿 daun teh → 1 🍵 matcha powder</b> (daun teh dari stok Negara). Upah N$1/matcha, maksimal 20 matcha per hari. Gaji harian N$90 kalau 20 matcha · kurang dari 20 dipotong 30% · kurang dari 10 dipotong 80%.</p>
+      <p class="note">Stok daun teh Negara: <b>${daun}</b> · bisa diracik: <b>${Math.floor(daun/10)}</b> · stok matcha toko: <b>${(lap && lap.stok_matcha) ?? '–'}</b></p>`;
+    if (sayaKerja && kj.posisi === 'Tea Specialist') h += `<p class="note">Hari ini: <b>${mh}/20</b> matcha</p>
+      <div class="prow"><button class="btn" data-racik="1" ${daun >= 10 && mh < 20 ? '' : 'disabled'}>🌿×10 → 🍵 Combine 1</button><button class="btn ghost" data-racik="20" ${daun >= 10 && mh < 20 ? '' : 'disabled'}>Combine maksimal</button></div>
+      <div class="prow"><input type="number" min="1" value="1" id="jmMatcha" style="font:inherit;width:70px;padding:9px;border:1px solid var(--line);border-radius:10px;margin-top:14px"><button class="btn ghost" data-jualmatcha>💰 Jual matcha toko ke Negara (bagi hasil 10%)</button></div>`;
+    h += `</div>`;
+  }
+  // tugas kerja harian (pegawai bisnis ini)
+  if (sayaKerja && id === 'KOPI-NUSAWARA'){
+    const ts = BIZ.tugas.filter(t=>t.fasilitas === id && t.posisi === kj.posisi), done = (BIZ.kerja.selesai || []), tgt = ts.reduce((a,t)=>a+t.klik,0), sel = ts.filter(t=>done.includes(t.kode)).reduce((a,t)=>a+t.klik,0), pr = tgt ? Math.floor(sel/tgt*100) : 0, gj = BIZ.gaji[id + '|' + kj.posisi] || 0;
+    h += `<div class="card"><h3>🧑‍💼 Tugas harian · ${esc(kj.posisi)}</h3><p class="note">Target ${tgt} klik/hari · gaji penuh ${N$(gj)} · progres hari ini <b>${pr}%</b> (${sel}/${tgt})</p>${bar(sel, tgt)}
+      ${ts.map(t=>{ const d = done.includes(t.kode), n = KTAP[t.kode] || 0; return `<div class="jrow"><span class="jt"><b>${esc(t.nama)}</b><small>${d ? '✓ selesai hari ini' : `👆 Tap ${t.klik}x · ${n}/${t.klik}`}</small></span>
+        ${d ? '<span style="font-size:22px">✅</span>' : `<button class="btn" data-ktap="${t.kode}" style="min-width:110px">👆 Tap (${t.klik - n})</button>`}</div>`; }).join('')}
+      <p class="note">Gaji dibayar otomatis setelah hari berakhir (00.00 WIB): 100% → penuh · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji.<br>Bonus: target 100% +N$5 · 7 hari berturut-turut +N$30 · 30 hari +N$100. Streak sekarang: ${BIZ.kerja.streak || 0} hari.</p>
+      ${BIZ.kerja.rekap ? `<p class="note">Kemarin (${esc(BIZ.kerja.rekap.hari)}): ${BIZ.kerja.rekap.persen}% · gaji ${N$(BIZ.kerja.rekap.gaji)}${BIZ.kerja.rekap.bonus ? ' + bonus ' + N$(BIZ.kerja.rekap.bonus) : ''}</p>` : ''}</div>`;
+  }
+  // laporan & tombol untuk jabatan tertinggi
+  if (lap){
+    h += `<div class="card" style="border:2px solid #f2b134"><h3>📊 Laporan bisnis (jabatan tertinggi)</h3>
+      <div class="prow">${pill('Kas toko ' + N$(lap.kas), '#1f3a5f', '#fff')}${pill('Utang ke Negara ' + N$(lap.utang), lap.utang ? '#c62828' : '#2f7d1a', '#fff')}${pill('Penjualan hari ini ' + N$(lap.jual_hari_ini), '#eef1f4', '#1f3a5f')}</div>
+      <p class="note">Kekurangan kas (bahan & gaji) sementara ditanggung Negara sebagai utang dengan bunga 10% per hari. Bayar utang dari kas toko. Setelah utang lunas, kamu boleh menarik 50% kas sekali sehari; sisanya tetap di kas toko.</p>
+      <div class="prow"><button class="btn" data-bayarutang="${id}" ${lap.utang && lap.kas ? '' : 'disabled'}>💳 Bayar utang</button><button class="btn ghost" data-tarik="${id}" ${lap.boleh_tarik && lap.kas > 1 ? '' : 'disabled'}>💰 Tarik 50% kas</button></div>
+      ${(lap.pekerja || []).map(p=>`<div class="jrow"><span class="jt"><b>${esc(namaW(p.u))}</b><small>${esc(p.posisi)}${p.r ? ' · kemarin ' + p.r.persen + '% · gaji ' + N$(p.r.gaji) : ''}</small></span></div>`).join('')}</div>`;
+  }
+  return h;
+}
+{ const _f = fasHTML; fasHTML = id => bisnisHTML(id) + _f(id); }
+sheetBody.addEventListener('click', async e=>{
+  const t = e.target.closest('button'); if (!t || !AKUN.u) return;
+  const ulang = async id => { await Promise.all([bisnisMuat(id), barangMuat()]); await akunMuat(); };
+  if (t.dataset.menu){ t.disabled = true; const r = await SB.rpc('beli_menu', {p_user: AKUN.u, p_sandi: AKUN.s, p_menu: t.dataset.menu}).catch(()=>null);
+    if (r && r.ok){ popHadiah('⚡ +' + r.stamina_plus); sfx(660, .2, 'sine', .08, 0, 990); toast('😋 ' + r.nama + ' · stamina +' + r.stamina_plus); }
+    else toast(ALASAN[r && r.alasan] || (r && r.alasan === 'menu_habis' ? 'Menu habis, bahan di stok Negara belum ada.' : 'Gagal membeli.'));
+    return ulang('KOPI-NUSAWARA'); }
+  if (t.dataset.ktap){ const k = t.dataset.ktap, tg = BIZ.tugas.find(x=>x.kode === k); if (!tg) return;
+    KTAP[k] = (KTAP[k] || 0) + 1; sfx(500 + KTAP[k]*20, .04, 'sine', .04); t.textContent = '👆 Tap (' + Math.max(0, tg.klik - KTAP[k]) + ')';
+    if (KTAP[k] < tg.klik) return; t.disabled = true; KTAP[k] = 0;
+    const r = await SB.rpc('kerja_bisnis', {p_user: AKUN.u, p_sandi: AKUN.s, p_kode: k}).catch(()=>null);
+    if (r && r.ok){ popHadiah('✅ ' + Math.floor(r.selesai/r.target*100) + '%'); toast('✅ ' + tg.nama + ' selesai · progres ' + r.selesai + '/' + r.target); } else toast('Gagal mencatat tugas.');
+    return ulang(tg.fasilitas); }
+  if (t.dataset.racik){ t.disabled = true; const r = await SB.rpc('racik_matcha', {p_user: AKUN.u, p_sandi: AKUN.s, p_jumlah: parseInt(t.dataset.racik)}).catch(()=>null);
+    if (r && r.ok){ popHadiah('+' + r.jumlah + ' 🍵'); toast(`🍵 ${r.jumlah} matcha diracik · upah +${N$(r.jumlah)} · hari ini ${r.hari_ini}/20`); }
+    else toast(r && r.alasan === 'daun_kurang' ? '🌿 Daun teh di stok Negara kurang dari 10.' : r && r.alasan === 'batas_matcha' ? 'Sudah 20 matcha hari ini.' : 'Gagal meracik.');
+    return ulang('MATCHA-NUSAWARA'); }
+  if (t.hasAttribute('data-jualmatcha')){ const n = Math.max(1, parseInt((document.getElementById('jmMatcha')||{}).value) || 1); t.disabled = true;
+    const r = await SB.rpc('jual_hasil_bisnis', {p_user: AKUN.u, p_sandi: AKUN.s, p_jumlah: n}).catch(()=>null);
+    if (r && r.ok){ popHadiah('+' + N$(r.bagian)); toast(`💰 ${r.jumlah} matcha terjual ${N$(r.total)} · bagianmu ${N$(r.bagian)}`); }
+    else toast(r && r.alasan === 'stok_toko_kosong' ? 'Stok matcha toko kosong.' : ALASAN[r && r.alasan] || 'Gagal menjual.');
+    return ulang('MATCHA-NUSAWARA'); }
+  if (t.dataset.bayarutang){ t.disabled = true; const r = await SB.rpc('bayar_utang_bisnis', {p_user: AKUN.u, p_sandi: AKUN.s, p_bisnis: t.dataset.bayarutang}).catch(()=>null);
+    toast(r && r.ok ? '💳 Utang dibayar ' + N$(r.dibayar) + ' · sisa ' + N$(r.sisa_utang) : 'Belum bisa membayar utang.'); return ulang(t.dataset.bayarutang); }
+  if (t.dataset.tarik){ t.disabled = true; const r = await SB.rpc('tarik_hasil_bisnis', {p_user: AKUN.u, p_sandi: AKUN.s, p_bisnis: t.dataset.tarik}).catch(()=>null);
+    if (r && r.ok){ popHadiah('+' + N$(r.jumlah)); toast('💰 Hasil ditarik ' + N$(r.jumlah)); } else toast(r && r.alasan === 'masih_utang' ? 'Lunasi utang dulu.' : r && r.alasan === 'sudah_tarik' ? 'Sudah menarik hari ini.' : 'Belum bisa menarik.');
+    return ulang(t.dataset.tarik); }
+});
+
 let jSel = null;
 sheetBody.addEventListener('click', async e=>{
   const kb = e.target.closest('[data-kerja]');
