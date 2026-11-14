@@ -379,6 +379,8 @@ controls.target.copy(HOME_T);
 controls.enableDamping = true; controls.dampingFactor = 0.08;
 controls.maxPolarAngle = 1.32; controls.minDistance = 14; controls.maxDistance = 230;
 controls.screenSpacePanning = false;
+// Sentuh: 1 jari geser = kamera bergerak maju/mundur/kiri/kanan mengikuti arah tarikan; 2 jari = cubit zoom + putar arah kamera
+controls.touches = {ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE}; controls.panSpeed = 1.2;
 
 scene.add(new THREE.HemisphereLight(0xffffff, 0x6f9a5c, 0.72));
 const sun = new THREE.DirectionalLight(0xfff4e0, 0.85);
