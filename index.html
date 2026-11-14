@@ -1173,30 +1173,52 @@ const B = (w,h,d) => new THREE.BoxGeometry(w,h,d);
 const SPH = (r,sx=1,sy=1,sz=1) => new THREE.SphereGeometry(r,24,18).scale(sx,sy,sz);
 function pm(geo,c,x,y,z,parent){ const m = new THREE.Mesh(geo, M(c)); m.position.set(x,y,z); m.castShadow = true; (parent||pres).add(m); return m; }
 function limb(x,y){ const g = new THREE.Group(); g.position.set(x,y,0); pres.add(g); return g; }
-// Bentuk tetap seperti sebelumnya; gaya wajah & jas disamakan dengan maskot resmi Mr. Bung
-const NAVY2 = 0x2f4d8a;
-const legL = limb(.28,1.2), legR = limb(-.28,1.2);
-[legL,legR].forEach(l=>{ pm(B(.38,1.05,.42),0x16233d,0,-.52,0,l); pm(B(.42,.2,.62),0x111111,0,-1.1,.08,l); });
-pm(B(1.15,1.35,.62), SUIT, 0,1.88,0);                       // jas navy
-pm(B(.34,.7,.05), 0xffffff, 0,2.2,.32);                      // kemeja
-[-1,1].forEach(sd=>{ const l = pm(B(.2,.85,.05), NAVY2, sd*.22,2.15,.33); l.rotation.z = sd*.25; });   // kerah jas lebih terang
-pm(B(.12,.62,.06), 0x16233d, 0,2.12,.36);                    // dasi navy
-pm(B(.17,.21,.05), 0xf2b134, .36,2.2,.34);                   // lencana logo Nusawara (emas)
-[1.75,1.45].forEach(y=>pm(new THREE.SphereGeometry(.05,8,6),0xf2b134,0,y,.33));   // kancing emas
-const armL = limb(.74,2.45), armR = limb(-.74,2.45);
-[armL,armR].forEach(a=>{ pm(B(.32,1.1,.36),SUIT,0,-.52,0,a); pm(new THREE.SphereGeometry(.17,10,8),SKIN,0,-1.15,0,a); });
-pm(B(.3,.2,.3), SKIN, 0,2.62,0);                             // leher
-const head = new THREE.Group(); head.position.y = 3.05; pres.add(head);
-pm(B(.72,.78,.7), SKIN, 0,0,0, head);
-pm(B(.76,.24,.74), 0x1b1b1b, 0,.42,-.02, head);              // rambut hitam
-pm(B(.76,.42,.12), 0x1b1b1b, 0,.2,-.36, head);
-[-1,1].forEach(sd=>{
-  const ey = pm(new THREE.SphereGeometry(.1,14,10),0x5a2e12,sd*.17,.06,.35,head); ey.scale.z = .4;     // mata cokelat besar
-  pm(new THREE.SphereGeometry(.032,8,6),0xffffff,sd*.17+.035,.1,.39,head);                              // kilau mata
-  const r = new THREE.Mesh(new THREE.TorusGeometry(.14,.026,8,24), M(0x111111)); r.position.set(sd*.17,.06,.37); head.add(r);   // kacamata bulat
-  pm(B(.11,.07,.02),0xf3a3a3,sd*.26,-.12,.355,head); });                                                // pipi merah muda
-pm(B(.06,.03,.03),0x111111,0,.08,.38,head);                 // jembatan kacamata
-const mouth = new THREE.Mesh(new THREE.TorusGeometry(.07,.02,6,14,Math.PI), M(0xb3261e)); mouth.rotation.z = Math.PI; mouth.position.set(0,-.2,.36); head.add(mouth);   // senyum
+// Gaya voxel detail (sama dengan karakter warga): balok bersudut membulat, wajah timbul,
+// desain mengikuti maskot resmi Mr. Bung: rambut hitam, kacamata bulat, mata cokelat besar, jas navy, dasi, lencana emas.
+let PB_BASE = null;
+function presRB(list, parent, x, y, z){
+  if (!PB_BASE){ const g = new THREE.BoxGeometry(1,1,1,3,3,3); PB_BASE = {p:g.attributes.position.array, n:g.attributes.normal.array, i:g.index.array}; }
+  const pos = [], nor = [], col = [], idx = [];
+  list.forEach(([bx,by,bz,w,h,d,c,r])=>{ const cc = new THREE.Color(c), o = pos.length/3; r = Math.min(r || .06, w/2-.001, h/2-.001, d/2-.001);
+    const ix = w/2-r, iy = h/2-r, iz = d/2-r, P = PB_BASE.p, N = PB_BASE.n;
+    for (let i = 0; i < P.length; i += 3){ const px = P[i]*w, py = P[i+1]*h, pz = P[i+2]*d;
+      const qx = Math.max(-ix,Math.min(ix,px)), qy = Math.max(-iy,Math.min(iy,py)), qz = Math.max(-iz,Math.min(iz,pz));
+      let nx = px-qx, ny = py-qy, nz = pz-qz, l = Math.hypot(nx,ny,nz); if (l < 1e-6){ nx = N[i]; ny = N[i+1]; nz = N[i+2]; l = 1; }
+      nx/=l; ny/=l; nz/=l; pos.push(bx+qx+nx*r, by+qy+ny*r, bz+qz+nz*r); nor.push(nx,ny,nz); col.push(cc.r,cc.g,cc.b); }
+    PB_BASE.i.forEach(k=>idx.push(o+k)); });
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos,3)); geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor,3));
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(col,3)); geo.setIndex(idx);
+  const m = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({vertexColors:true, shininess:8, specular:0x151515})); m.position.set(x||0,y||0,z||0); m.castShadow = true; (parent||pres).add(m); return m;
+}
+const PB = new THREE.Group(); PB.scale.setScalar(1.3); PB.position.y = -.06; pres.add(PB);
+const SH = 0xf7f7f4, TIE = 0x1a2a52, SHOE = 0x171717, BRN = 0x3d1f10;
+function limb(x,y){ const g = new THREE.Group(); g.position.set(x,y,0); PB.add(g); return g; }
+const legL = limb(.16,1.06), legR = limb(-.16,1.06);
+[legL,legR].forEach(l=>presRB([[0,-.38,0,.3,.78,.34,PANTS,.06],[0,-.91,.05,.32,.2,.46,SHOE,.07],[0,-.99,.05,.34,.05,.48,0x0c0c0c,.02]], l));
+presRB([[0,1.08,0,.66,.14,.44,PANTS,.05],[0,1.5,0,.72,.8,.46,SUIT,.09],
+  [0,1.72,.232,.24,.36,.02,SH,.01],[0,1.86,.24,.3,.06,.04,SH,.02],                 // kemeja & kerah putih
+  [0,1.83,.255,.09,.07,.03,TIE,.02],[0,1.62,.255,.08,.36,.02,TIE,.015],[0,1.43,.255,.05,.06,.02,TIE,.01],   // dasi
+  [.18,1.66,.25,.12,.13,.025,GOLD,.03],[.18,1.65,.265,.06,.06,.012,0x8a5a1c,.01],    // lencana perisai rumah emas
+  [0,1.26,.245,.05,.05,.03,GOLD,.02],[0,1.92,0,.22,.12,.22,SKIN,.04]], PB);
+[-1,1].forEach(sd=>{ const l = presRB([[0,0,0,.11,.48,.025,LAPEL,.012]], PB, sd*.11, 1.66, .25); l.rotation.z = sd*.32; });   // kerah jas lebih terang
+const armL = limb(.43,1.8), armR = limb(-.43,1.8);
+[armL,armR].forEach(a=>presRB([[0,-.27,0,.22,.6,.26,SUIT,.07],[0,-.56,0,.2,.05,.24,SH,.02],[0,-.69,0,.19,.2,.22,SKIN,.06]], a));
+const head = new THREE.Group(); head.position.y = 2.36; PB.add(head);
+const Zf = .4, EB = [];
+[-.18,.18].forEach(cx=>{ const sx = Math.sign(cx);
+  EB.push([cx,.02,Zf+.015,.19,.21,.03,BRN,.04],[cx+.04,.075,Zf+.035,.065,.065,.01,0xffffff,.02],[cx-.045,-.04,Zf+.035,.03,.03,.01,0xffffff,.01]);   // mata cokelat besar + kilau
+  const gl = new THREE.Mesh(new THREE.TorusGeometry(.16,.03,10,32), new THREE.MeshPhongMaterial({color:0x141414, shininess:40}));
+  gl.position.set(cx,.02,Zf+.055); gl.castShadow = true; head.add(gl);              // kacamata bulat
+  EB.push([cx,.24,Zf+.02,.22,.06,.04,0x141414,.02]);                              // alis tebal
+  EB.push([sx*.43,.03,.2,.03,.03,.4,0x141414,.01]);                               // gagang kacamata
+  EB.push([sx*.28,-.15,Zf+.005,.14,.07,.02,0xf09a8a,.025]); });                     // pipi merona
+EB.push([0,.02,Zf+.055,.08,.035,.03,0x141414,.012],[0,-.09,Zf+.025,.07,.07,.05,0xe2ad86,.025]);   // jembatan kacamata, hidung
+presRB([[0,0,0,.84,.82,.8,SKIN,.1],[.43,-.03,0,.07,.18,.14,0xe2ad86,.03],[-.43,-.03,0,.07,.18,.14,0xe2ad86,.03],
+  [0,.47,-.02,.9,.2,.86,HAIR,.06],[0,.36,.42,.88,.12,.08,HAIR,.03],[0,.12,-.43,.9,.6,.1,HAIR,.05],
+  [.44,.3,-.2,.08,.2,.44,HAIR,.03],[-.44,.3,-.2,.08,.2,.44,HAIR,.03],[.2,.58,.05,.4,.06,.6,0x262626,.03]].concat(EB), head);
+// mulut senyum lebar (bagian tengah ikut membuka saat Presiden berbicara)
+presRB([[-.135,-.225,Zf+.015,.045,.045,.03,0x8b2a1e,.014],[.135,-.225,Zf+.015,.045,.045,.03,0x8b2a1e,.014]], head);
+const mouth = presRB([[0,0,0,.24,.045,.03,0x8b2a1e,.015]], head, 0, -.255, Zf+.015);
 pres.position.set(18,1.5,-6.8);
 pres.userData = {type:'president'};
 scene.add(pres); pickables.push(pres);
@@ -1542,7 +1564,23 @@ lkEl.innerHTML = `<div class="box"><button class="x" data-close aria-label="Tutu
 document.body.appendChild(lkEl);
 lkEl.addEventListener('click', e=>{ if (e.target===lkEl || e.target.hasAttribute('data-close')) lkEl.classList.remove('open'); });
 let lkUser = null, lkPurpose = 'billboard', lkCtx = null, lkStage = 'old';
-const normPw = v => String(v||'').replace(/\s+/g,'').toUpperCase();
+const normPw = v => String(v||'').replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+// Tanda kata sandi salah: pesan merah, kotak bergetar & merah, notifikasi, kolom dikosongkan
+const lkCss = document.createElement('style');
+lkCss.textContent = '#lkM.salah{color:#c0392b;font-weight:800;font-size:15px;background:#fdecea;border:1px solid #f5c2bd;border-radius:10px;padding:10px 12px;text-align:center}'
+  + '#modal-kunci input.salah{border:2px solid #c0392b!important;background:#fff5f4;animation:lkGetar .4s}'
+  + '@keyframes lkGetar{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}';
+document.head.appendChild(lkCss);
+let lkSalah = 0;
+function tandaSalah(teks, inputId){
+  const m = document.getElementById('lkM'); lkSalah++;
+  m.textContent = teks + (lkSalah > 1 ? ' (percobaan ke-' + lkSalah + ')' : ''); m.classList.add('salah');
+  const el = document.getElementById(inputId || 'lkI');
+  if (el){ el.classList.remove('salah'); void el.offsetWidth; el.classList.add('salah'); el.value = ''; el.focus(); }
+  if (navigator.vibrate) try { navigator.vibrate(200); } catch(_) {}
+  toast(teks);
+}
+function tandaBersih(){ const m = document.getElementById('lkM'); m.classList.remove('salah'); ['lkI','lkN1','lkN2'].forEach(i=>document.getElementById(i).classList.remove('salah')); }
 function userOfHouse(id){ if (typeof FAS !== 'undefined' && FAS[id]) return facTop(id); const g = houseGroups[id]; return g ? String(g.userData.data.owner||'').replace(/^@+/,'').toLowerCase() : ''; }
 function openLock(target, purpose){
   lkPurpose = purpose || 'billboard'; lkCtx = target; lkStage = 'old';
@@ -1555,7 +1593,7 @@ function openLock(target, purpose){
   document.getElementById('lkH').textContent = lkPurpose === 'sandi' ? '🔑 Kata sandi lama' : '🔑 Masukkan Kata Sandi Warga';
   document.getElementById('lkP').textContent = 'Khusus @' + u + '. Masukkan Kata Sandi Warga kamu.';
   document.getElementById('lkNew').style.display = 'none'; document.getElementById('lkI').style.display = '';
-  ['lkI','lkN1','lkN2'].forEach(i=>document.getElementById(i).value = ''); document.getElementById('lkM').textContent = '';
+  ['lkI','lkN1','lkN2'].forEach(i=>document.getElementById(i).value = ''); document.getElementById('lkM').textContent = ''; tandaBersih(); lkSalah = 0;
   lkEl.classList.add('open'); setTimeout(()=>document.getElementById('lkI').focus(), 60);
 }
 async function kunciHash(u, pw){
@@ -1585,6 +1623,7 @@ function afterUnlock(){
 document.getElementById('lkF').addEventListener('submit', async e=>{
   e.preventDefault();
   const m = document.getElementById('lkM'), btn = document.getElementById('lkB');
+  tandaBersih();
   if (lkStage === 'new'){
     const a = normPw(document.getElementById('lkN1').value), b = normPw(document.getElementById('lkN2').value);
     if (!/^[A-Z0-9]{6,20}$/.test(a)) { m.textContent = 'Kata sandi baru 6–20 huruf/angka.'; return; }
@@ -1592,20 +1631,22 @@ document.getElementById('lkF').addEventListener('submit', async e=>{
     if (a === UNLOCK[lkUser]) { m.textContent = 'Kata sandi baru sama dengan yang lama.'; return; }
     const bb = document.getElementById('lkB'); bb.disabled = true; m.textContent = 'Menyimpan…';
     try { const ok = await SB.ganti(lkUser, UNLOCK[lkUser], a); bb.disabled = false;
-      if (!ok){ m.textContent = '❌ Kata sandi lama sudah tidak cocok. Tutup lalu coba lagi.'; return; }
+      if (!ok){ tandaSalah('❌ Kata sandi lama salah atau sudah berubah. Tutup lalu coba lagi.', 'lkN1'); return; }
       UNLOCK[lkUser] = a; lkEl.classList.remove('open'); toast('✓ Kata sandi baru langsung aktif. Jangan berikan kepada siapa pun.'); }
     catch(_){ bb.disabled = false; m.textContent = 'Gagal tersambung. Periksa internet lalu coba lagi.'; }
     return;
   }
   const pw = normPw(document.getElementById('lkI').value);
-  if (!/^[A-Z0-9]{4,20}$/.test(pw)) { m.textContent = 'Kata sandi berisi huruf dan angka.'; return; }
+  if (!pw) { tandaSalah('❌ Kata sandi belum diisi.'); return; }
+  if (!/^[A-Z0-9]{4,20}$/.test(pw)) { tandaSalah('❌ Kata sandi salah. Coba lagi.'); return; }
   btn.disabled = true; m.textContent = 'Memeriksa…';
   let ok = false;
   let net = false;
   try { ok = await SB.cek(lkUser, pw) === true; net = true; } catch(_) {}          // diperiksa di server Supabase
   if (!net){ try { ok = (await kunciHash(lkUser, pw)) === KUNCI[lkUser]; } catch(_) { m.textContent = 'Browser ini tidak bisa memeriksa kata sandi.'; btn.disabled = false; return; } }
   btn.disabled = false;
-  if (!ok) { m.textContent = '❌ Kata sandi salah. Coba lagi.'; return; }
+  if (!ok) { tandaSalah('❌ Kata sandi salah. Coba lagi.'); return; }
+  lkSalah = 0;
   UNLOCK[lkUser] = pw;
   if (lkPurpose === 'sandi'){
     lkStage = 'new'; m.textContent = '';
@@ -1635,8 +1676,8 @@ function guestSave(){
     const [bg, fg] = q.get('warna').split(','), user = q.get('username');
     edSay('Menyimpan…');
     SB.rpc('simpan_billboard', {p_user:user, p_sandi:kode, p_rumah:id, p_judul:q.get('judul'), p_ket:q.get('keterangan'), p_bg:bg, p_fg:fg}).then(r=>{
-      const pesan = {ok:'✓ Billboard tersimpan & langsung terlihat semua warga', sandi:'❌ Kata sandi sudah berubah. Kunci lalu buka profil lagi.', bukan_pemilik:'❌ Rumah ini bukan milikmu.', belum_dibangun:'Billboard bisa diisi setelah rumahmu dibangun.', teks:'❌ Judul 1–40 huruf, keterangan maks. 60.'}[r] || 'Gagal menyimpan.';
-      if (r === 'ok'){ BB[id] = {kind:'text', title:q.get('judul'), sub:q.get('keterangan'), bg, fg}; closeEditor(); toast(pesan); } else { applyBoard(id); edSay(pesan); }
+      const pesan = {ok:'✓ Billboard tersimpan & langsung terlihat semua warga', sandi:'❌ Kata sandi salah atau sudah berubah. Kunci lalu buka profil lagi.', bukan_pemilik:'❌ Rumah ini bukan milikmu.', belum_dibangun:'Billboard bisa diisi setelah rumahmu dibangun.', teks:'❌ Judul 1–40 huruf, keterangan maks. 60.'}[r] || 'Gagal menyimpan.';
+      if (r === 'ok'){ BB[id] = {kind:'text', title:q.get('judul'), sub:q.get('keterangan'), bg, fg}; closeEditor(); toast(pesan); } else { applyBoard(id); edSay(pesan); if (r === 'sandi') toast('❌ Kata sandi salah'); }
     }).catch(()=>edSay('Gagal tersambung. Periksa internet lalu coba lagi.'));
     return;
   }
@@ -1777,18 +1818,20 @@ edEl.addEventListener('click', e=>{ if (e.target===edEl || e.target.hasAttribute
 
 /* ---------- JAGO, AYAM PENDAMPING PRESIDEN ---------- */
 const chick = new THREE.Group();
-function cbx(w,h,d,c,x,y,z,parent){ const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), M(c)); m.position.set(x,y,z); m.castShadow = true; (parent||chick).add(m); return m; }
+// Gaya voxel detail (sama dengan Presiden & warga): balok membulat, mata besar berkilau, pipi merona, kalung navy berlencana emas
+const CW = 0xfbfbf8, CW2 = 0xeeeeea, CRED = 0xd8312b, CORG = 0xf2a23a;
 const chLegs = [.12,-.12].map(sx=>{ const g = new THREE.Group(); g.position.set(sx,.42,0); chick.add(g);
-  cbx(.07,.4,.07,0xe8a33a,0,-.2,0,g); cbx(.2,.04,.26,0xe8a33a,0,-.4,.06,g); return g; });
-cbx(.62,.52,.78,0xfafafa,0,.7,-.02); cbx(.5,.3,.5,0xf6f6f6,0,.52,.1);
-cbx(.36,.42,.22,0xf0f0f0,0,1.02,-.42).rotation.x = -.35;
-const chWings = [1,-1].map(sd=>{ const g = new THREE.Group(); g.position.set(sd*.33,.86,-.04); chick.add(g); cbx(.08,.36,.52,0xe9e9e9,0,-.16,0,g); return g; });
-const chHead = new THREE.Group(); chHead.position.set(0,1.0,.34); chick.add(chHead);
-cbx(.3,.36,.3,0xfcfcfc,0,.12,0,chHead); cbx(.07,.16,.24,0xd8312b,0,.36,-.02,chHead);
-cbx(.1,.08,.16,0xf2a23a,0,.1,.2,chHead); cbx(.06,.13,.06,0xd8312b,0,-.04,.16,chHead);
-cbx(.05,.05,.05,0x111111,.152,.17,.07,chHead); cbx(.05,.05,.05,0x111111,-.152,.17,.07,chHead);
-cbx(.42,.1,.4,0x22396b,0,.98,.28);                     // kalung navy
-cbx(.1,.1,.04,0xf2b134,0,.94,.49);                     // lencana emas kalung
+  presRB([[0,-.2,0,.08,.4,.08,CORG,.03],[0,-.4,.06,.2,.05,.26,CORG,.02]], g); return g; });
+presRB([[0,.72,-.02,.64,.56,.78,CW,.16],[0,.54,.1,.52,.3,.52,CW,.12],[0,1.0,-.42,.38,.42,.22,CW2,.09]], chick);   // badan & ekor
+const chWings = [1,-1].map(sd=>{ const g = new THREE.Group(); g.position.set(sd*.34,.86,-.04); chick.add(g); presRB([[0,-.16,0,.1,.38,.54,CW2,.05]], g); return g; });
+const chHead = new THREE.Group(); chHead.position.set(0,1.02,.32); chick.add(chHead);
+presRB([[0,.14,0,.42,.42,.38,CW,.12],                                   // kepala besar membulat
+  [0,.4,-.02,.1,.1,.12,CRED,.04],[0,.44,-.1,.08,.12,.1,CRED,.035],[0,.38,.07,.08,.08,.08,CRED,.03],   // jengger merah
+  [0,.08,.22,.12,.08,.14,CORG,.035],[0,-.02,.2,.07,.12,.06,CRED,.03],   // paruh & pial
+  [.11,.18,.19,.1,.12,.02,0x141414,.03],[-.11,.18,.19,.1,.12,.02,0x141414,.03],                       // mata hitam besar
+  [.13,.21,.201,.04,.04,.01,0xffffff,.012],[-.09,.21,.201,.04,.04,.01,0xffffff,.012],                 // kilau mata
+  [.17,.05,.18,.08,.04,.02,0xf3a3a3,.015],[-.17,.05,.18,.08,.04,.02,0xf3a3a3,.015]], chHead);        // pipi merona
+presRB([[0,.98,.26,.46,.1,.42,0x22396b,.04],[0,.93,.48,.11,.12,.04,0xf2b134,.03]], chick);            // kalung navy & lencana emas
 chick.scale.setScalar(.85);
 chick.position.set(19.55,1.5,-5.5); chick.rotation.y = -.3;
 chick.userData = {type:'chicken'};
@@ -2223,10 +2266,10 @@ const EKSPRESI = [['netral','🙂 Netral'],['santai','😌 Santai'],['senyum','�
 const AVA_OPT = {
   rambutModel: HAIR_PRIA.concat(HAIR_WANITA),
   ekspresi:    EKSPRESI,
-  bajuModel:   [['sweater','Sweater'],['kaos','Kaos'],['hoodie','Hoodie'],['kemeja','Kemeja'],['jas','Jas']],
+  bajuModel:   [['sweater','Sweater'],['kaos','Kaos'],['sporty','Kaos Sporty'],['hoodie','Hoodie'],['kemeja','Kemeja'],['jas','Jas']],
   celanaModel: [['panjang','Panjang'],['pendek','Pendek'],['rok','Rok lipit']],
   kacamata:    [['tidak','Tidak'],['hitam','Hitam'],['bening','Bening']],
-  topi:        [['tidak','Tidak'],['cap','Cap'],['kupluk','Kupluk']],
+  topi:        [['tidak','Tidak'],['cap','Cap'],['kupluk','Kupluk'],['ikat','Ikat kepala']],
   kopi:        [['tidak','Tidak'],['ya','Bawa kopi']]
 };
 function hashStr(s){ let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -2321,6 +2364,11 @@ function shellGeo(o, clip){
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return g;
 }
 const nrm = (x,y,z) => { const l = Math.hypot(x,y,z) || 1; return [x/l, y/l, z/l]; };
+let RB_CACHE = null;
+function RB_BASE(){ if (RB_CACHE) return RB_CACHE; const g = new THREE.BoxGeometry(1,1,1,3,3,3);
+  return RB_CACHE = {p: Array.from(g.attributes.position.array), n: Array.from(g.attributes.normal.array), i: Array.from(g.index.array)}; }
+// ekspresi yang dibuat timbul 3D (mata, alis, hidung, mulut); ekspresi khusus lain tetap memakai wajah piksel
+const FACE3D = ['senyum','netral','serius','sedih','marah','bingung','kaget'];
 function makeAvatar(sp){
   // Karakter warga bergaya VOXEL (patokan: referensi/karakter/patokan-voxel.jpg):
   // kepala kubus besar dengan wajah piksel tajam, rambut & topi tersusun dari kotak-kotak kecil,
@@ -2335,6 +2383,14 @@ function makeAvatar(sp){
     this.box = (x,y,z,w,h,d,c) => { c = hx(c); const r = ((c>>16)&255)/255, gg = ((c>>8)&255)/255, b = (c&255)/255;
       F.forEach(([n,vs])=>{ const o = pos.length/3; vs.forEach(v=>{ pos.push(x + v[0]*w/2, y + v[1]*h/2, z + v[2]*d/2); nor.push(n[0],n[1],n[2]);
         const sh = n[1] > 0 ? 1.06 : n[1] < 0 ? .78 : 1; col.push(r*sh, gg*sh, b*sh); }); idx.push(o, o+1, o+2, o, o+2, o+3); }); return this; };
+    // balok bersudut membulat (gaya mainan): dibangun dari kubus bersegmen yang sudutnya "ditumpulkan"
+    this.rbox = (x,y,z,w,h,d,c,r) => { c = hx(c); const cr = ((c>>16)&255)/255, cg = ((c>>8)&255)/255, cb = (c&255)/255;
+      r = Math.min(r || .06, w/2 - .001, h/2 - .001, d/2 - .001); const B = RB_BASE(), o = pos.length/3, ix = w/2 - r, iy = h/2 - r, iz = d/2 - r;
+      for (let i = 0; i < B.p.length; i += 3){ const px = B.p[i]*w, py = B.p[i+1]*h, pz = B.p[i+2]*d;
+        const qx = Math.max(-ix, Math.min(ix, px)), qy = Math.max(-iy, Math.min(iy, py)), qz = Math.max(-iz, Math.min(iz, pz));
+        let nx = px - qx, ny = py - qy, nz = pz - qz, l = Math.hypot(nx, ny, nz); if (l < 1e-6){ nx = B.n[i]; ny = B.n[i+1]; nz = B.n[i+2]; l = 1; }
+        nx /= l; ny /= l; nz /= l; pos.push(x + qx + nx*r, y + qy + ny*r, z + qz + nz*r); nor.push(nx, ny, nz); col.push(cr, cg, cb); }
+      B.i.forEach(k=>idx.push(o + k)); return this; };
     this.mesh = (parent, x, y, z) => { if (!pos.length) return null; const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos,3));
       geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor,3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(col,3)); geo.setIndex(idx);
       const m = new THREE.Mesh(geo, AG('voxM', ()=>new THREE.MeshPhongMaterial({vertexColors:true, shininess:6, specular:0x111111}))); m.position.set(x||0, y||0, z||0); m.castShadow = true; (parent||body).add(m); return m; }; }
@@ -2344,16 +2400,20 @@ function makeAvatar(sp){
   const rok = sp.celanaModel === 'rok', pendek = sp.celanaModel === 'pendek';
   const legL = new THREE.Group(), legR = new THREE.Group(); legL.position.set(.16,1.06,0); legR.position.set(-.16,1.06,0); body.add(legL, legR);
   [legL, legR].forEach(l=>{ const v = new VB();
-    if (pendek || rok){ if (pendek) v.box(0,-.15,0,.28,.3,.32, sp.celana); v.box(0, rok ? -.4 : -.5, 0, .2, rok ? .62 : .42, .22, sp.kulit); v.box(0,-.8,0,.22,.16,.24, 0xf4f2ec); }
-    else { v.box(0,-.38,0,.28,.76,.32, sp.celana); v.box(0,-.74,0,.29,.08,.33, tone(sp.celana,.82)); }
-    v.box(0,-.93,.05,.3,.18,.44, sp.sepatu); v.box(0,-1.0,.05,.31,.04,.45, 0xe6e3dc); v.box(0,-.87,.2,.2,.04,.06, 0xdedbd3);
+    if (pendek || rok){ if (pendek) v.rbox(0,-.15,0,.3,.32,.34, sp.celana,.05); v.rbox(0, rok ? -.4 : -.5, 0, .22, rok ? .62 : .42, .24, sp.kulit,.05); v.rbox(0,-.8,0,.24,.16,.26, 0xf4f2ec,.04); }
+    else { v.rbox(0,-.38,0,.3,.78,.34, sp.celana,.06); v.rbox(0,-.74,0,.31,.08,.35, tone(sp.celana,.82),.03); }
+    v.rbox(0,-.91,.05,.32,.2,.46, sp.sepatu,.07); v.rbox(0,-.99,.05,.34,.06,.48, 0xe6e3dc,.03); v.box(0,-.86,.22,.2,.04,.06, 0xdedbd3);
     v.mesh(l); });
 
   // ---------- badan & model baju ----------
   const v = new VB(), B = sp.baju, D = tone(B,.8), Zf = .21;
   v.box(0,1.08,0,.62,.12,.4, rok ? sp.celana : sp.celana);                      // pinggang
   if (sp.bajuModel === 'kaos'){ for (let i=0;i<7;i++) v.box(0,1.17 + i*.1 + .05,0,.64,.1,.42, i%2 ? 0xf2f2ee : B); v.box(0,1.86,.0,.3,.04,.2, D); }   // kaos garis
-  else v.box(0,1.5,0,.64,.72,.42, B);
+  else v.rbox(0,1.5,0,.66,.74,.44, B,.08);
+  if (sp.bajuModel === 'sporty'){                                                // kaos sporty: bahu dua warna, kerah & badge
+    const A = sp.topi === 'ikat' ? sp.topiWarna : '#1f9d55';
+    v.rbox(0,1.76,0,.68,.24,.46, tone(B,.82),.08); v.rbox(0,1.88,0,.3,.06,.24, A,.025);
+    v.rbox(.15,1.5,Zf+.025,.13,.13,.04, A,.02); v.rbox(.15,1.5,Zf+.045,.06,.06,.02, 0xffffff,.01); }
   if (sp.bajuModel === 'sweater'){                                               // kardigan rajut
     v.box(0,1.5,Zf+.005,.16,.66,.02, sp.celana); [-.1,.1].forEach(x=>v.box(x,1.5,Zf+.01,.05,.72,.03, D));
     for (let i=0;i<4;i++) v.box(.1,1.75 - i*.16,Zf+.03,.04,.04,.02, 0xb48a62);
@@ -2380,19 +2440,39 @@ function makeAvatar(sp){
   const armL = new THREE.Group(), armR = new THREE.Group(); armL.position.set(.42,1.8,0); armR.position.set(-.42,1.8,0); body.add(armL, armR);
   [armL, armR].forEach(a=>{ const w = new VB();
     if (sp.bajuModel === 'kaos'){ w.box(0,-.1,0,.2,.22,.24, B); w.box(0,-.2,0,.21,.04,.25, 0xf2f2ee); w.box(0,-.43,0,.17,.44,.2, sp.kulit); }
-    else { w.box(0,-.27,0,.2,.58,.24, B); w.box(0,-.58,0,.21,.07,.25, D); }
-    w.box(0,-.71,.0,.17,.18,.2, sp.kulit); w.mesh(a); });
+    else if (sp.bajuModel === 'sporty'){ w.rbox(0,-.12,0,.23,.28,.27, tone(B,.82),.06); w.rbox(0,-.42,0,.18,.36,.21, sp.kulit,.05); }
+    else { w.rbox(0,-.27,0,.21,.6,.25, B,.06); w.rbox(0,-.58,0,.22,.07,.26, D,.03); }
+    w.rbox(0,-.71,.0,.19,.2,.22, sp.kulit,.06); w.mesh(a); });
 
   // ---------- kepala kubus ----------
   const head = new THREE.Group(); head.position.y = 2.36; body.add(head);
   const skin = AM(sp.kulit, .85);
-  const hm = new THREE.Mesh(AG('headBox', ()=>new THREE.BoxGeometry(.8,.8,.8)), [skin, skin, skin, skin, faceMat8(sp.ekspresi, sp.kulit), skin]);
-  hm.castShadow = true; head.add(hm);
-  const fv = new VB(); fv.box(0,-.06,.425,.08,.1,.05, tone(sp.kulit,.92));        // hidung timbul
-  [.41,-.41].forEach(x=>fv.box(x,-.05,0,.04,.14,.1, tone(sp.kulit,.95)));          // telinga
+  const f3 = FACE3D.includes(sp.ekspresi || 'senyum'), fv = new VB();
+  if (f3){                                                                         // kepala kubus membulat + wajah timbul
+    fv.rbox(0,0,0,.84,.82,.8, sp.kulit,.1);
+    const ex = sp.ekspresi || 'senyum', INK = 0x1a120d, BRW = tone(sp.rambut,.75), MO = 0x7a3324, Zs = .4;
+    [-.17,.17].forEach(cx=>{ const big = ex === 'kaget', sq = ex === 'serius' || ex === 'marah';
+      fv.rbox(cx,.02,Zs+.01,.2,big ? .25 : sq ? .17 : .22,.04, 0xe9e6df,.025);                     // putih mata
+      fv.rbox(cx - Math.sign(cx)*.015,.0,Zs+.03,.12,big ? .17 : sq ? .11 : .15,.03, INK,.02);       // bola mata
+      fv.rbox(cx - Math.sign(cx)*.015 + .03,.045,Zs+.047,.04,.04,.01, 0xffffff,.008);              // kilau
+      const by = ex === 'kaget' ? .23 : .19, tilt = ex === 'marah' ? .12 : ex === 'sedih' ? -.12 : ex === 'bingung' && cx > 0 ? .1 : 0;
+      const bm = new VB(); bm.rbox(0,0,0,.2,.05,.04, BRW,.015); const m = bm.mesh(head, cx, by, Zs+.02); if (m) m.rotation.z = (cx > 0 ? 1 : -1)*tilt; });
+    fv.rbox(0,-.1,Zs+.025,.07,.08,.05, tone(sp.kulit,.93),.02);                        // hidung
+    [-.27,.27].forEach(x=>fv.rbox(x,-.13,Zs+.005,.15,.07,.02, 0xe58a7c,.02));          // pipi merona
+    if (ex === 'kaget') fv.rbox(0,-.24,Zs+.01,.07,.08,.03, MO,.02);
+    else if (ex === 'senyum'){ fv.rbox(0,-.25,Zs+.01,.13,.035,.03, MO,.012); [-.075,.075].forEach(x=>fv.rbox(x,-.225,Zs+.01,.035,.035,.03, MO,.012)); }
+    else if (ex === 'sedih' || ex === 'marah'){ fv.rbox(0,-.23,Zs+.01,.13,.035,.03, MO,.012); [-.075,.075].forEach(x=>fv.rbox(x,-.255,Zs+.01,.035,.035,.03, MO,.012)); }
+    else fv.rbox(0,-.24,Zs+.01,.13,.04,.03, MO,.012);
+    [.43,-.43].forEach(x=>fv.rbox(x,-.04,0,.07,.17,.13, tone(sp.kulit,.95),.03));   // telinga
+  } else {
+    const hm = new THREE.Mesh(AG('headBox', ()=>new THREE.BoxGeometry(.8,.8,.8)), [skin, skin, skin, skin, faceMat8(sp.ekspresi, sp.kulit), skin]);
+    hm.castShadow = true; head.add(hm);
+    fv.box(0,-.06,.425,.08,.1,.05, tone(sp.kulit,.92));                             // hidung timbul
+    [.41,-.41].forEach(x=>fv.box(x,-.05,0,.04,.14,.1, tone(sp.kulit,.95)));          // telinga
+  }
   const hat = sp.topi === 'cap' || sp.topi === 'kupluk';
   if (sp.kacamata === 'bening' || sp.kacamata === 'hitam'){                         // kacamata bulat piksel timbul
-    const fc = sp.kacamata === 'hitam' ? 0x111111 : 0x3a261b, Z = .43;
+    const fc = sp.kacamata === 'hitam' ? 0x111111 : 0x3a261b, Z = f3 ? .47 : .43;
     [-.17,.17].forEach(cx=>{ [[-.1,0,.03,.14],[.1,0,.03,.14],[0,.085,.14,.03],[0,-.085,.14,.03],[-.075,.065,.03,.03],[.075,.065,.03,.03],[-.075,-.065,.03,.03],[.075,-.065,.03,.03]]
       .forEach(([x,y,w,h])=>fv.box(cx + x, .02 + y, Z, w, h, .04, fc));
       if (sp.kacamata === 'hitam') fv.box(cx, .02, Z - .01, .17, .14, .01, 0x151515); });
@@ -2408,6 +2488,12 @@ function makeAvatar(sp){
     for (let i=0;i<9;i++){ const a = (i%3) - 1, b = Math.floor(i/3) - 1; k.box(a*.06, .96 + ((i*5)%3)*.02, b*.06, .08,.08,.08, i%2 ? tone(c,1.1) : c); }
     k.mesh(head);
   }
+  if (sp.topi === 'ikat'){                                                         // ikat kepala sporty dengan simpul & dua ekor di belakang
+    const k = new VB(), c = sp.topiWarna, y = .3;
+    k.rbox(0,y,.43,.9,.13,.06, c,.03); k.rbox(0,y,-.43,.9,.13,.06, c,.03); k.rbox(.45,y,0,.06,.13,.9, c,.03); k.rbox(-.45,y,0,.06,.13,.9, c,.03);
+    k.rbox(.12,y,-.49,.12,.12,.08, tone(c,.85),.03); k.mesh(head);
+    [[.2,.5],[.08,-.4]].forEach(([dx,rz])=>{ const t = new VB(); t.rbox(0,-.12,0,.08,.26,.03, c,.015); const m = t.mesh(head, .12 + dx*.3, y, -.52); if (m) { m.rotation.z = rz; m.rotation.x = -.35; } });
+  }
   if (sp.topi === 'cap'){ const k = new VB(), c = sp.topiWarna; k.box(0,.48,0,.86,.16,.86, c); k.box(0,.6,0,.72,.1,.72, tone(c,.95)); k.box(0,.68,0,.5,.06,.5, c);
     k.box(0,.41,.6,.8,.04,.36, tone(c,.9)); k.box(0,.73,0,.08,.04,.08, tone(c,.8)); k.mesh(head); }
 
@@ -2421,7 +2507,19 @@ function makeAvatar(sp){
   function hairOf(model){
     if (model === 'botak') return;
     const h = new VB(), C = sp.rambut, C2 = tone(C,.8);
-    let n = 0; const vx = (x,y,z,w,hh,d,c) => { if (hat && y + hh/2 > .32 && Math.abs(x) < .52 && Math.abs(z) < .52) return; h.box(x,y,z,w,hh,d, c || vary(C, n++)); };
+    if (sp.topi === 'ikat'){                                                      // rambut balok tebal bertumpuk di atas ikat kepala
+      const C3 = tone(C,1.12);
+      h.rbox(0,.45,0,.9,.2,.88, C,.05);
+      h.rbox(-.2,.58,.06,.46,.13,.74, C3,.05); h.rbox(.2,.59,-.04,.46,.13,.76, C,.05); h.rbox(.02,.68,-.02,.56,.09,.5, C2,.04);
+      h.rbox(-.16,.42,.45,.52,.12,.07, C3,.03); h.rbox(.24,.43,.45,.3,.1,.07, C,.03);
+      h.rbox(0,.04,-.445,.88,.42,.09, C,.04); h.rbox(0,.45,-.42,.9,.18,.12, C2,.04);
+      [-1,1].forEach(sg=>h.rbox(sg*.445,.08,-.3,.09,.3,.3, C,.03));
+      h.mesh(head); return;
+    }
+    const ikat = sp.topi === 'ikat';
+    let n = 0; const vx = (x,y,z,w,hh,d,c) => { if (hat && y + hh/2 > .32 && Math.abs(x) < .52 && Math.abs(z) < .52) return;
+      if (ikat && (Math.abs(x) > .38 || Math.abs(z) > .38) && ((y + hh/2 > .235 && y - hh/2 < .365) || (z > .38 && y < .3))) return;   // ikat kepala tetap terlihat, rambut tidak menembus
+      h.box(x,y,z,w,hh,d, c || vary(C, n++)); };
     const top = (yy, ext) => { for (let i=0;i<9;i++) for (let j=0;j<9;j++) vx(-.4 + i*.1, (yy||.45), -.4 + j*.1, .1, .1, .1); if (ext) for (let i=0;i<7;i++) for (let j=0;j<7;j++) if ((i+j)%2) vx(-.3 + i*.1, .53, -.3 + j*.1, .1,.06,.1); };
     const back = (len) => { for (let i=0;i<9;i++) for (let r=0;r<len;r++) vx(-.4 + i*.1, .35 - r*.1, -.45, .1,.1,.1); };
     const side = (len, front) => [1,-1].forEach(s=>{ for (let j=0;j<9;j++){ const z = -.4 + j*.1, L = z > (front||.05) ? Math.max(1, len - 3) : len; for (let r=0;r<L;r++) vx(s*.45, .35 - r*.1, z, .1,.1,.1); } });
@@ -2774,7 +2872,7 @@ document.getElementById('stS').onclick = async ()=>{
     if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); return;
   }
   msg.textContent = 'Menyimpan…';
-  try { const ok = await SB.gaya(key, UNLOCK[key], avatar); if (!ok){ msg.textContent = '❌ Kata sandi sudah berubah. Kunci lalu buka profil lagi.'; return; } SB_GAYA[key] = avatar; }
+  try { const ok = await SB.gaya(key, UNLOCK[key], avatar); if (!ok){ msg.textContent = '❌ Kata sandi salah atau sudah berubah. Kunci lalu buka profil lagi.'; toast('❌ Kata sandi salah'); return; } SB_GAYA[key] = avatar; }
   catch(_){ try { localStorage.setItem('nusawara.gaya.' + key, JSON.stringify(avatar)); } catch(__) {} toast('Jaringan lemah: gaya tersimpan di HP ini dulu.'); }
   syncWalkers({[key]: Object.assign({}, wInfo(key), {avatar})});
   closeStyle(); startFollow(key);
@@ -2959,7 +3057,7 @@ function sbTerimaObrolan(r){
 window.nusawaraChatKirim = async ({k, u, t}) => {
   const s = UNLOCK[k]; if (!s) return;
   SB_PENDING.push({u: k, t});
-  try { const ok = await SB.kirim(k, s, u, t); if (!ok) toast('Pesan tidak terkirim: kata sandi berubah. Buka profil lagi.'); }
+  try { const ok = await SB.kirim(k, s, u, t); if (!ok) toast('❌ Pesan tidak terkirim: kata sandi salah atau sudah berubah. Buka profil lagi.'); }
   catch(e){ toast(/terlalu cepat/.test(e.message) ? 'Tunggu sebentar sebelum mengirim lagi.' : 'Pesan belum terkirim ke warga lain (jaringan).'); }
 };
 (async ()=>{
