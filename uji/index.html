@@ -903,9 +903,9 @@ function buildCapital(root, flagMat){
   b(3,2.4,6,BR[4],0,46.5,9.5,1,gar);b(2,1.4,3,BR[4],0,45.4,12,1,gar);
   for(let i=0;i<5;i++)b(1.2,4+i%2*2,1.2,BR[i%5],-2+i,53+i%2,-.5-i*.3,1,gar);
   for(let i=0;i<5;i++)b(2.2,4+i*1.5,2,BR[i%5],-4+i*2,4+i*.8,-11-i*.4,1,gar);
-  const IN=new THREE.Group();IN.position.set(-74,0,-70);root.add(IN);
+  for(const ix of [-74,74]){const IN=new THREE.Group();IN.position.set(ix,0,-70);root.add(IN);   // gedung kiri & kanan Garuda (seimbang)
   b(46,2,22,0xf2f0ea,0,1,0,0,IN);b(42,7,16,0xfbfaf6,0,5.5,0,0,IN);b(44,1.2,18,0xd8c48f,0,9.6,0,0,IN);
-  for(let i=0;i<10;i++)b(1,6,1,0xffffff,-18+i*4,5,8.6,0,IN);
+  for(let i=0;i<10;i++)b(1,6,1,0xffffff,-18+i*4,5,8.6,0,IN);}
   [[-38,-16],[38,-16],[-38,22],[38,22]].forEach(([x,z])=>{b(22,2,16,0xeceae4,x,1,z);
     for(let f=0;f<8;f++){b(20,3,14,0xf6f5f1,x,3.5+f*3.2,z);b(20.4,.4,14.4,0x9aa5ad,x,5.1+f*3.2,z)}
     for(let k=0;k<9;k++)b(.5,25,.6,k%2?0xb08a4a:0xd2b26e,x-9+k*2.25,15,z+7.4);
@@ -3552,7 +3552,7 @@ kasFront.map = kasTex(0);
 async function negaraMuat(){ try { const r = await SB.get('negara?select=kas,share'); if (r && r[0]){ KAS = r[0].kas; kasFront.map = kasTex(KAS); kasFront.needsUpdate = true; } } catch(_) {} }
 
 // ----- PAPAN DONASI di barat podium (setengah ukuran backdrop) -----
-const DON = new THREE.Group(); DON.position.set(-11, 0, -3); stage.add(DON); DON.userData = {type:'eko', data:{id:'EKO-DONASI'}}; pickables.push(DON);
+const DON = new THREE.Group(); DON.position.set(-9.5, 0, -1);   // di dalam lingkaran plaza, barat podium stage.add(DON); DON.userData = {type:'eko', data:{id:'EKO-DONASI'}}; pickables.push(DON);
 [-3.1,3.1].forEach(x=>box(.25,8.4,.25,0xf2b134,x,4.2,-.2,DON)); box(6.2,3.2,.3,0x1f3a5f,0,4,-.1,DON); box(6.2,1.7,.3,0x7a1f2b,0,6.9,-.1,DON);
 const terbaikMat = new THREE.MeshBasicMaterial({}); { const m = new THREE.Mesh(new THREE.PlaneGeometry(6,1.55), terbaikMat); m.position.set(0,6.9,.06); DON.add(m); }
 function terbaikGambar(){ const j = JUARA.find(x=>x.peringkat === 1), bl = j ? BULAN[(parseInt(String(j.bulan).slice(5,7)) || 1) - 1] : '';
@@ -3591,9 +3591,9 @@ async function kavMuat(){
 async function tahap3Muat(){ await Promise.all([kavMuat(), negaraMuat()]); }
 tahap3Muat(); setInterval(tahap3Muat, 30000);
 
-const HADIAH = i => i === 1 ? '🏡 Tanah + Rumah/Toko Modern 2 Lantai' : i === 2 ? '🏠 Tanah + Rumah/Toko Kecil 1 Lantai' : i === 3 ? '🏞️ Tanah' : i <= 10 ? '💰 N$500' : i <= 20 ? '💰 N$100' : '–';
-const KUPON = {modern:'Tanah + Rumah/Toko Modern 2 Lantai (pilih kavling modern)', tanah_rumah:'Tanah + Rumah/Toko Modern 2 Lantai (pilih kavling modern)', kecil:'Tanah + Rumah/Toko Kecil 1 Lantai (pilih kavling kecil)', tanah:'Tanah gratis (kavling mana saja)'};
-const kupCocok = k => ((AKUN.data && AKUN.data.kupon) || []).find(j => j === 'tanah' || ((j === 'modern' || j === 'tanah_rumah') && /modern/.test(k.tipe)) || (j === 'kecil' && /kecil/.test(k.tipe)));
+const HADIAH = i => i === 1 ? '🏡 Tanah + Rumah/Toko Modern 2 Lantai' : i === 2 ? '🏠 Tanah + Rumah/Toko Kecil 1 Lantai' : i === 3 ? '🏞️ Tanah Rumah/Toko Kecil' : i <= 10 ? '💰 N$500' : i <= 20 ? '💰 N$100' : '–';
+const KUPON = {modern:'Tanah + Rumah/Toko Modern 2 Lantai (pilih kavling modern)', tanah_rumah:'Tanah + Rumah/Toko Modern 2 Lantai (pilih kavling modern)', kecil:'Tanah + Rumah/Toko Kecil 1 Lantai (pilih kavling kecil)', tanah:'Tanah gratis (kavling rumah/toko kecil)'};
+const kupCocok = k => ((AKUN.data && AKUN.data.kupon) || []).find(j => (j === 'tanah' && /kecil/.test(k.tipe)) || ((j === 'modern' || j === 'tanah_rumah') && /modern/.test(k.tipe)) || (j === 'kecil' && /kecil/.test(k.tipe)));
 const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const kavSaya = () => AKUN.u ? Object.values(KAV).filter(k=>k.username === AKUN.u) : [];
 const bar = (a,b) => `<div style="height:8px;border-radius:6px;background:#e3e6ea;overflow:hidden;margin-top:4px"><div style="height:100%;width:${Math.min(100, b ? a/b*100 : 0)}%;background:#2fb5a8"></div></div>`;
@@ -3641,7 +3641,7 @@ function donasiHTML(){
   h += `<div class="card"><h3>🔎 Cari peringkatmu</h3><input id="dnCari" placeholder="Ketik nama/username" autocapitalize="none" style="font:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box"><div id="dnHasil"></div></div>
     <div class="card"><h3>🏆 Peringkat & hadiah bulan ini (1–20)</h3>${PAPAN.length ? PAPAN.slice(0,20).map((r,i)=>rowPeringkat(r,i)).join('') : '<p class="note">Belum ada donasi bulan ini.</p>'}
     <p class="note">Juara diumumkan setiap tanggal 1. Semua hadiah diambil dari Kas Negara. Juara 1–3 bebas memilih kavling yang sesuai kuponnya.</p></div>
-    <div class="card"><h3>🎁 Daftar hadiah</h3><p class="note">🥇 Juara 1: Tanah + Rumah/Toko Modern 2 Lantai<br>🥈 Juara 2: Tanah + Rumah/Toko Kecil 1 Lantai<br>🥉 Juara 3: Tanah<br>Juara 4–10: N$500 · Juara 11–20: N$100</p></div>`;
+    <div class="card"><h3>🎁 Daftar hadiah</h3><p class="note">🥇 Juara 1: Tanah + Rumah/Toko Modern 2 Lantai<br>🥈 Juara 2: Tanah + Rumah/Toko Kecil 1 Lantai<br>🥉 Juara 3: Tanah Rumah/Toko Kecil<br>Juara 4–10: N$500 · Juara 11–20: N$100</p></div>`;
   if (JUARA.length) h += `<div class="card"><h3>👑 Juara bulan ${esc(JUARA[0].bulan)}</h3>${JUARA.filter(j=>j.bulan === JUARA[0].bulan).map(j=>`<div class="jrow"><span class="ji">${j.peringkat}</span><span class="jt"><b>${esc(namaW(j.username))}</b><small>${esc(j.hadiah)}</small></span></div>`).join('')}</div>`;
   return h;
 }
@@ -3661,7 +3661,7 @@ function caraMainHTML(){ return `<div class="kicker">Panduan Warga</div><h2>📖
   <div class="card"><h3>5. Jual-beli di PRN</h3><p>Tekan gedung Garuda di Distrik Pusat. Beli bahan selama stok Negara ada, jual bahan selama Kas Negara cukup.</p></div>
   <div class="card"><h3>6. Beli tanah & bangun</h3><p>Pilih tanah sesuai bangunanmu: rumah kecil (N$1.000) atau rumah modern (N$1.800) di Kawasan Residensial, toko kecil/modern di Kavling Toko, pabrik (N$2.500) di Kavling Pabrik. Boleh punya lebih dari satu.<br>
     Lalu tekan <b>Bangun</b>: setor bahan atau bayar ke Negara. Setelah lunas, pilih desain siap pakai (langsung berdiri) atau kirim desainmu sendiri.</p></div>
-  <div class="card"><h3>7. Donasi untuk Negara</h3><p>Donasikan bahan atau N$ di Papan Donasi (sebelah barat podium). Setiap bahan dihitung poin, N$1 = 1 poin. Juara diumumkan tiap tanggal 1:<br>🥇 Tanah + Rumah/Toko Modern · 🥈 Tanah + Rumah/Toko Kecil · 🥉 Tanah · Juara 4–10 N$500 · Juara 11–20 N$100.</p></div>
+  <div class="card"><h3>7. Donasi untuk Negara</h3><p>Donasikan bahan atau N$ di Papan Donasi (sebelah barat podium). Setiap bahan dihitung poin, N$1 = 1 poin. Juara diumumkan tiap tanggal 1:<br>🥇 Tanah + Rumah/Toko Modern · 🥈 Tanah + Rumah/Toko Kecil · 🥉 Tanah Rumah/Toko Kecil · Juara 4–10 N$500 · Juara 11–20 N$100.</p></div>
   <div class="card"><h3>8. Aturan penting</h3><p>Satu orang satu akun. Jangan berikan Kata Sandi Warga ke siapa pun. Semua uang, tanah, dan bangunan di Nusawara bersifat virtual.</p></div>
   <button class="btn" data-klaim>📅 Sekarang klaim N$ harianmu!</button>`; }
 sheetBody.addEventListener('click', e=>{
