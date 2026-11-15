@@ -3773,7 +3773,7 @@ sheetBody.addEventListener('click', async e=>{
   if (t.dataset.jualbahan){ const k = t.dataset.jualbahan, inp = document.getElementById('jb-' + k), n = Math.max(1, parseInt(inp && inp.value) || 1);
     const fid = Object.keys(BIZ.misi).find(b=>((BIZ.misi[b] || {}).bahan || []).some(x=>x.kode === k)) || 'KOPI-NUSAWARA'; t.disabled = true;
     const r = await SB.rpc('jual_bahan_toko', {p_user: AKUN.u, p_sandi: AKUN.s, p_bisnis: fid, p_barang: k, p_jumlah: n}).catch(()=>null);
-    if (r && r.ok){ popHadiah('+' + r.jumlah + ' EXP'); sfx(880, .15, 'sine', .07); toast(`💰 ${r.jumlah} ${r.nama} dijual ke toko ${N$(r.jual)} · untung ${N$(r.untung)} · +${r.jumlah} EXP · misi ${r.persen}%`); }
+    if (r && r.ok){ const mb = BIZ.misi[fid]; if (mb){ const bx = (mb.bahan || []).find(x=>x.kode === k); if (bx){ bx.jual += r.jumlah; bx.punya = Math.max(0, bx.punya - r.jumlah); bx.toko += r.jumlah; } mb.persen = r.persen; if (sheetFn) sheetBody.innerHTML = sheetFn(); } popHadiah('+' + r.jumlah + ' EXP'); sfx(880, .15, 'sine', .07); toast(`💰 ${r.jumlah} ${r.nama} dijual ke toko ${N$(r.jual)} · untung ${N$(r.untung)} · +${r.jumlah} EXP · misi ${r.persen}%`); }
     else toast(r && r.alasan === 'barang_kurang' ? 'Bahan di tas kurang. Beli dulu di PRN.' : r && r.alasan === 'bukan_pekerja' ? 'Hanya pekerja resmi toko ini.' : ALASAN[r && r.alasan] || 'Gagal menjual.');
     return ulang(fid); }
   if (t.dataset.combine || t.dataset.jualtoko){ const jual = !!t.dataset.jualtoko, [k, n] = (t.dataset.combine || t.dataset.jualtoko).split('|'); t.disabled = true;
@@ -4315,7 +4315,7 @@ function bisnisHTML(id){
       <div class="prow"><button class="btn ghost" data-pergi="prn">🏪 Ke PRN beli bahan</button></div>
       <p class="note" style="margin-top:10px">💰 <b>Jual ${Math.min(tj,50)}/50 pack (50%)</b> · minimal 5 per bahan, sisanya bebas${bar(Math.min(tj,50), 50)}</p>
       ${(ms.bahan || []).map(x=>`<div class="jrow" style="border-top:1px solid #eee;padding-top:6px"><span style="font-size:26px;flex:none">${x.ikon}</span><span class="jt"><b>${esc(x.nama)}</b>
-          <small>Di tas <b>${x.punya}</b> · stok toko ${x.toko} · dibayar ${N$(Math.ceil(x.harga*1.05))}/pack · jual ${x.jual}/5${x.jual >= 5 ? ' ✓' : ''}</small></span></div>
+          <small>Di tas <b>${x.punya}</b> · stok toko ${x.toko} · dibayar ${N$(Math.ceil(x.harga*1.05))}/pack · jual ${Math.min(x.jual,5)}/5${x.jual >= 5 ? ' ✓' : ''}</small></span></div>
           <div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;margin:4px 0 6px"><button class="btn ghost" style="padding:6px 10px" data-step="${x.kode}|-1" ${x.punya ? '' : 'disabled'}>−</button>
           <input type="number" min="1" max="${x.punya}" value="${Math.min(Math.max(1, x.punya), x.punya || 1)}" id="jb-${x.kode}" style="font:inherit;width:52px;padding:7px;border:1px solid var(--line);border-radius:10px;text-align:center" ${x.punya ? '' : 'disabled'}>
           <button class="btn ghost" style="padding:6px 10px" data-step="${x.kode}|1" ${x.punya ? '' : 'disabled'}>+</button><button class="btn" data-jualbahan="${x.kode}" ${x.punya ? '' : 'disabled'}>💰 Jual</button></div>`).join('') || '<p class="note">Memuat bahan…</p>'}
@@ -4323,7 +4323,7 @@ function bisnisHTML(id){
       ${menu.map(m=>{ const x = it[m.kode] || {}, c = x.combine || 0, bs = x.bisa || 0, stk = x.stok_toko ?? m.stok ?? 0;
         const bahan = (x.resep || []).map(r=>`${r.ikon} ${esc(r.nama)} <b>${r.toko}</b>`).join(' + ');
         return `<div class="jrow" style="border-top:1px solid #eee;padding-top:6px"><span style="font-size:28px;flex:none">${m.ikon}</span><span class="jt"><b>${esc(m.nama)}</b>
-          <small>Bahan toko: ${bahan}<br>Inventory toko: <b>${stk}</b> · combine ${c}/2${c >= 2 ? ' ✓' : ''}</small></span>
+          <small>Bahan toko: ${bahan}<br>Inventory toko: <b>${stk}</b> · combine ${Math.min(c,2)}/2${c >= 2 ? ' ✓' : ''}</small></span>
           <button class="btn" data-combine="${m.kode}|1" ${bs >= 1 ? '' : 'disabled'}>🍳 Combine ×1</button></div>`; }).join('')}
       <p class="note">Gaji ${esc(kj.posisi)} ${N$(gj)}/hari, dibayar otomatis 00.00 WIB sesuai persen misi: 100% → gaji penuh <b>+ bonus 10%</b> · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji. Streak 7 hari +N$30 · 30 hari +N$100 (streak ${BIZ.kerja.streak || 0} hari).</p>
       ${rk ? `<p class="note">Kemarin: ${rk.persen}% · gaji ${N$(rk.gaji)}${rk.bonus ? ' + bonus ' + N$(rk.bonus) : ''}</p>` : ''}</div>`;
