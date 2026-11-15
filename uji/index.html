@@ -2783,9 +2783,11 @@ fBtn.textContent = '✕ Berhenti mengikuti'; fBtn.onclick = ()=>{ followKey = nu
 function updateFollow(dt){
   const on = !!(followKey && WALKERS[followKey]); fBtn.style.display = on ? '' : 'none';
   // saat mengikuti: geser 1 jari dimatikan & jarak kamera dibatasi supaya kamera tidak menjauh dari karakter
-  if (on && !window._FOLLOW_LIM){ window._FOLLOW_LIM = {pan: controls.enablePan, min: controls.minDistance, max: controls.maxDistance};
-    controls.enablePan = false; controls.minDistance = 4; controls.maxDistance = 28; }
-  if (!on && window._FOLLOW_LIM){ const L = window._FOLLOW_LIM; controls.enablePan = L.pan; controls.minDistance = L.min; controls.maxDistance = L.max; window._FOLLOW_LIM = null; }
+  if (on && !window._FOLLOW_LIM){ window._FOLLOW_LIM = {pan: controls.enablePan, min: controls.minDistance, max: controls.maxDistance, t: Object.assign({}, controls.touches), m: Object.assign({}, controls.mouseButtons)};
+    controls.enablePan = false; controls.minDistance = 4; controls.maxDistance = 28;
+    controls.touches = {ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE};          // 1 jari = mengelilingi karakter, 2 jari = zoom
+    controls.mouseButtons = {LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE}; }
+  if (!on && window._FOLLOW_LIM){ const L = window._FOLLOW_LIM; controls.enablePan = L.pan; controls.minDistance = L.min; controls.maxDistance = L.max; controls.touches = L.t; controls.mouseButtons = L.m; window._FOLLOW_LIM = null; }
   if (!on || anim) return;
   const p = WALKERS[followKey].av.g.position;
   if (followFly > 0){                       // terbang ke karakter
