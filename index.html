@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-0310">
+<meta name="nusawara-build" content="20261116-0340">
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
 if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.setItem('nusawara_rl_'+x[1],'1');location.replace(location.pathname+'?v='+x[1]);}}).catch(function(){});}catch(e){}})();</script>
@@ -4191,6 +4191,21 @@ let _gReady; window.GREADY = new Promise(r=>{ _gReady = r; }); setTimeout(()=>_g
 
 /* ---------- TAHAP 2: PABRIK & KEBUN NEGARA (tugas tap, poin bar hijau, hasil ke stok Negara) ---------- */
 const TGS = [], TGS_SISA = {}; let TGS_AT = Date.now(); const TAP = {};
+/* ---------- GEDUNG BISA DIMASUKI: dinding jadi transparan saat karakter di dalam ---------- */
+const ENTERABLE = [];
+function shellMesh(m){ if (!m.material.transparent) m.material = m.material.clone(); m.material.transparent = true; m.userData.baseOp = m.material.opacity; return m; }
+function daftarMasuk(e){ e.t = 0; ENTERABLE.push(e); (e.coll || []).forEach(c=>{ if (typeof COLL !== 'undefined') COLL.push(c); }); }
+(function enterLoop(){ requestAnimationFrame(enterLoop);
+  const ps = []; try { if (typeof pres !== 'undefined' && pres && pres.position) ps.push(pres.position); } catch(_) {}
+  try { if (ctl && ctl.key && WALKERS[ctl.key]) ps.push(WALKERS[ctl.key].av.g.position); } catch(_) {}
+  ENTERABLE.forEach(e=>{
+    const di = ps.some(q=>Math.abs(q.x-e.x) < e.hw && q.z > e.z0 && q.z < e.z1), tgt = di ? 1 : 0;
+    if (Math.abs(e.t - tgt) < .01 && e.t === tgt) return;
+    e.t += (tgt - e.t) * .18; if (Math.abs(e.t - tgt) < .01) e.t = tgt;
+    e.shell.forEach(m=>{ m.material.opacity = m.userData.baseOp * (1 - .88*e.t); m.material.depthWrite = e.t < .5; });
+    e.roof.forEach(m=>{ m.visible = e.t < .5; });
+  });
+})();
 const TEMPAT = {
   pabrik_susu:  {nama:'Pabrik Susu', ikon:'🥛', x:-62, z:-205},
   pabrik_kopi:  {nama:'Pabrik Kopi', ikon:'☕', x:-62, z:-253},
@@ -4199,7 +4214,7 @@ const TEMPAT = {
   kebun_buah:   {nama:'Kebun Buah', ikon:'🍓', x:96, z:-188},
   kebun_teh:    {nama:'Kebun Teh', ikon:'🌿', x:96, z:-236},
   pabrik_farmasi:{nama:'Pabrik Farmasi Nusawara', ikon:'💊', x:-62, z:-349},
-  gym:          {nama:'Gym Nusawara', ikon:'🏋️', x:116, z:-35.25}
+  gym:          {nama:'Gym Nusawara', ikon:'🏋️', x:129, z:-35.25}
 };
 (()=>{
   const C = (r,h,c,x,y,z,g,seg=12,rt) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt ?? r, r, h, seg), M(c)); m.position.set(x,y,z); m.castShadow = true; g.add(m); return m; };
@@ -4243,12 +4258,26 @@ const TEMPAT = {
       const pl = new THREE.Group(); pl.position.set(0,H-1.4,-4+D/2+.12); g.add(pl); box(2.6,2.6,.15,0xffffff,0,0,0,pl); box(1.8,.55,.2,0xd8262b,0,0,.05,pl); box(.55,1.8,.2,0xd8262b,0,0,.05,pl);
       papanT('PABRIK FARMASI NUSAWARA', W*.7, 1.2, '#1f3a5f', '#ffffff', 0, 1.2, -4+D/2+.08, g);
       [[-16,8],[16,8],[-16,-14],[16,-14]].forEach(([x,z])=>{ C(.35,2,0x7a4a24,x,1,z,g); const k = new THREE.Mesh(new THREE.ConeGeometry(1.8,4,8), M(0x2f8d3a)); k.position.set(x,4,z); g.add(k); }); },
-    gym: g=>{ box(36,.12,25,0xd9dde3,0,.06,-2.75,g); const W=22,D=14,H=9; box(W,H,D,0x2b3440,0,H/2,-4,g); box(W+.6,.5,D+.6,0xf2b134,0,H+.25,-4,g);
-      box(W-2,H-3,.12,0x8fc7dc,0,(H-3)/2+.4,-4+D/2+.07,g); for (let i=0;i<6;i++) box(.25,H-3,.2,0x1b222b,-W/2+1+i*(W-2)/5,(H-3)/2+.4,-4+D/2+.1,g);
+    gym: g=>{ const SH = [], RF = [], sh = (...a) => { const m = box(...a, g); SH.push(shellMesh(m)); return m; }, rf = (...a) => { const m = box(...a, g); RF.push(m); return m; };
+      box(36,.12,25,0xd9dde3,0,.06,-2.75,g); const W=22,D=14,H=9, DK=0x2b3440, GD=0xf2b134;
+      box(20.6,.04,13,0x3a3f46,0,.14,-4,g);                                                       // lantai karet
+      sh(W,H,.3,DK,0,H/2,-4-D/2+.15); sh(.3,H,D,DK,-W/2+.15,H/2,-4); sh(.3,H,D,DK,W/2-.15,H/2,-4);
+      sh(8,H,.3,DK,-7,H/2,2.85); sh(8,H,.3,DK,7,H/2,2.85); sh(6,H-4.5,.3,DK,0,4.5+(H-4.5)/2,2.85);   // dinding depan + pintu lebar 6
+      [-3,3].forEach(x=>box(.25,4.5,.4,GD,x,2.25,2.9,g)); box(6.5,.25,.4,GD,0,4.5,2.9,g);
+      [-7,7].forEach(x=>{ const gl = new THREE.Mesh(new THREE.BoxGeometry(6,3.4,.12), new THREE.MeshPhongMaterial({color:0x8fc7dc, shininess:90, transparent:true, opacity:.8})); gl.position.set(x,3.4,3.02); g.add(gl); SH.push(shellMesh(gl)); });
+      rf(W+.6,.5,D+.6,GD,0,H+.25,-4);
       papanT('GYM NUSAWARA', W*.75, 1.6, '#f2b134', '#1b222b', 0, H-1.3, -4+D/2+.12, g);
-      const db = new THREE.Group(); db.position.set(0,H+2.2,-4); g.add(db); C(.25,7,0x9aa3ad,0,0,0,db).rotation.z = Math.PI/2; [-3,3].forEach(x=>{ const w = C(1.3,.9,0x2a7de1,x,0,0,db,16); w.rotation.z = Math.PI/2; });
-      [[-6,8,0x2a7de1],[0,8,0xf2b134],[6,8,0xe5484d]].forEach(([x,z,c])=>{ box(2.6,.6,1.2,0x3a3f46,x,.6,z,g); box(.3,1.6,.3,0x3a3f46,x+1,1.4,z,g); box(1.2,.6,.4,c,x+1,2.2,z,g); });
-      [[-16,8],[16,8],[-16,-14],[16,-14]].forEach(([x,z])=>{ C(.35,2,0x7a4a24,x,1,z,g); const k = new THREE.Mesh(new THREE.ConeGeometry(1.8,4,8), M(0x2f8d3a)); k.position.set(x,4,z); g.add(k); }); },
+      const db = new THREE.Group(); db.position.set(0,H+2.2,-4); g.add(db); C(.25,7,0x9aa3ad,0,0,0,db).rotation.z = Math.PI/2; [-3,3].forEach(x=>{ const w = C(1.3,.9,0x2a7de1,x,0,0,db,16); w.rotation.z = Math.PI/2; }); RF.push(db);
+      // isi gym: cermin, treadmill, bangku beban, rak dumbbell, matras, samsak
+      box(18,3.6,.1,0x9fc7dc,0,3.2,-10.62,g); box(18.4,.25,.14,GD,0,1.3,-10.6,g);
+      [-7,-3.5,0,3.5].forEach(x=>{ box(1.2,.3,2.6,0x1b222b,x,.3,-8.2,g); box(1,.08,2.2,0x555c66,x,.5,-8.2,g); box(.2,1.4,.2,0x1b222b,x,1.2,-9.4,g); box(.9,.5,.2,0x3aa0ff,x,2,-9.4,g); });
+      [[-6,-3],[0,-3]].forEach(([x,z])=>{ box(.9,.5,2.4,0x3a3f46,x,.6,z,g); box(.14,1.6,.14,0x9aa3ad,x-.9,1.1,z-.9,g); box(.14,1.6,.14,0x9aa3ad,x+.9,1.1,z-.9,g); box(3,.14,.14,0x9aa3ad,x,1.9,z-.9,g); box(.2,.9,.9,0x1b222b,x-1.4,1.9,z-.9,g); box(.2,.9,.9,0x1b222b,x+1.4,1.9,z-.9,g); });
+      box(4.4,.12,1,0x3a3f46,8,.7,-8,g); box(4.4,.12,1,0x3a3f46,8,1.5,-8,g); [-1.6,-.5,.6,1.7].forEach((x,i)=>{ box(.6,.4,.4,i%2?0x2a7de1:0xe5484d,8+x,.95,-8,g); box(.6,.4,.4,i%2?0xe5484d:0x2a7de1,8+x,1.75,-8,g); });
+      [[-6,1.5,0x2a7de1],[-2,1.5,0xf2b134],[2,1.5,0xe5484d]].forEach(([x,z,c])=>box(2.4,.05,1.4,c,x,.17,z,g));
+      C(.5,1.6,0xc23b3b,8,2.2,-.5,g,12); box(.05,1.2,.05,0x9aa3ad,8,3.4,-.5,g);
+      [[-16,8],[16,8],[-16,-14],[16,-14]].forEach(([x,z])=>{ C(.35,2,0x7a4a24,x,1,z,g); const k = new THREE.Mesh(new THREE.ConeGeometry(1.8,4,8), M(0x2f8d3a)); k.position.set(x,4,z); g.add(k); });
+      const cx = g.position.x, cz = g.position.z;
+      daftarMasuk({x:cx, hw:10.6, z0:cz-11, z1:cz+3.4, shell:SH, roof:RF, pos:[], coll:[[cx, cz-10.85, 11, .3], [cx-10.85, cz-4, .3, 7], [cx+10.85, cz-4, .3, 7], [cx-7, cz+2.85, 4, .3], [cx+7, cz+2.85, 4, .3]]}); },
     kebun_teh: g=>{ box(44,.3,42,0x7fb85a,0,.15,0,g);
       for (let r=0;r<7;r++){ const y = .3 + (6-r)*.45; box(40,y,4.4,0x6b8f3a,0,y/2,-17+r*5.6,g);
         for (let c=0;c<9;c++) S(1.2,0x2f8d3a,-17+c*4.3,y+.6,-17+r*5.6,g,.55); }
@@ -4555,21 +4584,6 @@ sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-main]
   if (typeof COLL !== 'undefined') COLL.push([HX, HZ-1, 11.5, 7.5]);
 })();
 // ---------- KOPI NUSAWARA (usulan warga @nrllzizaa__, dibangun DAY 3.5) ----------
-/* ---------- GEDUNG BISA DIMASUKI: dinding jadi transparan saat karakter di dalam ---------- */
-const ENTERABLE = [];
-function shellMesh(m){ if (!m.material.transparent) m.material = m.material.clone(); m.material.transparent = true; m.userData.baseOp = m.material.opacity; return m; }
-function daftarMasuk(e){ e.t = 0; ENTERABLE.push(e); (e.coll || []).forEach(c=>{ if (typeof COLL !== 'undefined') COLL.push(c); }); }
-(function enterLoop(){ requestAnimationFrame(enterLoop);
-  const ps = []; try { if (typeof pres !== 'undefined' && pres && pres.position) ps.push(pres.position); } catch(_) {}
-  try { if (ctl && ctl.key && WALKERS[ctl.key]) ps.push(WALKERS[ctl.key].av.g.position); } catch(_) {}
-  ENTERABLE.forEach(e=>{
-    const di = ps.some(q=>Math.abs(q.x-e.x) < e.hw && q.z > e.z0 && q.z < e.z1), tgt = di ? 1 : 0;
-    if (Math.abs(e.t - tgt) < .01 && e.t === tgt) return;
-    e.t += (tgt - e.t) * .18; if (Math.abs(e.t - tgt) < .01) e.t = tgt;
-    e.shell.forEach(m=>{ m.material.opacity = m.userData.baseOp * (1 - .88*e.t); m.material.depthWrite = e.t < .5; });
-    e.roof.forEach(m=>{ m.visible = e.t < .5; });
-  });
-})();
 function buildKopi(par, x, z){
   const G = new THREE.Group(); G.position.set(x, 0, z); G.scale.setScalar(2); par.add(G);   // 2x lebih besar
   const kb = (w,h,d,c,X,Y,Z,p) => box(w,h,d,c,X,Y,Z,p||G);
@@ -4728,11 +4742,31 @@ function facBoard(id, title, sub, bg, fg, w, hh, x, y, z, g){
   facBoard('KOPI-NUSAWARA', 'KOPI NUSAWARA', 'Ngopi bareng warga, yuk!', '#3b2618', '#f2b134', 6.6, 3.6, -3, 7.7, -4.5, KOPI);
   facBoard('SEKOLAH-NUSAWARA', 'AKADEMI NUSAWARA', 'Belajar bareng warga!', '#c8101f', '#ffffff', 5.6, 3, -7.6, 9.4, -4.5, SEKOLAH);
   // Toko Matcha (area fasilitas)
-  const MG = new THREE.Group(); MG.position.set(88, 0, -31.5); scene.add(MG);
-  box(14,.3,12,0xd9d2c3,0,.15,0,MG); box(11,4.2,8,0xf3f7ef,0,2.4,-1,MG); box(11.6,.5,8.6,0x2f6f3a,0,4.75,-1,MG);
-  box(9,2.6,.1,new THREE.MeshPhongMaterial({color:0xffe2a8, emissive:0x553300, shininess:80}),0,1.8,3.06,MG);
-  for (let i=0;i<8;i++){ const a = box(1.4,.15,1.8,i%2 ? 0xffffff : 0x2f6f3a,-4.9+i*1.4,3.9,3.8,MG); a.rotation.x = .35; }
-  [[-5,5],[5,5]].forEach(([x,z])=>{ box(.9,.9,.9,0x8a5a36,x,.6,z,MG); const b = new THREE.Mesh(new THREE.SphereGeometry(.9,8,6), M(0x3f8d32)); b.position.set(x,1.6,z); MG.add(b); });
+  const MG = new THREE.Group(); MG.position.set(99, 0, -37.5); MG.scale.setScalar(2); scene.add(MG);   // 2x lebih besar, bisa dimasuki
+  { const SH = [], RF = [], mb = (...a) => box(...a, MG), sh = (...a) => { const m = mb(...a); SH.push(shellMesh(m)); return m; }, rf = (...a) => { const m = mb(...a); RF.push(m); return m; };
+    const CRM = 0xf3f7ef, GRN = 0x2f6f3a;
+    mb(12,.12,12,0xd9d2c3,0,.06,0); mb(10.4,.04,7.4,0xb99b6b,0,.14,-1);
+    sh(11,4.2,.3,CRM,0,2.1,-4.85); sh(.3,4.2,8,CRM,-5.35,2.1,-1); sh(.3,4.2,8,CRM,5.35,2.1,-1);
+    sh(4.2,4.2,.3,CRM,-3.4,2.1,2.85); sh(4.2,4.2,.3,CRM,3.4,2.1,2.85); sh(2.6,1,.3,CRM,0,3.7,2.85);
+    [-1.3,1.3].forEach(X=>mb(.2,3.2,.36,GRN,X,1.6,2.9)); mb(2.8,.2,.36,GRN,0,3.2,2.9);
+    [-3.4,3.4].forEach(X=>{ const gl = new THREE.Mesh(new THREE.BoxGeometry(3.2,2.2,.1), new THREE.MeshPhongMaterial({color:0xffe2a8, emissive:0x553300, shininess:80, transparent:true, opacity:.8})); gl.position.set(X,2.2,3.02); MG.add(gl); SH.push(shellMesh(gl)); });
+    rf(11.6,.5,8.6,GRN,0,4.45,-1);
+    for (let i=0;i<8;i++){ const a = mb(1.4,.15,1.8,i%2 ? 0xffffff : GRN,-4.9+i*1.4,3.7,3.8); a.rotation.x = .35; }
+    [[-5,5],[5,5]].forEach(([x,z])=>{ mb(.9,.9,.9,0x8a5a36,x,.5,z); const b = new THREE.Mesh(new THREE.SphereGeometry(.9,8,6), M(0x3f8d32)); b.position.set(x,1.5,z); MG.add(b); });
+    // isi toko
+    mb(7,1.1,1.2,0x7a5a3a,0,.7,-3.2); mb(7.2,.12,1.4,0xe8e0c8,0,1.3,-3.2);
+    [-2.4,0,2.4].forEach(X=>{ mb(.55,.3,.55,0x6fae5a,X,1.5,-3.2); mb(.1,.5,.1,0xc9a36b,X+.5,1.55,-3.1); });
+    mb(8,.12,.6,0x8a5a36,0,2.4,-4.6); mb(8,.12,.6,0x8a5a36,0,3.2,-4.6);
+    [-3.2,-1.6,0,1.6,3.2].forEach((X,i)=>{ mb(.8,.6,.5,i%2?0x2f6f3a:0x7fbf5a,X,2.74,-4.6); mb(.8,.6,.5,i%2?0x7fbf5a:0xffffff,X,3.54,-4.6); });
+    const mt = canvasTex(512,300,(g,w,h)=>{ g.fillStyle='#244f2d'; g.fillRect(0,0,w,h); g.strokeStyle='#f3f7ef'; g.lineWidth=8; g.strokeRect(8,8,w-16,h-16);
+      g.fillStyle='#f3f7ef'; g.font=`900 44px ${FONT}`; g.textAlign='center'; g.fillText('MATCHA', w/2, 62); g.font=`700 30px ${FONT}`; ['Matcha Latte','Matcha Es','Hojicha','Mochi'].forEach((t,i)=>g.fillText(t, w/2, 120+i*42)); });
+    const mn = new THREE.Mesh(new THREE.PlaneGeometry(2.6,1.5), new THREE.MeshBasicMaterial({map:mt})); mn.position.set(-4.2,2.6,-4.66); MG.add(mn);
+    [-3.5,3.5].forEach(X=>{ mb(1.4,.12,1.4,0xe8e0c8,X,1,.5); mb(.14,.9,.14,0x333333,X,.5,.5); mb(.6,.6,.6,0x8a5a36,X-1.2,.35,.5); mb(.6,.6,.6,0x8a5a36,X+1.2,.35,.5); });
+    [-4.7,4.7].forEach(X=>{ mb(.25,2.6,.25,0x5fa04a,X,1.4,-4.3); mb(.25,2.2,.25,0x4f9c35,X+.35,1.2,-4.3); });
+    [-2.5,2.5].forEach(X=>{ mb(.08,.9,.08,0x333333,X,3.9,-1.5); const lp = new THREE.Mesh(new THREE.BoxGeometry(.6,.35,.6), new THREE.MeshStandardMaterial({color:0xcfeec0, emissive:0x6a9a50})); lp.position.set(X,3.35,-1.5); MG.add(lp); });
+    const cx = 99, cz = -37.5;
+    daftarMasuk({x:cx, hw:10.6, z0:cz-10, z1:cz+6.4, shell:SH, roof:RF, fas:'MATCHA-NUSAWARA', pos:[[cx-6,cz-8.2],[cx-2,cz-8.2],[cx+2,cz-8.2],[cx+6,cz-8.2],[cx-3,cz-1],[cx+3,cz-1],[cx-8,cz+3],[cx+8,cz+3]],
+      coll:[[cx, cz-9.7, 11, .3], [cx-10.7, cz-2, .3, 8], [cx+10.7, cz-2, .3, 8], [cx-6.8, cz+5.7, 4.2, .3], [cx+6.8, cz+5.7, 4.2, .3], [cx, cz-6.4, 7, 1.2]]}); }
   MG.userData = {type:'fasilitas', data:{id:'MATCHA-NUSAWARA'}}; pickables.push(MG);
   facBoard('MATCHA-NUSAWARA', 'TOKO MATCHA', 'Matcha premium Nusawara', '#2f6f3a', '#ffffff', 6.6, 3.2, 0, 7.6, -3.5, MG);
   { const l = label('🍵 TOKO MATCHA', {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); l.position.set(0, 11.5, 0); MG.add(l); } }
@@ -4993,12 +5027,12 @@ loop();
   jalan(58,142,-58);                                   // jalan baris toko 2
   jalan(58,142,-83);                                   // jalan baris toko 3
   const parkir = (cx,w,zc)=>{ box(w,.1,RW,PK,cx,.085,zc); const n = Math.max(2, Math.floor(w/3.2)); for (let i=0;i<=n;i++) box(.14,.03,RW-.6,0xffffff,cx-w/2+.1+i*((w-.2)/n),.15,zc); };
-  [[74,25],[88,14],[116,36],[163,30],[194,26]].forEach(([cx,w])=>parkir(cx,w,-23));                 // baris 1: Kopi, Matcha, Gym | RS, Sekolah
+  [[74,25],[99,24],[129,36],[163,30],[194,26]].forEach(([cx,w])=>parkir(cx,w,-23));                 // baris 1: Kopi, Matcha, Gym | RS, Sekolah
   [[70,14],[90,16],[110,16],[130,16]].forEach(([cx,w])=>parkir(cx,w,-63));                         // baris 2: Bengkel Kaca + 3 toko modern
   [70,82,94,106,118].forEach(cx=>parkir(cx,8,-88));                                                // baris 3: 5 toko kecil
   const lb = (t,x,z)=>{ const l = label(t, {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); l.position.set(x, 16, z); scene.add(l); };
   lb('🛍️ KAWASAN BISNIS NUSAWARA', 98, -53); lb('🏛️ KAWASAN FASILITAS NEGARA', 178, -53); lb('🏬 KAVLING TOKO', 100, -103);
-  box(.3,.12,RW,0xf2b134,141,.1,-23);                  // pembatas antar-kawasan
+  box(.3,.12,RW,0xf2b134,148,.1,-23);                  // pembatas antar-kawasan
 })();
 </script>
 </body>
