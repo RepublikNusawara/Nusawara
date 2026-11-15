@@ -496,8 +496,8 @@
       "username": "iruzz",
       "niwn": "NUS-000137",
       "terdaftar": "14 Nov 2026",
-      "houseId": null,
-      "follow": null
+      "houseId": "BKT-MAWAR-002",
+      "follow": true
     },
     "itsme.violaw": {
       "username": "Itsme.violaw",
@@ -1499,6 +1499,16 @@
       "undianNo": 1,
       "status": "dibangun",
       "desain": "merah"
+    },
+    "BKT-MAWAR-002": {
+      "houseId": "BKT-MAWAR-002",
+      "alamat": "Jalan Mawar No. 2, Distrik Bukit",
+      "username": "iruzz",
+      "niwn": "NUS-000137",
+      "since": "15 Nov 2026",
+      "undianNo": 2,
+      "status": "tanah",
+      "desain": null
     }
   },
   "undian": [
@@ -1720,6 +1730,699 @@
       "winner": {
         "username": "aadamaalto",
         "niwn": "NUS-000050"
+      }
+    },
+    {
+      "no": 2,
+      "at": 1794699321188,
+      "tanggal": "15 Nov 2026",
+      "houseId": "BKT-MAWAR-002",
+      "alamat": "Jalan Mawar No. 2, Distrik Bukit",
+      "peserta": [
+        {
+          "niwn": "NUS-000001",
+          "username": "Julianto_Jul"
+        },
+        {
+          "niwn": "NUS-000002",
+          "username": "ramatemeh"
+        },
+        {
+          "niwn": "NUS-000003",
+          "username": "liam"
+        },
+        {
+          "niwn": "NUS-000004",
+          "username": "harviansyahs"
+        },
+        {
+          "niwn": "NUS-000005",
+          "username": "yamaalghazali"
+        },
+        {
+          "niwn": "NUS-000006",
+          "username": "Martunis"
+        },
+        {
+          "niwn": "NUS-000009",
+          "username": "SabriGeboy"
+        },
+        {
+          "niwn": "NUS-000010",
+          "username": "kamugppsab"
+        },
+        {
+          "niwn": "NUS-000011",
+          "username": "Khanza"
+        },
+        {
+          "niwn": "NUS-000012",
+          "username": "msyaquilaazzahra"
+        },
+        {
+          "niwn": "NUS-000013",
+          "username": "malikha"
+        },
+        {
+          "niwn": "NUS-000014",
+          "username": "rerey"
+        },
+        {
+          "niwn": "NUS-000015",
+          "username": "izaa"
+        },
+        {
+          "niwn": "NUS-000016",
+          "username": "Frii.hart"
+        },
+        {
+          "niwn": "NUS-000017",
+          "username": "hakimdunia"
+        },
+        {
+          "niwn": "NUS-000018",
+          "username": "rainman"
+        },
+        {
+          "niwn": "NUS-000019",
+          "username": "erlanggamakanserangga"
+        },
+        {
+          "niwn": "NUS-000020",
+          "username": "mar.vinn2299"
+        },
+        {
+          "niwn": "NUS-000021",
+          "username": "_12k1la"
+        },
+        {
+          "niwn": "NUS-000022",
+          "username": "29_Rezky"
+        },
+        {
+          "niwn": "NUS-000023",
+          "username": "adityaaaaa_prtm"
+        },
+        {
+          "niwn": "NUS-000024",
+          "username": "el_ysiaaaa"
+        },
+        {
+          "niwn": "NUS-000025",
+          "username": "_ayaaeriee"
+        },
+        {
+          "niwn": "NUS-000026",
+          "username": "kalilaaa_12"
+        },
+        {
+          "niwn": "NUS-000027",
+          "username": "nailaaacuteeecantikkkkkkk"
+        },
+        {
+          "niwn": "NUS-000028",
+          "username": "liaaaa"
+        },
+        {
+          "niwn": "NUS-000029",
+          "username": "starr_light"
+        },
+        {
+          "niwn": "NUS-000030",
+          "username": "_onyotgeboy"
+        },
+        {
+          "niwn": "NUS-000031",
+          "username": "ardhiaadia"
+        },
+        {
+          "niwn": "NUS-000032",
+          "username": "zuhana"
+        },
+        {
+          "niwn": "NUS-000033",
+          "username": "mingz_019"
+        },
+        {
+          "niwn": "NUS-000034",
+          "username": "ilham"
+        },
+        {
+          "niwn": "NUS-000035",
+          "username": "rinynatyansya"
+        },
+        {
+          "niwn": "NUS-000036",
+          "username": "__v4nnnnn__"
+        },
+        {
+          "niwn": "NUS-000037",
+          "username": "rapaaa_105"
+        },
+        {
+          "niwn": "NUS-000038",
+          "username": "Farhan"
+        },
+        {
+          "niwn": "NUS-000039",
+          "username": "dapincupuu"
+        },
+        {
+          "niwn": "NUS-000040",
+          "username": "Itsme.violaw"
+        },
+        {
+          "niwn": "NUS-000041",
+          "username": "Adrel"
+        },
+        {
+          "niwn": "NUS-000042",
+          "username": "Roro"
+        },
+        {
+          "niwn": "NUS-000043",
+          "username": "gwen"
+        },
+        {
+          "niwn": "NUS-000044",
+          "username": "rangga"
+        },
+        {
+          "niwn": "NUS-000045",
+          "username": "kayla"
+        },
+        {
+          "niwn": "NUS-000046",
+          "username": "yunyun_016"
+        },
+        {
+          "niwn": "NUS-000047",
+          "username": "SERAPHINE224"
+        },
+        {
+          "niwn": "NUS-000048",
+          "username": "sheinaputriii"
+        },
+        {
+          "niwn": "NUS-000049",
+          "username": "caca"
+        },
+        {
+          "niwn": "NUS-000051",
+          "username": "Martin"
+        },
+        {
+          "niwn": "NUS-000052",
+          "username": "aatlorenza"
+        },
+        {
+          "niwn": "NUS-000053",
+          "username": "Ehan"
+        },
+        {
+          "niwn": "NUS-000054",
+          "username": "rhnmlnibrhm_"
+        },
+        {
+          "niwn": "NUS-000055",
+          "username": "Vioo"
+        },
+        {
+          "niwn": "NUS-000056",
+          "username": "Poengky_poer"
+        },
+        {
+          "niwn": "NUS-000057",
+          "username": "rizam"
+        },
+        {
+          "niwn": "NUS-000058",
+          "username": "Darlingnyasiapa_12"
+        },
+        {
+          "niwn": "NUS-000059",
+          "username": "Ramnzzz"
+        },
+        {
+          "niwn": "NUS-000060",
+          "username": "olivia__"
+        },
+        {
+          "niwn": "NUS-000061",
+          "username": "Restu"
+        },
+        {
+          "niwn": "NUS-000062",
+          "username": "Rizz_08"
+        },
+        {
+          "niwn": "NUS-000063",
+          "username": "Abdillahyusufprima"
+        },
+        {
+          "niwn": "NUS-000064",
+          "username": "Fajri"
+        },
+        {
+          "niwn": "NUS-000065",
+          "username": "kenzo"
+        },
+        {
+          "niwn": "NUS-000066",
+          "username": "Indahhhcuyyy"
+        },
+        {
+          "niwn": "NUS-000067",
+          "username": "Muhammaddwiafrizal"
+        },
+        {
+          "niwn": "NUS-000068",
+          "username": "adolf_hitlerpikar.28"
+        },
+        {
+          "niwn": "NUS-000069",
+          "username": "vian ai"
+        },
+        {
+          "niwn": "NUS-000070",
+          "username": "carmecar. _"
+        },
+        {
+          "niwn": "NUS-000071",
+          "username": "abyan ganteng"
+        },
+        {
+          "niwn": "NUS-000072",
+          "username": "malik tawoto"
+        },
+        {
+          "niwn": "NUS-000073",
+          "username": "Aini Azzahra"
+        },
+        {
+          "niwn": "NUS-000074",
+          "username": "Intan Angraeni"
+        },
+        {
+          "niwn": "NUS-000075",
+          "username": "Aril joo"
+        },
+        {
+          "niwn": "NUS-000076",
+          "username": "abiii baiikbanget"
+        },
+        {
+          "niwn": "NUS-000077",
+          "username": "Rendra ayoga"
+        },
+        {
+          "niwn": "NUS-000078",
+          "username": "Rehan Alfa Rizi"
+        },
+        {
+          "niwn": "NUS-000079",
+          "username": "Rahmat Rafli Saputra"
+        },
+        {
+          "niwn": "NUS-000080",
+          "username": "Kona Tiffanyarka"
+        },
+        {
+          "niwn": "NUS-000081",
+          "username": "Egi Panjaitan"
+        },
+        {
+          "niwn": "NUS-000083",
+          "username": "zzam"
+        },
+        {
+          "niwn": "NUS-000084",
+          "username": "Rizilubis_"
+        },
+        {
+          "niwn": "NUS-000086",
+          "username": "younkbayu"
+        },
+        {
+          "niwn": "NUS-000087",
+          "username": "natasya"
+        },
+        {
+          "niwn": "NUS-000088",
+          "username": "Ghaisanhatta"
+        },
+        {
+          "niwn": "NUS-000089",
+          "username": "eh eh eh"
+        },
+        {
+          "niwn": "NUS-000090",
+          "username": "fadil"
+        },
+        {
+          "niwn": "NUS-000091",
+          "username": "M.junaedi rajab"
+        },
+        {
+          "niwn": "NUS-000092",
+          "username": "bangrajab84"
+        },
+        {
+          "niwn": "NUS-000093",
+          "username": "kanz kic"
+        },
+        {
+          "niwn": "NUS-000094",
+          "username": "Rahmat016"
+        },
+        {
+          "niwn": "NUS-000095",
+          "username": "Princee_Yanzz01"
+        },
+        {
+          "niwn": "NUS-000096",
+          "username": "keyypretty"
+        },
+        {
+          "niwn": "NUS-000097",
+          "username": "mpruyy"
+        },
+        {
+          "niwn": "NUS-000098",
+          "username": "Nazwa"
+        },
+        {
+          "niwn": "NUS-000099",
+          "username": "kimmi"
+        },
+        {
+          "niwn": "NUS-000100",
+          "username": "ufairahhcall"
+        },
+        {
+          "niwn": "NUS-000101",
+          "username": "Shiato kojiroM.Raihan Afiq"
+        },
+        {
+          "niwn": "NUS-000102",
+          "username": "fiqihhh_69"
+        },
+        {
+          "niwn": "NUS-000103",
+          "username": "yolatuuuu874"
+        },
+        {
+          "niwn": "NUS-000104",
+          "username": "kamu gpp sab"
+        },
+        {
+          "niwn": "NUS-000105",
+          "username": "AKIMAYATO2828"
+        },
+        {
+          "niwn": "NUS-000106",
+          "username": "shiato kojiro"
+        },
+        {
+          "niwn": "NUS-000107",
+          "username": "Muhamad ilham"
+        },
+        {
+          "niwn": "NUS-000108",
+          "username": "Sikatkain"
+        },
+        {
+          "niwn": "NUS-000109",
+          "username": "opalmorata"
+        },
+        {
+          "niwn": "NUS-000110",
+          "username": "AndyniePutri"
+        },
+        {
+          "niwn": "NUS-000111",
+          "username": "4bidz4r"
+        },
+        {
+          "niwn": "NUS-000112",
+          "username": "Indahhcuyy"
+        },
+        {
+          "niwn": "NUS-000113",
+          "username": "billsky"
+        },
+        {
+          "niwn": "NUS-000114",
+          "username": "NANDABOY"
+        },
+        {
+          "niwn": "NUS-000115",
+          "username": "fadil_ebelzz"
+        },
+        {
+          "niwn": "NUS-000116",
+          "username": "Yuda Pratama"
+        },
+        {
+          "niwn": "NUS-000117",
+          "username": "Syha_latuconsina0609"
+        },
+        {
+          "niwn": "NUS-000118",
+          "username": "galang_lalinglung"
+        },
+        {
+          "niwn": "NUS-000119",
+          "username": "warga_d3b8ede3"
+        },
+        {
+          "niwn": "NUS-000120",
+          "username": "niyus"
+        },
+        {
+          "niwn": "NUS-000121",
+          "username": "manzz kidz"
+        },
+        {
+          "niwn": "NUS-000122",
+          "username": "hasna maryam"
+        },
+        {
+          "niwn": "NUS-000123",
+          "username": "djani"
+        },
+        {
+          "niwn": "NUS-000124",
+          "username": "anyong"
+        },
+        {
+          "niwn": "NUS-000125",
+          "username": "dhani"
+        },
+        {
+          "niwn": "NUS-000126",
+          "username": "laila_ii"
+        },
+        {
+          "niwn": "NUS-000127",
+          "username": "shiatokojiro"
+        },
+        {
+          "niwn": "NUS-000128",
+          "username": "donydee"
+        },
+        {
+          "niwn": "NUS-000129",
+          "username": "bajrilstyle"
+        },
+        {
+          "niwn": "NUS-000130",
+          "username": "kejaalucu"
+        },
+        {
+          "niwn": "NUS-000131",
+          "username": "gaznx"
+        },
+        {
+          "niwn": "NUS-000132",
+          "username": "ariel satriska"
+        },
+        {
+          "niwn": "NUS-000133",
+          "username": "matowkyyy.071126"
+        },
+        {
+          "niwn": "NUS-000134",
+          "username": "ALVARO"
+        },
+        {
+          "niwn": "NUS-000135",
+          "username": "viirgogo_"
+        },
+        {
+          "niwn": "NUS-000136",
+          "username": "zuhana836"
+        },
+        {
+          "niwn": "NUS-000137",
+          "username": "iruzz"
+        },
+        {
+          "niwn": "NUS-000138",
+          "username": "fenndii"
+        },
+        {
+          "niwn": "NUS-000139",
+          "username": "fahri_pratama"
+        },
+        {
+          "niwn": "NUS-000140",
+          "username": "pahriprtama"
+        },
+        {
+          "niwn": "NUS-000141",
+          "username": "warga_4d20ec6e"
+        },
+        {
+          "niwn": "NUS-000142",
+          "username": "warga_22262ef6"
+        },
+        {
+          "niwn": "NUS-000143",
+          "username": "warga_2e2b4a69"
+        },
+        {
+          "niwn": "NUS-000144",
+          "username": "warga_b1cbc21d"
+        },
+        {
+          "niwn": "NUS-000145",
+          "username": "warga_df465f8c"
+        },
+        {
+          "niwn": "NUS-000146",
+          "username": "warga_115f1e0f"
+        },
+        {
+          "niwn": "NUS-000147",
+          "username": "warga_9ef42724"
+        },
+        {
+          "niwn": "NUS-000148",
+          "username": "warga_c69f5c82"
+        },
+        {
+          "niwn": "NUS-000149",
+          "username": "warga_06450678"
+        },
+        {
+          "niwn": "NUS-000150",
+          "username": "warga_64b613bb"
+        },
+        {
+          "niwn": "NUS-000151",
+          "username": "abyanganteng"
+        },
+        {
+          "niwn": "NUS-000152",
+          "username": "maliktawoto"
+        },
+        {
+          "niwn": "NUS-000153",
+          "username": "ainiazzahra"
+        },
+        {
+          "niwn": "NUS-000154",
+          "username": "intanangraeni"
+        },
+        {
+          "niwn": "NUS-000155",
+          "username": "ariljoo"
+        },
+        {
+          "niwn": "NUS-000156",
+          "username": "abiiibaiikbanget"
+        },
+        {
+          "niwn": "NUS-000157",
+          "username": "rendraayoga"
+        },
+        {
+          "niwn": "NUS-000158",
+          "username": "rehanalfarizi"
+        },
+        {
+          "niwn": "NUS-000159",
+          "username": "rahmatraflisaputra"
+        },
+        {
+          "niwn": "NUS-000160",
+          "username": "egipanjaitan"
+        },
+        {
+          "niwn": "NUS-000161",
+          "username": "eheheh"
+        },
+        {
+          "niwn": "NUS-000162",
+          "username": "m.junaedirajab"
+        },
+        {
+          "niwn": "NUS-000163",
+          "username": "kanzkic"
+        },
+        {
+          "niwn": "NUS-000164",
+          "username": "muhamadilham"
+        },
+        {
+          "niwn": "NUS-000165",
+          "username": "yudapratama"
+        },
+        {
+          "niwn": "NUS-000166",
+          "username": "manzzkidz"
+        },
+        {
+          "niwn": "NUS-000167",
+          "username": "hasnamaryam"
+        },
+        {
+          "niwn": "NUS-000168",
+          "username": "arielsatriska"
+        },
+        {
+          "niwn": "NUS-000169",
+          "username": "fahripratama"
+        },
+        {
+          "niwn": "NUS-000170",
+          "username": "elfrado.mrbnn"
+        },
+        {
+          "niwn": "NUS-000171",
+          "username": "upsititutt"
+        },
+        {
+          "niwn": "NUS-000172",
+          "username": "radoguanteng"
+        },
+        {
+          "niwn": "NUS-000173",
+          "username": "f.rikoo"
+        },
+        {
+          "niwn": "NUS-000174",
+          "username": "levelupgaming078"
+        },
+        {
+          "niwn": "NUS-000175",
+          "username": "kkx"
+        }
+      ],
+      "winner": {
+        "niwn": "NUS-000137",
+        "username": "iruzz"
       }
     }
   ],
