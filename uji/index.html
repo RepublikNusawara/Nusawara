@@ -4468,7 +4468,7 @@ function kerjaOf(u){ const k = KERJA[String(u||'').toLowerCase()]; return k && F
 function kerjaLabel(u){ const k = kerjaOf(u); return k ? `${k.posisi} · ${FAS[k.fasilitas].nama}` : 'Belum bekerja'; }
 function fasHTML(id){
   const F = FAS[id]; if (!F) return '';
-  const isi = {}; Object.entries(KERJA).forEach(([u,k])=>{ if (k.fasilitas === id) (isi[k.posisi] = isi[k.posisi] || []).push(u); });
+  const isi = {}; (window.KERJA_ALL || Object.entries(KERJA).map(([u,k])=>({username:u, fasilitas:k.fasilitas, posisi:k.posisi}))).forEach(k=>{ if (k.fasilitas === id) (isi[k.posisi] = isi[k.posisi] || []).push(k.username); });
   const tot = F.pos.reduce((a,p)=>a+p[1],0), terisi = Object.values(isi).reduce((a,l)=>a+l.length,0);
   const rows = F.pos.map(([p,q,ic],i)=>{ const l = isi[p] || [], full = l.length >= q, top = i === 0;
     return `<div class="jrow"><div class="ji">${ic}</div><div class="jt"><b>${esc(p)}</b><small>${top ? (l.length ? 'Ditunjuk Presiden' : 'Ditunjuk langsung oleh Presiden · masih kosong') : `${l.length}/${q} terisi`}${l.length ? ' · ' + l.map(u=>'@'+esc(u)).join(', ') : ''}</small></div>
@@ -4496,7 +4496,8 @@ const KTAP = {};
 function bisnisHTML(id){
   if (id !== 'KOPI-NUSAWARA' && id !== 'MATCHA-NUSAWARA') return '';
   let h = `<div data-biz="${id}"></div>`;
-  const menu = BIZ.menu[id] || [], kj = BIZ.kerja && BIZ.kerja.kerja, sayaKerja = kj && kj.fasilitas === id, lap = BIZ.lap[id];
+  const menu = BIZ.menu[id] || [], kj = BIZ.kerja && ((BIZ.kerja.semua || []).find(x=>x.fasilitas === id) || null), sayaKerja = !!kj, lap = BIZ.lap[id];
+  const rk = BIZ.kerja && Array.isArray(BIZ.kerja.rekap) ? BIZ.kerja.rekap.find(r=>kj && r.fasilitas === kj.fasilitas && r.posisi === kj.posisi) : null;
   if (id === 'KOPI-NUSAWARA'){
     h += `<div class="card" style="background:#fbf3e6"><h3>☕ Menu Makanan & Minuman</h3><p class="note">Beli untuk menambah ⚡ stamina (tidak melebihi kapasitas). Setiap pembelian kena pajak 5% untuk Negara.</p>`;
     ['Minuman','Makanan'].forEach(j=>{ const ls = menu.filter(m=>m.jenis === j); if (!ls.length) return;
@@ -4523,7 +4524,7 @@ function bisnisHTML(id){
       ${ts.map(t=>{ const d = done.includes(t.kode), n = KTAP[t.kode] || 0; return `<div class="jrow"><span class="jt"><b>${esc(t.nama)}</b><small>${d ? '✓ selesai hari ini' : `👆 Tap ${t.klik}x · ${n}/${t.klik}`}</small></span>
         ${d ? '<span style="font-size:22px">✅</span>' : `<button class="btn" data-ktap="${t.kode}" style="min-width:110px">👆 Tap (${t.klik - n})</button>`}</div>`; }).join('')}
       <p class="note">Gaji dibayar otomatis setelah hari berakhir (00.00 WIB): 100% → penuh · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji.<br>Bonus: target 100% +N$5 · 7 hari berturut-turut +N$30 · 30 hari +N$100. Streak sekarang: ${BIZ.kerja.streak || 0} hari.</p>
-      ${BIZ.kerja.rekap ? `<p class="note">Kemarin (${esc(BIZ.kerja.rekap.hari)}): ${BIZ.kerja.rekap.persen}% · gaji ${N$(BIZ.kerja.rekap.gaji)}${BIZ.kerja.rekap.bonus ? ' + bonus ' + N$(BIZ.kerja.rekap.bonus) : ''}</p>` : ''}</div>`;
+      ${rk ? `<p class="note">Kemarin: ${rk.persen}% · gaji ${N$(rk.gaji)}${rk.bonus ? ' + bonus ' + N$(rk.bonus) : ''}</p>` : ''}</div>`;
   }
   // laporan & tombol untuk jabatan tertinggi
   if (lap){
@@ -4579,8 +4580,8 @@ sheetBody.addEventListener('click', async e=>{
     if (!/^[A-Z0-9]{4,20}$/.test(pw)) { m.textContent = 'Masukkan Kata Sandi Warga.'; return; }
     e.target.disabled = true; m.textContent = 'Mengirim…';
     try { const r = await SB.rpc('daftar_kerja', {p_user:u, p_sandi:pw, p_fasilitas:jSel.id, p_posisi:jSel.p}); e.target.disabled = false;
-      const msg = {ok:'', sandi:'❌ Kata sandi salah.', penuh:'Posisi ini sudah penuh. Pilih posisi lain.', sudah:'Kamu sudah punya pekerjaan. Keluar dulu dari profilmu kalau mau pindah.', warga:'Username belum terdaftar sebagai warga.', tunjuk:'Jabatan ini ditunjuk langsung oleh Presiden.'}[r] ;
-      if (r === 'ok'){ KERJA[u] = {fasilitas:jSel.id, posisi:jSel.p}; UNLOCK[u] = pw; toast(`🎉 Selamat! @${u} sekarang ${jSel.p} di ${FAS[jSel.id].nama}`); if (sheetFn) sheetBody.innerHTML = sheetFn(); }
+      const msg = {ok:'', sandi:'❌ Kata sandi salah.', penuh:'Posisi ini sudah penuh. Pilih posisi lain.', sudah:'Kamu sudah punya pekerjaan. Keluar dulu dari profilmu kalau mau pindah.', sudah_posisi:'Kamu sudah bekerja di posisi ini.', warga:'Username belum terdaftar sebagai warga.', tunjuk:'Jabatan ini ditunjuk langsung oleh Presiden.'}[r] ;
+      if (r === 'ok'){ if (!KERJA[u]) KERJA[u] = {fasilitas:jSel.id, posisi:jSel.p}; if (window.KERJA_ALL) KERJA_ALL.push({username:u, fasilitas:jSel.id, posisi:jSel.p}); UNLOCK[u] = pw; toast(`🎉 Selamat! @${u} sekarang ${jSel.p} di ${FAS[jSel.id].nama}`); if (sheetFn) sheetBody.innerHTML = sheetFn(); }
       else m.textContent = msg || 'Gagal mendaftar. Coba lagi.'; }
     catch(_){ e.target.disabled = false; m.textContent = 'Gagal tersambung. Periksa internet lalu coba lagi.'; }
     return; }
@@ -4611,7 +4612,8 @@ function fasNear(){
   fasNearEl.innerHTML = `${FAS[id].ikon} ${esc(FAS[id].nama)} · <b>Lihat lowongan</b>`; fasNearEl.classList.add('show');
 }
 fasNearEl.onclick = ()=>{ if (fasNearId) openFasPlay(fasNearId); };
-function sbApplyKerja(rows){ (rows || []).forEach(r=>{ if (!r || !r.username) return; if (r.fasilitas) KERJA[r.username] = {fasilitas:r.fasilitas, posisi:r.posisi}; else delete KERJA[r.username]; });
+function sbApplyKerja(rows){ (rows || []).forEach(r=>{ if (!r || !r.username) return; if (r.fasilitas){ if (!KERJA[r.username] || KERJA[r.username].fasilitas === r.fasilitas) KERJA[r.username] = {fasilitas:r.fasilitas, posisi:r.posisi}; } else delete KERJA[r.username]; });
+  SB.get('pekerja?select=username,fasilitas,posisi&order=dibuat').then(l=>{ window.KERJA_ALL = l || []; if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); }).catch(()=>{});
   if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); }
 /* ---------- LOOP ---------- */
 addEventListener('resize', ()=>{
