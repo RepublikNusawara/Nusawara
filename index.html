@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-0245">
+<meta name="nusawara-build" content="20261116-0310">
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
 if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.setItem('nusawara_rl_'+x[1],'1');location.replace(location.pathname+'?v='+x[1]);}}).catch(function(){});}catch(e){}})();</script>
@@ -1182,6 +1182,7 @@ document.getElementById('sheetClose').onclick = closeSheet;
 
 const validAsset = a => typeof a==='string' && /^[A-Za-z0-9_.:\-]{1,200}$/.test(a);
 function mediaSrc(r){
+  if (r && typeof r.src==='string' && /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]{1,300000}$/.test(r.src)) return r.src;
   if (r && typeof r.src==='string' && /^media\/[A-Za-z0-9_\-\/.]{1,200}$/.test(r.src) && !r.src.includes('..')) return r.src;
   if (r && validAsset(r.assetId)) return '/_blob/' + r.assetId;
   return null;
@@ -1866,15 +1867,35 @@ document.getElementById('lkF').addEventListener('submit', async e=>{
   }
   lkEl.classList.remove('open'); afterUnlock();
 });
+function fotoKecil(file){
+  return new Promise((ok, no)=>{ const u = URL.createObjectURL(file), im = new Image();
+    im.onload = ()=>{ try {
+      const sc = Math.min(1, 900 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(im.width*sc)); c.height = Math.max(1, Math.round(im.height*sc));
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0,0,c.width,c.height); x.drawImage(im, 0, 0, c.width, c.height);
+      let q = .75, d = c.toDataURL('image/jpeg', q); while (d.length > 240000 && q > .3){ q -= .1; d = c.toDataURL('image/jpeg', q); }
+      URL.revokeObjectURL(u); d.length > 255000 ? no(new Error('foto terlalu besar')) : ok(d); } catch(e){ no(e); } };
+    im.onerror = ()=>no(new Error('file foto tidak bisa dibaca')); im.src = u; });
+}
 function guestSave(){
-  const id = ed.id, owner = houseGroups[id] && houseGroups[id].userData.data, kode = UNLOCK[userOfHouse(id)];
-  if (!owner || !kode) { closeEditor(); return; }
+  const id = ed.id, fac = typeof FAS !== 'undefined' && FAS[id], owner = fac ? {owner:userOfHouse(id), niwn:''} : (houseGroups[id] && houseGroups[id].userData.data), kode = UNLOCK[userOfHouse(id)];
+  if (!owner || !kode) { edSay('Kata sandi belum terbuka. Tutup lalu buka billboard lagi dan masukkan kata sandi.'); return; }
   const b = boards[id], q = new URLSearchParams({ username: String(owner.owner||'').replace(/^@+/,''), niwn: owner.niwn || '', rumah: id, kode });
   if (ed.kind === 'text'){
     const title = edT.value.trim().slice(0,40); if (!title) { edSay('Isi judul dulu.'); return; }
     const rec = {kind:'text', title, sub:edS.value.trim().slice(0,60), bg:col(edBg.value,'#1f3a5f'), fg:col(edFg.value,'#ffffff')};
     setTex(b, {tex:textBoardTex(rec, b, id)});
     q.set('jenis','Teks'); q.set('judul', rec.title); q.set('keterangan', rec.sub); q.set('warna', rec.bg + ',' + rec.fg);
+  } else if (ed.kind === 'image'){
+    if (!ed.file) { edSay('Pilih foto dulu.'); return; }
+    edSay('Memproses foto…'); const user = String(owner.owner||'').replace(/^@+/,'');
+    fotoKecil(ed.file).then(url=>{ edSay('Mengirim foto…');
+      return SB.rpc('simpan_foto_billboard', {p_user:user, p_sandi:kode, p_rumah:id, p_foto:url}).then(r=>{
+        const pesan = {ok:'✓ Foto terpasang di layarmu. Setelah disetujui Bapak Presiden, foto tampil untuk semua warga.', sandi:'❌ Kata sandi salah atau sudah berubah. Kunci lalu buka lagi.', bukan_pemilik:'❌ Billboard ini bukan wewenangmu.', belum_dibangun:'Billboard bisa diisi setelah rumahmu dibangun.', foto:'❌ Foto tidak valid atau terlalu besar. Coba foto lain.'}[r] || 'Gagal menyimpan. Coba lagi.';
+        if (r !== 'ok'){ edSay(pesan); return; }
+        try { localStorage.setItem('nusawara.foto.' + id, url); } catch(_) {}
+        BB[id] = {kind:'image', src:url}; applyBoard(id); closeEditor(); toast(pesan); }); }
+    ).catch(err=>edSay('Gagal: ' + (err && err.message ? err.message : 'periksa internet lalu coba lagi.')));
+    return;
   } else {
     if (!ed.file) { edSay('Pilih file dulu.'); return; }
     const url = URL.createObjectURL(ed.file), k = ed.kind;
@@ -3312,7 +3333,12 @@ function sbApplyWarga(rows){
   if (Object.keys(add).length){ syncWalkers(add); setPenduduk(Math.max(pendudukCount, Object.keys(WARGA).length));
     if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); }
 }
-function sbApplyBoard(r){ if (!r || !r.rumah || !boards[r.rumah]) return; BB[r.rumah] = {kind:'text', title:r.judul, sub:r.ket || '', bg:r.bg, fg:r.fg}; applyBoard(r.rumah); }
+function sbApplyBoard(r){ if (!r || !r.rumah || !boards[r.rumah]) return;
+  let lokal = null; try { lokal = localStorage.getItem('nusawara.foto.' + r.rumah); } catch(_) {}
+  if (r.foto){ BB[r.rumah] = {kind:'image', src:r.foto}; try { localStorage.removeItem('nusawara.foto.' + r.rumah); } catch(_) {} }
+  else if (lokal && /^data:image\/jpeg;base64,/.test(lokal)) BB[r.rumah] = {kind:'image', src:lokal};
+  else BB[r.rumah] = {kind:'text', title:r.judul, sub:r.ket || '', bg:r.bg, fg:r.fg};
+  applyBoard(r.rumah); }
 const SB_PENDING = [];
 function sbTerimaObrolan(r){
   if (!r || !r.teks) return;
@@ -3329,7 +3355,7 @@ window.nusawaraChatKirim = async ({k, u, t}) => {
 (async ()=>{
   try { sbApplyGaya(await SB.get('gaya?select=username,avatar')); } catch(_) {}
   try { sbApplyWarga(await SB.get('warga?select=username,nama,niwn,terdaftar&order=niwn')); } catch(_) {}
-  try { (await SB.get('billboard?select=rumah,judul,ket,bg,fg')).forEach(sbApplyBoard); } catch(_) {}
+  try { (await SB.get('billboard?select=rumah,judul,ket,bg,fg,foto')).forEach(sbApplyBoard); } catch(_) {}
   try { sbApplyKerja(await SB.get('pekerja?select=username,fasilitas,posisi')); } catch(_) {}
   try { const rows = await SB.get('obrolan?select=username,nama,teks,dibuat&order=dibuat.desc&limit=40');
     CHAT = rows.reverse().map(r=>({k:r.username, u:r.nama || r.username, t:r.teks, at:Date.parse(r.dibuat)})); chatPaint(); } catch(_) {}
