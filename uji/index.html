@@ -2782,15 +2782,19 @@ const fBtn = document.createElement('button'); fBtn.className = 'akunbtn'; fBtn.
 fBtn.textContent = '✕ Berhenti mengikuti'; fBtn.onclick = ()=>{ followKey = null; }; document.body.appendChild(fBtn);
 function updateFollow(dt){
   const on = !!(followKey && WALKERS[followKey]); fBtn.style.display = on ? '' : 'none';
+  // saat mengikuti: geser 1 jari dimatikan & jarak kamera dibatasi supaya kamera tidak menjauh dari karakter
+  if (on && !window._FOLLOW_LIM){ window._FOLLOW_LIM = {pan: controls.enablePan, min: controls.minDistance, max: controls.maxDistance};
+    controls.enablePan = false; controls.minDistance = 4; controls.maxDistance = 28; }
+  if (!on && window._FOLLOW_LIM){ const L = window._FOLLOW_LIM; controls.enablePan = L.pan; controls.minDistance = L.min; controls.maxDistance = L.max; window._FOLLOW_LIM = null; }
   if (!on || anim) return;
   const p = WALKERS[followKey].av.g.position;
   if (followFly > 0){                       // terbang ke karakter
-    followFly -= dt; const tg = new THREE.Vector3(p.x, 1.4, p.z), k = Math.min(1, dt*4);
-    controls.target.lerp(tg, k); camera.position.lerp(tg.clone().add(new THREE.Vector3(3.5, 6, 11)), k); followLast = p.clone(); return; }
+    followFly -= dt; const tg = new THREE.Vector3(p.x, 1.6, p.z), k = Math.min(1, dt*4);
+    controls.target.lerp(tg, k); camera.position.lerp(tg.clone().add(new THREE.Vector3(3, 4.5, 9)), k); followLast = p.clone(); return; }
   // lalu ikut bergerak bersama karakter; kamera bebas diputar & di-zoom ke segala arah
-  if (!followLast) followLast = p.clone();
-  const d = new THREE.Vector3(p.x - followLast.x, 0, p.z - followLast.z);
-  controls.target.add(d); camera.position.add(d); followLast.copy(p);
+  // pusat putaran kamera selalu di karakter; kamera ikut bergeser bersamanya, tetap bisa diputar & di-zoom (4–28)
+  const d = new THREE.Vector3(p.x - controls.target.x, 1.6 - controls.target.y, p.z - controls.target.z);
+  controls.target.add(d); camera.position.add(d); followLast = p.clone();
 }
 
 /* ---------- KARTU PROFIL WARGA ---------- */
@@ -2895,6 +2899,7 @@ function showProfile(key, mode){
   const hid = typeof w.houseId === 'string' ? w.houseId : '', g = hid && houseGroups[hid];
   select(null);
   const unlocked = isOwner || (typeof UNLOCK !== 'undefined' && !!UNLOCK[key]);
+  if (mode === 'search' && (WALKERS[key] || wInfo(key))){ startFollow(key); openSheet(()=>profileHTML(key)); hideHint(); if (WALKERS[key]) return; }
   if (unlocked && mode === 'search' && g){
     followKey = null; const p = g.position, tanah = g.userData.data.status === 'tanah';
     if (tanah) flyTo(new THREE.Vector3(p.x,0,p.z+6), new THREE.Vector3(p.x+4,12,p.z+21));
