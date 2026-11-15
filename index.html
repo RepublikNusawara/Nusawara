@@ -101,12 +101,14 @@
   #expbar span{position:absolute;left:0;right:0;top:0;height:100%;line-height:18px;text-align:center;color:#fff;font-size:11px;font-weight:800;text-shadow:0 1px 2px rgba(0,0,0,.5)}
   body.expon nav.actions{margin-bottom:32px}
   body.sheet-open #expbar{display:none!important}
-  .hud{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 66px);z-index:5;width:178px;pointer-events:none;display:none;
+  .hud{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 118px);z-index:5;width:178px;pointer-events:none;display:none;
     background:rgba(255,253,248,.92);border:1px solid var(--line);border-radius:12px;padding:7px 9px;box-shadow:0 6px 18px rgba(31,58,95,.12);font-size:11px;font-weight:800;color:#1f3a5f}
   .hud .r{display:flex;justify-content:space-between;margin-top:3px}.hud .b{height:9px;border-radius:5px;background:#e3e6ea;overflow:hidden;display:flex;margin-top:2px}
   .hud .b.k{height:5px}.hud .b i{display:block;height:100%}
   .hud .hr{display:flex;align-items:center;gap:6px;margin-top:4px}.hud .hr>span{width:16px;text-align:center;font-size:13px;flex:none}.hud .hr .b{flex:1;margin:0;height:10px}
-  .hud .hk{display:flex;align-items:center;gap:6px;margin:5px 0 0 22px}.hud .hk .b{width:50%;flex:none;margin:0;height:6px}.hud .hk small{font-size:10px;font-weight:800;color:#2f8f5e;white-space:nowrap}
+  .hud .hk{display:flex;align-items:center;gap:6px;margin:5px 0 0 22px}.hud .hk .b{width:50%;flex:none;margin:0;height:13px;position:relative}.hud .hk .b em{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:9px;font-weight:800;color:#111;line-height:1}.hud .hk small{font-size:10px;font-weight:800;color:#2f8f5e;white-space:nowrap}
+  .brand.me{cursor:pointer;padding:4px 10px 4px 4px}.brand.me img{width:34px;height:34px;border-radius:50%;object-fit:cover;background:radial-gradient(circle at 50% 35%,#e9f2fb,#a9c3dd);flex:none;border:2px solid #f2b134}.brand.me b{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.brand.me span{display:block!important;font-size:10px;font-weight:700;color:#b07d10;white-space:nowrap}
+  @media (max-width:520px){ .brand.me{padding:3px 8px 3px 3px;gap:6px} .brand.me img{width:30px;height:30px} .brand.me b{max-width:84px;font-size:11.5px} .brand.me span{font-size:9.5px} }
   @media (max-width:520px){ .top{gap:6px} .brand{padding:5px 8px 5px 6px} .brand svg{width:24px;height:28px} .brand b{font-size:12px} .brand span{display:none}
     .stats{padding:3px 2px} .stats div{padding:1px 6px} .stats b{font-size:13px} .stats span{font-size:9px} .akunbtn{padding:8px 9px;font-size:12px} .hud{width:160px} }
   .pop{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) scale(.6);z-index:30;font-size:34px;font-weight:900;color:#1f3a5f;
@@ -3051,7 +3053,7 @@ body.ctl .gtop{display:flex}
 .mbtn{position:fixed;right:12px;bottom:calc(150px + env(safe-area-inset-bottom));z-index:6;width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,253,248,.95);box-shadow:0 4px 14px rgba(0,0,0,.18);font-size:20px}
 body:not(.owner) #playBtn, body:not(.owner) #ctrlBtn{display:none!important}
 #shotBtn,.actions [data-open="uun"]{display:none!important}
-body.ctl .mbtn{bottom:auto;top:calc(118px + env(safe-area-inset-top))}
+body.ctl .mbtn{bottom:auto;top:calc(212px + env(safe-area-inset-top))}
 .gzoom{position:fixed;right:12px;top:calc(172px + env(safe-area-inset-top));z-index:12;display:none;flex-direction:column;gap:6px}
 body.ctl .gzoom{display:flex}
 .gzoom button,.chatbtn{width:46px;height:46px;border-radius:50%;border:0;background:rgba(31,58,95,.86);color:#fff;font:inherit;font-weight:800;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
@@ -3241,11 +3243,17 @@ function hudHTML(d){
   const dh = d.darah ?? 100, dc = d.pingsan || dh <= 0 ? '#6b7280' : '#e5484d', ds = d.pingsan ? '😵 Pingsan' : dh >= 70 ? 'Sehat' : dh >= 40 ? 'Luka ringan' : 'Kritis';
   return `<div class="hr"><span>❤️</span><div class="b" title="Darah ${dh}/100 · ${ds}"><i style="width:${Math.min(100, dh)}%;background:${dc}"></i></div></div>
     <div class="hr"><span>⚡</span><div class="b" title="Stamina ${dasar}/${cap}"><i style="width:${dasar/tot*100}%;background:#f2b134"></i><i style="width:${ekstra/tot*100}%;background:#ff7a1a"></i></div></div>
-    <div class="hk"><div class="b"><i style="width:${xpP}%;background:#2fb57a"></i></div><small>${d.xp_perlu ? (d.xp||0) + '/' + d.xp_perlu + ' · ' + xpP + '%' : 'MAX'}</small></div>`; }
+    <div class="hk"><div class="b"><i style="width:${xpP}%;background:#2fb57a"></i><em>${d.xp_perlu ? (d.xp||0) + '/' + d.xp_perlu : 'MAX'}</em></div><small>${xpP}%</small></div>`; }
 function expBar(){ const e = document.getElementById('expbar'); if (!e) return; const d = AKUN.data; document.body.classList.toggle('expon', !!d); if (!d){ e.style.display = 'none'; return; }
   e.style.display = 'block'; const t = d.exp_target, x = d.exp || 0; e.querySelector('i').style.width = (t ? Math.min(100, x/t*100) : 100) + '%';
   e.querySelector('span').textContent = t ? `🔵 EXP Warga · ${gelar(d.level).ikon} Lv ${d.level || 1} ${gelar(d.level).nama} · ${x}/${t} · ${Math.floor(x/t*100)}%` : `${gelar(d.level).ikon} Lv ${d.level} ${gelar(d.level).nama} · MAKSIMUM`; }
-function hudTampil(){ const h = document.getElementById('hud'); if (!h) return; if (!AKUN.data){ h.style.display = 'none'; expBar(); return; } h.style.display = 'block'; h.innerHTML = hudHTML(AKUN.data); expBar(); }
+const BRAND0 = (document.querySelector('.top .brand') || {}).innerHTML || '';
+function brandTampil(){ const el = document.querySelector('.top .brand'); if (!el) return; const k = AKUN.data && AKUN.u;
+  if (!k){ if (el.classList.contains('me')){ el.classList.remove('me'); el.innerHTML = BRAND0; } return; }
+  const w = (typeof wInfo === 'function' && wInfo(k)) || {username: k}, gl = gelar(lvOf(k)); let img = ''; try { img = portraitOf(w); } catch(_) {}
+  el.classList.add('me'); el.innerHTML = `${img ? `<img src="${img}" alt="">` : '<img alt="">'}<div><b>@${esc(String(w.username || k).replace(/^@+/,''))}</b><span>${gl.ikon} Lv ${gl.lv} · ${esc(gl.nama.replace(/^Warga /,''))}</span></div>`; }
+document.querySelector('.top .brand').addEventListener('click', ()=>{ if (AKUN.data && AKUN.u) showProfile(AKUN.u, 'search'); });
+function hudTampil(){ try { brandTampil(); } catch(_) {} const h = document.getElementById('hud'); if (!h) return; if (!AKUN.data){ h.style.display = 'none'; expBar(); return; } h.style.display = 'block'; h.innerHTML = hudHTML(AKUN.data); expBar(); }
 setInterval(()=>{ if (AKUN.u && !document.hidden) akunMuat(); }, 60000);
 { const _rpc = SB.rpc.bind(SB);
   SB.rpc = async (...arg) => { const r = await _rpc(...arg);
