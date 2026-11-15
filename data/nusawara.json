@@ -1907,6 +1907,10 @@
       "sub": "The Phantom Thieves of Hearts",
       "bg": "#1f3a5f",
       "fg": "#ff0000"
+    },
+    "BKT-MAWAR-002": {
+      "kind": "image",
+      "src": "media/desain/bengkel-kaca-billboard.jpg"
     }
   },
   "rumah": {
@@ -1927,8 +1931,8 @@
       "niwn": "NUS-000137",
       "since": "15 Nov 2026",
       "undianNo": 2,
-      "status": "tanah",
-      "desain": null
+      "status": "dibangun",
+      "desain": "bengkel_kaca"
     }
   },
   "undian": [
