@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-0210">
+<meta name="nusawara-build" content="20261116-0245">
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
 if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.setItem('nusawara_rl_'+x[1],'1');location.replace(location.pathname+'?v='+x[1]);}}).catch(function(){});}catch(e){}})();</script>
@@ -2847,10 +2847,40 @@ function syncWalkers(list){
       zone: ex ? ex.zone : (ok ? 'kota' : 'pelabuhan'), path: ex ? ex.path : null, toZone: ex ? ex.toZone : null};
   });
 }
+/* ---------- PEKERJA TERDAFTAR BERDIRI DI DALAM TOKO ---------- */
+let POSTMAP = {}, POSTSIG = '';
+function postWorker(k){
+  let EN; try { EN = ENTERABLE; } catch(_) { return null; }
+  const L = Array.isArray(window.KERJA_ALL) && window.KERJA_ALL.length ? window.KERJA_ALL : Object.entries(KERJA).map(([u,v])=>({username:u, fasilitas:v.fasilitas, posisi:v.posisi}));
+  const sig = L.length + ':' + EN.length;
+  if (sig !== POSTSIG){ POSTSIG = sig; POSTMAP = {}; const first = {}, cnt = {};
+    L.forEach(r=>{ const u = String(r.username||'').toLowerCase(); if (u && !first[u]) first[u] = r.fasilitas; });
+    Object.keys(first).forEach(u=>{ const e = EN.find(x=>x.fas === first[u]); if (!e) return; const i = cnt[e.fas] = (cnt[e.fas]||0) + 1; const st = e.pos[(i-1) % e.pos.length]; POSTMAP[u] = {e, x:st[0], z:st[1]}; }); }
+  return POSTMAP[k] || null;
+}
+function stepPost(W, ps, dt, time){
+  const g = W.av.g, e = ps.e;
+  const ins = Math.abs(g.position.x - e.x) < e.hw && g.position.z > e.z0 && g.position.z < e.z1;
+  let tx = ps.x, tz = ps.z;
+  if (!ins && !(Math.abs(g.position.x - e.x) < 1.6 && g.position.z < e.z1 + 2.2)){ tx = e.x; tz = e.z1 + 2.6; }
+  const dx = tx - g.position.x, dz = tz - g.position.z, d = Math.hypot(dx, dz);
+  if (d > .15){
+    const st = Math.min(d, W.speed*dt); g.position.x += dx/d*st; g.position.z += dz/d*st;
+    let r = Math.atan2(dx, dz) - g.rotation.y; r = Math.atan2(Math.sin(r), Math.cos(r)); g.rotation.y += r*Math.min(1, dt*8);
+    W.phase += dt*8; const sw = Math.sin(W.phase)*.6;
+    W.av.legL.rotation.x = sw; W.av.legR.rotation.x = -sw; W.av.armR.rotation.x = sw*.7; W.av.armL.rotation.x = -sw*.7;
+    W.av.body.position.y = Math.abs(Math.sin(W.phase))*.06;
+  } else {
+    let r = -g.rotation.y; r = Math.atan2(Math.sin(r), Math.cos(r)); g.rotation.y += r*Math.min(1, dt*6);   // berdiri menghadap pelanggan (+z)
+    W.av.legL.rotation.x *= .85; W.av.legR.rotation.x *= .85; W.av.armR.rotation.x *= .85; W.av.armL.rotation.x *= .85; W.av.body.position.y *= .85;
+  }
+  W.tag.position.set(g.position.x, 3.3, g.position.z);
+}
 function updateWalkers(dt, time){
   for (const k in WALKERS){
     if (k === ctl.key) continue;
     const W = WALKERS[k], g = W.av.g;
+    if (!W.path && W.zone === 'kota' && bolehMasuk(k)){ const ps = postWorker(k); if (ps){ stepPost(W, ps, dt, time); continue; } }
     // aturan pelabuhan: belum follow = tunggu di dalam pagar; sudah follow = keluar lewat gerbang ke kota
     if (!W.path){ const ok = bolehMasuk(k);
       if (W.zone === 'pelabuhan' && ok){
@@ -4568,7 +4598,8 @@ function buildKopi(par, x, z){
   const hz = z - 5 - 8, cx = x;
   daftarMasuk({x:cx, hw:11.6, z0:z-13, z1:z+3.4, shell:SH, roof:RF, coll:[
     [cx, z-12.7, 12, .3], [cx-11.7, z-5, .3, 8], [cx+11.7, z-5, .3, 8],
-    [cx-7.3, z+2.7, 4.7, .3], [cx+7.3, z+2.7, 4.7, .3], [cx, z-8.4, 8, 1.4]]});
+    [cx-7.3, z+2.7, 4.7, .3], [cx+7.3, z+2.7, 4.7, .3], [cx, z-8.4, 8, 1.4]],
+    fas:'KOPI-NUSAWARA', pos:[[cx-6,z-10.8],[cx-2,z-10.8],[cx+2,z-10.8],[cx+6,z-10.8],[cx-3,z-1],[cx+3,z-1],[cx-8,z-3],[cx+8,z-3]]});
   return G;
 }
 const KOPI = buildKopi(scene, 74, -40.5);
