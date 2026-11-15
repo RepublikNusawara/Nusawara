@@ -3959,7 +3959,8 @@ const TEMPAT = {
   peternakan:   {nama:'Peternakan Ayam', ikon:'🐔', x:96, z:-140},
   kebun_buah:   {nama:'Kebun Buah', ikon:'🍓', x:96, z:-188},
   kebun_teh:    {nama:'Kebun Teh', ikon:'🌿', x:96, z:-236},
-  pabrik_farmasi:{nama:'Pabrik Farmasi Nusawara', ikon:'💊', x:-62, z:-349}
+  pabrik_farmasi:{nama:'Pabrik Farmasi Nusawara', ikon:'💊', x:-62, z:-349},
+  gym:          {nama:'Gym Nusawara', ikon:'🏋️', x:96, z:-284}
 };
 (()=>{
   const C = (r,h,c,x,y,z,g,seg=12,rt) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt ?? r, r, h, seg), M(c)); m.position.set(x,y,z); m.castShadow = true; g.add(m); return m; };
@@ -4003,6 +4004,12 @@ const TEMPAT = {
       const pl = new THREE.Group(); pl.position.set(0,H-1.4,-4+D/2+.12); g.add(pl); box(2.6,2.6,.15,0xffffff,0,0,0,pl); box(1.8,.55,.2,0xd8262b,0,0,.05,pl); box(.55,1.8,.2,0xd8262b,0,0,.05,pl);
       papanT('PABRIK FARMASI NUSAWARA', W*.7, 1.2, '#1f3a5f', '#ffffff', 0, 1.2, -4+D/2+.08, g);
       [[-16,8],[16,8],[-16,-14],[16,-14]].forEach(([x,z])=>{ C(.35,2,0x7a4a24,x,1,z,g); const k = new THREE.Mesh(new THREE.ConeGeometry(1.8,4,8), M(0x2f8d3a)); k.position.set(x,4,z); g.add(k); }); },
+    gym: g=>{ box(44,.3,42,0xd9dde3,0,.15,0,g); const W=22,D=14,H=9; box(W,H,D,0x2b3440,0,H/2,-4,g); box(W+.6,.5,D+.6,0xf2b134,0,H+.25,-4,g);
+      box(W-2,H-3,.12,0x8fc7dc,0,(H-3)/2+.4,-4+D/2+.07,g); for (let i=0;i<6;i++) box(.25,H-3,.2,0x1b222b,-W/2+1+i*(W-2)/5,(H-3)/2+.4,-4+D/2+.1,g);
+      papanT('GYM NUSAWARA', W*.75, 1.6, '#f2b134', '#1b222b', 0, H-1.3, -4+D/2+.12, g);
+      const db = new THREE.Group(); db.position.set(0,H+2.2,-4); g.add(db); C(.25,7,0x9aa3ad,0,0,0,db).rotation.z = Math.PI/2; [-3,3].forEach(x=>{ const w = C(1.3,.9,0x2a7de1,x,0,0,db,16); w.rotation.z = Math.PI/2; });
+      [[-6,8,0x2a7de1],[0,8,0xf2b134],[6,8,0xe5484d]].forEach(([x,z,c])=>{ box(2.6,.6,1.2,0x3a3f46,x,.6,z,g); box(.3,1.6,.3,0x3a3f46,x+1,1.4,z,g); box(1.2,.6,.4,c,x+1,2.2,z,g); });
+      [[-16,8],[16,8],[-16,-14],[16,-14]].forEach(([x,z])=>{ C(.35,2,0x7a4a24,x,1,z,g); const k = new THREE.Mesh(new THREE.ConeGeometry(1.8,4,8), M(0x2f8d3a)); k.position.set(x,4,z); g.add(k); }); },
     kebun_teh: g=>{ box(44,.3,42,0x7fb85a,0,.15,0,g);
       for (let r=0;r<7;r++){ const y = .3 + (6-r)*.45; box(40,y,4.4,0x6b8f3a,0,y/2,-17+r*5.6,g);
         for (let c=0;c<9;c++) S(1.2,0x2f8d3a,-17+c*4.3,y+.6,-17+r*5.6,g,.55); }
@@ -4019,7 +4026,35 @@ async function tgsMuat(){
   if (!TGS.length){ try { (await SB.get('tugas_negara?select=*&order=urut')).forEach(t=>TGS.push(t)); } catch(_) {} }
   if (AKUN.u){ try { const r = await SB.rpc('tugas_saya', {p_user: AKUN.u, p_sandi: AKUN.s}); if (r && r.ok){ Object.assign(TGS_SISA, r.sisa); TGS_AT = Date.now(); } } catch(_) {} }
 }
+const GYM = []; async function gymMuat(){ if (!GYM.length){ try { (await SB.get('latihan_gym?select=*&order=urut')).forEach(t=>GYM.push(t)); } catch(_) {} } }
+function gymHTML(){
+  let h = `<div class="kicker">Milik Negara · Latihan untuk naik level</div><h2>🏋️ Gym Nusawara</h2>
+    <p class="note">Setiap latihan memakai ⚡ Stamina dan memberi <b style="color:#2a7de1">🔵 +1 EXP Warga</b> (naik level & gelar) serta <b style="color:#2f8f5e">🟢 EXP Stamina</b> (naik kapasitas stamina).</p>`;
+  if (!AKUN.data) return h + perluMasuk();
+  if (!GYM.length){ gymMuat().then(()=>{ if (sheetFn && sheetFn.eko) sheetBody.innerHTML = sheetFn(); }); return h + '<p class="note">Memuat…</p>'; }
+  const d = AKUN.data, st = d.stamina || 0, xpP = d.xp_perlu ? Math.min(100, Math.round((d.xp||0)/d.xp_perlu*100)) : 100, et = d.exp_target, ex = d.exp || 0;
+  h += `<div class="card"><div style="font-size:12px;font-weight:800;color:#2a7de1;display:flex;justify-content:space-between"><span>🔵 EXP Warga · Lv ${d.level || 1}</span><span>${et ? ex + '/' + et : 'MAX'}</span></div>
+    <div style="height:10px;border-radius:6px;background:#e3e6ea;overflow:hidden;margin:4px 0 10px"><div style="height:100%;width:${et ? Math.min(100, ex/et*100) : 100}%;background:#2a7de1"></div></div>
+    <div style="font-size:12px;font-weight:800;color:#2f8f5e;display:flex;justify-content:space-between"><span>🟢 EXP Stamina · Kapasitas Lv ${d.lv || 0}</span><span>${d.xp_perlu ? (d.xp||0) + '/' + d.xp_perlu : 'MAX'}</span></div>
+    <div style="height:10px;border-radius:6px;background:#e3e6ea;overflow:hidden;margin-top:4px"><div style="height:100%;width:${xpP}%;background:#2fb57a"></div></div>
+    <p class="note" style="margin-top:8px">⚡ Stamina kamu: <b>${st}/${d.kapasitas || 100}</b></p></div>`;
+  h += GYM.map(t=>`<div class="jrow"><span class="ji" style="font-size:30px">${t.ikon}</span><span class="jt"><b>${esc(t.nama)}</b><small>${esc(t.jenis || '')} · ⚡ −${t.biaya} · 🔵 +1 · 🟢 +${t.xp}</small></span>
+    <button class="btn" data-latih="${esc(t.kode)}" style="width:auto;margin:0;padding:9px 14px" ${st < t.biaya ? 'disabled' : ''}>${st < t.biaya ? 'Stamina kurang' : 'Latihan'}</button></div>`).join('');
+  return h;
+}
+sheetBody.addEventListener('click', async e=>{
+  const b = e.target.closest('[data-latih]'); if (!b || !AKUN.u || b.disabled) return; b.disabled = true;
+  const t = GYM.find(x=>x.kode === b.dataset.latih);
+  try { const r = await SB.rpc('latihan_gym', {p_user: AKUN.u, p_sandi: AKUN.s, p_kode: b.dataset.latih});
+    if (r && r.ok){ popHadiah('🔵 +1 · 🟢 +' + r.xp_dapat); sfx(660, .2, 'triangle', .08, 0, 990);
+      toast(`💪 ${t ? t.nama : 'Latihan'} selesai! ⚡ −${r.biaya} · 🔵 +1 EXP Warga · 🟢 +${r.xp_dapat} EXP Stamina`);
+      if (AKUN.data){ Object.assign(AKUN.data, {lv: r.lv, xp: r.xp, xp_perlu: r.xp_perlu, kapasitas: r.kapasitas, stamina: r.stamina}); hudTampil(); } }
+    else toast(r && r.alasan === 'stamina_kurang' ? '⚡ Stamina kurang untuk latihan ini.' : r && r.alasan === 'tunggu' ? '⏳ Tunggu sebentar.' : r && r.alasan === 'pingsan' ? '😵 Kamu sedang pingsan.' : 'Gagal. Coba lagi.');
+  } catch(_) { toast('Jaringan bermasalah. Coba lagi.'); }
+  if (sheetFn && sheetFn.eko) sheetBody.innerHTML = sheetFn();
+});
 function tempatHTML(id){
+  if (id === 'gym') return gymHTML();
   const e = TEMPAT[id]; if (!e) return ''; const ts = TGS.filter(t=>t.tempat === id);
   let h = `<div class="kicker">Milik Negara · Kerja untuk naik level stamina</div><h2>${e.ikon} ${esc(e.nama)}</h2>
     <p class="note">Selesaikan tugas dengan mengetuk gambar sesuai jumlahnya. Poin masuk ke bar hijau (level stamina), hasilnya masuk ke stok Negara. Waktu tunggu dihitung per warga.</p>`;
