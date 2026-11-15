@@ -3245,8 +3245,8 @@ function akunHTML(){
   const hari = [1,2,3,4,5,6,7].map(i=>`<span class="${i <= st ? 'on' : ''}">H${i}${i === 7 ? '+' : ''}</span>`).join('');
   const tas = BARANG.map(b=>{ const n = (d.tas || {})[b.kode] || 0; return `<div class="${n ? '' : 'nol'}"><i>${b.ikon}</i><b>${n}</b><small>${esc(b.nama)}</small></div>`; }).join('');
   return `<div class="kicker">Akun Warga · ${esc(w.niwn || '')}</div><h2>@${esc(String(w.username || AKUN.u).replace(/^@+/,''))}</h2>
-  <div class="card"><h3>👤 Nama di atas kepala</h3><p class="note">Bebas diganti (nama panggilan). Username & NIWN tetap sama.${GINFO && GINFO.email ? '<br>Gmail terdaftar: <b>' + esc(GINFO.email) + '</b> (hanya terlihat olehmu)' : ''}</p>
-    <div class="prow"><input id="nmBaru" value="${esc((wInfo(AKUN.u) || {}).nama || '')}" maxlength="24" style="font:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:12px;flex:1;margin-top:14px"><button class="btn" data-gantinama>Simpan</button></div></div>
+  <div class="card"><h3>👤 Nama di atas kepala</h3><p class="note">Nama panggilan bisa diganti <b>sebulan sekali</b>. Username & NIWN tetap sama.${AKUN.namaLagi ? '<br>⏳ Bisa diganti lagi mulai <b>' + new Date(AKUN.namaLagi).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + '</b>.' : ''}${GINFO && GINFO.email ? '<br>Gmail terdaftar: <b>' + esc(GINFO.email) + '</b> (hanya terlihat olehmu)' : ''}</p>
+    <div class="prow"><input id="nmBaru" value="${esc((wInfo(AKUN.u) || {}).nama || '')}" maxlength="24" ${AKUN.namaLagi ? 'disabled' : ''} style="font:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:12px;flex:1;margin-top:14px"><button class="btn" data-gantinama ${AKUN.namaLagi ? 'disabled' : ''}>Simpan</button></div></div>
   <div class="card"><h3>⚡ Stamina & Darah</h3>${hudHTML(d).replace(/font-size:11px/g,'')}
     <p class="note">Stamina pulih +5 setiap jam sampai kapasitas, dan dapat bonus +20 setiap hari saat masuk (bisa melebihi kapasitas, tertulis 100+20). Menambang menguras stamina.<br>
     Naikkan level di bar hijau dengan bekerja di pabrik & kebun Negara: Lv1 100 poin (+10 kapasitas), Lv2 200 (+10), Lv3 300 (+10), Lv4 500 (+20). Level bersifat permanen.${d.regen_detik != null ? '<br>⏳ +5 stamina berikutnya dalam ' + Math.ceil(d.regen_detik/60) + ' menit.' : ''}</p></div>
@@ -3262,7 +3262,7 @@ function akunHTML(){
   <div class="prow" style="margin-top:8px"><button class="btn ghost" data-wardrobe>👕 Wardrobe</button><button class="btn ghost" data-cara>📖 Cara Main</button></div>
   <div class="prow" style="margin-top:8px"><button class="btn ghost" id="akProfil">🪪 Kartu Warga</button><button class="btn ghost" id="akOut">🚪 Keluar</button></div>`;
 }
-akunBtn.addEventListener('click', async ()=>{ openSheet(akunHTML); if (AKUN.u) await akunMuat(); });
+akunBtn.addEventListener('click', async ()=>{ openSheet(akunHTML); if (AKUN.u){ SB.rpc('nama_bisa_lagi', {p_user: AKUN.u, p_sandi: AKUN.s}).then(r=>{ if (r && r.ok){ AKUN.namaLagi = r.bisa_lagi; if (sheetFn === akunHTML) sheetBody.innerHTML = akunHTML(); } }).catch(()=>{}); await akunMuat(); } });
 sheetBody.addEventListener('submit', async e=>{
   if (e.target.id !== 'akF') return; e.preventDefault();
   const u = String(document.getElementById('akU').value || '').trim().toLowerCase().replace(/^@+/,''), pw = normPw(document.getElementById('akP').value), m = document.getElementById('akM'), btn = document.getElementById('akB');
@@ -3742,7 +3742,8 @@ sheetBody.addEventListener('click', async e=>{
   if (t.dataset.jualkupon) ekoAksi(t, 'jual_kupon', {p_id: parseInt(t.dataset.jualkupon)}, r=>{ popHadiah('+' + N$(r.harga)); toast('🎟️ Kupon dijual ke Negara: +' + N$(r.harga)); });
   if (t.hasAttribute('data-gantinama')){ const v = (document.getElementById('nmBaru')||{}).value || ''; t.disabled = true;
     const r = await SB.rpc('ganti_nama', {p_user: AKUN.u, p_sandi: AKUN.s, p_nama: v}).catch(()=>null); t.disabled = false;
-    if (r && r.ok){ const w = wInfo(AKUN.u) || {}; if (typeof sbApplyWarga === 'function') sbApplyWarga([{username: AKUN.u, nama: r.nama, niwn: w.niwn, terdaftar: w.terdaftar}]); toast('✓ Nama diganti menjadi ' + r.nama); }
+    if (r && r.ok){ const w = wInfo(AKUN.u) || {}; AKUN.namaLagi = r.bisa_lagi; if (typeof sbApplyWarga === 'function') sbApplyWarga([{username: AKUN.u, nama: r.nama, niwn: w.niwn, terdaftar: w.terdaftar}]); toast('✓ Nama diganti menjadi ' + r.nama + '. Bisa diganti lagi bulan depan.'); sheetBody.innerHTML = akunHTML(); }
+    else if (r && r.alasan === 'tunggu'){ AKUN.namaLagi = r.bisa_lagi; toast('⏳ Nama hanya bisa diganti sebulan sekali.'); sheetBody.innerHTML = akunHTML(); }
     else toast('❌ Nama 2–24 huruf/angka.'); return; }
   if (t.hasAttribute('data-klaim')){ openSheet(akunHTML); if (AKUN.u) akunMuat(); return; }
   if (t.hasAttribute('data-cara')){ const f = ()=>caraMainHTML(); f.eko = 1; openSheet(f); return; }
