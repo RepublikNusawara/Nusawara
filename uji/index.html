@@ -4570,8 +4570,15 @@ function bisnisHTML(id){
         return `<div class="jrow" style="border-top:1px solid #eee;padding-top:6px"><span style="font-size:28px;flex:none">${m.ikon}</span><span class="jt"><b>${esc(m.nama)}</b>
           <small>Bahan toko: ${bahan}<br>Inventory toko: <b>${stk}</b> · combine ${Math.min(c,2)}/2${c >= 2 ? ' ✓' : ''}</small></span>
           <button class="btn" data-combine="${m.kode}|1" ${bs >= 1 ? '' : 'disabled'}>🍳 Combine ×1</button></div>`; }).join('')}
-      <p class="note">Gaji ${esc(kj.posisi)} ${N$(gj)}/hari, dibayar otomatis 00.00 WIB sesuai persen misi: 100% → gaji penuh <b>+ bonus 10%</b> · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji. Streak 7 hari +N$30 · 30 hari +N$100 (streak ${BIZ.kerja.streak || 0} hari).</p>
+      <p class="note">Gajimu sebagai ${esc(kj.posisi)}: <b>${N$(gj)}/hari</b>, dibayar otomatis 00.00 WIB sesuai persen misi: 100% → gaji penuh <b>+ bonus 10%</b> · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji. Streak 7 hari +N$30 · 30 hari +N$100 (streak ${BIZ.kerja.streak || 0} hari).</p>
       ${rk ? `<p class="note">Kemarin: ${rk.persen}% · gaji ${N$(rk.gaji)}${rk.bonus ? ' + bonus ' + N$(rk.bonus) : ''}</p>` : ''}</div>`;
+  }
+  // daftar gaji harian semua jabatan toko (dari tabel gaji_posisi)
+  if (menu.length && FAS[id]){
+    const gl = FAS[id].pos.map(([p,,ic])=>[p, ic, BIZ.gaji[id + '|' + p]]).filter(x=>x[2] != null);
+    if (gl.length) h += `<div class="card"><h3>💵 Daftar gaji harian</h3>
+      ${gl.map(([p, ic, g])=>`<div class="jrow" style="${kj && kj.posisi === p ? 'background:#fff4d6;border-radius:10px;' : ''}padding:5px 6px"><span style="font-size:22px;flex:none">${ic}</span><span class="jt"><b>${esc(p)}${kj && kj.posisi === p ? ' (kamu)' : ''}</b></span>${pill(N$(g) + ' / hari', '#f2c14e', '#3b2600')}</div>`).join('')}
+      <p class="note">Semua jabatan memakai aturan misi yang sama: 100% → gaji penuh + bonus 10% · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji. Gaji dibayar per hari kerja (±30 hari = gaji harian × 30).</p></div>`;
   }
   // tabel kinerja mingguan semua karyawan
   if (menu.length && BIZ.kinerja[id]){
