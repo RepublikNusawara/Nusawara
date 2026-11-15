@@ -96,6 +96,10 @@
   .tasg div.nol{opacity:.45}.tasg i{font-style:normal;font-size:24px;display:block}.tasg b{display:block;font-size:17px}.tasg small{font-size:11px;color:#667;line-height:1.2;display:block}
   .streak{display:flex;gap:4px;margin:10px 0 2px}.streak span{flex:1;text-align:center;font-size:11px;font-weight:700;padding:6px 0;border-radius:8px;background:#eef1f4;color:#667}
   .streak span.on{background:#f2b134;color:#1f3a5f}
+  #expbar{position:fixed;left:0;right:0;bottom:0;z-index:6;height:calc(18px + env(safe-area-inset-bottom,0px));background:#0d2a52;display:none;pointer-events:none;font-family:inherit}
+  #expbar i{position:absolute;left:0;top:0;height:18px;background:linear-gradient(90deg,#2a7de1,#4fb3ff);transition:width .4s}
+  #expbar span{position:absolute;left:0;right:0;top:0;height:18px;line-height:18px;text-align:center;color:#fff;font-size:11px;font-weight:800;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+  body.expon nav.actions{margin-bottom:18px}
   .hud{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 66px);z-index:5;width:178px;pointer-events:none;display:none;
     background:rgba(255,253,248,.92);border:1px solid var(--line);border-radius:12px;padding:7px 9px;box-shadow:0 6px 18px rgba(31,58,95,.12);font-size:11px;font-weight:800;color:#1f3a5f}
   .hud .r{display:flex;justify-content:space-between;margin-top:3px}.hud .b{height:9px;border-radius:5px;background:#e3e6ea;overflow:hidden;display:flex;margin-top:2px}
@@ -240,6 +244,7 @@
 </div>
 <div class="hint" id="hint">Geser untuk memutar · cubit untuk zoom · ketuk rumah</div>
 
+<div id="expbar"><i></i><span></span></div>
 <nav class="actions">
   <button class="navy" id="playBtn">🕹️ Presiden</button>
   <button class="primary" data-open="daftar">Jadi Warga</button>
@@ -3205,10 +3210,22 @@ function hudHTML(d){
   return `<div class="r"><span>❤️ Darah</span><span>${d.darah ?? 100}/100</span></div><div class="b"><i style="width:${Math.min(100, d.darah ?? 100)}%;background:#e5484d"></i></div>
     <div class="r"><span>⚡ Stamina</span><span>${dasar}${ekstra ? '+' + ekstra : ''}/${cap}</span></div>
     <div class="b"><i style="width:${dasar/tot*100}%;background:#f2b134"></i><i style="width:${ekstra/tot*100}%;background:#ff7a1a"></i></div>
-    <div class="r"><span>🟢 Lv ${d.lv || 0}${d.xp_perlu ? '' : ' MAX'}</span><span>${d.xp_perlu ? (d.xp||0) + '/' + d.xp_perlu + ' · ' + xpP + '%' : 'kapasitas ' + cap}</span></div>
-    <div class="b k"><i style="width:${xpP}%;background:#2fb57a"></i></div>`; }
-function hudTampil(){ const h = document.getElementById('hud'); if (!h) return; if (!AKUN.data){ h.style.display = 'none'; return; } h.style.display = 'block'; h.innerHTML = hudHTML(AKUN.data); }
+    <div class="r"><span>🟢 Kap. Stamina Lv ${d.lv || 0}${d.xp_perlu ? '' : ' MAX'}</span><span>${d.xp_perlu ? (d.xp||0) + '/' + d.xp_perlu + ' · ' + xpP + '%' : 'kapasitas ' + cap}</span></div>
+    <div class="b k"><i style="width:${xpP}%;background:#2fb57a"></i></div>
+    <div class="r"><span>⭐ Level ${d.level || 1}${d.exp_target ? '' : ' MAX'}</span><span>${d.exp_target ? (d.exp||0) + '/' + d.exp_target + ' EXP' : 'Level maksimum'}</span></div>
+    <div class="b"><i style="width:${d.exp_target ? Math.min(100, (d.exp||0)/d.exp_target*100) : 100}%;background:#2a7de1"></i></div>`; }
+function expBar(){ const e = document.getElementById('expbar'); if (!e) return; const d = AKUN.data; document.body.classList.toggle('expon', !!d); if (!d){ e.style.display = 'none'; return; }
+  e.style.display = 'block'; const t = d.exp_target, x = d.exp || 0; e.querySelector('i').style.width = (t ? Math.min(100, x/t*100) : 100) + '%';
+  e.querySelector('span').textContent = t ? `⭐ Level ${d.level || 1} · ${x}/${t} EXP · ${Math.floor(x/t*100)}% menuju Level ${(d.level||1) + 1}` : `⭐ Level ${d.level} · MAKSIMUM`; }
+function hudTampil(){ const h = document.getElementById('hud'); if (!h) return; if (!AKUN.data){ h.style.display = 'none'; expBar(); return; } h.style.display = 'block'; h.innerHTML = hudHTML(AKUN.data); expBar(); }
 setInterval(()=>{ if (AKUN.u && !document.hidden) akunMuat(); }, 60000);
+{ const _rpc = SB.rpc.bind(SB);
+  SB.rpc = async (...arg) => { const r = await _rpc(...arg);
+    try { if (r && typeof r === 'object' && 'level' in r && 'exp' in r && AKUN.data){ const lama = AKUN.data.level || 1;
+      Object.assign(AKUN.data, {level: r.level, exp: r.exp, exp_target: r.exp_target});
+      if (r.level > lama){ popHadiah('🎉 Naik ke Level ' + r.level + ' · ⚡ Stamina penuh!'); sfx(523, .25, 'triangle', .08, 0, 1046); setTimeout(akunMuat, 400); }
+      hudTampil(); } } catch(_) {}
+    return r; }; }
 function akunTombol(){ hudTampil(); akunBtn.textContent = AKUN.data ? '💰 ' + N$(AKUN.data.saldo) : '🔑 Masuk'; akunBtn.classList.toggle('in', !!AKUN.data); }
 function popHadiah(t){ const el = document.createElement('div'); el.className = 'pop'; el.textContent = t; document.body.appendChild(el);
   requestAnimationFrame(()=>el.classList.add('show')); setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 400); }, 1500); }
@@ -3753,9 +3770,9 @@ sheetBody.addEventListener('click', async e=>{
     toast(r.kupon ? '🎟️ Kupon juara dipakai: tanah ' + r.id + ' gratis!' : '🎉 Tanah ' + r.id + ' sekarang milikmu.'); kavMuat(); });
   if (t.dataset.combine || t.dataset.jualtoko){ const jual = !!t.dataset.jualtoko, [k, n] = (t.dataset.combine || t.dataset.jualtoko).split('|'); t.disabled = true;
     const r = await SB.rpc(jual ? 'jual_toko' : 'combine_toko', {p_user: AKUN.u, p_sandi: AKUN.s, p_menu: k, p_jumlah: parseInt(n)}).catch(()=>null);
-    if (r && r.ok){ popHadiah(jual ? '+' + N$(r.untung) : '🍳 +' + r.jumlah); sfx(jual ? 880 : 620, .15, 'sine', .07);
-      toast(jual ? `💰 ${r.jumlah} ${r.nama} terjual ${N$(r.jual)} · untung ${N$(r.untung)} · misi ${r.persen}%` : `🍳 ${r.jumlah} ${r.nama} jadi · misi ${r.persen}%`); }
-    else toast(r && r.alasan === 'bahan_kurang' ? '🧺 Bahan di tas kurang. Beli dulu di PRN.' : r && r.alasan === 'pack_kurang' ? 'Pack di tas kurang. Combine dulu.' : r && r.alasan === 'bukan_pekerja' ? 'Hanya pekerja resmi toko ini.' : ALASAN[r && r.alasan] || 'Gagal.');
+    if (r && r.ok){ popHadiah('+1 EXP'); sfx(jual ? 880 : 620, .15, 'sine', .07);
+      toast(jual ? `💰 1 ${r.nama} terjual ${N$(r.harga)} ke pembeli · kas toko +${N$(r.kas_masuk)} · +1 EXP · misi ${r.persen}%` : `🍳 1 ${r.nama} masuk inventory toko · kamu +${N$(r.jual)} (untung ${N$(r.untung)}) · +1 EXP · misi ${r.persen}%`); }
+    else toast(r && r.alasan === 'bahan_kurang' ? '🧺 Bahan di tas kurang. Beli dulu di PRN.' : r && r.alasan === 'stok_toko_kosong' ? 'Inventory toko kosong. Combine dulu.' : r && r.alasan === 'bukan_pekerja' ? 'Hanya pekerja resmi toko ini.' : ALASAN[r && r.alasan] || 'Gagal.');
     const fid = (Object.keys(BIZ.menu).find(b=>(BIZ.menu[b]||[]).some(m=>m.kode === k))) || 'KOPI-NUSAWARA'; return ulang(fid); }
   if (t.dataset.setor){ const [id, b] = t.dataset.setor.split('|'), n = Math.max(1, parseInt((document.getElementById('st-' + b)||{}).value) || 1), x = brg(b);
     ekoAksi(t, 'bangun', {p_id: id, p_cara: 'setor', p_barang: b, p_jumlah: n}, r=>{ popHadiah('🧱 ' + r.jumlah + ' ' + x.ikon); toast(r.siap ? '✅ Bahan lengkap! Sekarang pilih desain bangunanmu.' : `Setor ${r.jumlah} ${x.nama}`); kavMuat(); }); }
@@ -4530,16 +4547,17 @@ function bisnisHTML(id){
     const ms = BIZ.misi[id] || {}, it = ms.item || {}, gj = BIZ.gaji[id + '|' + kj.posisi] || 0, nM = menu.length;
     const tj = Object.values(it).reduce((a,x)=>a + (x.jual||0), 0), tc = Object.values(it).reduce((a,x)=>a + (x.combine||0), 0), ps = ms.persen || 0;
     h += `<div class="card" style="border:2px solid #5a3a22"><h3>🎯 Misi harian pekerja · <span style="color:${ps >= 100 ? '#2f7d1a' : '#c0392b'}">${ps}%</span></h3>${bar(ps, 100)}
-      <p class="note">1️⃣ <b>Beli bahan di PRN</b> (gedung Garuda) · 2️⃣ <b>Combine</b> di sini (1 bahan + 1 bahan = 1 pack) · 3️⃣ <b>Jual</b> pack ke toko ini, kamu untung <b>5%</b>.</p>
+      <p class="note">1️⃣ <b>Beli bahan di PRN</b> (gedung Garuda) · 2️⃣ <b>Combine ×1</b>: 1 bahan + 1 bahan = 1 pack, langsung masuk inventory toko dan kamu dibayar modal <b>+5%</b> · 3️⃣ <b>Jual ×1</b> pack dari inventory toko ke pembeli (uang masuk kas toko). Setiap Combine/Jual = misi +1 & <b>+1 EXP</b>.</p>
       <div class="prow"><button class="btn ghost" data-pergi="prn">🏪 Ke PRN beli bahan</button></div>
       <p class="note" style="margin-top:10px">🍳 <b>Combine ${Math.min(tc,20)}/20 (50%)</b> · minimal 2 per menu, sisanya bebas${bar(Math.min(tc,20), 20)}</p>
       <p class="note">💰 <b>Jual ${Math.min(tj,50)}/50 pack (50%)</b> · minimal 5 per menu, sisanya bebas${bar(Math.min(tj,50), 50)}</p>
       ${menu.map(m=>{ const x = it[m.kode] || {}, c = x.combine || 0, j = x.jual || 0, pk = x.punya || 0, bs = x.bisa || 0, md = x.modal || 0;
         const bahan = (x.resep || []).map(r=>`${r.ikon} ${esc(r.nama)} <b>${r.punya}</b>`).join(' + ');
+        const stk = x.stok_toko ?? m.stok ?? 0;
         return `<div class="jrow" style="align-items:flex-start;border-top:1px solid #eee;padding-top:8px"><span style="font-size:30px;flex:none">${m.ikon}</span><span class="jt"><b>${esc(m.nama)}</b>
-          <small>${bahan || ''}<br>Pack di tas: <b>${pk}</b> · modal ${N$(md)} → jual ${N$(Math.ceil(md*1.05))}<br>Combine ${c}/2${c >= 2 ? ' ✓' : ''} · Jual ${j}/5${j >= 5 ? ' ✓' : ''}</small></span>
-          <span style="display:flex;flex-direction:column;gap:4px;flex:none"><span style="display:flex;gap:4px"><button class="btn" data-combine="${m.kode}|1" ${bs >= 1 ? '' : 'disabled'}>🍳 Combine</button><button class="btn ghost" data-combine="${m.kode}|5" ${bs >= 5 ? '' : 'disabled'}>×5</button></span>
-          <span style="display:flex;gap:4px"><button class="btn" data-jualtoko="${m.kode}|1" ${pk >= 1 ? '' : 'disabled'}>💰 Jual</button><button class="btn ghost" data-jualtoko="${m.kode}|5" ${pk >= 5 ? '' : 'disabled'}>×5</button></span></span></div>`; }).join('')}
+          <small>${bahan || ''}<br>Inventory toko: <b>${stk}</b> · harga jual ${N$(x.harga ?? m.harga)} · kamu dibayar ${N$(Math.ceil(md*1.05))}/combine<br>Combine ${c}/2${c >= 2 ? ' ✓' : ''} · Jual ${j}/5${j >= 5 ? ' ✓' : ''}</small></span>
+          <span style="display:flex;flex-direction:column;gap:4px;flex:none"><button class="btn" data-combine="${m.kode}|1" ${bs >= 1 ? '' : 'disabled'}>🍳 Combine ×1</button>
+          <button class="btn ghost" data-jualtoko="${m.kode}|1" ${stk >= 1 ? '' : 'disabled'}>💰 Jual ×1</button></span></div>`; }).join('')}
       <p class="note">Gaji ${esc(kj.posisi)} ${N$(gj)}/hari, dibayar otomatis 00.00 WIB sesuai persen misi: 100% → gaji penuh <b>+ bonus 10%</b> · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji. Streak 7 hari +N$30 · 30 hari +N$100 (streak ${BIZ.kerja.streak || 0} hari).</p>
       ${rk ? `<p class="note">Kemarin: ${rk.persen}% · gaji ${N$(rk.gaji)}${rk.bonus ? ' + bonus ' + N$(rk.bonus) : ''}</p>` : ''}</div>`;
   }
