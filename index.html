@@ -3,6 +3,10 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
+<meta name="nusawara-build" content="20261116-0125">
+<script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
+fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
+if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.setItem('nusawara_rl_'+x[1],'1');location.replace(location.pathname+'?v='+x[1]);}}).catch(function(){});}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Republik Nusawara — Peta Kota 3D</title>
 <meta name="description" content="Peta 3D Kota Republik Nusawara. Daftar jadi warga, cari rumahmu dengan username Instagram, dan ikut membangun negara bersama.">
@@ -3711,7 +3715,7 @@ const EKO = {
     const g = new THREE.Group(); g.position.set(e.x, 0, e.z); scene.add(g); BUAT[id](g);
     const L = label(e.ikon ? e.ikon + ' ' + e.nama.toUpperCase() : e.nama.toUpperCase(), {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); L.position.set(0, e.k === 'pabrik' ? 11 : 18, e.k === 'tambang' ? 6 : 0); g.add(L);
     if (e.k === 'pabrik'){ const UK = {'EKO-BAJA':[20,13], 'EKO-KAYU':[18,12], 'EKO-MATERIAL':[22,14], 'EKO-BETON':[20,13]}[id];   // tempat parkir di depan pabrik: lebar 4 = 1x lebar jalan, menghadap +z
-      if (UK){ const [W,D] = UK; box(W+2,.1,4,0x626a75,0,.085,D/2+2,g); const n = Math.floor((W+2)/3.2);
+      if (UK){ const [W,D] = UK; box(W+2,.1,4,0x4b5059,0,.085,D/2+2,g); const n = Math.floor((W+2)/3.2);
         for (let i=0;i<=n;i++) box(.14,.03,3.4,0xffffff,-(W+2)/2+.1+i*((W+1.8)/n),.15,D/2+2,g);
         box(.12,2,.12,0x9aa0a6,-W/2-.2,1,D/2+3.9,g); papan('P', 1.1, 1.1, '#1f5fbf', '#ffffff', -W/2-.2, 2.3, D/2+3.9, g); } }
     g.userData = {type:'eko', data:{id}}; pickables.push(g); e.g = g; }
@@ -4615,7 +4619,8 @@ const FAS = {
 };
 FAS['MATCHA-NUSAWARA'] = {nama:'Toko Matcha Nusawara', ikon:'🍵', usul:'julianto_jul', hari:'November 2026', pos:[['Owner',1,'👑'],['Tea Specialist',4,'🍵']]};
 window.KERJA = {};
-function facTop(id){ const F = FAS[id]; if (!F) return ''; const top = F.pos[0][0]; return Object.keys(KERJA).find(u=>KERJA[u].fasilitas === id && KERJA[u].posisi === top) || ''; }
+function facTop(id){ const F = FAS[id]; if (!F) return ''; const top = F.pos[0][0]; let u = Object.keys(KERJA).find(u=>KERJA[u].fasilitas === id && KERJA[u].posisi === top) || '';
+  if (!u && Array.isArray(window.KERJA_ALL)){ const r = window.KERJA_ALL.find(k=>k.fasilitas === id && k.posisi === top); if (r) u = String(r.username || '').toLowerCase(); } return u; }
 // billboard di setiap gedung fasilitas (bawaan; bisa diganti oleh pemegang jabatan tertinggi)
 function facBoard(id, title, sub, bg, fg, w, hh, x, y, z, g){
   [-w*.32, w*.32].forEach(px=>box(.35, y - hh/2, .35, 0x2a2f38, x + px, (y - hh/2)/2, z - .2, g));
@@ -4885,7 +4890,7 @@ loop();
 // Aturan: lebar jalan = 5 (sama dengan jalan timur). Parkir di depan = 1x lebar jalan. Di belakang bangunan ada ruang 1x lebar jalan, lalu jalan aspal,
 // lalu parkir 1x lebar jalan, lalu baris bangunan berikutnya (semua menghadap selatan/+z). Semua jalan tersambung lewat jalan timur & jalan penghubung utara-selatan.
 (()=>{
-  const RW = 5, RD = 0x4b5059, PK = 0x626a75;
+  const RW = 5, RD = 0x4b5059, PK = 0x4b5059;
   const jalan = (x0,x1,z)=>{ box(x1-x0,.12,RW,RD,(x0+x1)/2,.07,z); for (let x=x0+3;x<x1-2;x+=7) box(3,.03,.18,0xffffff,x,.14,z); };
   const jalanZ = (x,z0,z1)=>{ box(RW,.12,z1-z0,RD,x,.07,(z0+z1)/2); for (let z=z0+3;z<z1-2;z+=7) box(.18,.03,3,0xffffff,x,.14,z); };
   jalan(61,216,-18);                                   // jalan timur diperpanjang (tersambung ke jalan timur lama & lingkaran podium)
