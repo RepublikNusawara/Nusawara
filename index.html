@@ -3415,7 +3415,7 @@ const MP = {
   get(){ try { return JSON.parse(localStorage.getItem(MP.k()) || '{}'); } catch(_) { return {}; } },
   set(f){ if (!AKUN.u) return; try { const o = MP.get(); if (o[f]) return false; o[f] = 1; localStorage.setItem(MP.k(), JSON.stringify(o)); return true; } catch(_) { return false; } },
   done(){ const o = MP.get(), d = AKUN.data || {}; let kv = 0; try { kv = kavSaya().length; } catch(_) {}
-    return {absen: !!(o.absen || d.sudah_absen || (d.streak || 0) > 0), tambang: !!o.tambang, olah: !!o.olah, jual: !!o.jual, tanah: !!(o.tanah || kv)}; }
+    return {absen: !!(o.absen || d.sudah_absen || (d.streak || 0) > 0), tambang: !!o.tambang, olah: !!o.olah, jual: !!o.jual, tanah: !!(o.tanah || kv), donasi: !!o.donasi}; }
 };
 function resepContoh(){ try { return RESEP.slice(0, 3).map(r=>{ const a = brg(r.bahan), o = brg(r.hasil); return `${r.bahan_jumlah} ${a.ikon} ${esc(a.nama)} → ${r.hasil_jumlah} ${o.ikon} ${esc(o.nama)}`; }).join(' · '); } catch(_) { return ''; } }
 function resepBisa(){ try { return RESEP.filter(r=>punya(r.bahan) >= r.bahan_jumlah).map(r=>{ const o = brg(r.hasil); return `${o.ikon} ${esc(o.nama)}`; }); } catch(_) { return []; } }
@@ -3426,7 +3426,8 @@ function misiDaftar(){
     {id:'tambang', ikon:'⛏️', judul:'Menambang 1×', isi:'Pergi ke Kawasan Tambang, tekan tombol tambang. Dapat bahan mentah (bijih besi, kayu gelondongan, pasir & batu).', pergi:'tambang'},
     {id:'olah', ikon:'🏭', judul:'Combine / Olah hasil tambangmu', isi:'Setelah menambang, <b>combine bahan mentahmu di pabrik</b> (utara Pelabuhan, bayar biaya olah) jadi <b>bahan olahan</b> atau <b>bahan material</b> untuk membangun.' + (cth ? `<br>Contoh: ${cth}` : '') + (bisa.length ? `<br>✅ <b>Di tasmu sekarang bisa diolah jadi:</b> ${bisa.join(', ')}` : ''), pergi:'industri'},
     {id:'jual', ikon:'🦅', judul:'Jual 1 barang di PRN', isi:'Tekan gedung Garuda di Distrik Pusat, jual bahan atau hasil olahanmu ke Negara untuk dapat Nusa.', pergi:'prn'},
-    {id:'tanah', ikon:'🏞️', judul:'Beli kavling pertamamu', isi:'Pilih tanah kosong di Kawasan Kavling lalu beli (rumah kecil N$1.000). Setor material hasil olahanmu untuk membangun.', pergi:'kavling'}
+    {id:'tanah', ikon:'🏞️', judul:'Beli kavling pertamamu', isi:'Pilih tanah kosong di Kawasan Kavling lalu beli (rumah kecil N$1.000). Setor material hasil olahanmu untuk membangun.', pergi:'kavling'},
+    {id:'donasi', ikon:'🤝', judul:'Donasi untuk Negara', isi:'Donasikan bahan atau N$ di Papan Donasi (sebelah barat podium). Setiap bahan dihitung poin, N$1 = 1 poin. <b>Donasi terbanyak tiap bulan jadi 🏆 Warga Terbaik dan dapat tanah + rumah/toko modern gratis!</b> Juara 2 dan 3 juga dapat tanah.', pergi:'donasi'}
   ].map(m=>Object.assign(m, {ok: dn[m.id]}));
 }
 function misiPemulaCard(){ if (!AKUN.data) return '';
@@ -3437,7 +3438,7 @@ function misiPemulaCard(){ if (!AKUN.data) return '';
     <p class="note">${nx ? 'Selesaikan satu per satu, urutannya sudah dibuat dari yang termudah.' : '🎉 Semua misi pemula selesai! Lanjutkan: kumpulkan poin donasi, bekerja di toko, dan bangun kotamu.'}</p></div>`; }
 function pergiKe(t){
   if (t === 'akun'){ openSheet(akunHTML); if (AKUN.u) akunMuat(); return; }
-  const e2 = t === 'kavling' ? {x:18, z:-160} : t === 'prn' ? EKO['EKO-PRN'] : t === 'tambang' ? {x:-59, z:150} : {x:-62, z:-100}; closeSheet();
+  const e2 = t === 'kavling' ? {x:18, z:-160} : t === 'donasi' ? {x:7, z:-6} : t === 'prn' ? EKO['EKO-PRN'] : t === 'tambang' ? {x:-59, z:150} : {x:-62, z:-100}; closeSheet();
   flyTo(new THREE.Vector3(e2.x, 2, e2.z), t === 'tambang' ? new THREE.Vector3(e2.x + 70, 80, e2.z + 40) : new THREE.Vector3(e2.x + 10, 30, e2.z + 38)); }
 /* chip petunjuk berikutnya (selalu terlihat setelah masuk) */
 { const c = document.createElement('button'); c.id = 'misiChip'; c.type = 'button'; document.body.appendChild(c);
@@ -3451,7 +3452,7 @@ function pergiKe(t){
   SB.rpc = async (...a) => { const r = await _p(...a);
     try { if (r && r.ok && AKUN.u){ const fn = a[0], ar = a[1] || {}; let f = null;
       if (fn === 'klaim_absen') f = 'absen'; else if (fn === 'menambang') f = 'tambang'; else if (fn === 'olah_bahan') f = 'olah';
-      else if (fn === 'pasar_prn' && ar.p_aksi === 'jual') f = 'jual'; else if (fn === 'beli_kavling') f = 'tanah';
+      else if (fn === 'pasar_prn' && ar.p_aksi === 'jual') f = 'jual'; else if (fn === 'beli_kavling') f = 'tanah'; else if (fn === 'donasi_negara') f = 'donasi';
       if (f){ const baru = MP.set(f);
         if (f === 'tambang') setTimeout(()=>{ toast('⛏️ Bagus! Sekarang combine hasil tambangmu di pabrik jadi bahan olahan atau material 🏭'); }, 2400);
         else if (baru) setTimeout(()=>{ toast('✅ Misi pemula selesai!'); }, 1800); } } } catch(_) {}
@@ -3464,7 +3465,8 @@ const TUTO_LANGKAH = [
   {ikon:'⛏️', judul:'Menambang bahan', isi:'Pergi ke Kawasan Tambang di selatan Pelabuhan. Tekan tombol tambang untuk dapat bahan mentah. Menambang menguras ⚡ stamina.', pergi:'tambang', tombol:'⛏️ Lihat tambang'},
   {ikon:'🏭', judul:'Combine hasil tambang', isi:'Bawa bahan mentahmu ke pabrik, lalu <b>Olah</b> jadi <b>bahan olahan</b> atau <b>bahan material</b> (untuk membangun rumah). Cukup bayar biaya olah.', pergi:'industri', tombol:'🏭 Lihat pabrik'},
   {ikon:'🦅', judul:'Jual di PRN', isi:'Tekan gedung Garuda di Distrik Pusat. Jual bahan atau hasil olahanmu ke Negara untuk dapat Nusa, atau beli bahan yang kamu butuh.', pergi:'prn', tombol:'🦅 Lihat PRN'},
-  {ikon:'🏞️', judul:'Beli tanah & bangun', isi:'Beli kavling di belakang Distrik Pusat, setor material, lalu pilih desain rumahmu. Itu rumah & billboard milikmu sendiri!', pergi:'kavling', tombol:'🏞️ Lihat kavling'}
+  {ikon:'🏞️', judul:'Beli tanah & bangun', isi:'Beli kavling di belakang Distrik Pusat, setor material, lalu pilih desain rumahmu. Itu rumah & billboard milikmu sendiri!', pergi:'kavling', tombol:'🏞️ Lihat kavling'},
+  {ikon:'🤝', judul:'Donasi & jadi Warga Terbaik', isi:'Donasikan bahan atau N$ di Papan Donasi. Yang donasinya <b>paling banyak</b> tiap bulan jadi <b>🏆 Warga Terbaik</b> dan mendapat <b>tanah + rumah/toko modern</b> gratis. Juara 2 dan 3 juga dapat tanah.', pergi:'donasi', tombol:'🤝 Lihat Papan Donasi'}
 ];
 function tutoTampil(){ if (!TUTO){ tutoEl.style.display = 'none'; return; } const i = TUTO.i, L = TUTO_LANGKAH[i], akhir = i === TUTO_LANGKAH.length - 1;
   tutoEl.style.display = 'block';
