@@ -3236,11 +3236,11 @@ try { const r = JSON.parse(localStorage.getItem('nusawara_akun') || 'null'); if 
 function hudHTML(d){
   const cap = d.kapasitas || 100, st = d.stamina || 0, dasar = Math.min(st, cap), ekstra = Math.max(0, st - cap), tot = cap + 20;
   const xpP = d.xp_perlu ? Math.min(100, Math.round((d.xp||0) / d.xp_perlu * 100)) : 100;
-  const dh = d.darah ?? 100, dc = d.pingsan || dh <= 0 ? '#6b7280' : dh >= 70 ? '#2fb57a' : dh >= 40 ? '#f2b134' : '#e5484d', ds = d.pingsan ? '😵 Pingsan' : dh >= 70 ? 'Sehat' : dh >= 40 ? 'Luka ringan' : 'Kritis';
+  const dh = d.darah ?? 100, dc = d.pingsan || dh <= 0 ? '#6b7280' : '#e5484d', ds = d.pingsan ? '😵 Pingsan' : dh >= 70 ? 'Sehat' : dh >= 40 ? 'Luka ringan' : 'Kritis';
   return `<div class="r"><span>❤️ Darah · ${ds}</span><span>${dh}/100</span></div><div class="b"><i style="width:${Math.min(100, dh)}%;background:${dc}"></i></div>
     <div class="r"><span>⚡ Stamina</span><span>${dasar}${ekstra ? '+' + ekstra : ''}/${cap}</span></div>
     <div class="b"><i style="width:${dasar/tot*100}%;background:#f2b134"></i><i style="width:${ekstra/tot*100}%;background:#ff7a1a"></i></div>
-    <div class="r"><span>🟢 Kap. Stamina Lv ${d.lv || 0}${d.xp_perlu ? '' : ' MAX'}</span><span>${d.xp_perlu ? (d.xp||0) + '/' + d.xp_perlu + ' · ' + xpP + '%' : 'kapasitas ' + cap}</span></div>
+    <div class="r"><span>🟢 Kapasitas Lv ${d.lv || 0}${d.xp_perlu ? '' : ' MAX'}</span><span>${d.xp_perlu ? (d.xp||0) + '/' + d.xp_perlu + ' EXP' : 'maks ' + cap}</span></div>
     <div class="b k"><i style="width:${xpP}%;background:#2fb57a"></i></div>
     <div class="r"><span>${gelar(d.level).ikon} Lv ${d.level || 1}${d.exp_target ? '' : ' MAX'}</span><span>${d.exp_target ? (d.exp||0) + '/' + d.exp_target + ' EXP' : 'Level maksimum'}</span></div>
     <div class="b"><i style="width:${d.exp_target ? Math.min(100, (d.exp||0)/d.exp_target*100) : 100}%;background:#2a7de1"></i></div>`; }
