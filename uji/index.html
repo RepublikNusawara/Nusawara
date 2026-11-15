@@ -4483,11 +4483,12 @@ function fasHTML(id){
       <p class="note" id="jfM"></p><button class="btn" id="jfB">Kirim lamaran</button></div>`;
 }
 // ---------- TAHAP 3: BISNIS (menu, kerja harian, gaji, laporan manager, Toko Matcha) ----------
-const BIZ = {menu:{}, kerja:null, lap:{}, tugas:[], gaji:{}};
+const BIZ = {menu:{}, kerja:null, lap:{}, tugas:[], gaji:{}, setor:{}};
 async function bisnisMuat(id){
   try { BIZ.menu[id] = await SB.rpc('menu_bisnis', {p_bisnis: id}) || []; } catch(_) {}
   if (!BIZ.tugas.length){ try { BIZ.tugas = await SB.get('kerja_tugas?select=*&order=urut') || []; (await SB.get('gaji_posisi?select=*')).forEach(g=>{ BIZ.gaji[g.fasilitas + '|' + g.posisi] = g.gaji; }); } catch(_) {} }
   if (AKUN.u){ try { BIZ.kerja = await SB.rpc('kerja_saya', {p_user: AKUN.u, p_sandi: AKUN.s}); } catch(_) {}
+    if (id === 'KOPI-NUSAWARA') try { BIZ.setor[id] = await SB.rpc('setor_saya', {p_user: AKUN.u, p_sandi: AKUN.s, p_bisnis: id}); } catch(_) {}
     try { const l = await SB.rpc('laporan_bisnis', {p_user: AKUN.u, p_sandi: AKUN.s, p_bisnis: id}); BIZ.lap[id] = l && l.ok ? l : null; } catch(_) {} }
   if (sheet.classList.contains('open') && sheetBody.querySelector('[data-biz="' + id + '"]') && sheetFn) sheetBody.innerHTML = sheetFn();
 }
@@ -4517,22 +4518,26 @@ function bisnisHTML(id){
       <div class="prow"><input type="number" min="1" value="1" id="jmMatcha" style="font:inherit;width:70px;padding:9px;border:1px solid var(--line);border-radius:10px;margin-top:14px"><button class="btn ghost" data-jualmatcha>💰 Jual matcha toko ke Negara (bagi hasil 10%)</button></div>`;
     h += `</div>`;
   }
-  // tugas kerja harian (pegawai bisnis ini)
+  // misi harian: beli bahan dari Negara -> jual pack ke toko (untung 5%)
   if (sayaKerja && id === 'KOPI-NUSAWARA'){
-    const ts = BIZ.tugas.filter(t=>t.fasilitas === id && t.posisi === kj.posisi), done = (BIZ.kerja.selesai || []), tgt = ts.reduce((a,t)=>a+t.klik,0), sel = ts.filter(t=>done.includes(t.kode)).reduce((a,t)=>a+t.klik,0), pr = tgt ? Math.floor(sel/tgt*100) : 0, gj = BIZ.gaji[id + '|' + kj.posisi] || 0;
-    h += `<div class="card"><h3>🧑‍💼 Tugas harian · ${esc(kj.posisi)}</h3><p class="note">Target ${tgt} klik/hari · gaji penuh ${N$(gj)} · progres hari ini <b>${pr}%</b> (${sel}/${tgt})</p>${bar(sel, tgt)}
-      ${ts.map(t=>{ const d = done.includes(t.kode), n = KTAP[t.kode] || 0; return `<div class="jrow"><span class="jt"><b>${esc(t.nama)}</b><small>${d ? '✓ selesai hari ini' : `👆 Tap ${t.klik}x · ${n}/${t.klik}`}</small></span>
-        ${d ? '<span style="font-size:22px">✅</span>' : `<button class="btn" data-ktap="${t.kode}" style="min-width:110px">👆 Tap (${t.klik - n})</button>`}</div>`; }).join('')}
-      <p class="note">Gaji dibayar otomatis setelah hari berakhir (00.00 WIB): 100% → penuh · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji.<br>Bonus: target 100% +N$5 · 7 hari berturut-turut +N$30 · 30 hari +N$100. Streak sekarang: ${BIZ.kerja.streak || 0} hari.</p>
+    const st = BIZ.setor[id] || {}, it = st.item || {}, tgt = st.target || 100, mn = st.min_item || 10, owner = !!lap, gj = BIZ.gaji[id + '|' + kj.posisi] || 0;
+    const tot = Object.values(it).reduce((a,x)=>a + (x.jumlah||0), 0);
+    h += `<div class="card" style="border:2px solid #5a3a22"><h3>📦 Jual stok ke toko ${owner ? '(Owner)' : '· misi harian'}</h3>
+      <p class="note">Beli bahan dari Negara, lalu jual jadi pack menu ke toko ini. Kamu dapat <b>untung 5%</b> dari setiap penjualan. Kalau kas toko kurang, Negara menalangi dan dicatat sebagai utang stok toko (tanpa bunga).</p>
+      ${owner ? '<p class="note">Owner tidak punya misi setor; fokus ke pendapatan & utang di laporan bawah.</p>' : `<p class="note">Misi: <b>${tgt} pack/hari</b>, minimal <b>${mn} pack per menu</b>. Gaji penuh ${N$(gj)} · progres hari ini <b>${tot}/${tgt}</b></p>${bar(Math.min(tot,tgt), tgt)}`}
+      ${menu.map(m=>{ const x = it[m.kode] || {}, j = x.jumlah || 0, md = x.modal || 0, bs = x.bisa ?? 0;
+        return `<div class="jrow"><span style="font-size:30px;flex:none">${m.ikon}</span><span class="jt"><b>${esc(m.nama)}</b><small>Modal ${N$(md)}/pack → jual ${N$(Math.ceil(md*1.05))} · bahan Negara cukup ${bs} pack${owner ? '' : ' · hari ini ' + j + '/' + mn + (j >= mn ? ' ✓' : '')}</small></span>
+          <span style="display:flex;gap:4px;flex:none"><button class="btn" data-setor="${m.kode}|1" ${bs >= 1 ? '' : 'disabled'}>+1</button><button class="btn" data-setor="${m.kode}|10" ${bs >= 10 ? '' : 'disabled'}>+10</button></span></div>`; }).join('')}
+      ${owner ? '' : `<p class="note">Gaji dibayar otomatis 00.00 WIB: 100% (${tgt} pack & tiap menu ≥${mn}) → penuh · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0 → tidak digaji. Bonus target 100% +N$5 · streak 7 hari +N$30 · 30 hari +N$100. Streak: ${BIZ.kerja.streak || 0} hari.</p>`}
       ${rk ? `<p class="note">Kemarin: ${rk.persen}% · gaji ${N$(rk.gaji)}${rk.bonus ? ' + bonus ' + N$(rk.bonus) : ''}</p>` : ''}</div>`;
   }
   // laporan & tombol untuk jabatan tertinggi
   if (lap){
     h += `<div class="card" style="border:2px solid #f2b134"><h3>📊 Laporan bisnis (jabatan tertinggi)</h3>
-      <div class="prow">${pill('Kas toko ' + N$(lap.kas), '#1f3a5f', '#fff')}${pill('Utang ke Negara ' + N$(lap.utang), lap.utang ? '#c62828' : '#2f7d1a', '#fff')}${pill('Penjualan hari ini ' + N$(lap.jual_hari_ini), '#eef1f4', '#1f3a5f')}</div>
-      <p class="note">Kekurangan kas (bahan & gaji) sementara ditanggung Negara sebagai utang dengan bunga 10% per hari. Bayar utang dari kas toko. Setelah utang lunas, kamu boleh menarik 50% kas sekali sehari; sisanya tetap di kas toko.</p>
+      <div class="prow">${pill('Kas toko ' + N$(lap.kas), '#1f3a5f', '#fff')}${pill('Utang berbunga ' + N$(lap.utang), lap.utang ? '#c62828' : '#2f7d1a', '#fff')}${pill('Utang stok (tanpa bunga) ' + N$(lap.utang_stok||0), lap.utang_stok ? '#e67e22' : '#2f7d1a', '#fff')}${pill('Penjualan hari ini ' + N$(lap.jual_hari_ini), '#eef1f4', '#1f3a5f')}${lap.setor_hari_ini != null ? pill('Stok masuk hari ini ' + lap.setor_hari_ini + ' pack', '#eef1f4', '#1f3a5f') : ''}</div>
+      <p class="note">Restock otomatis & stok dari pekerja yang belum terbayar = utang stok tanpa bunga (selama restock otomatis masih jalan). Kekurangan gaji = utang berbunga 10% per hari. Bayar utang dari kas toko. Setelah utang lunas, kamu boleh menarik 50% kas sekali sehari; sisanya tetap di kas toko.</p>
       <div class="prow"><button class="btn" data-bayarutang="${id}" ${lap.utang && lap.kas ? '' : 'disabled'}>💳 Bayar utang</button><button class="btn ghost" data-tarik="${id}" ${lap.boleh_tarik && lap.kas > 1 ? '' : 'disabled'}>💰 Tarik 50% kas</button></div>
-      ${(lap.pekerja || []).map(p=>`<div class="jrow"><span class="jt"><b>${esc(namaW(p.u))}</b><small>${esc(p.posisi)}${p.r ? ' · kemarin ' + p.r.persen + '% · gaji ' + N$(p.r.gaji) : ''}</small></span></div>`).join('')}</div>`;
+      ${(lap.pekerja || []).map(p=>`<div class="jrow"><span class="jt"><b>${esc(namaW(p.u))}</b><small>${esc(p.posisi)}${p.setor != null && id === 'KOPI-NUSAWARA' ? ' · setor hari ini ' + p.setor + ' pack' : ''}${p.r ? ' · kemarin ' + p.r.persen + '% · gaji ' + N$(p.r.gaji) : ''}</small></span></div>`).join('')}</div>`;
   }
   return h;
 }
@@ -4543,6 +4548,11 @@ sheetBody.addEventListener('click', async e=>{
   if (t.dataset.menu){ t.disabled = true; const r = await SB.rpc('beli_menu', {p_user: AKUN.u, p_sandi: AKUN.s, p_menu: t.dataset.menu}).catch(()=>null);
     if (r && r.ok){ popHadiah('⚡ +' + r.stamina_plus); sfx(660, .2, 'sine', .08, 0, 990); toast('😋 ' + r.nama + ' · stamina +' + r.stamina_plus); }
     else toast(ALASAN[r && r.alasan] || (r && r.alasan === 'menu_habis' ? 'Menu habis, bahan di stok Negara belum ada.' : 'Gagal membeli.'));
+    return ulang('KOPI-NUSAWARA'); }
+  if (t.dataset.setor){ const [k, n] = t.dataset.setor.split('|'); t.disabled = true;
+    const r = await SB.rpc('setor_toko', {p_user: AKUN.u, p_sandi: AKUN.s, p_menu: k, p_jumlah: parseInt(n)}).catch(()=>null);
+    if (r && r.ok){ popHadiah('+' + N$(r.untung)); toast(`📦 ${r.jumlah} pack masuk toko · modal ${N$(r.modal)} → dibayar ${N$(r.jual)} · untung ${N$(r.untung)}${r.owner ? '' : ' · hari ini ' + r.total_hari_ini + ' pack'}`); }
+    else toast(ALASAN[r && r.alasan] || 'Gagal menjual ke toko.');
     return ulang('KOPI-NUSAWARA'); }
   if (t.dataset.ktap){ const k = t.dataset.ktap, tg = BIZ.tugas.find(x=>x.kode === k); if (!tg) return;
     KTAP[k] = (KTAP[k] || 0) + 1; sfx(500 + KTAP[k]*20, .04, 'sine', .04); t.textContent = '👆 Tap (' + Math.max(0, tg.klik - KTAP[k]) + ')';
