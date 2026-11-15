@@ -3511,10 +3511,10 @@ const EKO = {
   'EKO-BESI':  {k:'tambang', ikon:'⛏️', kode:'besi',  nama:'Tambang Besi', x:-59, z:118},
   'EKO-HUTAN': {k:'tambang', ikon:'🌲', kode:'hutan', nama:'Hutan Produksi', x:-59, z:164},
   'EKO-PASIR': {k:'tambang', ikon:'🏜️', kode:'pasir', nama:'Tambang Pasir & Batu', x:-59, z:210},
-  'EKO-BAJA':  {k:'pabrik', ikon:'🔩', pabrik:'Pabrik Baja', nama:'Pabrik Baja', x:-75, z:-92},
-  'EKO-KAYU':  {k:'pabrik', ikon:'🪵', pabrik:'Pabrik Kayu', nama:'Pabrik Kayu', x:-47, z:-92},
-  'EKO-MATERIAL': {k:'pabrik', ikon:'🧱', pabrik:'Pabrik Material', nama:'Pabrik Material', x:-75, z:-116},
-  'EKO-BETON': {k:'pabrik', ikon:'🏗️', pabrik:'Pabrik Beton', nama:'Pabrik Beton', x:-47, z:-116},
+  'EKO-BAJA':  {k:'pabrik', ikon:'🔩', pabrik:'Pabrik Baja', nama:'Pabrik Baja', x:-75, z:-93},
+  'EKO-KAYU':  {k:'pabrik', ikon:'🪵', pabrik:'Pabrik Kayu', nama:'Pabrik Kayu', x:-47, z:-92.5},
+  'EKO-MATERIAL': {k:'pabrik', ikon:'🧱', pabrik:'Pabrik Material', nama:'Pabrik Material', x:-75, z:-117.5},
+  'EKO-BETON': {k:'pabrik', ikon:'🏗️', pabrik:'Pabrik Beton', nama:'Pabrik Beton', x:-47, z:-117},
   'EKO-PRN':   {k:'pasar', nama:'Pasar Republik Nusawara (PRN)', x:18, z:-86, ada:1}   // gedung Garuda di Distrik Pusat
 };
 (()=>{
@@ -3628,7 +3628,7 @@ const EKO = {
       box(3,3,.15,0xffffff,7,H-1.3,D/2+3.5,g); papan('BETON', 2.8, .9, '#ffffff', '#2f3236', 7, H-1.3, D/2+3.6, g);
       papan('PABRIK BETON', 7, .8, '#2f3236', '#ffffff', -4, H-2.4, D/2+3.48, g);
       cyl(1.3,1.3,7,0xdfe3e7,W/2+1.8,3.5,-3,g); cyl(1.3,1.3,7,0xdfe3e7,W/2+1.8,3.5,1,g);
-      truk(-7, D/2+7, 0xf2b134, g, Math.PI/2); },
+      truk(-7, D/2+2.6, 0xf2b134, g, Math.PI); },
     // 4. Pabrik Material: aula putih besar, rangka "V" putih membingkai kaca gelap
     'EKO-MATERIAL': g=>{ const W = 22, D = 14, H = 7;
       box(W,H,D,0xf3f4f5,0,H/2,0,g);
@@ -3645,6 +3645,10 @@ const EKO = {
   for (const id in EKO){ const e = EKO[id]; if (e.ada) continue;
     const g = new THREE.Group(); g.position.set(e.x, 0, e.z); scene.add(g); BUAT[id](g);
     const L = label(e.ikon ? e.ikon + ' ' + e.nama.toUpperCase() : e.nama.toUpperCase(), {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); L.position.set(0, e.k === 'pabrik' ? 11 : 18, e.k === 'tambang' ? 6 : 0); g.add(L);
+    if (e.k === 'pabrik'){ const UK = {'EKO-BAJA':[20,13], 'EKO-KAYU':[18,12], 'EKO-MATERIAL':[22,14], 'EKO-BETON':[20,13]}[id];   // tempat parkir di depan pabrik: lebar 4 = 1x lebar jalan, menghadap +z
+      if (UK){ const [W,D] = UK; box(W+2,.1,4,0x626a75,0,.085,D/2+2,g); const n = Math.floor((W+2)/3.2);
+        for (let i=0;i<=n;i++) box(.14,.03,3.4,0xffffff,-(W+2)/2+.1+i*((W+1.8)/n),.15,D/2+2,g);
+        box(.12,2,.12,0x9aa0a6,-W/2-.2,1,D/2+3.9,g); papan('P', 1.1, 1.1, '#1f5fbf', '#ffffff', -W/2-.2, 2.3, D/2+3.9, g); } }
     g.userData = {type:'eko', data:{id}}; pickables.push(g); e.g = g; }
   const pl = label('🏪 PASAR REPUBLIK NUSAWARA (PRN)', {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); pl.position.set(18, 30, -78); scene.add(pl);
 })();
