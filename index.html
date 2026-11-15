@@ -309,7 +309,7 @@ if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.s
       <li>Isi <b>username Instagram</b>-mu, buat <b>Kata Sandi Warga</b> 🔑 (6–20 huruf/angka, rahasia), lalu kirim.</li>
       <li>Kamu dapat <b>NIWN</b> dan resmi jadi WRN. 🎉 Cari username-mu di peta untuk melihat <b>Kartu Warga</b> dan karaktermu yang berjalan di kota.</li>
       <li>Pakai Kata Sandi Warga untuk <b>mengganti gaya karakter</b> (rambut, baju, celana, sepatu, aksesoris). Kamu juga bisa <b>memainkan karaktermu</b> dan mengganti kata sandi sendiri.</li>
-      <li>Karakter warga baru menunggu di <b>Pelabuhan Nusawara</b> 🛳️. Setelah status <b>follow</b> dicek dan dinyatakan sudah follow, karaktermu masuk ke kota lewat Gerbang Imigrasi.</li>
+      <li>Karaktermu langsung bebas berjalan di kota. Tidak ada pagar di Pelabuhan.</li>
       <li>Mau ikut <b>Undian Rumah</b>? <b>Follow</b> akun Republik Nusawara. Pemenangnya dapat <b>tanah</b> dan bebas mendesain rumahnya (rumah/ruko dengan billboard, disetujui Presiden).</li>
     </ol>
     <p class="note">Semua identitas dan kepemilikan di Nusawara bersifat virtual, bukan dokumen resmi.</p>
@@ -1105,19 +1105,15 @@ function fenceLine(xa,za,xb,zb){
     [.7,1.5,2.2].forEach(h=>{ const r = box(.12,.12,L/n,FRAIL,x,b+h,z); r.rotation.y = ang; });
     for (let k=1;k<6;k++){ const t = (i + k/6)/n, bx = xa+(xb-xa)*t, bz = za+(zb-za)*t; box(.08,1.6,.08,FRAIL,bx,yb(bx)+1.45,bz); } }
 }
-fenceLine(HB.x0,HB.z0,HB.x1,HB.z0); fenceLine(HB.x0,HB.z1,HB.x1,HB.z1);
-fenceLine(HB.x1,HB.z0,HB.x1,HB.gz-HB.gw); fenceLine(HB.x1,HB.gz+HB.gw,HB.x1,HB.z1);
+// pagar pelabuhan dihapus (semua warga bebas keluar-masuk)
 // pilar gerbang
-[-1,1].forEach(s=>{ box(.9,3.6,.9,0xf4f1ea,HB.x1,1.8,HB.gz+s*HB.gw); box(1.1,.3,1.1,0xd2463c,HB.x1,3.75,HB.gz+s*HB.gw); });
+
 // palang gerbang (naik saat warga yang sudah follow lewat)
-const GATE_ARM = new THREE.Group(); GATE_ARM.position.set(HB.x1, 1.7, HB.gz+HB.gw-.4); scene.add(GATE_ARM);
-for (let i=0;i<6;i++) box(.22,.22,1.02,i%2?0xffffff:0xd2463c,0,0,-.55-i*1.02,GATE_ARM);
+const GATE_ARM = new THREE.Group();
 let gateOpen = 0;
 // pos imigrasi
 box(3.4,2.6,3,0xf6f5f1,HB.x1-4.2,1.3,HB.gz-6.2); box(3.8,.3,3.4,0x1f3a5f,HB.x1-4.2,2.75,HB.gz-6.2);
 box(.1,1,2,0x8fc7dc,HB.x1-2.45,1.6,HB.gz-6.2);
-const gateLbl = label('🛂 GERBANG IMIGRASI', {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); gateLbl.position.set(HB.x1, 5.6, HB.gz); scene.add(gateLbl);
-const gateLbl2 = label('Belum follow? Tunggu di Pelabuhan', {h:1, size:28, bg:'rgba(242,177,52,.95)', fg:'#3a2600'}); gateLbl2.position.set(HB.x1, 4.4, HB.gz); scene.add(gateLbl2);
 
 /* ---------- DISTRIK BERIKUTNYA (SEDANG DIBANGUN) ---------- */
 const FUTURE = EMPTY_MAP ? [] : [
@@ -1442,9 +1438,7 @@ COLL.push([18,-9,6,.3]);      // backdrop
 COLL.push([18,-5.2,.65,.45]); // podium
 COLL.push([29,-4,.25,.25]);   // tiang bendera
 // pagar pelabuhan (celah gerbang dibiarkan terbuka; warga yang belum follow ditahan di updateCtl)
-COLL.push([(HB.x0+HB.x1)/2, HB.z0, (HB.x1-HB.x0)/2, .25], [(HB.x0+HB.x1)/2, HB.z1, (HB.x1-HB.x0)/2, .25],
-  [HB.x1, (HB.z0+HB.gz-HB.gw)/2, .3, (HB.gz-HB.gw-HB.z0)/2], [HB.x1, (HB.gz+HB.gw+HB.z1)/2, .3, (HB.z1-HB.gz-HB.gw)/2],
-  [HB.x1-4.2, HB.gz-6.2, 1.7, 1.5],   // pos imigrasi
+COLL.push([HB.x1-4.2, HB.gz-6.2, 1.7, 1.5],   // pos imigrasi
   [-64, -18, 13, 11]);                // gedung terminal
 // Rumah contoh tidak lagi dipasang di peta (keputusan Bapak Presiden).
 // Desainnya tetap tersedia sebagai "Desain siap pakai" di formulir Kirim Desain:
@@ -2140,7 +2134,7 @@ const SANDI = {};          // username -> Kata Sandi Warga (khusus tampilan pemi
 let drawing = false, show = null;
 const niwn6 = n => String(n||'').replace(/^NUS-/,'');
 const entryText = w => `${w.username} - ${niwn6(w.niwn)}`;
-const isFollow = f => f === true || f === 'Yes';
+const isFollow = f => true;   // semua warga otomatis Yes (tanpa pagar pelabuhan)
 
 const uStyle = document.createElement('style');
 uStyle.textContent = `
@@ -3374,6 +3368,7 @@ window.nusawaraChatKirim = async ({k, u, t}) => {
 
 /* ---------- AKUN WARGA: saldo Nusa (N$), tas, absen harian ---------- */
 // Semua hitungan saldo & hadiah ada di server Supabase (akun_saya, klaim_absen); website hanya menampilkan.
+const TAMU = {u:null, s:null};
 const AKUN = {u:null, s:null, data:null}, BARANG = []; let KAS = 0;
 const N$ = n => 'N$' + Number(n||0).toLocaleString('id-ID');
 const akunBtn = document.getElementById('akunBtn');
@@ -3447,7 +3442,7 @@ function ambulansMulai(){ AMB.visible = true; }
     pingEl.textContent = '🏥 Dirawat di Rumah Sakit · pulih dalam ' + mmss(Math.ceil(sisa/1000)); }
   else { pingEl.textContent = '🏥 Hampir pulih…'; pos = RSP.clone(); if (!PING.cek){ PING.cek = 1; akunMuat(); } }
   AMB.visible = true; pingEl.style.display = 'block'; const dx = pos.x - AMB.position.x, dz = pos.z - AMB.position.z; if (dx*dx + dz*dz > .0001) AMB.rotation.y = Math.atan2(dx, dz); AMB.position.copy(pos); })();
-function akunTombol(){ hudTampil(); akunBtn.textContent = AKUN.data ? '💰 ' + N$(AKUN.data.saldo) : '🔑 Masuk'; akunBtn.classList.toggle('in', !!AKUN.data); }
+function akunTombol(){ hudTampil(); akunBtn.textContent = AKUN.data ? '💰 ' + N$(AKUN.data.saldo) : TAMU.u ? '🌍 ' + TAMU.u : '🔑 Masuk'; akunBtn.classList.toggle('in', !!AKUN.data); }
 function popHadiah(t){ const el = document.createElement('div'); el.className = 'pop'; el.textContent = t; document.body.appendChild(el);
   requestAnimationFrame(()=>el.classList.add('show')); setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 400); }, 1500); }
 async function akunMuat(){
@@ -3460,12 +3455,15 @@ async function akunMuat(){
     const pLama = AKUN.data && AKUN.data.pingsan; AKUN.data = r; akunTombol(); AKUN.at = Date.now(); darahCek(pLama); if (sheet.classList.contains('open') && sheetFn && (sheetFn === akunHTML || sheetFn.eko)) sheetBody.innerHTML = sheetFn(); return true;
   } catch(_) { return false; }
 }
-function akunKeluar(diam){ AKUN.u = AKUN.s = AKUN.data = null; try { localStorage.removeItem('nusawara_akun'); } catch(_) {} akunTombol();
+function akunKeluar(diam){ AKUN.u = AKUN.s = AKUN.data = null; TAMU.u = TAMU.s = null; try { localStorage.removeItem('nusawara_akun'); } catch(_) {} akunTombol();
   if (!diam){ closeSheet(); toast('Kamu sudah keluar.'); } }
 const HADIAH_HARI = d => d <= 2 ? 50 : d <= 5 ? 75 : 100;
 function masukHTML(){ if (GINFO) return gHTML(); return `<div class="kicker">Akun Warga</div><h2>🔑 Masuk</h2>
   <p style="font-size:14px;line-height:1.5">Semua warga wajib <b>masuk dengan Gmail</b> terlebih dahulu. Warga lama: setelah masuk Gmail, tautkan akunmu (NIWN, saldo, tas, dan tanah tetap sama).</p>
   <button class="btn" data-google style="background:#fff;color:#1f2227;border:1px solid #ccd;display:flex;align-items:center;justify-content:center;gap:8px"><b style="color:#4285f4;font-size:18px">G</b> Masuk dengan Gmail</button>
+  <div style="text-align:center;margin:12px 0 0;color:#667;font-size:12px">— atau —</div>
+  ${TAMU.u ? `<div class="card"><h3>🌍 Warga Asing · ${esc(TAMU.u)}</h3><p class="note">Kamu bisa menambang untuk Negara, tanpa N$ dan tanpa akun.</p><button class="btn ghost" data-tamu-keluar>Keluar</button></div>` : `<div class="card"><h3>🌍 Jalan-jalan sebagai Warga Asing</h3><p class="note">Tanpa Gmail dan tanpa akun. Cukup isi nama dan kata sandi bebas. Kamu boleh membantu misi (menambang untuk Negara), tetapi tidak mendapat N$.</p>
+  <form id="tmF"><input id="tmU" placeholder="Username" autocapitalize="none" autocorrect="off" spellcheck="false" style="font:inherit;font-size:17px;padding:12px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box;margin:6px 0 8px">${pwInput('tmP','Kata sandi')}<button class="btn" style="margin-top:4px">Masuk sebagai Warga Asing</button></form><p class="note" id="tmM"></p></div>`}
   <button class="btn ghost" data-cara>📖 Cara Main di Republik Nusawara</button>`; }
 function masukLamaHTML(){ return `<div class="kicker">Akun Warga</div><h2>🔑 Masuk</h2>
   <p style="font-size:14px;line-height:1.5;margin:0 0 6px">Masuk dengan <b>username Instagram</b> dan <b>Kata Sandi Warga</b> untuk mengumpulkan Nusa (N$), absen harian, dan melihat isi tasmu.</p>
@@ -3589,6 +3587,7 @@ function pergiKe(t){
 /* ketuk ikon tambang = langsung menambang (tanpa membuka halaman) */
 let TBG_LOCK = 0;
 function tambangOtomatis(id){
+  if (!AKUN.data && TAMU.u) return tambangTamu(id);
   const e = EKO[id]; if (!e || e.k !== 'tambang' || !AKUN.data) return false;
   const t = TAMBANG.find(x=>x.kode === e.kode); if (!t) return false;
   const b = brg(t.barang), st = (AKUN.data.tambang && AKUN.data.tambang[t.kode]) || {kali:0}, sisa = sisaDetik(t.kode);
@@ -3600,6 +3599,25 @@ function tambangOtomatis(id){
   ekoAksi({}, 'menambang', {p_tambang: t.kode}, r=>{ const bb = brg(r.barang);
     popHadiah('+' + r.jumlah + ' ' + bb.ikon); sfx(220, .12, 'square', .07, 0, 140);
     toast(`${bb.ikon} +${r.jumlah} ${bb.nama} masuk tas · ⚡−${t.stamina} · hari ini ${st.kali + 1}/${t.batas_harian}`); }).finally(()=>{ TBG_LOCK = 0; });
+  return true;
+}
+/* ---------- WARGA ASING (tamu): tanpa akun, tanpa N$ ---------- */
+sheetBody.addEventListener('submit', e=>{
+  if (e.target.id !== 'tmF') return; e.preventDefault();
+  const u = String(document.getElementById('tmU').value||'').trim().replace(/[^A-Za-z0-9_.]/g,'').slice(0,30), p = String(document.getElementById('tmP').value||''), m = document.getElementById('tmM');
+  if (u.length < 2) { m.textContent = '❌ Username minimal 2 huruf/angka.'; return; }
+  if (!p) { m.textContent = '❌ Isi kata sandi.'; return; }
+  TAMU.u = u; TAMU.s = p; akunTombol(); sheetBody.innerHTML = masukHTML(); toast('🌍 Selamat datang, Warga Asing ' + u + '! Ketuk ikon tambang untuk membantu Negara.');
+});
+sheetBody.addEventListener('click', e=>{ if (e.target.closest('[data-tamu-keluar]')) { akunKeluar(); } });
+function tambangTamu(id){
+  const e = EKO[id]; if (!e || e.k !== 'tambang' || !TAMU.u) return false;
+  const t = TAMBANG.find(x=>x.kode === e.kode); if (!t) return false;
+  if (TBG_LOCK) return true; TBG_LOCK = 1;
+  SB.rpc('tambang_tamu', {p_nama: TAMU.u, p_sandi: TAMU.s, p_tambang: t.kode}).then(r=>{
+    if (r && r.ok){ const bb = brg(r.barang); popHadiah('+' + r.jumlah + ' ' + bb.ikon); sfx(220, .12, 'square', .07, 0, 140); toast(`${bb.ikon} +${r.jumlah} ${bb.nama} disumbangkan ke Negara · Warga Asing tidak mendapat N$`); }
+    else toast(r && r.alasan === 'tunggu' ? `⏳ Tunggu ${r.sisa} detik lagi` : 'Gagal. Coba lagi.');
+  }).catch(()=>toast('Jaringan bermasalah.')).finally(()=>{ TBG_LOCK = 0; });
   return true;
 }
 /* tutorial pertama kali masuk */
