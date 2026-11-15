@@ -3240,13 +3240,13 @@ function hudHTML(d){
   return `<div class="r"><span>❤️ Darah · ${ds}</span><span>${dh}/100</span></div><div class="b"><i style="width:${Math.min(100, dh)}%;background:${dc}"></i></div>
     <div class="r"><span>⚡ Stamina</span><span>${dasar}${ekstra ? '+' + ekstra : ''}/${cap}</span></div>
     <div class="b"><i style="width:${dasar/tot*100}%;background:#f2b134"></i><i style="width:${ekstra/tot*100}%;background:#ff7a1a"></i></div>
-    <div class="r"><span>🟢 Kapasitas Lv ${d.lv || 0}${d.xp_perlu ? '' : ' MAX'}</span><span>${d.xp_perlu ? (d.xp||0) + '/' + d.xp_perlu + ' EXP' : 'maks ' + cap}</span></div>
+    <div class="r"><span>🟢 EXP Stamina · Kap. Lv ${d.lv || 0}${d.xp_perlu ? '' : ' MAX'}</span><span>${d.xp_perlu ? (d.xp||0) + '/' + d.xp_perlu + ' EXP' : 'maks ' + cap}</span></div>
     <div class="b k"><i style="width:${xpP}%;background:#2fb57a"></i></div>
-    <div class="r"><span>${gelar(d.level).ikon} Lv ${d.level || 1}${d.exp_target ? '' : ' MAX'}</span><span>${d.exp_target ? (d.exp||0) + '/' + d.exp_target + ' EXP' : 'Level maksimum'}</span></div>
+    <div class="r"><span>🔵 EXP Warga · ${gelar(d.level).ikon} Lv ${d.level || 1}${d.exp_target ? '' : ' MAX'}</span><span>${d.exp_target ? (d.exp||0) + '/' + d.exp_target + ' EXP' : 'Level maksimum'}</span></div>
     <div class="b"><i style="width:${d.exp_target ? Math.min(100, (d.exp||0)/d.exp_target*100) : 100}%;background:#2a7de1"></i></div>`; }
 function expBar(){ const e = document.getElementById('expbar'); if (!e) return; const d = AKUN.data; document.body.classList.toggle('expon', !!d); if (!d){ e.style.display = 'none'; return; }
   e.style.display = 'block'; const t = d.exp_target, x = d.exp || 0; e.querySelector('i').style.width = (t ? Math.min(100, x/t*100) : 100) + '%';
-  e.querySelector('span').textContent = t ? `${gelar(d.level).ikon} Lv ${d.level || 1} ${gelar(d.level).nama} · ${x}/${t} EXP · ${Math.floor(x/t*100)}%` : `${gelar(d.level).ikon} Lv ${d.level} ${gelar(d.level).nama} · MAKSIMUM`; }
+  e.querySelector('span').textContent = t ? `🔵 EXP Warga · ${gelar(d.level).ikon} Lv ${d.level || 1} ${gelar(d.level).nama} · ${x}/${t} · ${Math.floor(x/t*100)}%` : `${gelar(d.level).ikon} Lv ${d.level} ${gelar(d.level).nama} · MAKSIMUM`; }
 function hudTampil(){ const h = document.getElementById('hud'); if (!h) return; if (!AKUN.data){ h.style.display = 'none'; expBar(); return; } h.style.display = 'block'; h.innerHTML = hudHTML(AKUN.data); expBar(); }
 setInterval(()=>{ if (AKUN.u && !document.hidden) akunMuat(); }, 60000);
 { const _rpc = SB.rpc.bind(SB);
@@ -3586,7 +3586,7 @@ sheetBody.addEventListener('click', e=>{
   if (t.dataset.pergi){ const e2 = t.dataset.pergi === 'kebun' ? {x:18, z:-220} : t.dataset.pergi === 'kavling' ? {x:18, z:-160} : t.dataset.pergi === 'donasi' ? {x:7, z:-6} : t.dataset.pergi === 'prn' ? EKO['EKO-PRN'] : t.dataset.pergi === 'tambang' ? {x:-59, z:150} : {x:-62, z:-100}; closeSheet();
     flyTo(new THREE.Vector3(e2.x, 2, e2.z), (t.dataset.pergi === 'tambang' || t.dataset.pergi === 'kebun') ? new THREE.Vector3(e2.x + 70, 80, e2.z + 40) : new THREE.Vector3(e2.x + 10, 30, e2.z + 38)); return; }
   if (t.dataset.tambang) ekoAksi(t, 'menambang', {p_tambang: t.dataset.tambang}, r=>{ const b = brg(r.barang);
-    popHadiah('+' + r.jumlah + ' ' + b.ikon); sfx(220, .12, 'square', .07, 0, 140); toast(`${b.ikon} +${r.jumlah} ${b.nama} masuk tas · +1 EXP`); });
+    popHadiah('+' + r.jumlah + ' ' + b.ikon); sfx(220, .12, 'square', .07, 0, 140); toast(`${b.ikon} +${r.jumlah} ${b.nama} masuk tas · 🔵 +1 EXP Warga`); });
   if (t.dataset.olah){ const n = Math.max(1, parseInt((document.getElementById('q-' + t.dataset.olah)||{}).value) || 1);
     ekoAksi(t, 'olah_bahan', {p_resep: t.dataset.olah, p_kali: n}, r=>{ const b = brg(r.barang);
       popHadiah('+' + r.jumlah + ' ' + b.ikon); sfx(440, .15, 'triangle', .07, 0, 660); toast(`${b.ikon} +${r.jumlah} ${b.nama} masuk tas`); }); }
@@ -4037,8 +4037,8 @@ sheetBody.addEventListener('click', async e=>{
   if (TAP[k] < tg.klik) return;
   t.disabled = true; TAP[k] = 0;
   try { const r = await SB.rpc('kerja_negara', {p_user: AKUN.u, p_sandi: AKUN.s, p_kode: k});
-    if (r && r.ok){ const b = brg(r.barang); popHadiah('🟢 +' + r.poin + ' poin'); sfx(660, .2, 'triangle', .08, 0, 990);
-      toast(`✅ ${tg.nama} selesai! +${r.poin} poin stamina · ${r.jumlah} ${b.ikon} masuk ${tg.ke_tas ? 'tasmu' : 'stok Negara'}`);
+    if (r && r.ok){ const b = brg(r.barang); popHadiah('🔵 +1 EXP · 🟢 +' + r.poin); sfx(660, .2, 'triangle', .08, 0, 990);
+      toast(`✅ ${tg.nama} selesai! ${r.jumlah} ${b.ikon} masuk ${tg.ke_tas ? 'tasmu' : 'stok Negara'} · 🔵 +1 EXP Warga · 🟢 +${r.poin} EXP Stamina`);
       if (AKUN.data){ Object.assign(AKUN.data, {lv: r.lv, xp: r.xp, xp_perlu: r.xp_perlu, kapasitas: r.kapasitas, stamina: r.stamina}); hudTampil(); } }
     else toast(r && r.alasan === 'tunggu' ? '⏳ Belum bisa, tunggu sebentar.' : 'Gagal. Coba lagi.');
   } catch(_) { toast('Jaringan bermasalah. Coba lagi.'); }
