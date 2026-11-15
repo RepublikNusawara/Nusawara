@@ -794,6 +794,7 @@ function makeBengkelKaca(h){
   [[-6.4,zf+1.0],[-3.4,zf+1.0],[-1.7,zf+1.2],[2.6,zf+1.0],[6.4,zf+1.0]].forEach(([x,z])=>{ box(.8,.7,.8,0x8d949b,x,.65,z,g); const b = new THREE.Mesh(new THREE.SphereGeometry(.65,8,6), M(0x3f9d3a)); b.position.set(x,1.4,z); g.add(b); });
   papanT(h.id || 'BKT-MAWAR-002', 2.0, .42, '#1f2227', '#ffffff', 6.0, .6, zf+1.6, g);
   finishHouse(h, g);
+  g.position.set(70, 0, -69.5);   // ruko = toko bisnis: ditaruh di Area Bisnis (baris toko 2, menghadap selatan, parkir di depan)
 }
 Object.assign(DESAIN, {modern: makeModern, kaca: makeKaca, foto: makeFoto, merah: makeMerah, bengkel_kaca: makeBengkelKaca});
 function makeHouse(h){ if (h.status === 'tanah') return makePlot(h); return (DESAIN[h.desain] || makeRuko)(h); }
@@ -4138,7 +4139,7 @@ const TEMPAT = {
   kebun_buah:   {nama:'Kebun Buah', ikon:'🍓', x:96, z:-188},
   kebun_teh:    {nama:'Kebun Teh', ikon:'🌿', x:96, z:-236},
   pabrik_farmasi:{nama:'Pabrik Farmasi Nusawara', ikon:'💊', x:-62, z:-349},
-  gym:          {nama:'Gym Nusawara', ikon:'🏋️', x:116, z:-31.75}
+  gym:          {nama:'Gym Nusawara', ikon:'🏋️', x:116, z:-35.25}
 };
 (()=>{
   const C = (r,h,c,x,y,z,g,seg=12,rt) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt ?? r, r, h, seg), M(c)); m.position.set(x,y,z); m.castShadow = true; g.add(m); return m; };
@@ -4466,7 +4467,7 @@ sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-main]
   document.getElementById('tallyClose').addEventListener('click', ()=>w.classList.remove('open'));
 })();
 // ---------- RUMAH SAKIT NUSAWARA (usulan warga @ma____rtunis1961, dibangun DAY 2) ----------
-(()=>{ const HX = 163, HZ = -35, HS = new THREE.Group(); HS.position.set(HX, 0, HZ); scene.add(HS);
+(()=>{ const HX = 163, HZ = -38.5, HS = new THREE.Group(); HS.position.set(HX, 0, HZ); scene.add(HS);
   const hb = (w,h,d,c,x,y,z,par) => box(w,h,d,c,x,y,z,par||HS);
   hb(30,.12,24,0x7fb55a,0,.06,1); hb(12,.14,9,0xd9d2c3,0,.08,10.5);
   [[-11,9],[11,9],[-13,-6],[13,-6],[-13,3],[13,3]].forEach(([x,z])=>{ hb(.5,1.6,.5,0x6b4a2e,x,.8,z); hb(2.2,2.2,2.2,0x3f8d40,x,2.6,z); });
@@ -4527,10 +4528,9 @@ function buildKopi(par, x, z){
   [[-7.6,1.6],[7.6,1.6],[-7.6,-6],[7.6,-6]].forEach(([X,Z])=>{ kb(.8,.7,.8,0x8b5a35,X,.35,Z); kb(.9,.9,.9,0x3f8d40,X,1.15,Z); });
   return G;
 }
-const KOPI = buildKopi(scene, 70, -29.5);
+const KOPI = buildKopi(scene, 70, -33);
 KOPI.userData = {type:'fasilitas', data:{id:'KOPI-NUSAWARA'}}; pickables.push(KOPI);
-if (typeof COLL !== 'undefined') COLL.push([70, -32, 6.4, 4.4]);
-box(17,.12,5,0x4b5059, 68,.07,-20.3);                               // jalan masuk dari jalan timur
+if (typeof COLL !== 'undefined') COLL.push([70, -35.5, 6.4, 4.4]);
 
 // ---------- AKADEMI NUSAWARA (usulan warga @carmecar._, dibangun DAY 4) ----------
 function buildSekolah(par, x, z){
@@ -4596,10 +4596,9 @@ function buildSekolah(par, x, z){
   [[-12.4,3],[12.4,3],[-12.4,-6],[12.4,-6]].forEach(([X,Z])=>{ sb(.5,1.8,.5,0x7a4a24,X,.9,Z); const t = new THREE.Mesh(new THREE.SphereGeometry(1.5,12,10), M(0x62b83b)); t.position.set(X,2.8,Z); t.castShadow = true; G.add(t); });
   return G;
 }
-const SEKOLAH = buildSekolah(scene, 194, -30.6);
+const SEKOLAH = buildSekolah(scene, 194, -34.1);
 SEKOLAH.userData = {type:'fasilitas', data:{id:'SEKOLAH-NUSAWARA'}}; pickables.push(SEKOLAH);
-if (typeof COLL !== 'undefined') COLL.push([194, -32.1, 11.4, 4.6]);
-box(8,.12,5,0x4b5059, -23,.07,-20.3);                               // jalan masuk dari jalan barat
+if (typeof COLL !== 'undefined') COLL.push([194, -35.6, 11.4, 4.6]);
 
 // ---------- LOWONGAN KERJA DI FASILITAS ----------
 const FAS = {
@@ -4629,7 +4628,7 @@ function facBoard(id, title, sub, bg, fg, w, hh, x, y, z, g){
   facBoard('KOPI-NUSAWARA', 'KOPI NUSAWARA', 'Ngopi bareng warga, yuk!', '#3b2618', '#f2b134', 6.6, 3.6, -3, 7.7, -4.5, KOPI);
   facBoard('SEKOLAH-NUSAWARA', 'AKADEMI NUSAWARA', 'Belajar bareng warga!', '#c8101f', '#ffffff', 5.6, 3, -7.6, 9.4, -4.5, SEKOLAH);
   // Toko Matcha (area fasilitas)
-  const MG = new THREE.Group(); MG.position.set(88, 0, -28); scene.add(MG);
+  const MG = new THREE.Group(); MG.position.set(88, 0, -31.5); scene.add(MG);
   box(14,.3,12,0xd9d2c3,0,.15,0,MG); box(11,4.2,8,0xf3f7ef,0,2.4,-1,MG); box(11.6,.5,8.6,0x2f6f3a,0,4.75,-1,MG);
   box(9,2.6,.1,new THREE.MeshPhongMaterial({color:0xffe2a8, emissive:0x553300, shininess:80}),0,1.8,3.06,MG);
   for (let i=0;i<8;i++){ const a = box(1.4,.15,1.8,i%2 ? 0xffffff : 0x2f6f3a,-4.9+i*1.4,3.9,3.8,MG); a.rotation.x = .35; }
@@ -4822,7 +4821,7 @@ sheetBody.addEventListener('click', async e=>{
     catch(_){ toast('Gagal tersambung.'); } }
 });
 // saat warga memainkan karakternya: ketuk gedung, atau tekan tombol yang muncul saat berada di dekat gedung
-const FAS_POS = {'RS-NUSAWARA':[163,-35,22], 'KOPI-NUSAWARA':[70,-29.5,19], 'SEKOLAH-NUSAWARA':[194,-30.6,20]};
+const FAS_POS = {'RS-NUSAWARA':[163,-38.5,22], 'KOPI-NUSAWARA':[70,-33,19], 'SEKOLAH-NUSAWARA':[194,-34.1,20]};
 function openFasPlay(id){ if (typeof ctl !== 'undefined' && ctl.key){ Object.keys(ctl.d).forEach(k=>ctl.d[k] = 0); ctl.run = false; document.body.classList.add('fas-open'); } openSheet(()=>fasHTML(id)); }
 function fasTap(e){
   ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr, camera);
@@ -4882,17 +4881,24 @@ function loop(){
 loop();
 })();
 
-/* ---------- KAWASAN TIMUR PODIUM: Area Bisnis + Area Fasilitas Negara (satu baris, menghadap +z, jalan & parkir di depan) ---------- */
+/* ---------- KAWASAN TIMUR PODIUM: Area Bisnis + Area Fasilitas Negara ---------- */
+// Aturan: lebar jalan = 5 (sama dengan jalan timur). Parkir di depan = 1x lebar jalan. Di belakang bangunan ada ruang 1x lebar jalan, lalu jalan aspal,
+// lalu parkir 1x lebar jalan, lalu baris bangunan berikutnya (semua menghadap selatan/+z). Semua jalan tersambung lewat jalan timur & jalan penghubung utara-selatan.
 (()=>{
-  const ZF = -22;                                     // garis depan semua bangunan
-  box(152,.12,4,0x4b5059,134,.07,-16);                // jalan raya (lebar 4)
-  for (let x=60;x<210;x+=7) box(3,.03,.18,0xffffff,x,.14,-16);
-  const SLOT = [[70,17],[88,14],[116,36],[163,30],[194,26]];   // [x tengah, lebar]
-  SLOT.forEach(([cx,w])=>{ box(w,.1,4,0x626a75,cx,.085,ZF+2);   // tempat parkir selebar jalan (4)
-    const n = Math.max(2, Math.floor(w/3.2)); for (let i=0;i<=n;i++) box(.14,.03,3.4,0xffffff,cx-w/2+.1+i*((w-.2)/n),.15,ZF+2); });
-  const lb = (t,x)=>{ const l = label(t, {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); l.position.set(x, 16, -38); scene.add(l); };
-  lb('🛍️ KAWASAN BISNIS NUSAWARA', 93); lb('🏛️ KAWASAN FASILITAS NEGARA', 178);
-  box(.3,.12,4,0xf2b134,141,.1,ZF+2);                 // pembatas antar-kawasan
+  const RW = 5, RD = 0x4b5059, PK = 0x626a75;
+  const jalan = (x0,x1,z)=>{ box(x1-x0,.12,RW,RD,(x0+x1)/2,.07,z); for (let x=x0+3;x<x1-2;x+=7) box(3,.03,.18,0xffffff,x,.14,z); };
+  const jalanZ = (x,z0,z1)=>{ box(RW,.12,z1-z0,RD,x,.07,(z0+z1)/2); for (let z=z0+3;z<z1-2;z+=7) box(.18,.03,3,0xffffff,x,.14,z); };
+  jalan(61,216,-18);                                   // jalan timur diperpanjang (tersambung ke jalan timur lama & lingkaran podium)
+  jalanZ(58,-104,-18);                                 // jalan penghubung utara-selatan -> baris toko -> blok kavling umum (menyambung ke jalan antar blok z=-104)
+  jalan(58,142,-58);                                   // jalan baris toko 2
+  jalan(58,142,-83);                                   // jalan baris toko 3
+  const parkir = (cx,w,zc)=>{ box(w,.1,RW,PK,cx,.085,zc); const n = Math.max(2, Math.floor(w/3.2)); for (let i=0;i<=n;i++) box(.14,.03,RW-.6,0xffffff,cx-w/2+.1+i*((w-.2)/n),.15,zc); };
+  [[70,17],[88,14],[116,36],[163,30],[194,26]].forEach(([cx,w])=>parkir(cx,w,-23));                 // baris 1: Kopi, Matcha, Gym | RS, Sekolah
+  [[70,14],[90,16],[110,16],[130,16]].forEach(([cx,w])=>parkir(cx,w,-63));                         // baris 2: Bengkel Kaca + 3 toko modern
+  [70,82,94,106,118].forEach(cx=>parkir(cx,8,-88));                                                // baris 3: 5 toko kecil
+  const lb = (t,x,z)=>{ const l = label(t, {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); l.position.set(x, 16, z); scene.add(l); };
+  lb('🛍️ KAWASAN BISNIS NUSAWARA', 98, -53); lb('🏛️ KAWASAN FASILITAS NEGARA', 178, -53); lb('🏬 KAVLING TOKO', 100, -103);
+  box(.3,.12,RW,0xf2b134,141,.1,-23);                  // pembatas antar-kawasan
 })();
 </script>
 </body>
