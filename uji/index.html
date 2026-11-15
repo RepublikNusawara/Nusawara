@@ -3774,13 +3774,17 @@ sheetBody.addEventListener('click', async e=>{
   if (t.dataset.jualbahan){ const k = t.dataset.jualbahan, inp = document.getElementById('jb-' + k), n = Math.max(1, parseInt(inp && inp.value) || 1);
     const fid = Object.keys(BIZ.misi).find(b=>((BIZ.misi[b] || {}).bahan || []).some(x=>x.kode === k)) || 'KOPI-NUSAWARA'; t.disabled = true;
     const r = await SB.rpc('jual_bahan_toko', {p_user: AKUN.u, p_sandi: AKUN.s, p_bisnis: fid, p_barang: k, p_jumlah: n}).catch(()=>null);
-    if (r && r.ok){ const mb = BIZ.misi[fid]; if (mb){ const bx = (mb.bahan || []).find(x=>x.kode === k); if (bx){ bx.jual += r.jumlah; bx.punya = Math.max(0, bx.punya - r.jumlah); bx.toko += r.jumlah; } mb.persen = r.persen; if (sheetFn) sheetBody.innerHTML = sheetFn(); } popHadiah('+' + r.jumlah + ' EXP'); sfx(880, .15, 'sine', .07); toast(`💰 ${r.jumlah} ${r.nama} dijual ke toko ${N$(r.jual)} · untung ${N$(r.untung)} · +${r.jumlah} EXP · misi ${r.persen}%`); }
+    if (r && r.ok){ if (AKUN.data){ AKUN.data.saldo = (AKUN.data.saldo || 0) + (r.jual || 0); akunTombol(); } const mb = BIZ.misi[fid]; if (mb){ const bx = (mb.bahan || []).find(x=>x.kode === k); if (bx){ bx.jual += r.jumlah; bx.punya = Math.max(0, bx.punya - r.jumlah); bx.toko += r.jumlah; } mb.persen = r.persen; if (sheetFn) sheetBody.innerHTML = sheetFn(); } popHadiah('+' + r.jumlah + ' EXP'); sfx(880, .15, 'sine', .07); toast(`💰 ${r.jumlah} ${r.nama} dijual ke toko ${N$(r.jual)} · untung ${N$(r.untung)} · +${r.jumlah} EXP · misi ${r.persen}%`); }
     else toast(r && r.alasan === 'barang_kurang' ? 'Bahan di tas kurang. Beli dulu di PRN.' : r && r.alasan === 'bukan_pekerja' ? 'Hanya pekerja resmi toko ini.' : ALASAN[r && r.alasan] || 'Gagal menjual.');
     return ulang(fid); }
   if (t.dataset.combine || t.dataset.jualtoko){ const jual = !!t.dataset.jualtoko, [k, n] = (t.dataset.combine || t.dataset.jualtoko).split('|'); t.disabled = true;
     const r = await SB.rpc(jual ? 'jual_toko' : 'combine_toko', {p_user: AKUN.u, p_sandi: AKUN.s, p_menu: k, p_jumlah: parseInt(n)}).catch(()=>null);
     if (r && r.ok){ popHadiah('+1 EXP'); sfx(jual ? 880 : 620, .15, 'sine', .07);
-      toast(`🍳 1 ${r.nama} masuk inventory toko · +1 EXP · misi ${r.persen}%`); }
+      toast(`🍳 1 ${r.nama} masuk inventory toko · +1 EXP · misi ${r.persen}%`);
+      const mb = BIZ.misi[Object.keys(BIZ.menu).find(b=>(BIZ.menu[b]||[]).some(m=>m.kode === k))]; if (!jual && mb){ const ix = (mb.item || {})[k];
+        if (ix){ ix.combine = (ix.combine || 0) + 1; ix.stok_toko = r.stok_toko; (ix.resep || []).forEach(q=>{ q.toko = Math.max(0, q.toko - (q.q || 1)); const bx = (mb.bahan || []).find(x=>x.kode === q.kode); if (bx) bx.toko = q.toko; });
+          ix.bisa = Math.min(...(ix.resep || []).map(q=>Math.floor(q.toko / (q.q || 1)))); }
+        mb.persen = r.persen; if (sheetFn) sheetBody.innerHTML = sheetFn(); } }
     else toast(r && r.alasan === 'bahan_toko_kurang' ? '🧺 Bahan milik toko kurang. Jual bahan ke toko dulu.' : r && r.alasan === 'stok_toko_kosong' ? 'Inventory toko kosong. Combine dulu.' : r && r.alasan === 'bukan_pekerja' ? 'Hanya pekerja resmi toko ini.' : ALASAN[r && r.alasan] || 'Gagal.');
     const fid = (Object.keys(BIZ.menu).find(b=>(BIZ.menu[b]||[]).some(m=>m.kode === k))) || 'KOPI-NUSAWARA'; return ulang(fid); }
   if (t.dataset.setor){ const [id, b] = t.dataset.setor.split('|'), n = Math.max(1, parseInt((document.getElementById('st-' + b)||{}).value) || 1), x = brg(b);
@@ -4544,11 +4548,9 @@ function bisnisHTML(id){
   }
   if (id === 'MATCHA-NUSAWARA'){
     const daun = (BARANG.find(b=>b.kode === 'daun_teh') || {}).stok || 0, mh = (BIZ.kerja && BIZ.kerja.matcha) || 0;
-    h += `<div class="card" style="background:#eef7e6"><h3>🍵 Toko Matcha</h3><p class="note">Tea Specialist meracik <b>10 🌿 daun teh → 1 🍵 matcha powder</b> (daun teh dari stok Negara). Upah N$1/matcha, maksimal 20 matcha per hari. Gaji harian N$90 kalau 20 matcha · kurang dari 20 dipotong 30% · kurang dari 10 dipotong 80%.</p>
+    h += `<div class="card" style="background:#eef7e6"><h3>🍵 Toko Matcha</h3><p class="note">Sistem sama dengan semua toko: pekerja beli 🌿 daun teh di PRN → <b>Jual</b> ke toko (untung 5%) → <b>Combine ×1</b> (10 🌿 daun teh milik toko → 1 🍵 matcha powder masuk inventory toko). Misi harian & gaji mengikuti aturan toko.</p>
       <p class="note">Stok daun teh Negara: <b>${daun}</b> · bisa diracik: <b>${Math.floor(daun/10)}</b> · stok matcha toko: <b>${(lap && lap.stok_matcha) ?? '–'}</b></p>`;
-    if (sayaKerja && kj.posisi === 'Tea Specialist') h += `<p class="note">Hari ini: <b>${mh}/20</b> matcha</p>
-      <div class="prow"><button class="btn" data-racik="1" ${daun >= 10 && mh < 20 ? '' : 'disabled'}>🌿×10 → 🍵 Combine 1</button><button class="btn ghost" data-racik="20" ${daun >= 10 && mh < 20 ? '' : 'disabled'}>Combine maksimal</button></div>
-      <div class="prow"><input type="number" min="1" value="1" id="jmMatcha" style="font:inherit;width:70px;padding:9px;border:1px solid var(--line);border-radius:10px;margin-top:14px"><button class="btn ghost" data-jualmatcha>💰 Jual matcha toko ke Negara (bagi hasil 10%)</button></div>`;
+    if (sayaKerja) h += `<div class="prow"><input type="number" min="1" value="1" id="jmMatcha" style="font:inherit;width:70px;padding:9px;border:1px solid var(--line);border-radius:10px;margin-top:14px"><button class="btn ghost" data-jualmatcha>💰 Jual matcha toko ke Negara (bagi hasil 10%)</button></div>`;
     h += `</div>`;
   }
   // misi harian toko: beli bahan di PRN -> COMBINE (20x, min 2/menu) -> JUAL ke toko (50 pack, min 5/menu)
