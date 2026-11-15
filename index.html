@@ -111,6 +111,18 @@
   @media (max-width:520px){ .brand.me{padding:3px 8px 3px 3px;gap:6px} .brand.me img{width:30px;height:30px} .brand.me b{max-width:84px;font-size:11.5px} .brand.me span{font-size:9.5px} }
   @media (max-width:520px){ .top{gap:6px} .brand{padding:5px 8px 5px 6px} .brand svg{width:24px;height:28px} .brand b{font-size:12px} .brand span{display:none}
     .stats{padding:3px 2px} .stats div{padding:1px 6px} .stats b{font-size:13px} .stats span{font-size:9px} .akunbtn{padding:8px 9px;font-size:12px} .hud{width:160px} }
+  /* panduan pemula */
+  #misiChip{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 118px);z-index:5;max-width:178px;display:none;font:inherit;font-weight:800;font-size:12px;line-height:1.3;text-align:left;
+    background:#fffdf8;color:#1f3a5f;border:2px solid #f2b134;border-radius:12px;padding:7px 9px;box-shadow:0 4px 14px rgba(0,0,0,.18);animation:misiGlow 1.6s ease-in-out infinite}
+  body.expon #misiChip{top:calc(env(safe-area-inset-top,0px) + 190px)}
+  @keyframes misiGlow{0%,100%{box-shadow:0 0 0 0 rgba(242,177,52,.7)}50%{box-shadow:0 0 0 7px rgba(242,177,52,0)}}
+  .mrow{display:flex;gap:10px;align-items:flex-start;padding:9px 8px;border-radius:12px;margin-top:6px;background:#f6f3ea}
+  .mrow.ok{background:#e7f5e6;opacity:.85}
+  .mrow.next{background:#fff4d6;border:2px solid #f2b134;animation:misiGlow 1.6s ease-in-out infinite}
+  .mrow .mi{font-size:22px;line-height:1.1}.mrow small{display:block;color:#566;line-height:1.35;margin-top:2px}
+  #tuto{position:fixed;left:10px;right:10px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:20;max-width:500px;margin:0 auto;display:none;background:#fffdf8;border:2px solid #f2b134;border-radius:18px;padding:14px;box-shadow:0 10px 32px rgba(0,0,0,.3)}
+  #tuto h4{margin:0 0 4px;font-size:16px;color:#1f3a5f}#tuto p{margin:0 0 10px;font-size:14px;line-height:1.45}#tuto .tp{font-size:11px;font-weight:800;color:#a8791a;margin-bottom:4px}
+  #tuto .prow{display:flex;gap:8px;flex-wrap:wrap}
   .pop{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) scale(.6);z-index:30;font-size:34px;font-weight:900;color:#1f3a5f;
     background:#fffdf8;border:2px solid #f2b134;border-radius:18px;padding:14px 22px;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:all .35s}
   .pop.show{opacity:1;transform:translate(-50%,-60%) scale(1)}
@@ -254,6 +266,7 @@
   <button class="navy" id="playBtn">🕹️ Presiden</button>
   <button class="primary" data-open="daftar">Jadi Warga</button>
   <button data-open="uun" hidden>UUN</button>
+  <button id="caraBtn" class="primary">📖 Cara Main</button>
   <button id="resetBtn">Lihat semua</button>
   <button id="shotBtn" hidden>🎬 Adegan</button>
 </nav>
@@ -3351,6 +3364,7 @@ function akunHTML(){
     <div class="prow"><button class="btn ghost" data-kesehatan>📋 Riwayat kesehatan</button>${d.utang_medis ? `<button class="btn" data-bayarmedis>💳 Bayar utang medis</button>` : ''}</div>
     <p class="note">Darah hanya berkurang karena kecelakaan saat menambang, menebang, atau mengambil material. Pulih: Nusa Vita di Apotek RS, istirahat di rumah (+5 HP / 30 menit, khusus pemilik rumah), atau dirawat RS setelah pingsan (ambulans N$50).</p></div>
   <div class="card"><h3>💰 Saldo</h3><div class="saldo">${N$(d.saldo)}</div><p class="note">Mata uang Republik Nusawara: Nusa (NSA).</p></div>
+  ${misiPemulaCard()}
   <div class="card"><h3>📅 Absen harian · hari ke-${st || 0}</h3>
     <div class="streak">${hari}</div>
     <p class="note">Hari 1–2: N$50 · Hari 3–5: N$75 · Hari 6 dst: N$100 per hari. Lewat sehari (reset 00.00 WIB) = bolos, ulang dari hari 1.</p>
@@ -3393,6 +3407,80 @@ sheetBody.addEventListener('click', async e=>{
 });
 async function barangMuat(){ try { const r = await SB.get('barang?select=kode,nama,ikon,jenis,harga_beli,harga_jual,stok,poin&order=urut'); BARANG.length = 0; r.forEach(b=>BARANG.push(b)); } catch(_) {} }
 (async ()=>{ await barangMuat(); if (AKUN.u) akunMuat(); })();
+
+/* ---------- PANDUAN PEMULA: tutorial 5 langkah + misi pemula ---------- */
+// Misi pemula hanya penanda belajar (tanpa hadiah N$ dari klien); hadiah & saldo tetap dihitung server.
+const MP = {
+  k(){ return 'nusawara_misi_' + AKUN.u; },
+  get(){ try { return JSON.parse(localStorage.getItem(MP.k()) || '{}'); } catch(_) { return {}; } },
+  set(f){ if (!AKUN.u) return; try { const o = MP.get(); if (o[f]) return false; o[f] = 1; localStorage.setItem(MP.k(), JSON.stringify(o)); return true; } catch(_) { return false; } },
+  done(){ const o = MP.get(), d = AKUN.data || {}; let kv = 0; try { kv = kavSaya().length; } catch(_) {}
+    return {absen: !!(o.absen || d.sudah_absen || (d.streak || 0) > 0), tambang: !!o.tambang, olah: !!o.olah, jual: !!o.jual, tanah: !!(o.tanah || kv)}; }
+};
+function resepContoh(){ try { return RESEP.slice(0, 3).map(r=>{ const a = brg(r.bahan), o = brg(r.hasil); return `${r.bahan_jumlah} ${a.ikon} ${esc(a.nama)} → ${r.hasil_jumlah} ${o.ikon} ${esc(o.nama)}`; }).join(' · '); } catch(_) { return ''; } }
+function resepBisa(){ try { return RESEP.filter(r=>punya(r.bahan) >= r.bahan_jumlah).map(r=>{ const o = brg(r.hasil); return `${o.ikon} ${esc(o.nama)}`; }); } catch(_) { return []; } }
+function misiDaftar(){
+  const dn = MP.done(), bisa = resepBisa(), cth = resepContoh();
+  return [
+    {id:'absen', ikon:'📅', judul:'Absen harian', isi:'Buka 🔑 akunmu, tekan <b>Klaim absen</b>. Tiap hari dapat N$ (naik sampai N$100).', pergi:'akun'},
+    {id:'tambang', ikon:'⛏️', judul:'Menambang 1×', isi:'Pergi ke Kawasan Tambang, tekan tombol tambang. Dapat bahan mentah (bijih besi, kayu gelondongan, pasir & batu).', pergi:'tambang'},
+    {id:'olah', ikon:'🏭', judul:'Combine / Olah hasil tambangmu', isi:'Setelah menambang, <b>combine bahan mentahmu di pabrik</b> (utara Pelabuhan, bayar biaya olah) jadi <b>bahan olahan</b> atau <b>bahan material</b> untuk membangun.' + (cth ? `<br>Contoh: ${cth}` : '') + (bisa.length ? `<br>✅ <b>Di tasmu sekarang bisa diolah jadi:</b> ${bisa.join(', ')}` : ''), pergi:'industri'},
+    {id:'jual', ikon:'🦅', judul:'Jual 1 barang di PRN', isi:'Tekan gedung Garuda di Distrik Pusat, jual bahan atau hasil olahanmu ke Negara untuk dapat Nusa.', pergi:'prn'},
+    {id:'tanah', ikon:'🏞️', judul:'Beli kavling pertamamu', isi:'Pilih tanah kosong di Kawasan Kavling lalu beli (rumah kecil N$1.000). Setor material hasil olahanmu untuk membangun.', pergi:'kavling'}
+  ].map(m=>Object.assign(m, {ok: dn[m.id]}));
+}
+function misiPemulaCard(){ if (!AKUN.data) return '';
+  const ms = misiDaftar(), nx = ms.find(m=>!m.ok), n = ms.filter(m=>m.ok).length;
+  return `<div class="card"><h3>🎯 Misi pemula · ${n}/${ms.length}</h3>
+    <div class="bar" style="height:8px;background:#e6e1d4;border-radius:6px;overflow:hidden"><i style="display:block;height:100%;width:${n/ms.length*100}%;background:#2fb57a"></i></div>
+    ${ms.map(m=>`<div class="mrow ${m.ok ? 'ok' : m === nx ? 'next' : ''}"><span class="mi">${m.ok ? '✅' : m.ikon}</span><span style="flex:1"><b>${m.judul}</b>${m === nx || m.ok ? `<small>${m.isi}</small>` : ''}${m === nx ? `<button class="btn" style="margin-top:8px" data-misipergi="${m.pergi}">${m.pergi === 'akun' ? '📅 Buka absen' : '👉 Tunjukkan tempatnya'}</button>` : ''}</span></div>`).join('')}
+    <p class="note">${nx ? 'Selesaikan satu per satu, urutannya sudah dibuat dari yang termudah.' : '🎉 Semua misi pemula selesai! Lanjutkan: kumpulkan poin donasi, bekerja di toko, dan bangun kotamu.'}</p></div>`; }
+function pergiKe(t){
+  if (t === 'akun'){ openSheet(akunHTML); if (AKUN.u) akunMuat(); return; }
+  const e2 = t === 'kavling' ? {x:18, z:-160} : t === 'prn' ? EKO['EKO-PRN'] : t === 'tambang' ? {x:-59, z:150} : {x:-62, z:-100}; closeSheet();
+  flyTo(new THREE.Vector3(e2.x, 2, e2.z), t === 'tambang' ? new THREE.Vector3(e2.x + 70, 80, e2.z + 40) : new THREE.Vector3(e2.x + 10, 30, e2.z + 38)); }
+/* chip petunjuk berikutnya (selalu terlihat setelah masuk) */
+{ const c = document.createElement('button'); c.id = 'misiChip'; c.type = 'button'; document.body.appendChild(c);
+  c.addEventListener('click', ()=>{ openSheet(akunHTML); if (AKUN.u) akunMuat(); });
+  window.misiChipPerbarui = ()=>{ if (!AKUN.data){ c.style.display = 'none'; return; }
+    const nx = misiDaftar().find(m=>!m.ok); if (!nx){ c.style.display = 'none'; return; }
+    c.style.display = 'block'; c.innerHTML = `🎯 Misi berikutnya:<br>${nx.ikon} ${nx.judul}`; };
+  setInterval(()=>{ try { window.misiChipPerbarui(); } catch(_) {} }, 1500); }
+/* tandai misi selesai dari aksi server yang sukses */
+{ const _p = SB.rpc.bind(SB);
+  SB.rpc = async (...a) => { const r = await _p(...a);
+    try { if (r && r.ok && AKUN.u){ const fn = a[0], ar = a[1] || {}; let f = null;
+      if (fn === 'klaim_absen') f = 'absen'; else if (fn === 'menambang') f = 'tambang'; else if (fn === 'olah_bahan') f = 'olah';
+      else if (fn === 'pasar_prn' && ar.p_aksi === 'jual') f = 'jual'; else if (fn === 'beli_kavling') f = 'tanah';
+      if (f){ const baru = MP.set(f);
+        if (f === 'tambang') setTimeout(()=>{ toast('⛏️ Bagus! Sekarang combine hasil tambangmu di pabrik jadi bahan olahan atau material 🏭'); }, 2400);
+        else if (baru) setTimeout(()=>{ toast('✅ Misi pemula selesai!'); }, 1800); } } } catch(_) {}
+    return r; }; }
+/* tutorial pertama kali masuk */
+let TUTO = null;
+const tutoEl = document.createElement('div'); tutoEl.id = 'tuto'; document.body.appendChild(tutoEl);
+const TUTO_LANGKAH = [
+  {ikon:'📅', judul:'Klaim absen harian', isi:'Setiap hari buka 🔑 akunmu lalu tekan <b>Klaim absen</b>. Makin berurutan harinya, makin besar N$-nya (sampai N$100/hari).', pergi:'akun', tombol:'📅 Buka absen'},
+  {ikon:'⛏️', judul:'Menambang bahan', isi:'Pergi ke Kawasan Tambang di selatan Pelabuhan. Tekan tombol tambang untuk dapat bahan mentah. Menambang menguras ⚡ stamina.', pergi:'tambang', tombol:'⛏️ Lihat tambang'},
+  {ikon:'🏭', judul:'Combine hasil tambang', isi:'Bawa bahan mentahmu ke pabrik, lalu <b>Olah</b> jadi <b>bahan olahan</b> atau <b>bahan material</b> (untuk membangun rumah). Cukup bayar biaya olah.', pergi:'industri', tombol:'🏭 Lihat pabrik'},
+  {ikon:'🦅', judul:'Jual di PRN', isi:'Tekan gedung Garuda di Distrik Pusat. Jual bahan atau hasil olahanmu ke Negara untuk dapat Nusa, atau beli bahan yang kamu butuh.', pergi:'prn', tombol:'🦅 Lihat PRN'},
+  {ikon:'🏞️', judul:'Beli tanah & bangun', isi:'Beli kavling di belakang Distrik Pusat, setor material, lalu pilih desain rumahmu. Itu rumah & billboard milikmu sendiri!', pergi:'kavling', tombol:'🏞️ Lihat kavling'}
+];
+function tutoTampil(){ if (!TUTO){ tutoEl.style.display = 'none'; return; } const i = TUTO.i, L = TUTO_LANGKAH[i], akhir = i === TUTO_LANGKAH.length - 1;
+  tutoEl.style.display = 'block';
+  tutoEl.innerHTML = `<div class="tp">TUTORIAL ${i + 1}/${TUTO_LANGKAH.length}</div><h4>${L.ikon} ${L.judul}</h4><p>${L.isi}</p>
+    <div class="prow"><button class="btn" data-t="tunjuk" style="flex:1">${L.tombol}</button><button class="btn ghost" data-t="lanjut">${akhir ? '✓ Selesai' : 'Lanjut →'}</button><button class="btn ghost" data-t="lewati">Lewati</button></div>`; }
+function tutoMulai(){ TUTO = {i:0}; tutoTampil(); }
+function tutoTutup(){ TUTO = null; tutoTampil(); try { localStorage.setItem('nusawara_tuto_' + AKUN.u, '1'); } catch(_) {} }
+tutoEl.addEventListener('click', e=>{ const b = e.target.closest('button'); if (!b || !TUTO) return; const a = b.dataset.t;
+  if (a === 'tunjuk') pergiKe(TUTO_LANGKAH[TUTO.i].pergi);
+  else if (a === 'lanjut'){ if (TUTO.i >= TUTO_LANGKAH.length - 1){ tutoTutup(); toast('🎓 Tutorial selesai. Ikuti 🎯 misi pemula ya!'); } else { TUTO.i++; tutoTampil(); } }
+  else if (a === 'lewati'){ tutoTutup(); toast('Tutorial bisa diulang lewat 📖 Cara Main.'); } });
+sheetBody.addEventListener('click', e=>{ const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.misipergi){ pergiKe(t.dataset.misipergi); return; }
+  if (t.hasAttribute('data-tuto')){ closeSheet(); setTimeout(tutoMulai, 250); } });
+document.getElementById('caraBtn').addEventListener('click', ()=>{ const f = ()=>caraMainHTML(); f.eko = 1; openSheet(f); });
+setInterval(()=>{ try { if (AKUN.u && AKUN.data && !TUTO && !sheet.classList.contains('open') && !localStorage.getItem('nusawara_tuto_' + AKUN.u)) tutoMulai(); } catch(_) {} }, 2500);
 
 /* ---------- KAWASAN INDUSTRI: tambang, pabrik, Pasar Republik Nusawara (PRN) ---------- */
 // Letak: utara Pelabuhan Nusawara (sisi barat). Semua papan nama menghadap +z, searah podium.
@@ -3835,7 +3923,8 @@ function caraMainHTML(){ return `<div class="kicker">Panduan Warga</div><h2>📖
     Lalu tekan <b>Bangun</b>: setor bahan atau bayar ke Negara. Setelah lunas, pilih desain siap pakai (langsung berdiri) atau kirim desainmu sendiri.</p></div>
   <div class="card"><h3>7. Donasi untuk Negara</h3><p>Donasikan bahan atau N$ di Papan Donasi (sebelah barat podium). Setiap bahan dihitung poin, N$1 = 1 poin. Juara diumumkan tiap tanggal 1:<br>🥇 Tanah + Rumah/Toko Modern · 🥈 Tanah + Rumah/Toko Kecil · 🥉 Tanah Rumah/Toko Kecil · Juara 4–10 N$500 · Juara 11–20 N$100.</p></div>
   <div class="card"><h3>8. Aturan penting</h3><p>Satu orang satu akun. Jangan berikan Kata Sandi Warga ke siapa pun. Semua uang, tanah, dan bangunan di Nusawara bersifat virtual.</p></div>
-  <button class="btn" data-klaim>📅 Sekarang klaim N$ harianmu!</button>`; }
+  <button class="btn" data-klaim>📅 Sekarang klaim N$ harianmu!</button>
+  <button class="btn ghost" data-tuto>🎓 Ulangi tutorial langkah demi langkah</button>`; }
 let KES = null;
 function kesehatanHTML(){ const k = KES; let h = `<div class="kicker">Profil Kesehatan</div><h2>❤️ Kesehatan</h2>${AKUN.data ? `<div class="card">${hudHTML(AKUN.data).split('<div class="r"><span>⚡')[0]}</div>` : ''}`;
   if (!k) return h + '<p class="note">Memuat…</p>';
