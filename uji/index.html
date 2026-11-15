@@ -2717,7 +2717,7 @@ function syncWalkers(list){
       if (Object.values(WALKERS).filter(x=>(isFollow((WINFO[x.key]||{}).follow) ? 'kota' : 'pelabuhan') === zk).length >= MAX_WALKERS) return; }
     if (ex){ scene.remove(ex.av.g); [ex.av.g, ex.tag].forEach(o=>{ const pi = pickables.indexOf(o); if (pi >= 0) pickables.splice(pi,1); }); }
     const av = makeAvatar(avatarSpec(WINFO[key]));
-    const tag = ex ? ex.tag : label('@' + String(w.username).replace(/^@+/,''), {h:.75, size:28, bg:'rgba(255,253,248,.95)', fg:'#1f3a5f', onTop:true});
+    const tag = ex ? ex.tag : label(typeof tagTeks === 'function' ? tagTeks(key, w) : '@' + String(w.username).replace(/^@+/,''), {h:.75, size:28, bg:'rgba(255,253,248,.95)', fg:'#1f3a5f', onTop:true});
     const ok = isFollow(WINFO[key].follow), zn = zoneNodes(ok ? 'kota' : 'pelabuhan');
     let start = zn[Math.floor(Math.random()*zn.length)];
     const hs = ok && typeof w.houseId === 'string' && slotOf(w.houseId);
@@ -2885,7 +2885,7 @@ function profileHTML(key){
   return `<div class="kicker">Warga Republik Nusawara</div>
     <div class="idcard"><div class="ih">🛡️ REPUBLIK NUSAWARA · KARTU WARGA</div>
       <div class="ib"><button class="ip" ${unlocked ? `data-follow="${esc(key)}"` : `data-unlock="${esc(key)}"`} aria-label="Lihat karakter">${img ? `<img src="${img}" alt="">` : ''}<span>${unlocked ? '🧍 Lihat karakter' : '🔒 Terkunci'}</span></button>
-        <div class="if"><b>@${esc(u)}</b><div>NIWN</div><p class="mono">${esc(w.niwn || '-')}</p><div>STATUS</div><p>Warga (WRN)</p><div>TERDAFTAR</div><p>${esc(w.terdaftar || '-')}</p><div>PEKERJAAN</div><p>${esc(typeof kerjaLabel === 'function' ? kerjaLabel(key) : 'Belum bekerja')}</p></div></div>
+        <div class="if"><b>@${esc(u)}</b><div>NIWN</div><p class="mono">${esc(w.niwn || '-')}</p><div>STATUS</div><p>Warga (WRN)</p><div>GELAR</div><p>${typeof gelar === 'function' ? (g=>`${g.ikon} ${g.nama} · Lv ${g.lv}`)(gelar(lvOf(key))) : '-'}</p><div>TERDAFTAR</div><p>${esc(w.terdaftar || '-')}</p><div>PEKERJAAN</div><p>${esc(typeof kerjaLabel === 'function' ? kerjaLabel(key) : 'Belum bekerja')}</p></div></div>
       <div class="ifoot"><span>${esc(w.niwn || '')}</span><span>${und.split(' ')[0]}</span></div></div>
     <p style="margin:0 0 10px;font-size:13px">${und}</p>
     ${unlocked ? '' : `<div class="card"><h3>🔒 Profil ini terkunci</h3><p>Hanya pemilik @${esc(u)} yang bisa membuka rumah, gaya karakter, dan memainkan karakter ini. Masukkan Kata Sandi Warga untuk membuka.</p>
@@ -3208,16 +3208,17 @@ try { const r = JSON.parse(localStorage.getItem('nusawara_akun') || 'null'); if 
 function hudHTML(d){
   const cap = d.kapasitas || 100, st = d.stamina || 0, dasar = Math.min(st, cap), ekstra = Math.max(0, st - cap), tot = cap + 20;
   const xpP = d.xp_perlu ? Math.min(100, Math.round((d.xp||0) / d.xp_perlu * 100)) : 100;
-  return `<div class="r"><span>❤️ Darah</span><span>${d.darah ?? 100}/100</span></div><div class="b"><i style="width:${Math.min(100, d.darah ?? 100)}%;background:#e5484d"></i></div>
+  const dh = d.darah ?? 100, dc = d.pingsan || dh <= 0 ? '#6b7280' : dh >= 70 ? '#2fb57a' : dh >= 40 ? '#f2b134' : '#e5484d', ds = d.pingsan ? '😵 Pingsan' : dh >= 70 ? 'Sehat' : dh >= 40 ? 'Luka ringan' : 'Kritis';
+  return `<div class="r"><span>❤️ Darah · ${ds}</span><span>${dh}/100</span></div><div class="b"><i style="width:${Math.min(100, dh)}%;background:${dc}"></i></div>
     <div class="r"><span>⚡ Stamina</span><span>${dasar}${ekstra ? '+' + ekstra : ''}/${cap}</span></div>
     <div class="b"><i style="width:${dasar/tot*100}%;background:#f2b134"></i><i style="width:${ekstra/tot*100}%;background:#ff7a1a"></i></div>
     <div class="r"><span>🟢 Kap. Stamina Lv ${d.lv || 0}${d.xp_perlu ? '' : ' MAX'}</span><span>${d.xp_perlu ? (d.xp||0) + '/' + d.xp_perlu + ' · ' + xpP + '%' : 'kapasitas ' + cap}</span></div>
     <div class="b k"><i style="width:${xpP}%;background:#2fb57a"></i></div>
-    <div class="r"><span>⭐ Level ${d.level || 1}${d.exp_target ? '' : ' MAX'}</span><span>${d.exp_target ? (d.exp||0) + '/' + d.exp_target + ' EXP' : 'Level maksimum'}</span></div>
+    <div class="r"><span>${gelar(d.level).ikon} Lv ${d.level || 1}${d.exp_target ? '' : ' MAX'}</span><span>${d.exp_target ? (d.exp||0) + '/' + d.exp_target + ' EXP' : 'Level maksimum'}</span></div>
     <div class="b"><i style="width:${d.exp_target ? Math.min(100, (d.exp||0)/d.exp_target*100) : 100}%;background:#2a7de1"></i></div>`; }
 function expBar(){ const e = document.getElementById('expbar'); if (!e) return; const d = AKUN.data; document.body.classList.toggle('expon', !!d); if (!d){ e.style.display = 'none'; return; }
   e.style.display = 'block'; const t = d.exp_target, x = d.exp || 0; e.querySelector('i').style.width = (t ? Math.min(100, x/t*100) : 100) + '%';
-  e.querySelector('span').textContent = t ? `⭐ Level ${d.level || 1} · ${x}/${t} EXP · ${Math.floor(x/t*100)}% menuju Level ${(d.level||1) + 1}` : `⭐ Level ${d.level} · MAKSIMUM`; }
+  e.querySelector('span').textContent = t ? `${gelar(d.level).ikon} Lv ${d.level || 1} ${gelar(d.level).nama} · ${x}/${t} EXP · ${Math.floor(x/t*100)}%` : `${gelar(d.level).ikon} Lv ${d.level} ${gelar(d.level).nama} · MAKSIMUM`; }
 function hudTampil(){ const h = document.getElementById('hud'); if (!h) return; if (!AKUN.data){ h.style.display = 'none'; expBar(); return; } h.style.display = 'block'; h.innerHTML = hudHTML(AKUN.data); expBar(); }
 setInterval(()=>{ if (AKUN.u && !document.hidden) akunMuat(); }, 60000);
 { const _rpc = SB.rpc.bind(SB);
@@ -3226,7 +3227,51 @@ setInterval(()=>{ if (AKUN.u && !document.hidden) akunMuat(); }, 60000);
       Object.assign(AKUN.data, {level: r.level, exp: r.exp, exp_target: r.exp_target});
       if (r.level > lama){ popHadiah('🎉 Naik ke Level ' + r.level + ' · ⚡ Stamina penuh!'); sfx(523, .25, 'triangle', .08, 0, 1046); setTimeout(akunMuat, 400); }
       hudTampil(); } } catch(_) {}
+    try { if (r && typeof r === 'object' && 'darah' in r && AKUN.data){ const pp = AKUN.data.pingsan;
+      Object.assign(AKUN.data, {darah: r.darah, pingsan: r.pingsan, pulih_detik: r.pulih_detik, ambulans_detik: r.ambulans_detik, utang_medis: r.utang_medis}); AKUN.dAt = Date.now(); hudTampil(); darahCek(pp); }
+      if (r && r.kecelakaan) kecelakaanInfo(r.kecelakaan); } catch(_) {}
     return r; }; }
+function kecelakaanInfo(k){
+  const serigala = /serigala/i.test(k.cedera);
+  alertBox(serigala ? '🐺 PERINGATAN!' : '⚠️ KECELAKAAN!', `${k.cedera}. Darah berkurang ${k.hp} HP.${k.serigala_ulang ? ' Serigala menyerang lagi! −15 HP tambahan.' : ''}`, '#c62828');
+  sfx(140, .3, 'sawtooth', .08); if (k.pingsan) setTimeout(()=>alertBox('🚑 BAHAYA!', `Darah kamu mencapai 0 HP. Kamu pingsan. Ambulans sedang menuju lokasimu. Biaya ambulans N$${k.biaya}${k.utang ? ' dicatat sebagai utang medis' : ' dipotong dari saldo'}.`, '#7a0c12'), 1800);
+  else if (AKUN.data && AKUN.data.darah > 0 && AKUN.data.darah < 40) setTimeout(()=>toast('🩸 Darah kritis! Beli Nusa Vita di Apotek Rumah Sakit.'), 1600); }
+function alertBox(judul, isi, warna){ const el = document.createElement('div');
+  el.style.cssText = `position:fixed;left:14px;right:14px;top:calc(env(safe-area-inset-top,0px) + 300px);z-index:60;background:#fff;border:3px solid ${warna};border-radius:16px;padding:12px 14px;box-shadow:0 14px 34px rgba(0,0,0,.35);font-size:14px;color:#1f3a5f`;
+  el.innerHTML = `<b style="color:${warna};font-size:16px">${judul}</b><div style="margin-top:4px">${isi}</div>`; document.body.appendChild(el); el.onclick = ()=>el.remove(); setTimeout(()=>el.remove(), 6000); }
+function gelar(lv){ lv = Math.max(1, lv || 1); const G = [[30,'🏆','Warga Kehormatan'],[25,'🔮','Warga Senior'],[20,'💎','Warga Unggul'],[15,'🛡️','Warga Produktif'],[10,'🏅','Warga Aktif'],[5,'🥈','Warga Berkembang'],[1,'🥉','Warga Pemula']];
+  const g = G.find(x=>lv >= x[0]); return {ikon: g[1], nama: g[2], lv}; }
+window.LVW = window.LVW || {};
+function lvOf(u){ const k = String(u || '').toLowerCase().replace(/^@+/,''); try { if (AKUN.u === k && AKUN.data && AKUN.data.level) return AKUN.data.level; } catch(_) {} return (window.LVW || {})[k] || 1; }
+function tagTeks(key, w){ const g = gelar(lvOf(key)); return `${g.ikon} Lv${g.lv} · @${String((w && w.username) || key).replace(/^@+/,'')}`; }
+function tagPerbarui(){ if (typeof WALKERS === 'undefined') return; for (const k in WALKERS){ const W = WALKERS[k], t = tagTeks(k, WINFO[k]); if (W.tagT === t) continue; W.tagT = t;
+  const nl = label(t, {h:.75, size:28, bg:'rgba(255,253,248,.95)', fg:'#1f3a5f', onTop:true}); W.tag.material.map = nl.material.map; W.tag.material.needsUpdate = true; W.tag.scale.copy(nl.scale); scene.remove(nl); } }
+async function lvMuat(){ try { const r = await SB.rpc('level_warga', {}); if (r && typeof r === 'object') window.LVW = r; } catch(_) {} tagPerbarui(); }
+setTimeout(lvMuat, 2500); setInterval(lvMuat, 60000);
+let PING = null;
+function darahCek(lama){ const d = AKUN.data; if (!d) return;
+  if (d.pingsan && !lama){ PING = {t0: Date.now(), amb: (d.ambulans_detik || 0) * 1000, pulih: (d.pulih_detik || 0) * 1000}; ambulansMulai(); }
+  if (!d.pingsan && lama){ PING = null; alertBox('🏥 PEMBERITAHUAN!', 'Kamu sudah selesai dirawat di Rumah Sakit Nusawara. Darah pulih menjadi 100 HP.', '#2f7d1a'); } }
+const pingEl = document.createElement('div'); pingEl.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 250px);z-index:55;background:#7a0c12;color:#fff;font-weight:800;font-size:14px;padding:9px 14px;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.35);display:none;white-space:nowrap';
+document.body.appendChild(pingEl);
+const AMB = new THREE.Group(); AMB.visible = false; scene.add(AMB);
+{ box(2.4,1.9,4.6,0xffffff,0,1.35,0,AMB); box(2.42,.35,4.62,0xd8262b,0,1.2,0,AMB); box(2.2,.9,1.2,0x8fc7dc,0,1.9,1.9,AMB); box(.5,.3,.5,0x2f6fb5,0,2.45,.6,AMB);
+  box(.9,.25,.08,0xd8262b,0,1.9,-2.31,AMB); box(.25,.9,.08,0xd8262b,0,1.9,-2.31,AMB);
+  [[-1.1,-1.5],[1.1,-1.5],[-1.1,1.5],[1.1,1.5]].forEach(([x,z])=>{ const w = new THREE.Mesh(new THREE.CylinderGeometry(.45,.45,.35,14), M(0x222222)); w.rotation.z = Math.PI/2; w.position.set(x,.45,z); AMB.add(w); });
+  const l = label('🚑 AMBULANS', {h:.9, size:28, bg:'rgba(216,38,43,.95)', fg:'#fff', onTop:true}); l.position.set(0,3.4,0); AMB.add(l); scene.remove(l); AMB.add(l); }
+const RSP = new THREE.Vector3(98, 0, -18);
+function ambulansMulai(){ AMB.visible = true; }
+(function ambLoop(){ requestAnimationFrame(ambLoop);
+  if (!PING || !AKUN.data){ AMB.visible = false; pingEl.style.display = 'none'; return; }
+  const el = Date.now() - PING.t0, me = (typeof WALKERS !== 'undefined' && WALKERS[AKUN.u]) ? WALKERS[AKUN.u].av.g.position : new THREE.Vector3(18,0,4);
+  const tujuan = new THREE.Vector3(me.x + 3, 0, me.z + 2);
+  let pos, sisa;
+  if (el < PING.amb){ const k = Math.min(1, el / PING.amb); pos = RSP.clone().lerp(tujuan, k); sisa = PING.amb - el; pingEl.textContent = '🚑 Ambulans menuju lokasimu · ' + mmss(Math.ceil(sisa/1000)); }
+  else if (el < PING.pulih){ const k = Math.min(1, (el - PING.amb) / 20000); pos = tujuan.clone().lerp(RSP, k); sisa = PING.pulih - el;
+    if (!PING.tiba){ PING.tiba = 1; alertBox('🚑 Ambulans tiba!', 'Kamu dijemput dan dibawa ke Rumah Sakit Nusawara untuk dirawat.', '#c62828'); }
+    pingEl.textContent = '🏥 Dirawat di Rumah Sakit · pulih dalam ' + mmss(Math.ceil(sisa/1000)); }
+  else { pingEl.textContent = '🏥 Hampir pulih…'; pos = RSP.clone(); if (!PING.cek){ PING.cek = 1; akunMuat(); } }
+  AMB.visible = true; pingEl.style.display = 'block'; const dx = pos.x - AMB.position.x, dz = pos.z - AMB.position.z; if (dx*dx + dz*dz > .0001) AMB.rotation.y = Math.atan2(dx, dz); AMB.position.copy(pos); })();
 function akunTombol(){ hudTampil(); akunBtn.textContent = AKUN.data ? '💰 ' + N$(AKUN.data.saldo) : '🔑 Masuk'; akunBtn.classList.toggle('in', !!AKUN.data); }
 function popHadiah(t){ const el = document.createElement('div'); el.className = 'pop'; el.textContent = t; document.body.appendChild(el);
   requestAnimationFrame(()=>el.classList.add('show')); setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 400); }, 1500); }
@@ -3237,7 +3282,7 @@ async function akunMuat(){
     if (r && (r.alasan === 'perlu_google' || r.alasan === 'masuk_google')){ akunKeluar(true); toast('🔐 Masuk dengan Gmail dulu, lalu Kata Sandi Warga.'); return false; }
     if (!r || !r.ok){ akunKeluar(true); toast('❌ Kata sandi sudah berubah. Silakan masuk lagi.'); return false; }
     if (r.bonus_stamina_baru && AKUN.data !== undefined) setTimeout(()=>{ popHadiah('⚡ +20 stamina harian'); }, 600);
-    AKUN.data = r; akunTombol(); AKUN.at = Date.now(); if (sheet.classList.contains('open') && sheetFn && (sheetFn === akunHTML || sheetFn.eko)) sheetBody.innerHTML = sheetFn(); return true;
+    const pLama = AKUN.data && AKUN.data.pingsan; AKUN.data = r; akunTombol(); AKUN.at = Date.now(); darahCek(pLama); if (sheet.classList.contains('open') && sheetFn && (sheetFn === akunHTML || sheetFn.eko)) sheetBody.innerHTML = sheetFn(); return true;
   } catch(_) { return false; }
 }
 function akunKeluar(diam){ AKUN.u = AKUN.s = AKUN.data = null; try { localStorage.removeItem('nusawara_akun'); } catch(_) {} akunTombol();
@@ -3268,6 +3313,9 @@ function akunHTML(){
   <div class="card"><h3>⚡ Stamina & Darah</h3>${hudHTML(d).replace(/font-size:11px/g,'')}
     <p class="note">Stamina pulih +5 setiap jam sampai kapasitas, dan dapat bonus +20 setiap hari saat masuk (bisa melebihi kapasitas, tertulis 100+20). Menambang menguras stamina.<br>
     Naikkan level di bar hijau dengan bekerja di pabrik & kebun Negara: Lv1 100 poin (+10 kapasitas), Lv2 200 (+10), Lv3 300 (+10), Lv4 500 (+20). Level bersifat permanen.${d.regen_detik != null ? '<br>⏳ +5 stamina berikutnya dalam ' + Math.ceil(d.regen_detik/60) + ' menit.' : ''}</p></div>
+  <div class="card"><h3>❤️ Kesehatan</h3><p class="note">Status: <b>${d.pingsan ? '😵 Pingsan / dirawat' : (d.darah ?? 100) >= 70 ? '🟢 Sehat' : (d.darah ?? 100) >= 40 ? '🟡 Luka ringan' : '🔴 Kritis'}</b> · ${d.darah ?? 100}/100 HP${d.utang_medis ? ` · Utang medis <b>${N$(d.utang_medis)}</b>` : ''}</p>
+    <div class="prow"><button class="btn ghost" data-kesehatan>📋 Riwayat kesehatan</button>${d.utang_medis ? `<button class="btn" data-bayarmedis>💳 Bayar utang medis</button>` : ''}</div>
+    <p class="note">Darah hanya berkurang karena kecelakaan saat menambang, menebang, atau mengambil material. Pulih: Nusa Vita di Apotek RS, istirahat di rumah (+5 HP / 30 menit, khusus pemilik rumah), atau dirawat RS setelah pingsan (ambulans N$50).</p></div>
   <div class="card"><h3>💰 Saldo</h3><div class="saldo">${N$(d.saldo)}</div><p class="note">Mata uang Republik Nusawara: Nusa (NSA).</p></div>
   <div class="card"><h3>📅 Absen harian · hari ke-${st || 0}</h3>
     <div class="streak">${hari}</div>
@@ -3496,7 +3544,7 @@ function ekoHTML(id){
   }
   return h;
 }
-const ALASAN = {sandi:'❌ Kata sandi berubah. Masuk lagi.', batas:'Sudah 10× hari ini. Kembali besok!', tunggu:'⏳ Belum bisa, tunggu sebentar.', saldo_kurang:'❌ Saldo N$ tidak cukup.', barang_kurang:'❌ Bahan di tas tidak cukup.', jumlah:'❌ Jumlah tidak valid.', sudah_punya:'❌ Kamu sudah punya kavling/tanah. Satu warga satu kavling.', terjual:'❌ Kavling ini sudah terjual.', lengkap:'✓ Bahan ini sudah lengkap.', tidak_perlu:'Bahan ini tidak dibutuhkan.', tanpa_kavling:'Kamu belum punya kavling.', stok_kurang:'❌ Stok Negara tidak cukup.', kas_kurang:'❌ Kas Negara sedang tidak cukup untuk membeli.', sudah_lunas:'Bahan/biaya kavling ini sudah lunas.', belum_siap:'Selesaikan bahan atau bayar dulu.', bukan_pemilik:'❌ Ini bukan kavlingmu.', desain_salah:'Desain ini tidak cocok untuk tanahmu.', kupon_tidak_ada:'Kupon sudah dipakai atau tidak ada.', stamina_kurang:'⚡ Stamina tidak cukup. Tunggu pulih +5/jam atau makan di Coffee Shop.'};
+const ALASAN = {pingsan:'🚑 Kamu sedang pingsan / dirawat di Rumah Sakit. Tunggu sampai pulih.', utang_medis:'🏥 Lunasi utang medis dulu di menu Kesehatan.', darah_penuh:'❤️ Darahmu sudah penuh 100 HP.', menu_habis:'Stok habis.', stok_toko_kosong:'Stok toko kosong.', sandi:'❌ Kata sandi berubah. Masuk lagi.', batas:'Sudah 10× hari ini. Kembali besok!', tunggu:'⏳ Belum bisa, tunggu sebentar.', saldo_kurang:'❌ Saldo N$ tidak cukup.', barang_kurang:'❌ Bahan di tas tidak cukup.', jumlah:'❌ Jumlah tidak valid.', sudah_punya:'❌ Kamu sudah punya kavling/tanah. Satu warga satu kavling.', terjual:'❌ Kavling ini sudah terjual.', lengkap:'✓ Bahan ini sudah lengkap.', tidak_perlu:'Bahan ini tidak dibutuhkan.', tanpa_kavling:'Kamu belum punya kavling.', stok_kurang:'❌ Stok Negara tidak cukup.', kas_kurang:'❌ Kas Negara sedang tidak cukup untuk membeli.', sudah_lunas:'Bahan/biaya kavling ini sudah lunas.', belum_siap:'Selesaikan bahan atau bayar dulu.', bukan_pemilik:'❌ Ini bukan kavlingmu.', desain_salah:'Desain ini tidak cocok untuk tanahmu.', kupon_tidak_ada:'Kupon sudah dipakai atau tidak ada.', stamina_kurang:'⚡ Stamina tidak cukup. Tunggu pulih +5/jam atau makan di Coffee Shop.'};
 async function ekoAksi(btn, fn, args, sukses){
   btn.disabled = true;
   try { const r = await SB.rpc(fn, Object.assign({p_user: AKUN.u, p_sandi: AKUN.s}, args));
@@ -3510,7 +3558,7 @@ sheetBody.addEventListener('click', e=>{
   if (t.dataset.pergi){ const e2 = t.dataset.pergi === 'kebun' ? {x:18, z:-220} : t.dataset.pergi === 'kavling' ? {x:18, z:-160} : t.dataset.pergi === 'donasi' ? {x:7, z:-6} : t.dataset.pergi === 'prn' ? EKO['EKO-PRN'] : t.dataset.pergi === 'tambang' ? {x:-59, z:150} : {x:-62, z:-100}; closeSheet();
     flyTo(new THREE.Vector3(e2.x, 2, e2.z), (t.dataset.pergi === 'tambang' || t.dataset.pergi === 'kebun') ? new THREE.Vector3(e2.x + 70, 80, e2.z + 40) : new THREE.Vector3(e2.x + 10, 30, e2.z + 38)); return; }
   if (t.dataset.tambang) ekoAksi(t, 'menambang', {p_tambang: t.dataset.tambang}, r=>{ const b = brg(r.barang);
-    popHadiah('+' + r.jumlah + ' ' + b.ikon); sfx(220, .12, 'square', .07, 0, 140); toast(`${b.ikon} +${r.jumlah} ${b.nama} masuk tas (${r.kali}/${r.batas} hari ini)`); });
+    popHadiah('+' + r.jumlah + ' ' + b.ikon); sfx(220, .12, 'square', .07, 0, 140); toast(`${b.ikon} +${r.jumlah} ${b.nama} masuk tas · +1 EXP`); });
   if (t.dataset.olah){ const n = Math.max(1, parseInt((document.getElementById('q-' + t.dataset.olah)||{}).value) || 1);
     ekoAksi(t, 'olah_bahan', {p_resep: t.dataset.olah, p_kali: n}, r=>{ const b = brg(r.barang);
       popHadiah('+' + r.jumlah + ' ' + b.ikon); sfx(440, .15, 'triangle', .07, 0, 660); toast(`${b.ikon} +${r.jumlah} ${b.nama} masuk tas`); }); }
@@ -3736,7 +3784,7 @@ function donasiHTML(){
   if (JUARA.length) h += `<div class="card"><h3>👑 Juara bulan ${esc(JUARA[0].bulan)}</h3>${JUARA.filter(j=>j.bulan === JUARA[0].bulan).map(j=>`<div class="jrow"><span class="ji">${j.peringkat}</span><span class="jt"><b>${esc(namaW(j.username))}</b><small>${esc(j.hadiah)}</small></span></div>`).join('')}</div>`;
   return h;
 }
-function rowPeringkat(r,i){ return `<div class="jrow"><span class="ji">${i < 3 ? ['🥇','🥈','🥉'][i] : i+1}</span><span class="jt"><b>@${esc(String(r.nama || r.username).replace(/^@+/,''))}</b><small>${Number(r.poin).toLocaleString('id-ID')} poin · ${r.bahan} bahan · ${N$(r.nsa)} · 🎁 ${HADIAH(i+1)}</small></span></div>`; }
+function rowPeringkat(r,i){ const gl = gelar(lvOf(r.username)); return `<div class="jrow"><span class="ji">${i < 3 ? ['🥇','🥈','🥉'][i] : i+1}</span><span class="jt"><b>@${esc(String(r.nama || r.username).replace(/^@+/,''))}</b><small>${gl.ikon} ${gl.nama} · Lv ${gl.lv} · ${Number(r.poin).toLocaleString('id-ID')} poin · ${r.bahan} bahan · ${N$(r.nsa)} · 🎁 ${HADIAH(i+1)}</small></span></div>`; }
 sheetBody.addEventListener('input', e=>{ if (e.target.id !== 'dnCari') return; const q = e.target.value.trim().toLowerCase().replace(/^@+/,''), out = document.getElementById('dnHasil'); if (!out) return;
   if (!q){ out.innerHTML = ''; return; }
   const hs = PAPAN.map((r,i)=>[r,i]).filter(([r])=>String(r.nama || '').toLowerCase().includes(q) || r.username.includes(q)).slice(0,10);
@@ -3755,8 +3803,16 @@ function caraMainHTML(){ return `<div class="kicker">Panduan Warga</div><h2>📖
   <div class="card"><h3>7. Donasi untuk Negara</h3><p>Donasikan bahan atau N$ di Papan Donasi (sebelah barat podium). Setiap bahan dihitung poin, N$1 = 1 poin. Juara diumumkan tiap tanggal 1:<br>🥇 Tanah + Rumah/Toko Modern · 🥈 Tanah + Rumah/Toko Kecil · 🥉 Tanah Rumah/Toko Kecil · Juara 4–10 N$500 · Juara 11–20 N$100.</p></div>
   <div class="card"><h3>8. Aturan penting</h3><p>Satu orang satu akun. Jangan berikan Kata Sandi Warga ke siapa pun. Semua uang, tanah, dan bangunan di Nusawara bersifat virtual.</p></div>
   <button class="btn" data-klaim>📅 Sekarang klaim N$ harianmu!</button>`; }
+let KES = null;
+function kesehatanHTML(){ const k = KES; let h = `<div class="kicker">Profil Kesehatan</div><h2>❤️ Kesehatan</h2>${AKUN.data ? `<div class="card">${hudHTML(AKUN.data).split('<div class="r"><span>⚡')[0]}</div>` : ''}`;
+  if (!k) return h + '<p class="note">Memuat…</p>';
+  const grp = {cedera:['🩹 Riwayat cedera', x=>x.jenis === 'cedera' || x.jenis === 'pingsan'], ambulans:['🚑 Riwayat ambulans', x=>x.jenis === 'ambulans'], biaya:['💳 Riwayat biaya medis', x=>x.biaya > 0 || x.jenis === 'pulih' || x.jenis === 'obat']};
+  for (const g in grp){ const ls = (k.riwayat || []).filter(grp[g][1]); h += `<div class="card"><h3>${grp[g][0]}</h3>${ls.length ? ls.map(x=>`<div class="jrow"><span class="jt"><b>${esc(x.ket)}</b><small>${new Date(x.waktu).toLocaleString('id-ID')}${x.hp ? ' · ' + (x.hp > 0 ? '+' : '') + x.hp + ' HP' : ''}${x.biaya ? ' · ' + N$(x.biaya) : ''}</small></span></div>`).join('') : '<p class="note">Belum ada.</p>'}</div>`; }
+  return h; }
 sheetBody.addEventListener('click', async e=>{
   const t = e.target.closest('button'); if (!t) return;
+  if (t.hasAttribute('data-kesehatan')){ KES = null; openSheet(kesehatanHTML); try { KES = await SB.rpc('kesehatan_saya', {p_user: AKUN.u, p_sandi: AKUN.s}); } catch(_) {} if (sheetFn === kesehatanHTML) sheetBody.innerHTML = kesehatanHTML(); return; }
+  if (t.hasAttribute('data-bayarmedis')){ ekoAksi(t, 'bayar_utang_medis', {}, r=>{ toast('💳 Utang medis ' + N$(r.dibayar) + ' lunas.'); }); return; }
   if (t.dataset.jualkupon) ekoAksi(t, 'jual_kupon', {p_id: parseInt(t.dataset.jualkupon)}, r=>{ popHadiah('+' + N$(r.harga)); toast('🎟️ Kupon dijual ke Negara: +' + N$(r.harga)); });
   if (t.hasAttribute('data-gantinama')){ const v = (document.getElementById('nmBaru')||{}).value || ''; t.disabled = true;
     const r = await SB.rpc('ganti_nama', {p_user: AKUN.u, p_sandi: AKUN.s, p_nama: v}).catch(()=>null); t.disabled = false;
@@ -3868,7 +3924,8 @@ const TEMPAT = {
   pabrik_tepung:{nama:'Pabrik Tepung', ikon:'🥐', x:-62, z:-301},
   peternakan:   {nama:'Peternakan Ayam', ikon:'🐔', x:96, z:-140},
   kebun_buah:   {nama:'Kebun Buah', ikon:'🍓', x:96, z:-188},
-  kebun_teh:    {nama:'Kebun Teh', ikon:'🌿', x:96, z:-236}
+  kebun_teh:    {nama:'Kebun Teh', ikon:'🌿', x:96, z:-236},
+  pabrik_farmasi:{nama:'Pabrik Farmasi Nusawara', ikon:'💊', x:-62, z:-349}
 };
 (()=>{
   const C = (r,h,c,x,y,z,g,seg=12,rt) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt ?? r, r, h, seg), M(c)); m.position.set(x,y,z); m.castShadow = true; g.add(m); return m; };
@@ -3907,6 +3964,11 @@ const TEMPAT = {
         box(4.2,.3,1.6,0x6b4a2e,x,.3,z,g); S(1.1,0x3f8d32,x-1,1.1,z,g,.8); S(1.1,0x4f9c35,x+1,1.1,z,g,.8);
         for (let k=0;k<4;k++) S(.22,ber ? 0xe5384d : 0x3a2a5e,x-1.4+k*.9,1.6+(k%2)*.3,z+.8,g); }
       const pd = new THREE.Group(); pd.position.set(15,0,17); g.add(pd); box(4,2.6,3,0x8a5a36,0,1.3,0,pd); const ra = box(4.6,.25,3.6,0xf08a2c,0,2.8,0,pd); ra.rotation.x = .3; },
+    pabrik_farmasi: g=>{ box(44,.3,42,0xdfe7ee,0,.15,0,g); const W=20,D=14,H=12; box(W,H,D,0xf6f6f8,0,H/2,-4,g); box(W+.6,.5,D+.6,0xd8262b,0,H+.25,-4,g);
+      for (let f=0;f<3;f++){ box(W+.2,.35,D+.2,0xd8262b,0,3.6+f*3.6,-4,g); for (let i=0;i<5;i++) box(2,1.8,.1,0x8fc7dc,-W/2+2.6+i*3.7,2+f*3.6,-4+D/2+.06,g); }
+      const pl = new THREE.Group(); pl.position.set(0,H-1.4,-4+D/2+.12); g.add(pl); box(2.6,2.6,.15,0xffffff,0,0,0,pl); box(1.8,.55,.2,0xd8262b,0,0,.05,pl); box(.55,1.8,.2,0xd8262b,0,0,.05,pl);
+      papanT('PABRIK FARMASI NUSAWARA', W*.7, 1.2, '#1f3a5f', '#ffffff', 0, 1.2, -4+D/2+.08, g);
+      [[-16,8],[16,8],[-16,-14],[16,-14]].forEach(([x,z])=>{ C(.35,2,0x7a4a24,x,1,z,g); const k = new THREE.Mesh(new THREE.ConeGeometry(1.8,4,8), M(0x2f8d3a)); k.position.set(x,4,z); g.add(k); }); },
     kebun_teh: g=>{ box(44,.3,42,0x7fb85a,0,.15,0,g);
       for (let r=0;r<7;r++){ const y = .3 + (6-r)*.45; box(40,y,4.4,0x6b8f3a,0,y/2,-17+r*5.6,g);
         for (let c=0;c<9;c++) S(1.2,0x2f8d3a,-17+c*4.3,y+.6,-17+r*5.6,g,.55); }
@@ -3936,7 +3998,7 @@ function tempatHTML(id){
          <p style="font-weight:900;font-size:18px;margin:8px 0 2px;color:#1f3a5f">👆 Tap ${t.klik}x</p>
          <div style="height:10px;border-radius:6px;background:#e3e6ea;overflow:hidden;margin:6px auto;width:70%"><div id="tp-${t.kode}" style="height:100%;width:${n/t.klik*100}%;background:#2fb57a"></div></div>
          <p class="note" id="tn-${t.kode}">${n}/${t.klik} ketukan</p>`}
-      <p class="note">Hadiah: <b>🟢 +${t.poin} poin stamina</b> · hasil <b>${t.hasil} ${b.ikon} ${esc(b.nama)}</b> ke stok Negara · tunggu ${Math.round(t.jeda_detik/60)} menit</p></div>`; }).join('');
+      <p class="note">Hadiah: <b>🟢 +${t.poin} poin stamina</b> · hasil <b>${t.hasil} ${b.ikon} ${esc(b.nama)}</b> ${t.ke_tas ? 'langsung masuk tasmu' : 'ke stok Negara'} · tunggu ${Math.round(t.jeda_detik/60)} menit</p></div>`; }).join('');
   return h;
 }
 sheetBody.addEventListener('click', async e=>{
@@ -3948,7 +4010,7 @@ sheetBody.addEventListener('click', async e=>{
   t.disabled = true; TAP[k] = 0;
   try { const r = await SB.rpc('kerja_negara', {p_user: AKUN.u, p_sandi: AKUN.s, p_kode: k});
     if (r && r.ok){ const b = brg(r.barang); popHadiah('🟢 +' + r.poin + ' poin'); sfx(660, .2, 'triangle', .08, 0, 990);
-      toast(`✅ ${tg.nama} selesai! +${r.poin} poin stamina · ${r.jumlah} ${b.ikon} masuk stok Negara`);
+      toast(`✅ ${tg.nama} selesai! +${r.poin} poin stamina · ${r.jumlah} ${b.ikon} masuk ${tg.ke_tas ? 'tasmu' : 'stok Negara'}`);
       if (AKUN.data){ Object.assign(AKUN.data, {lv: r.lv, xp: r.xp, xp_perlu: r.xp_perlu, kapasitas: r.kapasitas, stamina: r.stamina}); hudTampil(); } }
     else toast(r && r.alasan === 'tunggu' ? '⏳ Belum bisa, tunggu sebentar.' : 'Gagal. Coba lagi.');
   } catch(_) { toast('Jaringan bermasalah. Coba lagi.'); }
@@ -4534,7 +4596,7 @@ async function bisnisMuat(id){
 const pill = (t, bg, fg) => `<span style="display:inline-block;background:${bg};color:${fg};font-weight:800;font-size:12px;border-radius:10px;padding:4px 8px;margin:2px">${t}</span>`;
 const KTAP = {};
 function bisnisHTML(id){
-  if (id !== 'KOPI-NUSAWARA' && id !== 'MATCHA-NUSAWARA') return '';
+  if (id !== 'KOPI-NUSAWARA' && id !== 'MATCHA-NUSAWARA' && id !== 'RS-NUSAWARA') return '';
   let h = `<div data-biz="${id}"></div>`;
   const menu = BIZ.menu[id] || [], kj = BIZ.kerja && ((BIZ.kerja.semua || []).find(x=>x.fasilitas === id) || null), sayaKerja = !!kj, lap = BIZ.lap[id];
   const rk = BIZ.kerja && Array.isArray(BIZ.kerja.rekap) ? BIZ.kerja.rekap.find(r=>kj && r.fasilitas === kj.fasilitas && r.posisi === kj.posisi) : null;
@@ -4548,11 +4610,21 @@ function bisnisHTML(id){
     if (!menu.length) h += '<p class="note">Memuat menu…</p>';
     h += `${AKUN.data ? '' : '<p class="note">Masuk dulu untuk membeli.</p>'}<p class="note">Bahan menu diambil otomatis dari stok Negara. Kalau bahannya belum ada di stok Negara, menunya habis sampai warga memproduksinya di pabrik & kebun.</p></div>`;
   }
+  if (id === 'RS-NUSAWARA'){
+    h += `<div class="card" style="background:#fff3f3"><h3>💊 Apotek Rumah Sakit</h3><p class="note">Minum obat untuk memulihkan ❤️ darah (maks 100 HP). Pajak 5% untuk Negara. Utang medis harus lunas dulu.</p>`
+      + (menu.length ? menu.map(m=>`<div class="jrow" style="background:#fff;border-radius:14px;padding:8px;margin:6px 0;border:1px solid #f1c9c9"><span style="font-size:36px;flex:none">${m.ikon}</span><span class="jt"><b>${esc(m.nama)}</b>
+        <span>${pill('🪙 ' + N$(m.harga), '#7a0c12', '#fff')}${pill('❤️ +' + m.darah + ' HP', '#e3f6d8', '#2f7d1a')}${pill(m.stok > 0 ? 'stok ' + m.stok : 'habis', '#eef1f4', '#667')}</span></span>
+        ${AKUN.data ? `<button class="btn" data-obat="${m.kode}" ${m.stok > 0 && AKUN.data.saldo >= m.harga ? '' : 'disabled'}>Beli</button>` : ''}</div>`).join('') : '<p class="note">Memuat…</p>')
+      + `${AKUN.data ? '' : '<p class="note">Masuk dulu untuk membeli.</p>'}<p class="note">Bahan obat (🌿 Ekstrak Herbal & 🧪 Serum Pemulih) diproduksi di Pabrik Farmasi Nusawara, dijual pekerja RS ke RS, lalu di-Combine jadi Nusa Vita.</p></div>`;
+  }
   if (id === 'MATCHA-NUSAWARA'){
     const daun = (BARANG.find(b=>b.kode === 'daun_teh') || {}).stok || 0, mh = (BIZ.kerja && BIZ.kerja.matcha) || 0;
     h += `<div class="card" style="background:#eef7e6"><h3>🍵 Toko Matcha</h3><p class="note">Sistem sama dengan semua toko: pekerja beli 🌿 daun teh di PRN → <b>Jual</b> ke toko (untung 5%) → <b>Combine ×1</b> (1 🌿 daun teh milik toko → 1 🍵 matcha powder masuk inventory toko). Misi harian & gaji mengikuti aturan toko.</p>
       <p class="note">Stok daun teh Negara: <b>${daun}</b> · bisa diracik: <b>${Math.floor(daun/10)}</b> · stok matcha toko: <b>${(lap && lap.stok_matcha) ?? '–'}</b></p>`;
-    if (sayaKerja) h += `<div class="prow"><input type="number" min="1" value="1" id="jmMatcha" style="font:inherit;width:70px;padding:9px;border:1px solid var(--line);border-radius:10px;margin-top:14px"><button class="btn ghost" data-jualmatcha>💰 Jual matcha toko ke Negara (bagi hasil 10%)</button></div>`;
+    const hm = ((BARANG.find(b=>b.kode === 'matcha') || {}).harga_beli || 18);
+    if (AKUN.data) h += `<div class="card" style="background:#fff"><h3>🛒 Beli matcha dari toko · ${N$(hm - 1)}/pack</h3><p class="note">Lebih murah N$1 dari PRN (${N$(hm)}). Matcha masuk ke tasmu, misalnya untuk dijual ke Kopi Nusawara. Stok toko: <b>${(lap && lap.stok_matcha) ?? (BIZ.misi[id] && BIZ.misi[id].item && BIZ.misi[id].item.matcha_bubuk ? BIZ.misi[id].item.matcha_bubuk.stok_toko : '–')}</b></p>
+      <div class="prow"><input type="number" min="1" value="1" id="bmMatcha" style="font:inherit;width:70px;padding:9px;border:1px solid var(--line);border-radius:10px;margin-top:14px"><button class="btn" data-belimatcha>🛒 Beli matcha</button></div></div>`;
+    if (sayaKerja) h += `<div class="prow"><input type="number" min="1" value="1" id="jmMatcha" style="font:inherit;width:70px;padding:9px;border:1px solid var(--line);border-radius:10px;margin-top:14px"><button class="btn ghost" data-jualmatcha>💰 Jual matcha toko ke PRN · ${N$(hm - 2)}/pack</button></div>`;
     h += `</div>`;
   }
   // misi harian toko: beli bahan di PRN -> COMBINE (20x, min 2/menu) -> JUAL ke toko (50 pack, min 5/menu)
@@ -4628,6 +4700,15 @@ sheetBody.addEventListener('click', async e=>{
   if (t.dataset.racik){ t.disabled = true; const r = await SB.rpc('racik_matcha', {p_user: AKUN.u, p_sandi: AKUN.s, p_jumlah: parseInt(t.dataset.racik)}).catch(()=>null);
     if (r && r.ok){ popHadiah('+' + r.jumlah + ' 🍵'); toast(`🍵 ${r.jumlah} matcha diracik · upah +${N$(r.jumlah)} · hari ini ${r.hari_ini}/20`); }
     else toast(r && r.alasan === 'daun_kurang' ? '🌿 Daun teh di stok Negara kurang dari 10.' : r && r.alasan === 'batas_matcha' ? 'Sudah 20 matcha hari ini.' : 'Gagal meracik.');
+    return ulang('MATCHA-NUSAWARA'); }
+  if (t.dataset.obat){ t.disabled = true; const r = await SB.rpc('beli_obat', {p_user: AKUN.u, p_sandi: AKUN.s, p_menu: t.dataset.obat}).catch(()=>null);
+    if (r && r.ok){ popHadiah('❤️ +' + r.hp); sfx(660, .2, 'sine', .08, 0, 990); alertBox('💊 Darah dipulihkan!', `${r.nama} diminum. Darah sekarang ${r.darah}/100 HP.`, '#2f7d1a'); }
+    else toast(r && r.alasan === 'utang_medis' ? '🏥 Lunasi utang medis ' + N$(r.utang_medis) + ' dulu (menu Akun → Kesehatan).' : ALASAN[r && r.alasan] || 'Gagal membeli.');
+    return ulang('RS-NUSAWARA'); }
+  if (t.hasAttribute('data-belimatcha')){ const n = Math.max(1, parseInt((document.getElementById('bmMatcha')||{}).value) || 1); t.disabled = true;
+    const r = await SB.rpc('beli_matcha_toko', {p_user: AKUN.u, p_sandi: AKUN.s, p_jumlah: n}).catch(()=>null);
+    if (r && r.ok){ popHadiah('+' + r.jumlah + ' 🍵'); toast(`🍵 ${r.jumlah} matcha dibeli ${N$(r.total)} · masuk tasmu`); }
+    else toast(r && r.alasan === 'stok_toko_kosong' ? 'Stok matcha toko tinggal ' + (r.stok || 0) + '.' : ALASAN[r && r.alasan] || 'Gagal membeli.');
     return ulang('MATCHA-NUSAWARA'); }
   if (t.hasAttribute('data-jualmatcha')){ const n = Math.max(1, parseInt((document.getElementById('jmMatcha')||{}).value) || 1); t.disabled = true;
     const r = await SB.rpc('jual_hasil_bisnis', {p_user: AKUN.u, p_sandi: AKUN.s, p_jumlah: n}).catch(()=>null);
