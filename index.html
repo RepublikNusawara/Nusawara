@@ -1188,6 +1188,7 @@ function focusObj(obj){
   if (typeof followKey !== 'undefined') followKey = null;
   const t = obj.userData.type, p = obj.getWorldPosition(new THREE.Vector3());
   if (t==='fasilitas'){ select(null); openSheet(()=>fasHTML(obj.userData.data.id)); hideHint(); if (typeof bisnisMuat === 'function') bisnisMuat(obj.userData.data.id); return; }
+  if (t==='eko' && typeof tambangOtomatis === 'function' && tambangOtomatis(obj.userData.data.id)){ select(null); hideHint(); return; }
   if (t==='eko'){ select(null); const f = ()=>ekoHTML(obj.userData.data.id); f.eko = 1; openSheet(f); hideHint(); if (String(obj.userData.data.id).startsWith('TMP-') && typeof tgsMuat === 'function') tgsMuat().then(()=>{ if (sheetFn === f) sheetBody.innerHTML = f(); }); return; }
   if (t==='counter'){
     select(null); openSheet(counterHTML); hideHint(); return;
@@ -3457,6 +3458,23 @@ function pergiKe(t){
         if (f === 'tambang') setTimeout(()=>{ toast('⛏️ Bagus! Sekarang combine hasil tambangmu di pabrik jadi bahan olahan atau material 🏭'); }, 2400);
         else if (baru) setTimeout(()=>{ toast('✅ Misi pemula selesai!'); }, 1800); } } } catch(_) {}
     return r; }; }
+
+/* ketuk ikon tambang = langsung menambang (tanpa membuka halaman) */
+let TBG_LOCK = 0;
+function tambangOtomatis(id){
+  const e = EKO[id]; if (!e || e.k !== 'tambang' || !AKUN.data) return false;
+  const t = TAMBANG.find(x=>x.kode === e.kode); if (!t) return false;
+  const b = brg(t.barang), st = (AKUN.data.tambang && AKUN.data.tambang[t.kode]) || {kali:0}, sisa = sisaDetik(t.kode);
+  if (TBG_LOCK) return true;
+  if (st.kali >= t.batas_harian){ toast(`${t.ikon} ${e.nama}: sudah ${t.batas_harian}× hari ini. Kembali besok!`); return true; }
+  if (sisa > 0){ toast(`⏳ ${e.nama}: tunggu ${sisa} detik lagi`); return true; }
+  if ((AKUN.data.stamina || 0) < (t.stamina || 0)){ toast(`⚡ Stamina kurang (perlu ${t.stamina})`); return true; }
+  TBG_LOCK = 1;
+  ekoAksi({}, 'menambang', {p_tambang: t.kode}, r=>{ const bb = brg(r.barang);
+    popHadiah('+' + r.jumlah + ' ' + bb.ikon); sfx(220, .12, 'square', .07, 0, 140);
+    toast(`${bb.ikon} +${r.jumlah} ${bb.nama} masuk tas · ⚡−${t.stamina} · hari ini ${st.kali + 1}/${t.batas_harian}`); }).finally(()=>{ TBG_LOCK = 0; });
+  return true;
+}
 /* tutorial pertama kali masuk */
 let TUTO = null;
 const tutoEl = document.createElement('div'); tutoEl.id = 'tuto'; document.body.appendChild(tutoEl);
