@@ -4263,6 +4263,7 @@ function fasHTML(id){
   const tot = F.pos.reduce((a,p)=>a+p[1],0), terisi = Object.values(isi).reduce((a,l)=>a+l.length,0);
   const rows = F.pos.map(([p,q,ic],i)=>{ const l = isi[p] || [], full = l.length >= q, top = i === 0;
     return `<div class="jrow"><div class="ji">${ic}</div><div class="jt"><b>${esc(p)}</b><small>${top ? (l.length ? 'Ditunjuk Presiden' : 'Ditunjuk langsung oleh Presiden · masih kosong') : `${l.length}/${q} terisi`}${l.length ? ' · ' + l.map(u=>'@'+esc(u)).join(', ') : ''}</small></div>
+      ${BIZ.gaji[id + '|' + p] != null ? `<span style="flex:none;background:#f2c14e;color:#3b2600;font-weight:800;font-size:12px;border-radius:10px;padding:4px 8px;margin-right:6px">${N$(BIZ.gaji[id + '|' + p])}/hari</span>` : ''}
       ${top ? '<span style="font-size:12px;font-weight:700;color:#8a6d1f;flex:none">👑 Jabatan</span>' : `<button class="btn${full ? ' ghost' : ''}" ${full ? 'disabled' : `data-kerja="${esc(id)}|${esc(p)}"`}>${full ? 'Penuh' : 'Daftar'}</button>`}</div>`; }).join('');
   return `<div class="kicker">Fasilitas Republik Nusawara</div><h2>${F.ikon} ${esc(F.nama)}</h2>
     <p style="font-size:13px;margin:0 0 10px">Dibangun ${F.hari} dari usulan warga @${esc(F.usul)}.</p>
@@ -4275,6 +4276,7 @@ function fasHTML(id){
 }
 // ---------- TAHAP 3: BISNIS (menu, kerja harian, gaji, laporan manager, Toko Matcha) ----------
 const BIZ = {menu:{}, kerja:null, lap:{}, tugas:[], gaji:{}, setor:{}, misi:{}, kinerja:{}};
+SB.get('gaji_posisi?select=*').then(r=>{ (r || []).forEach(g=>{ BIZ.gaji[g.fasilitas + '|' + g.posisi] = g.gaji; }); if (sheet.classList.contains('open') && sheetFn) sheetBody.innerHTML = sheetFn(); }).catch(()=>{});
 async function bisnisMuat(id){
   try { BIZ.menu[id] = await SB.rpc('menu_bisnis', {p_bisnis: id}) || []; } catch(_) {}
   if ((BIZ.menu[id] || []).length) try { BIZ.kinerja[id] = await SB.rpc('kinerja_mingguan', {p_bisnis: id}); } catch(_) {}
