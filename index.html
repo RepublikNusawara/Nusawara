@@ -105,6 +105,8 @@
     background:rgba(255,253,248,.92);border:1px solid var(--line);border-radius:12px;padding:7px 9px;box-shadow:0 6px 18px rgba(31,58,95,.12);font-size:11px;font-weight:800;color:#1f3a5f}
   .hud .r{display:flex;justify-content:space-between;margin-top:3px}.hud .b{height:9px;border-radius:5px;background:#e3e6ea;overflow:hidden;display:flex;margin-top:2px}
   .hud .b.k{height:5px}.hud .b i{display:block;height:100%}
+  .hud .hr{display:flex;align-items:center;gap:6px;margin-top:4px}.hud .hr>span{width:16px;text-align:center;font-size:13px;flex:none}.hud .hr .b{flex:1;margin:0;height:10px}
+  .hud .hk{display:flex;align-items:center;gap:6px;margin:5px 0 0 22px}.hud .hk .b{width:50%;flex:none;margin:0;height:6px}.hud .hk small{font-size:10px;font-weight:800;color:#2f8f5e;white-space:nowrap}
   @media (max-width:520px){ .top{gap:6px} .brand{padding:5px 8px 5px 6px} .brand svg{width:24px;height:28px} .brand b{font-size:12px} .brand span{display:none}
     .stats{padding:3px 2px} .stats div{padding:1px 6px} .stats b{font-size:13px} .stats span{font-size:9px} .akunbtn{padding:8px 9px;font-size:12px} .hud{width:160px} }
   .pop{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) scale(.6);z-index:30;font-size:34px;font-weight:900;color:#1f3a5f;
@@ -3237,13 +3239,9 @@ function hudHTML(d){
   const cap = d.kapasitas || 100, st = d.stamina || 0, dasar = Math.min(st, cap), ekstra = Math.max(0, st - cap), tot = cap + 20;
   const xpP = d.xp_perlu ? Math.min(100, Math.round((d.xp||0) / d.xp_perlu * 100)) : 100;
   const dh = d.darah ?? 100, dc = d.pingsan || dh <= 0 ? '#6b7280' : '#e5484d', ds = d.pingsan ? '😵 Pingsan' : dh >= 70 ? 'Sehat' : dh >= 40 ? 'Luka ringan' : 'Kritis';
-  return `<div class="r"><span>❤️ Darah · ${ds}</span><span>${dh}/100</span></div><div class="b"><i style="width:${Math.min(100, dh)}%;background:${dc}"></i></div>
-    <div class="r"><span>⚡ Stamina</span><span>${dasar}${ekstra ? '+' + ekstra : ''}/${cap}</span></div>
-    <div class="b"><i style="width:${dasar/tot*100}%;background:#f2b134"></i><i style="width:${ekstra/tot*100}%;background:#ff7a1a"></i></div>
-    <div class="r"><span>🟢 EXP Stamina · Kap. Lv ${d.lv || 0}${d.xp_perlu ? '' : ' MAX'}</span><span>${d.xp_perlu ? (d.xp||0) + '/' + d.xp_perlu + ' EXP' : 'maks ' + cap}</span></div>
-    <div class="b k"><i style="width:${xpP}%;background:#2fb57a"></i></div>
-    <div class="r"><span>🔵 EXP Warga · ${gelar(d.level).ikon} Lv ${d.level || 1}${d.exp_target ? '' : ' MAX'}</span><span>${d.exp_target ? (d.exp||0) + '/' + d.exp_target + ' EXP' : 'Level maksimum'}</span></div>
-    <div class="b"><i style="width:${d.exp_target ? Math.min(100, (d.exp||0)/d.exp_target*100) : 100}%;background:#2a7de1"></i></div>`; }
+  return `<div class="hr"><span>❤️</span><div class="b" title="Darah ${dh}/100 · ${ds}"><i style="width:${Math.min(100, dh)}%;background:${dc}"></i></div></div>
+    <div class="hr"><span>⚡</span><div class="b" title="Stamina ${dasar}/${cap}"><i style="width:${dasar/tot*100}%;background:#f2b134"></i><i style="width:${ekstra/tot*100}%;background:#ff7a1a"></i></div></div>
+    <div class="hk"><div class="b"><i style="width:${xpP}%;background:#2fb57a"></i></div><small>${d.xp_perlu ? (d.xp||0) + '/' + d.xp_perlu + ' · ' + xpP + '%' : 'MAX'}</small></div>`; }
 function expBar(){ const e = document.getElementById('expbar'); if (!e) return; const d = AKUN.data; document.body.classList.toggle('expon', !!d); if (!d){ e.style.display = 'none'; return; }
   e.style.display = 'block'; const t = d.exp_target, x = d.exp || 0; e.querySelector('i').style.width = (t ? Math.min(100, x/t*100) : 100) + '%';
   e.querySelector('span').textContent = t ? `🔵 EXP Warga · ${gelar(d.level).ikon} Lv ${d.level || 1} ${gelar(d.level).nama} · ${x}/${t} · ${Math.floor(x/t*100)}%` : `${gelar(d.level).ikon} Lv ${d.level} ${gelar(d.level).nama} · MAKSIMUM`; }
