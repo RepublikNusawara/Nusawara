@@ -2819,6 +2819,13 @@ pStyle.textContent = `
 .stx .ch{display:flex;flex-wrap:wrap;gap:6px}
 .stx .ch button{border:1px solid #d6d2c4;background:#fff;border-radius:999px;padding:6px 11px;font:inherit;font-size:13px}
 .stx .ch button.on{background:#1f3a5f;color:#fff;border-color:#1f3a5f}
+.stx .tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:7px}
+.stx .tl{position:relative;border:2px solid #e3e0d6;background:linear-gradient(#f6f8fb,#e6ebf2);border-radius:14px;padding:3px 3px 0;font:inherit;cursor:pointer;aspect-ratio:1/1.12;display:flex;flex-direction:column;align-items:center}
+.stx .tl img{width:100%;flex:1;min-height:0;object-fit:contain}
+.stx .tl b{font-size:11px;font-weight:800;color:#5a3a22;background:#fff3cf;border-radius:8px;padding:1px 5px;margin:2px 0 3px;white-space:nowrap}
+.stx .tl.milik b{background:#e3f6d8;color:#2f7d1a}.stx .tl.kunci{opacity:.7}
+.stx .tl.on{border-color:#1f3a5f;box-shadow:0 0 0 2px #1f3a5f}
+.stx .sg .dp{font-size:12px;color:#1f3a5f;font-weight:800;margin:6px 0 0}
 .stx .sw{width:30px;height:30px;border-radius:50%;padding:0!important;border:2px solid #fff!important;box-shadow:0 0 0 1px #c9c4b4}
 .stx .sw.on{box-shadow:0 0 0 3px #1f3a5f!important}`;
 document.head.appendChild(pStyle);
@@ -2929,7 +2936,7 @@ function stBuild(){
   stAv = makeAvatar(st.spec); stScene.add(stAv.g);
 }
 function stResize(){ const v = document.getElementById('stV'), w = v.clientWidth, h = v.clientHeight; stRen.setSize(w, h, false); stCam.aspect = w/h; stCam.updateProjectionMatrix();
-  const d = Math.max(5.2, 3.2 / Math.tan(16*Math.PI/180) / Math.min(1.6, Math.max(.5, w/h)) * .55); stCam.position.set(0, 1.6, d); stCam.lookAt(0, 1.45, 0); }
+  const d = 7.4 / Math.min(1.25, Math.max(.6, w/h)); stCam.position.set(0, 1.75, d); stCam.lookAt(0, 1.45, 0); }   // karakter sedikit lebih kecil
 function stLoop(t){ if (!st) return; if (stAv){ stAv.g.rotation.y = stRot + (stDrag === null ? Math.sin(t/1400)*.25 : 0); const b = Math.sin(t/300)*.04; stAv.body.position.y = Math.abs(b); } stRen.render(stScene, stCam); requestAnimationFrame(stLoop); }
 const SWATCH = { kulit: AVA_SKIN, rambut: AVA_HAIR, baju: AVA_TOP, celana: AVA_BOT, sepatu: AVA_SHOE, topiWarna: AVA_TOP };
 function stOptions(){
@@ -4085,14 +4092,38 @@ async function butikMuat(key){
   if (!BUTIK.item.length){ try { BUTIK.item = await SB.get('butik_item?select=*&order=kategori,urut') || []; } catch(_) {} }
   if (key && UNLOCK[key]){ try { const r = await SB.rpc('koleksi_saya', {p_user: key, p_sandi: UNLOCK[key]}); if (r && r.ok) BUTIK.punya = new Set(r.item); } catch(_) {} }
 }
+// gambar item (dirender dari karakter yang memakai item itu, lalu disimpan sebagai gambar)
+const THUMB = {}, THQ = []; let thR = null;
+function thumbRig(){ if (thR) return thR; const sc = new THREE.Scene(); sc.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.05)); const dl = new THREE.DirectionalLight(0xffffff, .6); dl.position.set(2,4,5); sc.add(dl);
+  return thR = {sc, cam: new THREE.PerspectiveCamera(30, 1, .05, 60), rt: new THREE.WebGLRenderTarget(160, 160), px: new Uint8Array(160*160*4), cv: Object.assign(document.createElement('canvas'), {width:160, height:160})}; }
+const TH_VIEW = { hair:[2.35,2.3,0,.25], hats:[2.45,2.6,0,.25], glasses:[2.3,1.7,0,.15], emote:[2.3,1.8,0,0], clothes:[1.4,3.1,0,.25], pants:[.72,2.6,0,.25],
+  shoes:[.12,1.5,.9,.4], weapons:[1.2,4.6,0,-.6], props:[1.2,4.6,0,.6], wings:[1.7,7.2,0,Math.PI-.35] };
+function thumbBuat(kat, kode){
+  const R = thumbRig(), v = TH_VIEW[kat] || [1.4,5,0,0], av = makeAvatar(avatarSpec({avatar:{pakai:{[kat]: kode}}}));
+  av.g.rotation.y = v[3]; R.sc.add(av.g); R.cam.position.set(0, v[0] + v[2], v[1]); R.cam.lookAt(0, v[0], 0);
+  renderer.setRenderTarget(R.rt); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(R.sc, R.cam);
+  renderer.readRenderTargetPixels(R.rt, 0, 0, 160, 160, R.px); renderer.setRenderTarget(null); renderer.setClearColor(0x000000, 1); R.sc.remove(av.g);
+  const c = R.cv.getContext('2d'), im = c.createImageData(160, 160);
+  for (let y=0;y<160;y++) im.data.set(R.px.subarray((159-y)*640, (160-y)*640), y*640);
+  c.putImageData(im, 0, 0); return R.cv.toDataURL('image/png');
+}
+function thumbProses(){ let n = 0;
+  while (THQ.length && n < 3){ const [kat, kode] = THQ.shift(), key = kat + '|' + kode;
+    if (!THUMB[key]){ try { const url = thumbBuat(kat, kode); if (!(kode === 'wings_honor_lv30' && !(window._HW && window._HW.model))) THUMB[key] = url;
+        document.querySelectorAll('img[data-th="' + key + '"]').forEach(im=>{ im.src = url; }); } catch(_) {} n++; } }
+  if (THQ.length) requestAnimationFrame(thumbProses); }
 function stOptions(){
   const sp = st.spec, D = butikDef(); let h = '';
   D.slot.forEach(k=>{ const ls = BUTIK.item.filter(i=>i.kategori === k), cur = ls.find(i=>i.kode === sp[k]), milik = i => i.harga === 0 || BUTIK.punya.has(i.kode);
-    h += `<div class="sg"><h4>${BUTIK.kat[k].toUpperCase()}</h4><div class="ch">${ls.map(i=>`<button data-k="${k}" data-v="${i.kode}" class="${sp[k] === i.kode ? 'on' : ''}">${esc(i.nama)} · ${milik(i) ? (i.harga ? '✓' : 'Gratis') : i.harga == null ? '🔒 Lv ' + (i.lv || 30) : N$(i.harga)}</button>`).join('')}</div>
-      ${cur && !milik(cur) && cur.harga != null ? `<button class="btn" data-belibutik="${cur.kode}" style="margin-top:8px">🪙 Beli ${esc(cur.nama)} · ${N$(cur.harga)}</button>` : ''}</div>`; });
+    h += `<div class="sg"><h4>${BUTIK.kat[k].toUpperCase()}</h4><div class="tg">${ls.map(i=>{ const key = k + '|' + i.kode, kunci = i.harga == null;
+        if (!THUMB[key] && !THQ.some(q=>q[0] === k && q[1] === i.kode)) THQ.push([k, i.kode]);
+        return `<button class="tl${sp[k] === i.kode ? ' on' : ''}${milik(i) ? ' milik' : ''}${kunci ? ' kunci' : ''}" data-k="${k}" data-v="${i.kode}" title="${esc(i.nama)}" aria-label="${esc(i.nama)}">
+          <img data-th="${key}" src="${THUMB[key] || ''}" alt=""><b>${milik(i) ? (i.harga ? '✓' : 'Gratis') : kunci ? '🔒 Lv ' + (i.lv || 30) : N$(i.harga)}</b></button>`; }).join('')}</div>
+      ${cur ? `<p class="dp">${esc(cur.nama)}</p>` : ''}
+      ${cur && !milik(cur) && cur.harga != null ? `<button class="btn" data-belibutik="${cur.kode}" style="margin-top:6px">🪙 Beli · ${N$(cur.harga)}</button>` : ''}</div>`; });
   if (!BUTIK.item.length) h = '<p class="note">Memuat katalog Butik…</p>';
   h += '<p class="note">Semua item hanya untuk gaya, tidak menambah kekuatan. Sayap Kehormatan Nusawara tidak dijual: hadiah untuk warga Level 30.</p>';
-  document.getElementById('stO').innerHTML = h;
+  document.getElementById('stO').innerHTML = h; if (THQ.length) requestAnimationFrame(thumbProses);
 }
 document.getElementById('stR').style.display = 'none';
 document.getElementById('stS').textContent = 'Pakai & simpan';

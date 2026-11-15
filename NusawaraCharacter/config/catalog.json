@@ -1,0 +1,646 @@
+{
+  "mata_uang": "N$",
+  "sumber_kebenaran": "Supabase tabel public.butik_item (harga & kepemilikan divalidasi di server lewat RPC beli_item / pakai_item)",
+  "karakter_dasar": {
+    "file": "models/base/citizen_base.glb",
+    "tinggi": 2.0,
+    "arah_depan": "+Z",
+    "origin": "tengah kaki",
+    "pose": "T-pose",
+    "tulang_dada": "Chest"
+  },
+  "bawaan": {
+    "clothes": "shirt_default",
+    "pants": "shorts_default",
+    "shoes": "barefoot",
+    "hair": "bald",
+    "hats": "no_hat",
+    "glasses": "no_glasses",
+    "wings": "no_wings",
+    "weapons": "no_weapon",
+    "props": "no_prop",
+    "emote": "normal"
+  },
+  "aturan": [
+    "Barang yang dibeli tersimpan permanen di koleksi warga.",
+    "Semua item hanya kosmetik, tidak memberi kekuatan atau penghasilan.",
+    "Uang pembelian masuk Kas Negara.",
+    "Sayap Kehormatan Nusawara tidak dijual dan tidak bisa ditukar; hadiah untuk warga Level 30."
+  ],
+  "kategori": {
+    "clothes": {
+      "folder_model": "models/shirts/",
+      "pasang_ke": "skinned (Chest, Spine, lengan)",
+      "item": [
+        {
+          "id": "shirt_default",
+          "nama": "Baju Warga Nusawara",
+          "harga": 0
+        },
+        {
+          "id": "shirt_casual_navy",
+          "nama": "Kaos Kasual 01",
+          "harga": 250,
+          "file": "models/shirts/shirt_casual_navy.glb"
+        },
+        {
+          "id": "shirt_casual_black",
+          "nama": "Kaos Kasual 02",
+          "harga": 250,
+          "file": "models/shirts/shirt_casual_black.glb"
+        },
+        {
+          "id": "shirt_polo",
+          "nama": "Polo Nusawara",
+          "harga": 400,
+          "file": "models/shirts/shirt_polo.glb"
+        },
+        {
+          "id": "shirt_work",
+          "nama": "Kemeja Kerja Lapangan",
+          "harga": 600,
+          "file": "models/shirts/shirt_work.glb"
+        },
+        {
+          "id": "vest_worker",
+          "nama": "Rompi Kerja",
+          "harga": 700,
+          "file": "models/shirts/vest_worker.glb"
+        },
+        {
+          "id": "shirt_formal",
+          "nama": "Kemeja Formal",
+          "harga": 600,
+          "file": "models/shirts/shirt_formal.glb"
+        },
+        {
+          "id": "hoodie",
+          "nama": "Hoodie Nusawara",
+          "harga": 700,
+          "file": "models/shirts/hoodie.glb"
+        },
+        {
+          "id": "jacket",
+          "nama": "Jaket",
+          "harga": 800,
+          "file": "models/shirts/jacket.glb"
+        },
+        {
+          "id": "jacket_premium",
+          "nama": "Jaket Premium",
+          "harga": 1200,
+          "file": "models/shirts/jacket_premium.glb"
+        }
+      ]
+    },
+    "pants": {
+      "folder_model": "models/pants/",
+      "pasang_ke": "skinned (Hips, kaki)",
+      "item": [
+        {
+          "id": "shorts_default",
+          "nama": "Celana Pendek",
+          "harga": 0
+        },
+        {
+          "id": "pants_long",
+          "nama": "Celana Panjang",
+          "harga": 250,
+          "file": "models/pants/pants_long.glb"
+        },
+        {
+          "id": "pants_cargo",
+          "nama": "Celana Cargo",
+          "harga": 400,
+          "file": "models/pants/pants_cargo.glb"
+        },
+        {
+          "id": "pants_work",
+          "nama": "Celana Kerja",
+          "harga": 500,
+          "file": "models/pants/pants_work.glb"
+        },
+        {
+          "id": "pants_formal",
+          "nama": "Celana Formal",
+          "harga": 450,
+          "file": "models/pants/pants_formal.glb"
+        }
+      ]
+    },
+    "shoes": {
+      "folder_model": "models/shoes/",
+      "pasang_ke": "skinned (LeftFoot, RightFoot)",
+      "item": [
+        {
+          "id": "barefoot",
+          "nama": "Tanpa Sepatu",
+          "harga": 0
+        },
+        {
+          "id": "sneakers",
+          "nama": "Sneakers",
+          "harga": 300,
+          "file": "models/shoes/sneakers.glb"
+        },
+        {
+          "id": "work_shoes",
+          "nama": "Sepatu Kerja",
+          "harga": 600,
+          "file": "models/shoes/work_shoes.glb"
+        },
+        {
+          "id": "boots",
+          "nama": "Boots",
+          "harga": 700,
+          "file": "models/shoes/boots.glb"
+        },
+        {
+          "id": "formal_shoes",
+          "nama": "Sepatu Formal",
+          "harga": 650,
+          "file": "models/shoes/formal_shoes.glb"
+        },
+        {
+          "id": "sport_shoes",
+          "nama": "Sepatu Sport",
+          "harga": 700,
+          "file": "models/shoes/sport_shoes.glb"
+        }
+      ]
+    },
+    "hair": {
+      "folder_model": "models/hair/",
+      "pasang_ke": "Head",
+      "item": [
+        {
+          "id": "bald",
+          "nama": "Botak",
+          "harga": 0
+        },
+        {
+          "id": "hair_crew",
+          "nama": "Cepak",
+          "harga": 200,
+          "file": "models/hair/hair_crew.glb"
+        },
+        {
+          "id": "hair_neat",
+          "nama": "Pendek Rapi",
+          "harga": 250,
+          "file": "models/hair/hair_neat.glb"
+        },
+        {
+          "id": "hair_sidepart",
+          "nama": "Belah Samping",
+          "harga": 300,
+          "file": "models/hair/hair_sidepart.glb"
+        },
+        {
+          "id": "hair_messy",
+          "nama": "Messy",
+          "harga": 350,
+          "file": "models/hair/hair_messy.glb"
+        },
+        {
+          "id": "hair_spike",
+          "nama": "Spike",
+          "harga": 350,
+          "file": "models/hair/hair_spike.glb"
+        },
+        {
+          "id": "hair_wavy",
+          "nama": "Wavy",
+          "harga": 400,
+          "file": "models/hair/hair_wavy.glb"
+        },
+        {
+          "id": "hair_manbun",
+          "nama": "Man Bun",
+          "harga": 400,
+          "file": "models/hair/hair_manbun.glb"
+        },
+        {
+          "id": "hair_undercut",
+          "nama": "Undercut",
+          "harga": 450,
+          "file": "models/hair/hair_undercut.glb"
+        },
+        {
+          "id": "hair_long",
+          "nama": "Rambut Panjang",
+          "harga": 500,
+          "file": "models/hair/hair_long.glb"
+        }
+      ]
+    },
+    "hats": {
+      "folder_model": "models/hats/",
+      "pasang_ke": "Head",
+      "item": [
+        {
+          "id": "no_hat",
+          "nama": "Tanpa Topi",
+          "harga": 0
+        },
+        {
+          "id": "hat_casual",
+          "nama": "Topi Kasual",
+          "harga": 200,
+          "file": "models/hats/hat_casual.glb"
+        },
+        {
+          "id": "hat_sport",
+          "nama": "Topi Sport",
+          "harga": 250,
+          "file": "models/hats/hat_sport.glb"
+        },
+        {
+          "id": "bucket_hat",
+          "nama": "Bucket Hat",
+          "harga": 300,
+          "file": "models/hats/bucket_hat.glb"
+        },
+        {
+          "id": "hat_worker",
+          "nama": "Topi Pekerja",
+          "harga": 350,
+          "file": "models/hats/hat_worker.glb"
+        },
+        {
+          "id": "hat_field",
+          "nama": "Topi Lapangan",
+          "harga": 350,
+          "file": "models/hats/hat_field.glb"
+        },
+        {
+          "id": "hat_formal",
+          "nama": "Topi Formal",
+          "harga": 400,
+          "file": "models/hats/hat_formal.glb"
+        },
+        {
+          "id": "pilot_hat",
+          "nama": "Topi Pilot",
+          "harga": 450,
+          "file": "models/hats/pilot_hat.glb"
+        },
+        {
+          "id": "military_beret",
+          "nama": "Baret Militer",
+          "harga": 450,
+          "file": "models/hats/military_beret.glb"
+        },
+        {
+          "id": "crown",
+          "nama": "Mahkota",
+          "harga": 800,
+          "file": "models/hats/crown.glb"
+        }
+      ]
+    },
+    "glasses": {
+      "folder_model": "models/glasses/",
+      "pasang_ke": "Head",
+      "item": [
+        {
+          "id": "no_glasses",
+          "nama": "Tanpa Kacamata",
+          "harga": 0
+        },
+        {
+          "id": "glasses_basic",
+          "nama": "Kacamata Biasa",
+          "harga": 200,
+          "file": "models/glasses/glasses_basic.glb"
+        },
+        {
+          "id": "glasses_round",
+          "nama": "Kacamata Bulat",
+          "harga": 250,
+          "file": "models/glasses/glasses_round.glb"
+        },
+        {
+          "id": "glasses_square",
+          "nama": "Kacamata Kotak",
+          "harga": 250,
+          "file": "models/glasses/glasses_square.glb"
+        },
+        {
+          "id": "glasses_sport",
+          "nama": "Kacamata Sport",
+          "harga": 300,
+          "file": "models/glasses/glasses_sport.glb"
+        },
+        {
+          "id": "sunglasses",
+          "nama": "Kacamata Hitam",
+          "harga": 300,
+          "file": "models/glasses/sunglasses.glb"
+        },
+        {
+          "id": "vr_glasses",
+          "nama": "Kacamata VR",
+          "harga": 500,
+          "file": "models/glasses/vr_glasses.glb"
+        },
+        {
+          "id": "visor",
+          "nama": "Kacamata Visor",
+          "harga": 550,
+          "file": "models/glasses/visor.glb"
+        },
+        {
+          "id": "gold_glasses",
+          "nama": "Kacamata Emas",
+          "harga": 600,
+          "file": "models/glasses/gold_glasses.glb"
+        },
+        {
+          "id": "monocle",
+          "nama": "Monokel",
+          "harga": 600,
+          "file": "models/glasses/monocle.glb"
+        }
+      ]
+    },
+    "wings": {
+      "folder_model": "models/wings/",
+      "pasang_ke": "Chest",
+      "item": [
+        {
+          "id": "no_wings",
+          "nama": "Tanpa Sayap",
+          "harga": 0
+        },
+        {
+          "id": "wings_white",
+          "nama": "Sayap Putih",
+          "harga": 1200,
+          "file": "models/wings/wings_white.glb"
+        },
+        {
+          "id": "wings_gold",
+          "nama": "Sayap Emas",
+          "harga": 1800,
+          "file": "models/wings/wings_gold.glb"
+        },
+        {
+          "id": "wings_dark",
+          "nama": "Sayap Gelap",
+          "harga": 1800,
+          "file": "models/wings/wings_dark.glb"
+        },
+        {
+          "id": "wings_energy",
+          "nama": "Sayap Energi",
+          "harga": 2000,
+          "file": "models/wings/wings_energy.glb"
+        },
+        {
+          "id": "wings_honor_lv30",
+          "nama": "Sayap Kehormatan Nusawara",
+          "harga": null,
+          "file": "models/wings/wings_honor_lv30.glb",
+          "eksklusif": true,
+          "level": 30,
+          "bisa_ditukar": false
+        }
+      ]
+    },
+    "weapons": {
+      "folder_model": "models/weapons/",
+      "pasang_ke": "RightHand",
+      "item": [
+        {
+          "id": "no_weapon",
+          "nama": "Tanpa Senjata",
+          "harga": 0
+        },
+        {
+          "id": "sword",
+          "nama": "Pedang",
+          "harga": 800,
+          "file": "models/weapons/sword.glb"
+        },
+        {
+          "id": "katana",
+          "nama": "Katana",
+          "harga": 900,
+          "file": "models/weapons/katana.glb"
+        },
+        {
+          "id": "spear",
+          "nama": "Tombak",
+          "harga": 800,
+          "file": "models/weapons/spear.glb"
+        },
+        {
+          "id": "bow_arrow",
+          "nama": "Busur dan Anak Panah",
+          "harga": 950,
+          "file": "models/weapons/bow_arrow.glb"
+        },
+        {
+          "id": "magic_staff",
+          "nama": "Tongkat Sihir",
+          "harga": 1000,
+          "file": "models/weapons/magic_staff.glb"
+        },
+        {
+          "id": "trident",
+          "nama": "Trisula",
+          "harga": 1000,
+          "file": "models/weapons/trident.glb"
+        }
+      ]
+    },
+    "props": {
+      "folder_model": "models/props/",
+      "pasang_ke": "LeftHand (Ransel/Kamera: Chest)",
+      "item": [
+        {
+          "id": "no_prop",
+          "nama": "Tanpa Aksesori",
+          "harga": 0
+        },
+        {
+          "id": "lollipop",
+          "nama": "Permen Lolipop",
+          "harga": 150,
+          "file": "models/props/lollipop.glb"
+        },
+        {
+          "id": "candy_cane",
+          "nama": "Permen Tongkat",
+          "harga": 200,
+          "file": "models/props/candy_cane.glb"
+        },
+        {
+          "id": "bucket",
+          "nama": "Ember",
+          "harga": 250,
+          "file": "models/props/bucket.glb"
+        },
+        {
+          "id": "frying_pan",
+          "nama": "Wajan",
+          "harga": 300,
+          "file": "models/props/frying_pan.glb"
+        },
+        {
+          "id": "lantern",
+          "nama": "Lentera",
+          "harga": 350,
+          "file": "models/props/lantern.glb"
+        },
+        {
+          "id": "nusawara_flag",
+          "nama": "Bendera Nusawara",
+          "harga": 400,
+          "file": "models/props/nusawara_flag.glb"
+        },
+        {
+          "id": "backpack",
+          "nama": "Ransel",
+          "harga": 500,
+          "file": "models/props/backpack.glb"
+        },
+        {
+          "id": "camera",
+          "nama": "Kamera",
+          "harga": 500,
+          "file": "models/props/camera.glb"
+        },
+        {
+          "id": "radio",
+          "nama": "HT Radio",
+          "harga": 550,
+          "file": "models/props/radio.glb"
+        },
+        {
+          "id": "mascot_plush",
+          "nama": "Boneka Maskot",
+          "harga": 600,
+          "file": "models/props/mascot_plush.glb"
+        }
+      ]
+    },
+    "emote": {
+      "folder_model": null,
+      "pasang_ke": "tekstur/geometri wajah pada Head",
+      "item": [
+        {
+          "id": "normal",
+          "nama": "Normal",
+          "harga": 0
+        },
+        {
+          "id": "senang",
+          "nama": "Senang",
+          "harga": 100
+        },
+        {
+          "id": "tertawa",
+          "nama": "Tertawa",
+          "harga": 100
+        },
+        {
+          "id": "semangat",
+          "nama": "Semangat",
+          "harga": 100
+        },
+        {
+          "id": "kaget",
+          "nama": "Kaget",
+          "harga": 100
+        },
+        {
+          "id": "berpikir",
+          "nama": "Berpikir",
+          "harga": 100
+        },
+        {
+          "id": "sedih",
+          "nama": "Sedih",
+          "harga": 100
+        },
+        {
+          "id": "marah",
+          "nama": "Marah",
+          "harga": 100
+        }
+      ]
+    }
+  },
+  "preset_outfit": [
+    {
+      "id": "outfit_casual",
+      "nama": "Kasual",
+      "item": {
+        "clothes": "shirt_casual_navy",
+        "pants": "pants_long",
+        "shoes": "sneakers",
+        "hats": "hat_casual"
+      }
+    },
+    {
+      "id": "outfit_work",
+      "nama": "Kerja",
+      "item": {
+        "clothes": "shirt_work",
+        "pants": "pants_work",
+        "shoes": "work_shoes"
+      }
+    },
+    {
+      "id": "outfit_industry",
+      "nama": "Industri",
+      "item": {
+        "clothes": "vest_worker",
+        "pants": "pants_work",
+        "shoes": "boots",
+        "hats": "hat_worker"
+      }
+    },
+    {
+      "id": "outfit_formal",
+      "nama": "Formal",
+      "item": {
+        "clothes": "shirt_formal",
+        "pants": "pants_formal",
+        "shoes": "formal_shoes"
+      }
+    },
+    {
+      "id": "outfit_community",
+      "nama": "Komunitas",
+      "item": {
+        "clothes": "hoodie",
+        "pants": "pants_long",
+        "shoes": "sneakers",
+        "hats": "hat_casual"
+      }
+    }
+  ],
+  "paket": [
+    {
+      "nama": "Paket Casual",
+      "isi": "Topi + Kacamata",
+      "harga": 550,
+      "status": "belum aktif"
+    },
+    {
+      "nama": "Paket Petualang",
+      "isi": "Topi + Busur & Anak Panah",
+      "harga": 1350,
+      "status": "belum aktif"
+    },
+    {
+      "nama": "Paket Premium",
+      "isi": "Sayap + Pedang",
+      "harga": 2800,
+      "status": "belum aktif"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+PROMPT — MODEL PAKAIAN & AKSESORI 3D NUSAWARA
+
+Create one production-ready 3D item for the Republik Nusawara chibi citizen character.
+
+The supplied base citizen GLB (models/base/citizen_base.glb) is the exact fitting reference. Preserve its humanoid proportions, height (2 world units), +Z forward direction, foot origin, T-pose, and existing 21-bone skeleton. The chest bone is named `Chest`, not `Spine2`.
+
+Create ONLY the requested item, not a new character and not a mannequin:
+- shirt: fit torso, shoulders and arms; correct sleeve length and collar. The default citizen shirt (shirt_default) is white with a small Nusawara flag emblem on the left chest and "WARGA NUSAWARA" printed across the back.
+- pants: fit waist, hips and both legs; preserve knee/ankle bending.
+- shoes: fit both feet without changing the base leg proportions.
+- hair / hats / glasses: rigid mesh positioned for the `Head` bone; hair must not clip through hats.
+- wings: rigid mesh for the `Chest` bone, both left and right wings modelled (mirror the right wing).
+- weapons / props: rigid mesh held in `RightHand` (weapons) or `LeftHand` (props).
+
+Technical requirements:
+- Export as GLB (glTF 2.0).
+- Clothing: skinned mesh compatible with the exact base skeleton and bone names; correct weights around shoulders, elbows, hips and knees.
+- UV unwrapped, PBR materials, mobile-friendly (under 5,000 triangles, textures up to 1024).
+- No floating gaps, clipping through the body, or oversized proportions.
+- Use the exact filename = item ID from config/catalog.json (e.g. hoodie.glb, pants_cargo.glb, sneakers.glb).
+- Deliver a real 3D asset, not a 2D concept image or product poster.

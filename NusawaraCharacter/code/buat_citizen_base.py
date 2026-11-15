@@ -207,7 +207,7 @@ while len(buf) % 4: buf.append(0)
 gltf['buffers'][0]['byteLength'] = len(buf)
 js = json.dumps(gltf, separators=(',', ':')).encode()
 while len(js) % 4: js += b' '
-out = sys.argv[1] if len(sys.argv) > 1 else 'citizen_base.glb'
+out = sys.argv[1] if len(sys.argv) > 1 else "../models/base/citizen_base.glb"
 with open(out, 'wb') as f:
     f.write(struct.pack('<III', 0x46546C67, 2, 12 + 8 + len(js) + 8 + len(buf)))
     f.write(struct.pack('<II', len(js), 0x4E4F534A)); f.write(js)

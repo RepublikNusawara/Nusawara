@@ -1,0 +1,11 @@
+# Checklist aset karakter
+- [ ] Nama file GLB = `id` di `config/catalog.json`, disimpan di folder kategori yang benar.
+- [ ] Dibuat dari `models/base/citizen_base.glb` asli (tinggi 2 unit, +Z depan, origin di kaki, T-pose).
+- [ ] Skeleton kompatibel, nama tulang tidak berubah (`Hips, Spine, Chest, Neck, Head, Left/Right UpperArm/LowerArm/Hand, Left/Right UpperLeg/LowerLeg/Foot/Toes`).
+- [ ] Baju mengikuti Spine/Chest/lengan; celana mengikuti Hips/kaki; sepatu mengikuti LeftFoot/RightFoot.
+- [ ] Rambut/topi/kacamata dipasang ke `Head`; sayap ke `Chest`; senjata ke `RightHand`; aksesori ke `LeftHand`.
+- [ ] Rambut tidak menembus topi; tidak ada celah atau tembus badan.
+- [ ] Uji idle, walk, run, jump untuk clipping.
+- [ ] Ringan untuk HP (target < 5.000 segitiga per item; tekstur ≤ 1024).
+- [ ] URL aset berfungsi di GitHub Pages.
+- [ ] Harga & kepemilikan divalidasi lewat Supabase RPC.

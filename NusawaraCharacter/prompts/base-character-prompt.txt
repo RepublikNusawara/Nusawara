@@ -1,0 +1,4 @@
+Create a production-ready 3D base character for a virtual city game called "Republik Nusawara".
+Cute, simple 3D chibi human; bald; no clothes, shoes, hat, glasses or accessories; natural light skin tone; large round head (about 40% of total height); small compact torso; short arms and legs; large friendly cartoon eyes; simple nose and mouth; neutral friendly expression; smooth rounded proportions; no intimate anatomical details (clean mannequin-style game model).
+One consistent model with orthographic views: front, front-right 45°, right, back, left, front-left 45°, top, bottom.
+Neutral T-pose, symmetrical, clean topology, separate mesh parts (head, body, arms, hands, legs, feet, eyes), humanoid skeleton (chest bone named Chest), 2,000–5,000 triangles, PBR materials, GLB export, origin at the centre of the feet, height 2 units, facing +Z. Suitable for Three.js r128, Unity and mobile browsers.
