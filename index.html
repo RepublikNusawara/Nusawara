@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-0125">
+<meta name="nusawara-build" content="20261116-0210">
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
 if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.setItem('nusawara_rl_'+x[1],'1');location.replace(location.pathname+'?v='+x[1]);}}).catch(function(){});}catch(e){}})();</script>
@@ -4499,42 +4499,80 @@ sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-main]
   if (typeof COLL !== 'undefined') COLL.push([HX, HZ-1, 11.5, 7.5]);
 })();
 // ---------- KOPI NUSAWARA (usulan warga @nrllzizaa__, dibangun DAY 3.5) ----------
+/* ---------- GEDUNG BISA DIMASUKI: dinding jadi transparan saat karakter di dalam ---------- */
+const ENTERABLE = [];
+function shellMesh(m){ if (!m.material.transparent) m.material = m.material.clone(); m.material.transparent = true; m.userData.baseOp = m.material.opacity; return m; }
+function daftarMasuk(e){ e.t = 0; ENTERABLE.push(e); (e.coll || []).forEach(c=>{ if (typeof COLL !== 'undefined') COLL.push(c); }); }
+(function enterLoop(){ requestAnimationFrame(enterLoop);
+  const ps = []; try { if (typeof pres !== 'undefined' && pres && pres.position) ps.push(pres.position); } catch(_) {}
+  try { if (ctl && ctl.key && WALKERS[ctl.key]) ps.push(WALKERS[ctl.key].av.g.position); } catch(_) {}
+  ENTERABLE.forEach(e=>{
+    const di = ps.some(q=>Math.abs(q.x-e.x) < e.hw && q.z > e.z0 && q.z < e.z1), tgt = di ? 1 : 0;
+    if (Math.abs(e.t - tgt) < .01 && e.t === tgt) return;
+    e.t += (tgt - e.t) * .18; if (Math.abs(e.t - tgt) < .01) e.t = tgt;
+    e.shell.forEach(m=>{ m.material.opacity = m.userData.baseOp * (1 - .88*e.t); m.material.depthWrite = e.t < .5; });
+    e.roof.forEach(m=>{ m.visible = e.t < .5; });
+  });
+})();
 function buildKopi(par, x, z){
-  const G = new THREE.Group(); G.position.set(x, 0, z); par.add(G);
+  const G = new THREE.Group(); G.position.set(x, 0, z); G.scale.setScalar(2); par.add(G);   // 2x lebih besar
   const kb = (w,h,d,c,X,Y,Z,p) => box(w,h,d,c,X,Y,Z,p||G);
+  const SH = [], RF = [], sh = (...a) => { const m = kb(...a); SH.push(shellMesh(m)); return m; }, rf = (...a) => { const m = kb(...a); RF.push(m); return m; };
   const GL = new THREE.MeshPhongMaterial({color:0x9fd3e0, shininess:90, specular:0xbbddee, transparent:true, opacity:.75});
-  kb(17,.12,15,0xd9c9a8,0,.06,0);                                  // pelataran
-  kb(12,4.2,8,0xf3e6cf,0,2.1,-2.5);                                 // bangunan
-  kb(12.2,.5,8.2,0x8b5a35,0,.25,-2.5);                              // alas kayu
-  [-5.4,-2.7,2.7,5.4].forEach(X=>kb(.6,4.2,.25,0x8b5a35,X,2.1,1.55)); // tiang kayu depan
-  const gl = new THREE.Mesh(new THREE.BoxGeometry(10.2,2.9,.15), GL); gl.position.set(0,1.95,1.5); G.add(gl);
-  kb(2,2.6,.2,0x5a3a22,0,1.3,1.62);                                 // pintu
-  kb(8,1.1,1.4,0x6b4a2e,0,.8,-3.5); kb(8,.15,1.6,0xe8d9bd,0,1.42,-3.5); // meja bar di dalam
-  kb(12.8,.45,8.8,0x4a3426,0,4.42,-2.5);                            // atap
+  const CR = 0xf3e6cf, WD = 0x8b5a35;
+  kb(12.5,.12,15,0xd9c9a8,0,.06,0);                                  // pelataran
+  kb(12,.04,8,0x9a6b43,0,.14,-2.5);                                  // lantai kayu di dalam
+  kb(5.5,.03,3.2,0xb5483a,0,.17,-0.2);                               // karpet
+  // dinding berongga + pintu masuk
+  sh(12,4.2,.3,CR,0,2.1,-6.35); sh(.3,4.2,8,CR,-5.85,2.1,-2.5); sh(.3,4.2,8,CR,5.85,2.1,-2.5);
+  sh(4.7,4.2,.3,CR,-3.65,2.1,1.35); sh(4.7,4.2,.3,CR,3.65,2.1,1.35); sh(2.6,1.0,.3,CR,0,3.7,1.35);
+  [-1.3,1.3].forEach(X=>kb(.2,3.2,.36,0x5a3a22,X,1.6,1.4)); kb(2.8,.2,.36,0x5a3a22,0,3.2,1.4);  // kusen pintu
+  [-5.4,-2.7,2.7,5.4].forEach(X=>sh(.6,4.2,.25,WD,X,2.1,1.55)); // tiang kayu depan
+  [-3.1,3.1].forEach(X=>{ const gl = new THREE.Mesh(new THREE.BoxGeometry(3.2,2.4,.12), GL.clone()); gl.position.set(X,2,1.5); G.add(gl); SH.push(shellMesh(gl)); });
+  rf(12.8,.45,8.8,0x4a3426,0,4.42,-2.5);                              // atap
   // kanopi bergaris
-  const aw = new THREE.Group(); aw.position.set(0,3.55,2.9); aw.rotation.x = .38; G.add(aw);
+  const aw = new THREE.Group(); aw.position.set(0,3.9,2.9); aw.rotation.x = .38; G.add(aw);
   for (let i=0;i<6;i++) kb(2,.12,2.2,i%2?0xffffff:0x2fb5a8,-5+i*2,0,0,aw);
   // papan nama
   const tex = canvasTex(1024,160,(g,w,h)=>{ g.fillStyle='#3b2618'; g.fillRect(0,0,w,h); g.fillStyle='#f2b134'; g.fillRect(0,h-12,w,12);
     g.fillStyle='#f3e6cf'; g.font=`900 84px ${FONT}`; g.textAlign='center'; g.textBaseline='middle'; g.fillText('☕ KOPI NUSAWARA', w/2, h/2-4); });
-  const sg = new THREE.Mesh(new THREE.PlaneGeometry(9.6,1.5), new THREE.MeshBasicMaterial({map:tex})); sg.position.set(0,5.5,1.62); G.add(sg);
-  kb(9.9,1.8,.2,0x2a1a10,0,5.5,1.48);
+  const sg = new THREE.Mesh(new THREE.PlaneGeometry(9.6,1.5), new THREE.MeshBasicMaterial({map:tex})); sg.position.set(0,5.5,1.62); G.add(sg); RF.push(sg);
+  rf(9.9,1.8,.2,0x2a1a10,0,5.5,1.48);
   // cangkir raksasa di atap
-  const cup = new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.0,1.9,20), M(0xffffff)); cup.position.set(3.6,5.6,-4); G.add(cup);
-  const cof = new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.15,.1,20), M(0x5a3a22)); cof.position.set(3.6,6.52,-4); G.add(cof);
-  kb(.35,1.1,.35,0xffffff,5.05,5.6,-4); kb(.6,.3,.35,0xffffff,4.8,6.05,-4); kb(.6,.3,.35,0xffffff,4.8,5.15,-4);
+  const cup = new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.0,1.9,20), M(0xffffff)); cup.position.set(3.6,5.6,-4); G.add(cup); RF.push(cup);
+  const cof = new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.15,.1,20), M(0x5a3a22)); cof.position.set(3.6,6.52,-4); G.add(cof); RF.push(cof);
+  rf(.35,1.1,.35,0xffffff,5.05,5.6,-4); rf(.6,.3,.35,0xffffff,4.8,6.05,-4); rf(.6,.3,.35,0xffffff,4.8,5.15,-4);
+  // ===== ISI DALAM KOPI =====
+  kb(8,1.1,1.4,0x6b4a2e,0,.7,-4.2); kb(8.2,.15,1.6,0xe8d9bd,0,1.32,-4.2);                 // meja bar
+  kb(1.1,.7,.8,0x333a40,-2.4,1.75,-4.2); kb(.5,.3,.5,0xc0c4c8,-2.4,2.2,-4.2);              // mesin kopi
+  [-.8,.4,1.6,2.8].forEach(X=>{ kb(.4,.3,.4,0xffffff,X,1.55,-4.1); });                      // cangkir di bar
+  [-3.2,-1.1,1.1,3.2].forEach(X=>{ kb(.08,.8,.08,0x333333,X,.55,-2.9); kb(.55,.12,.55,0x2fb5a8,X,1,-2.9); }); // bangku bar
+  kb(9,.12,.7,0x5a3a22,0,2.6,-6.05); kb(9,.12,.7,0x5a3a22,0,3.4,-6.05);                    // rak dinding belakang
+  [-3.6,-2,-.4,1.2,2.8].forEach((X,i)=>{ kb(.7,.5,.5,i%2?0xf3e6cf:0xb5483a,X,2.92,-6.05); kb(.6,.45,.5,i%2?0x2fb5a8:0xf2b134,X+.2,3.7,-6.05); });
+  const mt = canvasTex(512,300,(g,w,h)=>{ g.fillStyle='#2b1d12'; g.fillRect(0,0,w,h); g.strokeStyle='#f2b134'; g.lineWidth=8; g.strokeRect(8,8,w-16,h-16);
+    g.fillStyle='#f2b134'; g.font=`900 44px ${FONT}`; g.textAlign='center'; g.fillText('MENU', w/2, 60); g.fillStyle='#f3e6cf'; g.font=`700 30px ${FONT}`;
+    ['Kopi Susu','Espresso','Latte','Teh Tarik'].forEach((t,i)=>g.fillText(t, w/2, 118+i*42)); });
+  const mn = new THREE.Mesh(new THREE.PlaneGeometry(2.6,1.5), new THREE.MeshBasicMaterial({map:mt})); mn.position.set(-4.2,2.6,-6.17); G.add(mn);
+  [-3.6,3.6].forEach(X=>{ kb(1.5,.12,1.5,0xe8d9bd,X,1,-.2); kb(.14,.9,.14,0x333333,X,.5,-.2);                  // meja & kursi dalam
+    kb(.6,.6,.6,WD,X-1.2,.5,-.2); kb(.6,.6,.6,WD,X+1.2,.5,-.2); });
+  [-4.6,4.6].forEach(X=>{ kb(.5,.5,.5,0x3f8d40,X,.5,-5.4); kb(.4,.6,.4,0x2f6f2f,X,1,-5.4); });                // tanaman
+  [-2.5,0,2.5].forEach(X=>{ kb(.08,.9,.08,0x333333,X,3.9,-3.5); const lp = new THREE.Mesh(new THREE.BoxGeometry(.6,.35,.6), new THREE.MeshStandardMaterial({color:0xffe08a, emissive:0xb08a2a})); lp.position.set(X,3.35,-3.5); G.add(lp); });
   // meja luar + payung
   [[-4.6,5.2],[0,5.6],[4.6,5.2]].forEach(([X,Z])=>{
     const t = new THREE.Mesh(new THREE.CylinderGeometry(.75,.75,.1,16), M(0xf3e6cf)); t.position.set(X,1.05,Z); G.add(t);
     kb(.12,1,.12,0x333333,X,.5,Z); kb(.5,.5,.5,0x8b5a35,X-1.1,.25,Z); kb(.5,.5,.5,0x8b5a35,X+1.1,.25,Z);
     kb(.08,2.6,.08,0xdddddd,X,1.4,Z);
     const um = new THREE.Mesh(new THREE.ConeGeometry(1.6,.7,8), M(0x2fb5a8)); um.position.set(X,2.9,Z); G.add(um); });
-  [[-7.6,1.6],[7.6,1.6],[-7.6,-6],[7.6,-6]].forEach(([X,Z])=>{ kb(.8,.7,.8,0x8b5a35,X,.35,Z); kb(.9,.9,.9,0x3f8d40,X,1.15,Z); });
+  [[-6,1.6],[6,1.6]].forEach(([X,Z])=>{ kb(.8,.7,.8,0x8b5a35,X,.35,Z); kb(.9,.9,.9,0x3f8d40,X,1.15,Z); });
+  // dunia: pusat (x,z), lebar setengah 12, depan z+3 .. belakang z-13; dinding sebagai penghalang, pintu lebar 5.2 di tengah
+  const hz = z - 5 - 8, cx = x;
+  daftarMasuk({x:cx, hw:11.6, z0:z-13, z1:z+3.4, shell:SH, roof:RF, coll:[
+    [cx, z-12.7, 12, .3], [cx-11.7, z-5, .3, 8], [cx+11.7, z-5, .3, 8],
+    [cx-7.3, z+2.7, 4.7, .3], [cx+7.3, z+2.7, 4.7, .3], [cx, z-8.4, 8, 1.4]]});
   return G;
 }
-const KOPI = buildKopi(scene, 70, -33);
+const KOPI = buildKopi(scene, 74, -40.5);
 KOPI.userData = {type:'fasilitas', data:{id:'KOPI-NUSAWARA'}}; pickables.push(KOPI);
-if (typeof COLL !== 'undefined') COLL.push([70, -35.5, 6.4, 4.4]);
 
 // ---------- AKADEMI NUSAWARA (usulan warga @carmecar._, dibangun DAY 4) ----------
 function buildSekolah(par, x, z){
@@ -4826,7 +4864,7 @@ sheetBody.addEventListener('click', async e=>{
     catch(_){ toast('Gagal tersambung.'); } }
 });
 // saat warga memainkan karakternya: ketuk gedung, atau tekan tombol yang muncul saat berada di dekat gedung
-const FAS_POS = {'RS-NUSAWARA':[163,-38.5,22], 'KOPI-NUSAWARA':[70,-33,19], 'SEKOLAH-NUSAWARA':[194,-34.1,20]};
+const FAS_POS = {'RS-NUSAWARA':[163,-38.5,22], 'KOPI-NUSAWARA':[74,-27,19], 'SEKOLAH-NUSAWARA':[194,-34.1,20]};
 function openFasPlay(id){ if (typeof ctl !== 'undefined' && ctl.key){ Object.keys(ctl.d).forEach(k=>ctl.d[k] = 0); ctl.run = false; document.body.classList.add('fas-open'); } openSheet(()=>fasHTML(id)); }
 function fasTap(e){
   ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr, camera);
@@ -4898,7 +4936,7 @@ loop();
   jalan(58,142,-58);                                   // jalan baris toko 2
   jalan(58,142,-83);                                   // jalan baris toko 3
   const parkir = (cx,w,zc)=>{ box(w,.1,RW,PK,cx,.085,zc); const n = Math.max(2, Math.floor(w/3.2)); for (let i=0;i<=n;i++) box(.14,.03,RW-.6,0xffffff,cx-w/2+.1+i*((w-.2)/n),.15,zc); };
-  [[70,17],[88,14],[116,36],[163,30],[194,26]].forEach(([cx,w])=>parkir(cx,w,-23));                 // baris 1: Kopi, Matcha, Gym | RS, Sekolah
+  [[74,25],[88,14],[116,36],[163,30],[194,26]].forEach(([cx,w])=>parkir(cx,w,-23));                 // baris 1: Kopi, Matcha, Gym | RS, Sekolah
   [[70,14],[90,16],[110,16],[130,16]].forEach(([cx,w])=>parkir(cx,w,-63));                         // baris 2: Bengkel Kaca + 3 toko modern
   [70,82,94,106,118].forEach(cx=>parkir(cx,8,-88));                                                // baris 3: 5 toko kecil
   const lb = (t,x,z)=>{ const l = label(t, {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); l.position.set(x, 16, z); scene.add(l); };
