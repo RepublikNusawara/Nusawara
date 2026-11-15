@@ -71,11 +71,12 @@
   .actions a.primary{font:inherit;font-size:13px;font-weight:700;border-radius:12px;padding:11px 14px;border:1px solid #d99a1f;text-decoration:none;box-shadow:0 6px 18px rgba(31,58,95,.12);display:inline-flex;align-items:center}
   body.sheet-open .actions{opacity:0;transform:translateY(20px);pointer-events:none}
 
-  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:8;max-width:520px;margin:0 auto;
-    background:var(--paper);border-radius:20px 20px 0 0;box-shadow:0 -10px 30px rgba(31,58,95,.2);
-    padding:18px 18px calc(20px + env(safe-area-inset-bottom));max-height:58vh;overflow:auto;
-    transform:translateY(110%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
-  .sheet.open{transform:none}
+  .sheet{position:fixed;left:50%;top:50%;bottom:auto;right:auto;z-index:8;width:min(520px,calc(100vw - 20px));margin:0;
+    background:var(--paper);border-radius:22px;box-shadow:0 18px 50px rgba(31,58,95,.38);
+    padding:18px 18px 20px;max-height:76vh;overflow:auto;
+    transform:translate(-50%,-46%) scale(.94);opacity:0;visibility:hidden;pointer-events:none;transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .2s,visibility 0s .25s}
+  .sheet.open{transform:translate(-50%,-50%);opacity:1;visibility:visible;pointer-events:auto;transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .2s}
+  body.sheet-open #tuto{display:none!important}
   .sheet .grip{width:40px;height:4px;border-radius:4px;background:#d6d2c8;margin:-6px auto 12px}
   .x{position:absolute;top:10px;right:12px;width:34px;height:34px;border-radius:50%;border:0;
     background:#efece4;color:var(--ink);font-size:20px;line-height:1;cursor:pointer}
@@ -1188,7 +1189,6 @@ function focusObj(obj){
   if (typeof followKey !== 'undefined') followKey = null;
   const t = obj.userData.type, p = obj.getWorldPosition(new THREE.Vector3());
   if (t==='fasilitas'){ select(null); openSheet(()=>fasHTML(obj.userData.data.id)); hideHint(); if (typeof bisnisMuat === 'function') bisnisMuat(obj.userData.data.id); return; }
-  if (t==='eko' && typeof tambangOtomatis === 'function' && tambangOtomatis(obj.userData.data.id)){ select(null); hideHint(); return; }
   if (t==='eko'){ select(null); const f = ()=>ekoHTML(obj.userData.data.id); f.eko = 1; openSheet(f); hideHint(); if (String(obj.userData.data.id).startsWith('TMP-') && typeof tgsMuat === 'function') tgsMuat().then(()=>{ if (sheetFn === f) sheetBody.innerHTML = f(); }); return; }
   if (t==='counter'){
     select(null); openSheet(counterHTML); hideHint(); return;
@@ -1244,7 +1244,8 @@ renderer.domElement.addEventListener('pointerup', e=>{
   if (shotMode) { document.body.classList.toggle('shot-clean'); return; }
   ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1);
   ray.setFromCamera(ptr, camera);
-  const hit = ray.intersectObjects(pickables, true)[0];
+  const hit = ray.intersectObjects(pickables, true).filter(h=>!(h.object.userData && h.object.userData.panenId && !h.object.visible))[0];
+  if (hit && hit.object.userData && hit.object.userData.panenId && typeof tambangOtomatis === 'function' && tambangOtomatis(hit.object.userData.panenId)) return;
   if (!hit) { if (sheet.classList.contains('open')) closeSheet(); return; }
   let o = hit.object; while (o && !o.userData.type) o = o.parent;
   if (o && o.userData.type === 'warga'){ showProfile(o.userData.data.username, 'char'); return; }
@@ -3720,7 +3721,7 @@ function panenSprite(ikon){
 function panenCek(){
   for (const id in EKO){ const e = EKO[id]; if (e.k !== 'tambang' || !e.g) continue;
     const t = TAMBANG.find(x=>x.kode === e.kode); if (!t) continue;
-    if (!PANEN[id]){ PANEN[id] = panenSprite(brg(t.barang).ikon); PANEN[id].position.set(0, 23.5, 6); e.g.add(PANEN[id]); }
+    if (!PANEN[id]){ PANEN[id] = panenSprite(brg(t.barang).ikon); PANEN[id].userData.panenId = id; PANEN[id].position.set(0, 23.5, 6); e.g.add(PANEN[id]); }
     const st = (AKUN.data && AKUN.data.tambang && AKUN.data.tambang[t.kode]) || null;
     PANEN[id].visible = !!(AKUN.data && st && st.kali < t.batas_harian && sisaDetik(t.kode) === 0);
   }
