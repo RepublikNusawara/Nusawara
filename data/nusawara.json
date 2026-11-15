@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-15T00:29:25+11:00",
-  "penduduk": 186,
+  "updatedAt": "2026-11-15T18:24:44+11:00",
+  "penduduk": 208,
   "warga": {
     "29_rezky": {
       "username": "29_Rezky",
@@ -1317,6 +1317,160 @@
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "akademinusawara": {
+      "username": "akademinusawara",
+      "niwn": "NUS-000210",
+      "terdaftar": "14 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "muhabidzarkhairy": {
+      "username": "muhabidzarkhairy",
+      "niwn": "NUS-000209",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_08ffb756": {
+      "username": "warga_08ffb756",
+      "niwn": "NUS-000193",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_2a3e5408": {
+      "username": "warga_2a3e5408",
+      "niwn": "NUS-000203",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_2b7abeb5": {
+      "username": "warga_2b7abeb5",
+      "niwn": "NUS-000205",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_2d1911cd": {
+      "username": "warga_2d1911cd",
+      "niwn": "NUS-000202",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_392514ff": {
+      "username": "warga_392514ff",
+      "niwn": "NUS-000196",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_3b39137b": {
+      "username": "warga_3b39137b",
+      "niwn": "NUS-000190",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_514b82b3": {
+      "username": "warga_514b82b3",
+      "niwn": "NUS-000208",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_5318e481": {
+      "username": "warga_5318e481",
+      "niwn": "NUS-000207",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_5cfdbd17": {
+      "username": "warga_5cfdbd17",
+      "niwn": "NUS-000198",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_5d0e34ce": {
+      "username": "warga_5d0e34ce",
+      "niwn": "NUS-000191",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_73e2f7c9": {
+      "username": "warga_73e2f7c9",
+      "niwn": "NUS-000200",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_87f56d63": {
+      "username": "warga_87f56d63",
+      "niwn": "NUS-000189",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_95e447ab": {
+      "username": "warga_95e447ab",
+      "niwn": "NUS-000192",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_9f34bcf0": {
+      "username": "warga_9f34bcf0",
+      "niwn": "NUS-000199",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_d167b7e7": {
+      "username": "warga_d167b7e7",
+      "niwn": "NUS-000201",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_d34065fb": {
+      "username": "warga_d34065fb",
+      "niwn": "NUS-000206",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_e0df0fa3": {
+      "username": "warga_e0df0fa3",
+      "niwn": "NUS-000195",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_f7eac1d4": {
+      "username": "warga_f7eac1d4",
+      "niwn": "NUS-000194",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_f97fe4b0": {
+      "username": "warga_f97fe4b0",
+      "niwn": "NUS-000197",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_fe978f02": {
+      "username": "warga_fe978f02",
+      "niwn": "NUS-000204",
+      "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
     }
   },
   "billboards": {
@@ -1640,7 +1794,7 @@
     "iruzz": "823b65c35ff7c3350b91da1a379c05868a5365cbdfe77752d0b4b890e0592d54",
     "itsme.violaw": "4c91f186472895a9811a7583788fc206779c1dba4d2c09586c1a5ecbd015e58b",
     "izaa": "56df38831b5c7ab04578c886d4950e9b01bee6d7b5d78a285235bd29e6f0391e",
-    "julianto_jul": "57408c2153bace76e076921f04b8d5513cd282609ae56dc2c985a149b57eaf8b",
+    "julianto_jul": "efb15dd383947216df468c34e1096a24f0128b40dc536b3cfe8dc9f5344002d5",
     "kamu_gpp_sab": "e45f54a73a092b2b1aa2fa5275d0c70d17d221ba0b1f2bed51ff837bd58d75b4",
     "kamugppsab": "d2f5a9ab45d7aa1e28525d5b895bd83b8aa99174af2979cf765dcdcdfc89b19b",
     "kanz_kic": "b04349b931488da178cafe62af73a9b0913e8aeedef6b02ac6ac5c722ffe6fc3",
@@ -1748,6 +1902,27 @@
     "yunyun_016": "3f62e2361481733b13a0d8d9c0df3fd6b3f09d7534f10c62e5eca8b159e45c71",
     "zuhana": "d1702eb0819e0ebe3325b3540792f297358bda9b714460ded1205ae41a44099c",
     "zuhana836": "d3ecf7316ca1ad1b5157f54d17f097a3fa79ecfac73807fa94cda7a66647a833",
-    "zzam": "aa25b44f6ae55d177e149d4a8dc2cc4c2e99c118222eeac60ce74bdcc55bc7fc"
+    "zzam": "aa25b44f6ae55d177e149d4a8dc2cc4c2e99c118222eeac60ce74bdcc55bc7fc",
+    "warga_5318e481": "bc0a95e30ee8118b8b70e088a0b04885bc15a615a139b22ae0608fd17834a73f",
+    "warga_3b39137b": "e71355dd2f61f7b0628146ddb565d9ad300039c5de2391b37169cad803888683",
+    "warga_392514ff": "ff3f4e46de053fc9efa65ead6cde22789dd068e228d677afff91e82e95c88396",
+    "warga_2d1911cd": "67942595cb94ac45e080158bb2a360eae54a24006ea51c8de073d873a15e2989",
+    "warga_514b82b3": "57cd081a67dc0c0ef3103e0b55119fca52dfca3018eead1fa344c80c1b70cb77",
+    "warga_e0df0fa3": "89717af506cf93d03305dc75ea3dd65dc4740b7d2e0afb4321ad7f0fc97099e6",
+    "warga_f97fe4b0": "a6a59f87ae428d935b4f659281549dcb2d14645fa5e932f08d1d1249e765def2",
+    "warga_fe978f02": "25e1eab8a369f879b598d73dde67e67e988df86f47e33bbd331f1b56be756173",
+    "warga_87f56d63": "573d836212153c5cf62bd4a6b7408bee924ba5aeb347b944263848f8114d96cf",
+    "warga_95e447ab": "a8cd4f7aae14a52b48b85e05d3e8f401eb312aab02b956b424f960fdd4a7a984",
+    "warga_2a3e5408": "a73b11035f80a228acf197f4bf1a5eee470f9842123772524f8d4b31d38676fb",
+    "warga_d167b7e7": "2484f9346bd01e5d24693c947c2a0a8cb7bd00a85744415f60953577d85cfcdf",
+    "warga_d34065fb": "32006122c92722974babeb0315471f50dbe52e0febae094933cf904c1d2283cb",
+    "warga_2b7abeb5": "8084d7a7073aad422860c8f3c573a0378d02b0ad899e23b196c6647d08c69ff7",
+    "warga_08ffb756": "d3d3eca2c0dc646710996057c3b5ea4526a9435a3ec8594a2e3cdf997124ad1f",
+    "muhabidzarkhairy": "1b08303b6758263aff78a1c88fb2a2c71f10079471495ab75f796981f258412f",
+    "warga_5d0e34ce": "8c1ea68f76ecbe9b70124f7b32eaca7ab875050a9543a3154f8f0d8a77ef1826",
+    "warga_9f34bcf0": "602e470a712c18475c67a7fdd9e19bad81f15252e6340dae6a6f70415f840b56",
+    "warga_5cfdbd17": "0759ed6e70af14d9f698d65f0374ec5126bc5ea4c5c757a5616d03836cc8c08c",
+    "warga_73e2f7c9": "593bc33f6b38f82017a8aef2a79b9321a8eecbf32eaa0058c3b0ca79c9857ea0",
+    "warga_f7eac1d4": "458fad28e4980006fa14edb45b9389444448d10a4774ec5e1d3e4b96a39ac593"
   }
 }
