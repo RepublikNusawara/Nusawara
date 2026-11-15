@@ -4548,7 +4548,7 @@ function bisnisHTML(id){
   }
   if (id === 'MATCHA-NUSAWARA'){
     const daun = (BARANG.find(b=>b.kode === 'daun_teh') || {}).stok || 0, mh = (BIZ.kerja && BIZ.kerja.matcha) || 0;
-    h += `<div class="card" style="background:#eef7e6"><h3>🍵 Toko Matcha</h3><p class="note">Sistem sama dengan semua toko: pekerja beli 🌿 daun teh di PRN → <b>Jual</b> ke toko (untung 5%) → <b>Combine ×1</b> (10 🌿 daun teh milik toko → 1 🍵 matcha powder masuk inventory toko). Misi harian & gaji mengikuti aturan toko.</p>
+    h += `<div class="card" style="background:#eef7e6"><h3>🍵 Toko Matcha</h3><p class="note">Sistem sama dengan semua toko: pekerja beli 🌿 daun teh di PRN → <b>Jual</b> ke toko (untung 5%) → <b>Combine ×1</b> (1 🌿 daun teh milik toko → 1 🍵 matcha powder masuk inventory toko). Misi harian & gaji mengikuti aturan toko.</p>
       <p class="note">Stok daun teh Negara: <b>${daun}</b> · bisa diracik: <b>${Math.floor(daun/10)}</b> · stok matcha toko: <b>${(lap && lap.stok_matcha) ?? '–'}</b></p>`;
     if (sayaKerja) h += `<div class="prow"><input type="number" min="1" value="1" id="jmMatcha" style="font:inherit;width:70px;padding:9px;border:1px solid var(--line);border-radius:10px;margin-top:14px"><button class="btn ghost" data-jualmatcha>💰 Jual matcha toko ke Negara (bagi hasil 10%)</button></div>`;
     h += `</div>`;
