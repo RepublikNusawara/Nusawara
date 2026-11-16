@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-1255">
+<meta name="nusawara-build" content="20261116-1315">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -1445,8 +1445,8 @@ COLL.push([HB.x1-4.2, HB.gz-6.2, 1.7, 1.5],   // pos imigrasi
 // Desainnya tetap tersedia sebagai "Desain siap pakai" di formulir Kirim Desain:
 //   modern = Rumah Modern (makeModern), kaca = Gedung Kaca (makeKaca).
 const R = .5;
-function blocked(x,z){
-  if (Math.abs(x-18)>135 || z>125 || z<-125 || x < -84) return true;
+function blocked(x,z,bebas){
+  if (!bebas && (Math.abs(x-18)>135 || z>125 || z<-125 || x < -84)) return true;
   if (x > -14 && x < 50 && z < -30 && z > -100) return true;   // kompleks Ibu Kota
   return COLL.some(c => Math.abs(x-c[0]) < c[2]+R && Math.abs(z-c[1]) < c[3]+R);
 }
@@ -4529,10 +4529,10 @@ function updateCtl(dt, time){
     _dir.copy(_rt).multiplyScalar(ix).addScaledVector(_fw, iy).normalize();
     const nx = g.position.x + _dir.x*speed*dt, nz = g.position.z + _dir.z*speed*dt;
     // batas gerak: tetap di dalam peta dan tidak menembus bangunan
-    const inMap = (x,z) => Math.abs(x) < 112 && Math.abs(z) < 112;
+    const inMap = (x,z) => Math.abs(x) < 790 && Math.abs(z) < 790;
     // warga yang belum follow tidak bisa keluar dari pagar Pelabuhan
     const tahan = !bolehMasuk(ctl.key) && inHarbor(g.position.x, g.position.z);
-    const okPos = (x,z) => inMap(x,z) && !blocked(x,z) && (!tahan || inHarbor(x,z));
+    const okPos = (x,z) => inMap(x,z) && !blocked(x,z,true) && (!tahan || inHarbor(x,z));
     const px0 = g.position.x, pz0 = g.position.z;
     if (okPos(nx, g.position.z)) g.position.x = nx;
     if (okPos(g.position.x, nz)) g.position.z = nz;
@@ -5173,6 +5173,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 12:55</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 13:15</div>
 </body>
 </html>
