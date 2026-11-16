@@ -4670,7 +4670,7 @@ function kasKolom(label, nilai, ket, kode){ return `<div class="card kasKolom" d
   <span style="font-size:28px;line-height:1">🏦</span><span style="flex:1;min-width:0"><small style="display:block;font-size:11px;opacity:.85">${label}</small><b style="font-size:20px;color:#ffe066">${nilai == null ? '…' : N$(nilai)}</b>${ket ? `<small style="display:block;font-size:10px;opacity:.75">${ket}</small>` : ''}</span></div>`; }
 function kasSisip(html, label, nilai, ket){ return html ? html.replace('</h2>', '</h2>' + kasKolom(label, nilai, ket, 'NEGARA')) : html; }
 function kasLabelFas(id){ return /RS-|SEKOLAH-|PELABUHAN-/.test(id) ? 'Kas Kantor' : id.startsWith('STADION-') ? 'Kas Stadium' : 'Kas Perusahaan'; }
-function bangunInfo(id, html){ if (!html || KAV[id]) return html; if (id === 'EKO-DONASI') return kasSisip(html, 'Saldo Kas Negara', KAS, 'Semua donasi N$ masuk ke sini');
+function bangunInfo(id, html){ if (!html || KAV[id]) return html; if (id === 'EKO-DONASI') return html;
   html = kasSisip(html, 'Saldo Kas Negara', KAS, 'Gedung milik Negara · kas dikelola Negara'); kasbMuat(); const b = Object.assign({}, BANGUN_DEF, (typeof BANGUN !== 'undefined' && BANGUN[id]) || {});
   return html.replace('</h2>', `</h2><p style="font-size:13px;margin:0 0 8px">🏗️ Dibangun <b>${esc(b.hari)}</b> oleh <b>${esc(b.oleh)}</b>.</p>`); }
 const JAB = {tab:'jabatan', kat:[], pem:{}, muat:0, gaji:null}, GAJI_WAPRES = 250, GAJI_PENASIHAT = 100;
@@ -5298,17 +5298,20 @@ function kavHTML(id){
 function wapresCard(){ const w = wapresNow();
   return `<div class="card"><h3>👑 Wakil Presiden & Penasihat minggu ini</h3>${w ? `<div class="jrow"><span class="ji">👑</span><span class="jt"><b>${esc(namaW(w.username))}</b><small>Wakil Presiden · donatur terbanyak · 💼 ${N$(GAJI_WAPRES)}/hari</small></span></div>` + (w.penasihat || []).map(u=>`<div class="jrow"><span class="ji">🧑‍⚖️</span><span class="jt"><b>${esc(namaW(u))}</b><small>Penasihat Negara · 💼 ${N$(GAJI_PENASIHAT)}/hari</small></span></div>`).join('') : '<p class="note">Belum terisi. Diumumkan hari Senin berikutnya, dari donatur terbanyak.</p>'}</div>`; }
 function donasiHTML(){
-  let h = `<div class="kicker">Membangun Republik Bersama</div><h2>🤝 Papan Donasi</h2>${saldoBar()}`;
+  let h = `<div class="kicker">Membangun Republik Bersama</div><h2>🤝 Papan Donasi</h2>${saldoBar()}
+    <div class="card"><h3>🏆 Peringkat donasi (1–20)</h3><div class="dnScroll" style="max-height:290px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;border-radius:10px">${PAPAN.length ? PAPAN.slice(0,20).map((r,i)=>rowPeringkat(r,i)).join('') : '<p class="note">Belum ada donasi.</p>'}</div>
+    <p class="note">${PAPAN.length > 5 ? '↕️ Geser ke bawah untuk melihat sampai peringkat 20. ' : ''}Peringkat tidak di-reset. Setiap hari Senin dicek siapa donatur terbanyak.</p></div>`;
   if (AKUN.data){
     h += `<div class="card"><h3>💰 Donasi N$</h3><div class="prow"><input type="number" min="1" value="100" id="dn-uang" style="font:inherit;font-size:17px;padding:10px;border:1px solid var(--line);border-radius:12px;width:120px;margin-top:14px"><button class="btn" data-donasi="uang">Donasi N$</button></div></div>`;
   } else h += perluMasuk();
   h += `<div class="card"><h3>🔎 Cari peringkatmu</h3><input id="dnCari" placeholder="Ketik nama/username" autocapitalize="none" style="font:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box"><div id="dnHasil"></div></div>
-    <div class="card"><h3>🏆 Peringkat donasi (1–20)</h3>${PAPAN.length ? PAPAN.slice(0,20).map((r,i)=>rowPeringkat(r,i)).join('') : '<p class="note">Belum ada donasi.</p>'}
-    <p class="note">Peringkat tidak di-reset. Setiap hari Senin dicek siapa donatur terbanyak.</p></div>
+
     ${wapresCard()}
     <div class="card"><h3>🗳️ Wakil Presiden & Penasihat Negara</h3><p class="note">Setiap <b>hari Senin</b> dicek siapa donatur terbanyak:<br>👑 <b>Juara 1</b> langsung diangkat jadi <b>Wakil Presiden</b> minggu itu<br>🧑‍⚖️ <b>Juara 2 dan 3</b> diangkat jadi <b>Penasihat Negara</b><br>Pengumuman setiap Senin, dan Wakil Presiden berikutnya adalah donatur terbanyak pada Senin depan. Peringkat donasi tidak di-reset. Uang donasi langsung masuk <b>Kas Negara</b>.</p></div>`;
   return h;
 }
+setInterval(()=>{ const d = sheetBody.querySelector('.dnScroll:not([data-ok])'); if (!d || !d.offsetHeight) return; const rs = d.children; d.dataset.ok = 1;
+  if (rs.length > 5){ const r5 = rs[4]; d.style.maxHeight = (r5.offsetTop - d.offsetTop + r5.offsetHeight + 2) + 'px'; } }, 300);
 function rowPeringkat(r,i){ const gl = gelar(lvOf(r.username)); return `<div class="jrow"><span class="ji">${i < 3 ? ['🥇','🥈','🥉'][i] : i+1}</span><span class="jt"><b>@${esc(String(r.nama || r.username).replace(/^@+/,''))}</b><small>${esc(pjTeks(r.username))} · ${Number(r.poin).toLocaleString('id-ID')} poin · ${r.bahan} bahan · ${N$(r.nsa)} · 🎁 ${HADIAH(i+1)}</small></span></div>`; }
 sheetBody.addEventListener('input', e=>{ if (e.target.id !== 'dnCari') return; const q = e.target.value.trim().toLowerCase().replace(/^@+/,''), out = document.getElementById('dnHasil'); if (!out) return;
   if (!q){ out.innerHTML = ''; return; }
@@ -6759,6 +6762,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 08:05</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 08:10</div>
 </body>
 </html>
