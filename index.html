@@ -5115,8 +5115,11 @@ loop();
     const ci = new THREE.Mesh(new THREE.CylinderGeometry(4.6,4.6,.2,32), M(0xd8cfb8)); ci.position.set(145,.12,-58); scene.add(ci);
     const cg = new THREE.Mesh(new THREE.CylinderGeometry(3.8,3.8,.24,32), M(0x6fb84a)); cg.position.set(145,.14,-58); scene.add(cg);
     cyl2(.3,2.2,0x7a4a24,145,1.2,-58,scene,6); const tr = new THREE.Mesh(new THREE.SphereGeometry(2.2,10,8), M(0x62b83b)); tr.position.set(145,3.6,-58); scene.add(tr); }
+  // zebra cross di empat sisi bundaran
+  [[145,-48],[145,-68]].forEach(([x,z])=>{ for (let i=-2;i<=2;i++) box(.9,.03,2.6,0xffffff,x+i*1.1,.15,z); });
+  [[135.5,-58],[154.5,-58]].forEach(([x,z])=>{ for (let i=-2;i<=2;i++) box(2.6,.03,.9,0xffffff,x,.15,z+i*1.1); });
   const pohonE = (x,z)=>{ cyl2(.25,1.5,0x7a4a24,x,.75,z,scene,6); const t = new THREE.Mesh(new THREE.SphereGeometry(1.4,10,8), M(0x62b83b)); t.position.set(x,2.5,z); scene.add(t); };
-  const petak = (cx,zc,w,d,nama,tinggi)=>{ box(w-2,.13,d,0xcfd6c4,cx,.12,zc);
+  const petak = (cx,zc,w,d,nama,tinggi)=>{ box(w,.1,d+1.5,0xdcd6c8,cx,.055,zc); box(w-2,.13,d,0xcfd6c4,cx,.12,zc);
     [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>cyl2(.18,1,0x6b4a2e,cx+a*(w/2-1.4),.5,zc+b*(d/2-1),scene,6));
     pohonE(cx-w/2+2.2,zc-d/2+2.5); pohonE(cx+w/2-2.2,zc-d/2+2.5);
     const t = label(nama, {h:1.2, size:26, bg:'rgba(242,177,52,.96)', fg:'#3a2600'}); t.position.set(cx,tinggi||4.2,zc+d/2-3); scene.add(t);
@@ -5129,6 +5132,6 @@ loop();
 
 } catch(e){ var t=document.getElementById('verTag'); if(t){ t.style.background='#c62828cc'; t.style.whiteSpace='normal'; t.style.maxWidth='92vw'; t.textContent='ERR kota timur: '+e.message; } } })();
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 13:55</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 14:10</div>
 </body>
 </html>
