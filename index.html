@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-0540">
+<meta name="nusawara-build" content="20261117-0555">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3447,7 +3447,8 @@ function profileHTML(key){
       <button class="btn" data-unlock="${esc(key)}">🔓 Buka profil dengan kata sandi</button></div>`}
     ${unlocked ? `<div class="prow"><button class="btn" data-follow="${esc(key)}">🧍 Lihat karakter</button><button class="btn" data-gaya="${esc(key)}">👕 Wardrobe${isOwner ? '' : ' 🔑'}</button></div>
     <button class="btn" data-main="${esc(key)}" style="margin-top:8px;background:#f2b134;color:#2a1b00">🎮 Main karakter (jalan, lompat, lari)</button>
-    ${land}${typeof kerjaOf === 'function' && kerjaOf(key) ? `<div class="card"><h3>💼 Pekerjaan</h3><p>${esc(kerjaLabel(key))}</p><button class="btn ghost" data-keluar="${esc(key)}">Keluar dari pekerjaan</button></div>` : `<div class="card"><h3>💼 Pekerjaan</h3><p>Belum bekerja. Ketuk Rumah Sakit, Kopi Nusawara, atau gedung lain di peta untuk melihat lowongan.</p></div>`}${own}` : ''}`;
+    ${land}${(()=>{ const ks = (window.KERJA_ALL || []).filter(r=>String(r.username||'').toLowerCase() === key && FAS[r.fasilitas]); if (!ks.length && kerjaOf(key)) ks.push(Object.assign({username:key}, kerjaOf(key)));
+      return ks.length ? `<div class="card"><h3>💼 Pekerjaan (${ks.length}/2)</h3>${ks.map(k=>`<div class="prow" style="align-items:center"><p style="flex:1;margin:0">${FAS[k.fasilitas].ikon} ${esc(k.posisi)} · ${esc(FAS[k.fasilitas].nama)}</p><button class="btn ghost" style="flex:none;width:auto" data-keluar="${esc(key)}|${esc(k.fasilitas)}">Keluar</button></div>`).join('')}<p class="note">Setiap warga boleh bekerja di maksimal 2 tempat.</p></div>` : ''; })() || `<div class="card"><h3>💼 Pekerjaan</h3><p>Belum bekerja. Ketuk Rumah Sakit, Kopi Nusawara, atau gedung lain di peta untuk melihat lowongan.</p></div>`}${own}` : ''}`;
 }
 function sandiCard(key, u){
   const k = typeof SANDI !== 'undefined' ? SANDI[key] : null;
@@ -3971,6 +3972,17 @@ function tapuFull(){ const o = TAPU.ov; if (!o) return; let f = o.querySelector(
   f.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><b style="flex:1;font-size:18px;color:#f7d774">🏆 Tabel Pemenang Tap</b><button class="lnk" style="width:auto;padding:6px 12px;margin:0" data-tutup-full>✕ Tutup</button></div>
     <p style="font-size:12px;opacity:.85;margin:0 0 8px">Peringkat berdasarkan total tap sejak terdaftar (tidak pernah direset). ${TAPU.warga || 0} warga sudah mencetak uang.</p>
     <table><tr><th>#</th><th>Warga</th><th style="text-align:right">Total tap</th></tr>${rows || '<tr><td colspan="3" style="opacity:.75">Belum ada data.</td></tr>'}</table>`; }
+function tapuAturan(){ const o = TAPU.ov; if (!o) return; let f = o.querySelector('.full'); if (!f){ f = document.createElement('div'); f.className = 'full'; o.querySelector('.tu').appendChild(f); }
+  const li = [
+    ['🪙','Setiap 1 kali tap = <b>N$1</b>, dicetak baru oleh Pabrik Uang Nusawara.'],
+    ['💰','<b>200 tap pertama setiap hari</b> masuk ke saldo-mu. Hitungan direset setiap hari pukul <b>00.00 WIB</b>.'],
+    ['🤝','Tap ke-201 dan seterusnya otomatis masuk ke <b>Kas Negara sebagai donasi</b> atas namamu dan tercatat di Papan Donasi.'],
+    ['⏱️','Jeda <b>0,4 detik</b> antar tap. Tap yang terlalu cepat tidak dihitung.'],
+    ['🪪','Hanya <b>Warga Republik Nusawara</b> yang sudah masuk dengan Kata Sandi Warga yang bisa mencetak uang.'],
+    ['🏆','<b>Total tap dan rank tidak pernah direset</b> selama kamu terdaftar. Ranking Tap diurutkan dari total tap terbanyak; Tabel Pemenang Tap menampilkan 100 besar.'],
+    ['🚫','Dilarang memakai bot, auto-clicker, atau akun palsu. Pelanggaran dapat dikenai sanksi sesuai Undang-Undang Nusawara (UUN), termasuk penghapusan hasil tap.']];
+  f.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><b style="flex:1;font-size:18px;color:#f7d774">📜 Peraturan Pabrik Uang</b><button class="lnk" style="width:auto;padding:6px 12px;margin:0" data-tutup-full>✕ Tutup</button></div>
+    ${li.map(([i,t],k)=>`<div style="display:flex;gap:10px;align-items:flex-start;background:#ffffff12;border-radius:12px;padding:9px 10px;margin-bottom:7px;font-size:13px;line-height:1.45"><span style="font-size:20px;line-height:1.2">${i}</span><span><b style="color:#f7d774">${k+1}.</b> ${t}</span></div>`).join('')}`; }
 function tapuTutup(){ if (!TAPU.ov) return; tapuKirim(); clearInterval(TAPU.timer); clearInterval(TAPU.rkTimer); TAPU.ov.remove(); TAPU.ov = null; if (sheetFn === akunHTML) sheetBody.innerHTML = akunHTML(); }
 function pabrikUangBuka(){
   if (TAPU.ov) return; TAPU.sesi = 0; TAPU.pending = 0;
@@ -4004,7 +4016,7 @@ function pabrikUangBuka(){
     else if (t.hasAttribute('data-tu-full')){ tapuFull(); tapuPeringkat(); }
     else if (t.hasAttribute('data-tutup-full')){ const f = ov.querySelector('.full'); if (f) f.remove(); }
     else if (t.hasAttribute('data-tu-masuk')){ tapuTutup(); openSheet(akunHTML); }
-    else if (t.hasAttribute('data-tu-help')){ const m = ov.querySelector('.msg'); m.textContent = 'Setiap tap = N$1. 200 tap pertama setiap hari masuk saldo-mu; tap ke-201 dst. otomatis masuk Kas Negara sebagai donasi. Jeda 0,4 detik per tap. Total tap & rank tidak pernah direset.'; } });
+    else if (t.hasAttribute('data-tu-help')) tapuAturan(); });
   TAPU.timer = setInterval(tapuKirim, 700); TAPU.rkTimer = setInterval(tapuPeringkat, 6000);
   TAPU.total = null; TAPU.rank = null; tapuRender(); tapuPeringkat();
 }
@@ -4224,7 +4236,7 @@ function stadionHTML(){
       const baris = [['Pemilik Stadium','👑',150,'1 orang'],['Pelatih','🧢',120,'1 per tim · 3 tim'],['Pemain','⚽',95,'15 per tim · 3 tim']];
       return `<div class="card"><h3>💵 Daftar gaji harian Stadium</h3>${baris.map(([p, ik, d, q])=>`<div class="jrow" style="${peranKu === p ? 'background:#fff4d6;border-radius:10px;' : ''}padding:5px 6px"><span style="font-size:22px;flex:none">${ik}</span><span class="jt"><b>${p}${peranKu === p ? ' (kamu)' : ''}</b><small>${q}</small></span><span style="display:inline-block;background:#f2c14e;color:#3b2600;font-weight:800;font-size:12px;border-radius:10px;padding:4px 8px;flex:none">${N$(gj(p, d))} / hari</span></div>`).join('')}
         <p class="note">Gaji per hari untuk setiap posisi di Stadium Bola Republik Nusawara.</p></div>`; })()}
-    <p style="font-size:13px;margin:0 0 10px">Pilih satu tim, lalu daftar sebagai pelatih (1 orang per tim) atau pemain (15 orang per tim). Satu warga hanya boleh <b>satu pekerjaan</b> (termasuk tim bola); keluar dulu dari pekerjaan lain sebelum daftar. Pindah tim boleh kapan saja.</p>
+    <p style="font-size:13px;margin:0 0 10px">Pilih satu tim, lalu daftar sebagai pelatih (1 orang per tim) atau pemain (15 orang per tim). Setiap warga boleh bekerja di <b>maksimal 2 tempat</b> (tim bola dihitung 1 tempat). Pindah tim boleh kapan saja.</p>
     ${!AKUN.u ? `<div class="card"><p class="note">Masuk sebagai warga dulu untuk mendaftar. Tamu hanya bisa melihat.</p><button class="btn" data-gerbang>🔑 Masuk / Daftar</button></div>` : me ? `<div class="card"><p class="note">Kamu terdaftar sebagai <b>${me.peran === 'pelatih' ? 'Pelatih' : 'Pemain'} ${TIM[me.tim].nama}</b>.</p><button class="btn ghost" data-tim-keluar>Keluar dari tim</button></div>` : ''}
     ${kartu}<p class="note" id="timM"></p>`;
 }
@@ -4235,7 +4247,7 @@ sheetBody.addEventListener('click', async e=>{
     if (kb){ const [tim, peran] = kb.dataset.tim.split('|'); kb.disabled = true; r = await SB.rpc('daftar_tim_bola', {p_user: AKUN.u, p_sandi: AKUN.s, p_tim: tim, p_peran: peran});
       if (r === 'ok') toast('🎉 @' + AKUN.u + ' sekarang ' + (peran === 'pelatih' ? 'Pelatih ' : 'Pemain ') + TIM[tim].nama); }
     else { r = await SB.rpc('keluar_tim_bola', {p_user: AKUN.u, p_sandi: AKUN.s}); if (r === 'ok') toast('Kamu keluar dari tim.'); }
-    if (r !== 'ok' && m) m.textContent = r === 'penuh' ? 'Posisi ini sudah penuh. Pilih yang lain.' : r === 'sudah' ? '❌ Kamu sudah punya pekerjaan lain. Satu warga hanya boleh satu pekerjaan.' : r === 'jabatan_tinggi' ? '❌ Pemegang jabatan negara tidak bisa bekerja.' : r === 'warga' ? '❌ Hanya untuk Warga Republik Nusawara.' : r === 'sandi' ? 'Kata sandi berubah. Keluar lalu masuk lagi.' : 'Gagal. Coba lagi.';
+    if (r !== 'ok' && m) m.textContent = r === 'penuh' ? 'Posisi ini sudah penuh. Pilih yang lain.' : r === 'sudah' ? '❌ Kamu sudah bekerja di 2 tempat (maksimal). Keluar dulu dari salah satunya di profilmu.' : r === 'sudah_tempat' ? '❌ Kamu sudah bekerja di Stadium dengan posisi lain.' : r === 'jabatan_tinggi' ? '❌ Pemegang jabatan negara tidak bisa bekerja.' : r === 'warga' ? '❌ Hanya untuk Warga Republik Nusawara.' : r === 'sandi' ? 'Kata sandi berubah. Keluar lalu masuk lagi.' : 'Gagal. Coba lagi.';
     await stadionMuat();
   } catch(_) { if (m) m.textContent = 'Gagal tersambung. Periksa internet lalu coba lagi.'; if (kb) kb.disabled = false; }
 });
@@ -5932,7 +5944,7 @@ function fasHTML(id){
     ${facTop(id) ? `<p style="font-size:13px;margin:0 0 10px">👑 <b>${esc(F.pos[0][0])}:</b> ${F.ownerTeks ? esc(F.ownerTeks) : '@' + esc(facTop(id))}</p>` : ''}
     ${kerjaTombol(id)}
     <div class="card"><h3>🖼️ Billboard gedung</h3>${boardPreview(id, '')}${editBtn(id)}</div>
-    <div class="card"><h3>💼 Lowongan kerja · ${terisi}/${tot} terisi</h3><p class="note">Hanya untuk Warga Republik Nusawara. Satu warga satu pekerjaan; daftar dengan Kata Sandi Warga.</p>${rows}</div>
+    <div class="card"><h3>💼 Lowongan kerja · ${terisi}/${tot} terisi</h3><p class="note">Hanya untuk Warga Republik Nusawara. Setiap warga boleh bekerja di maksimal 2 tempat (gedung berbeda); daftar dengan Kata Sandi Warga.</p>${rows}</div>
     <div class="card" id="jform" style="display:none"><h3 id="jfT">Daftar kerja</h3>
       <input id="jfU" placeholder="Username Instagram" autocomplete="off" autocapitalize="none" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccd;margin:4px 0">
       <input id="jfP" type="password" placeholder="Kata Sandi Warga" autocomplete="off" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccd;margin:4px 0">
@@ -6093,14 +6105,17 @@ sheetBody.addEventListener('click', async e=>{
     if (!/^[A-Z0-9]{4,20}$/.test(pw)) { m.textContent = 'Masukkan Kata Sandi Warga.'; return; }
     e.target.disabled = true; m.textContent = 'Mengirim…';
     try { const r = await SB.rpc('daftar_kerja', {p_user:u, p_sandi:pw, p_fasilitas:jSel.id, p_posisi:jSel.p}); e.target.disabled = false;
-      const msg = {ok:'', jabatan_tinggi:'🏛️ Wakil Presiden dan Penasihat Negara tidak boleh punya pekerjaan lain.', sandi:'❌ Kata sandi salah.', penuh:'Posisi ini sudah penuh. Pilih posisi lain.', sudah:'Kamu sudah punya pekerjaan. Keluar dulu dari profilmu kalau mau pindah.', sudah_posisi:'Kamu sudah bekerja di posisi ini.', warga:'Username belum terdaftar sebagai warga.', tunjuk:'Jabatan ini ditunjuk langsung oleh Presiden.'}[r] ;
+      const msg = {ok:'', jabatan_tinggi:'🏛️ Wakil Presiden dan Penasihat Negara tidak boleh punya pekerjaan lain.', sandi:'❌ Kata sandi salah.', penuh:'Posisi ini sudah penuh. Pilih posisi lain.', sudah:'Kamu sudah bekerja di 2 tempat (maksimal). Keluar dulu dari salah satunya di profilmu.', sudah_tempat:'Kamu sudah bekerja di gedung ini. Satu gedung hanya satu posisi.', sudah_posisi:'Kamu sudah bekerja di posisi ini.', warga:'Username belum terdaftar sebagai warga.', tunjuk:'Jabatan ini ditunjuk langsung oleh Presiden.'}[r] ;
       if (r === 'ok'){ if (!KERJA[u]) KERJA[u] = {fasilitas:jSel.id, posisi:jSel.p}; if (window.KERJA_ALL) KERJA_ALL.push({username:u, fasilitas:jSel.id, posisi:jSel.p}); UNLOCK[u] = pw; toast(`🎉 Selamat! @${u} sekarang ${jSel.p} di ${FAS[jSel.id].nama}`); if (sheetFn) sheetBody.innerHTML = sheetFn(); }
       else m.textContent = msg || 'Gagal mendaftar. Coba lagi.'; }
     catch(_){ e.target.disabled = false; m.textContent = 'Gagal tersambung. Periksa internet lalu coba lagi.'; }
     return; }
   const kk = e.target.closest('[data-keluar]');
-  if (kk){ const u = kk.dataset.keluar; if (!UNLOCK[u]) return;
-    try { const r = await SB.rpc('keluar_kerja', {p_user:u, p_sandi:UNLOCK[u]}); if (r === 'ok'){ delete KERJA[u]; toast('Kamu sudah keluar dari pekerjaan.'); if (sheetFn) sheetBody.innerHTML = sheetFn(); } }
+  if (kk){ const [u, fas] = kk.dataset.keluar.split('|'); if (!UNLOCK[u]) return;
+    try { const r = fas ? await SB.rpc('keluar_kerja_satu', {p_user:u, p_sandi:UNLOCK[u], p_fasilitas:fas}) : await SB.rpc('keluar_kerja', {p_user:u, p_sandi:UNLOCK[u]});
+      if (r === 'ok'){ if (window.KERJA_ALL) window.KERJA_ALL = KERJA_ALL.filter(x=>!(String(x.username||'').toLowerCase() === u && (!fas || x.fasilitas === fas)));
+        if (!fas || (KERJA[u] && KERJA[u].fasilitas === fas)){ delete KERJA[u]; const sisa = (window.KERJA_ALL || []).find(x=>String(x.username||'').toLowerCase() === u); if (sisa) KERJA[u] = {fasilitas:sisa.fasilitas, posisi:sisa.posisi}; }
+        try { lowonganPerbarui(); } catch(_) {} toast('Kamu sudah keluar dari ' + (fas && FAS[fas] ? FAS[fas].nama : 'pekerjaan') + '.'); if (sheetFn) sheetBody.innerHTML = sheetFn(); } }
     catch(_){ toast('Gagal tersambung.'); } }
 });
 // saat warga memainkan karakternya: ketuk gedung, atau tekan tombol yang muncul saat berada di dekat gedung
@@ -6655,6 +6670,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 05:50</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 05:55</div>
 </body>
 </html>
