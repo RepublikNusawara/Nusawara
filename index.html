@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-0415">
+<meta name="nusawara-build" content="20261117-0440">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3906,8 +3906,7 @@ const TAPU = {ov:null, pending:0, sesi:0, total:null, rank:null, top:[], sibuk:f
   #tapU .stack{position:absolute;bottom:6px;font-size:26px}
   #tapU .belt{position:absolute;left:22%;right:22%;bottom:0;height:78px;background:repeating-linear-gradient(180deg,#3a3f46 0 6px,#2b2f36 6px 12px);border-left:4px solid #c9cfd6;border-right:4px solid #c9cfd6;animation:tuBelt .6s linear infinite}
   @keyframes tuBelt{to{background-position:0 12px}}
-  #tapU .note{position:absolute;left:50%;width:120px;height:44px;margin-left:-60px;border-radius:6px;background:linear-gradient(135deg,#fbe3e6,#f19aa6 60%,#e66a7c);border:2px solid #c8102e;box-shadow:0 3px 6px #0005;color:#a50d22;font-weight:900;text-align:center;font-size:16px;line-height:24px}
-  #tapU .note small{display:block;font-size:7px;color:#5a1020;line-height:10px;font-weight:800}
+  #tapU .note{position:absolute;left:50%;width:146px;height:42px;margin-left:-73px;border-radius:4px;background:url(assets/uang-n1.jpg) center/cover no-repeat;box-shadow:0 3px 6px #0006}
   #tapU .note.fly{animation:tuNote .9s ease-in forwards}
   @keyframes tuNote{0%{bottom:70px;opacity:0;transform:scale(.6)}20%{opacity:1;transform:scale(1)}100%{bottom:-50px;opacity:.2;transform:scale(1.15)}}
   #tapU .bawah{display:grid;grid-template-columns:1fr 120px 1.2fr;gap:7px;align-items:stretch}
@@ -3932,7 +3931,15 @@ const TAPU = {ov:null, pending:0, sesi:0, total:null, rank:null, top:[], sibuk:f
   #tapU .full table{width:100%;border-collapse:collapse;font-size:13px}#tapU .full th{color:#f7d774;text-align:left;border-bottom:2px solid #f2c14e;padding:6px 4px}#tapU .full td{padding:6px 4px;border-bottom:1px solid #ffffff22}
   #tapU .full tr.me td{background:#f2c14e;color:#3b2600;font-weight:800}
   @media (max-width:380px){ #tapU .bawah{grid-template-columns:1fr 112px 1fr} #tapU .tbtn{width:112px;height:112px} #tapU .tbtn .t1{font-size:25px} #tapU .tbtn .t3{font-size:20px} #tapU .hdr b{font-size:20px} }`; document.head.appendChild(st); })();
-function tapuNote(){ const m = TAPU.ov && TAPU.ov.querySelector('.mesin'); if (!m) return; const n = document.createElement('div'); n.className = 'note fly'; n.innerHTML = 'N$1<small>REPUBLIK NUSAWARA</small>'; m.appendChild(n); setTimeout(()=>n.remove(), 950); }
+function tapuSuara(){ try { const A = TAPU.ac || (TAPU.ac = new (window.AudioContext || window.webkitAudioContext)()); if (A.state === 'suspended') A.resume(); const t = A.currentTime;
+    const o = A.createOscillator(), g = A.createGain(); o.type = 'square'; o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(55, t + .09);   // hentakan mesin cetak
+    g.gain.setValueAtTime(.22, t); g.gain.exponentialRampToValueAtTime(.001, t + .11); o.connect(g).connect(A.destination); o.start(t); o.stop(t + .12);
+    const len = Math.floor(A.sampleRate * .16), buf = A.createBuffer(1, len, A.sampleRate), d = buf.getChannelData(0); for (let i=0;i<len;i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 2);
+    const nz = A.createBufferSource(); nz.buffer = buf; const f = A.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 3200; f.Q.value = .8; const g2 = A.createGain(); g2.gain.value = .35;   // desir kertas uang
+    nz.connect(f).connect(g2).connect(A.destination); nz.start(t + .05);
+    const c = A.createOscillator(), g3 = A.createGain(); c.type = 'triangle'; c.frequency.value = 2400; g3.gain.setValueAtTime(.08, t + .13); g3.gain.exponentialRampToValueAtTime(.001, t + .19); c.connect(g3).connect(A.destination); c.start(t + .13); c.stop(t + .2);   // klik keluar
+  } catch(_) {} }
+function tapuNote(){ const m = TAPU.ov && TAPU.ov.querySelector('.mesin'); if (!m) return; const n = document.createElement('div'); n.className = 'note fly'; m.appendChild(n); setTimeout(()=>n.remove(), 950); }
 function tapuRender(){ const o = TAPU.ov; if (!o) return; const q = s=>o.querySelector(s);
   if (q('#tuSesi')) q('#tuSesi').textContent = N$(TAPU.sesi);
   if (q('#tuTot')) q('#tuTot').textContent = TAPU.total == null ? '…' : Number(TAPU.total + TAPU.pending).toLocaleString('id-ID');
@@ -3969,9 +3976,9 @@ function pabrikUangBuka(){
     <div class="mesin"><div class="plat">MESIN<br>PENCETAK UANG<br>NUSAWARA</div><span class="coin bigc">N$</span>
       <span class="lampu" style="left:30%"></span><span class="lampu" style="right:30%"></span>
       <span class="robot" style="left:4px">🦾</span><span class="robot" style="right:4px;transform:scaleX(-1)">🦾</span>
-      <span class="stack" style="left:8px">💴💴</span><span class="stack" style="right:8px">💴💴</span><div class="belt"></div></div>
+      <span class="stack" style="left:8px">💴💴</span><span class="stack" style="right:8px">💴💴</span><div class="belt"></div><div class="note" style="bottom:14px;transform:scale(1.05)"></div></div>
     <div class="bawah">
-      <div class="pan"><h4>Hasil Tap Sesi Ini</h4><div class="val"><span class="coin">N$</span><b id="tuSesi">N$0</b></div>
+      <div class="pan"><div class="val"><span class="coin" style="width:20px;height:20px;font-size:7px;border-width:1.5px">N$</span><b id="tuSesi" style="font-size:12px">N$0</b></div>
         <h4>Total Tap · Rank</h4><div class="val" style="flex-direction:column;align-items:stretch;gap:2px"><b id="tuTot" style="text-align:center">…</b><span style="text-align:center;font-size:12px">Rank <b id="tuRank" style="font-size:14px">–</b></span></div></div>
       <button class="tbtn" id="tuTap" ${masuk ? '' : 'disabled style="filter:grayscale(.6)"'}><span class="t1">TAP</span><span class="t2">CETAK UANG</span><span class="t3">N$1</span></button>
       <div class="pan"><h4>🏆 Ranking Tap</h4><ul class="rk" id="tuRk"><li><span class="u" style="opacity:.7">Memuat…</span></li></ul><button class="lnk" data-tu-full>Lihat semua</button></div>
@@ -3980,7 +3987,7 @@ function pabrikUangBuka(){
     <div class="foot">Setiap 1 kali tap = <b>N$1</b></div></div>`;
   document.body.appendChild(ov);
   const btn = ov.querySelector('#tuTap');
-  btn.addEventListener('pointerdown', e=>{ e.preventDefault(); if (!masuk) return; btn.classList.add('on'); setTimeout(()=>btn.classList.remove('on'), 90);
+  btn.addEventListener('pointerdown', e=>{ e.preventDefault(); if (!masuk) return; const kini = performance.now(); if (kini - (TAPU.last || 0) < 200) return; TAPU.last = kini; tapuSuara(); btn.classList.add('on'); setTimeout(()=>btn.classList.remove('on'), 90);
     TAPU.pending++; TAPU.sesi++; tapuNote(); const p = document.createElement('span'); p.className = 'plus'; p.textContent = '+N$1'; btn.appendChild(p); setTimeout(()=>p.remove(), 800);
     if (navigator.vibrate) try { navigator.vibrate(8); } catch(_) {}
     tapuRender(); if (TAPU.pending >= 20) tapuKirim(); });
@@ -6535,6 +6542,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 04:30</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 04:40</div>
 </body>
 </html>
