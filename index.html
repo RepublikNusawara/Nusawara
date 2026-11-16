@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-1345">
+<meta name="nusawara-build" content="20261116-1410">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -4308,7 +4308,10 @@ function daftarMasuk(e){ e.t = 0; ENTERABLE.push(e); (e.coll || []).forEach(c=>{
   const ps = []; try { if (typeof pres !== 'undefined' && pres && pres.position) ps.push(pres.position); } catch(_) {}
   try { if (ctl && ctl.key && WALKERS[ctl.key]) ps.push(WALKERS[ctl.key].av.g.position); } catch(_) {}
   ENTERABLE.forEach(e=>{
-    const di = ps.some(q=>Math.abs(q.x-e.x) < e.hw && q.z > e.z0 && q.z < e.z1), tgt = di ? 1 : 0;
+    const di = ps.some(q=>Math.abs(q.x-e.x) < e.hw && q.z > e.z0 && q.z < e.z1);
+    let tgt = di ? 1 : 0;
+    if (!di && e.fas && typeof POSTMAP !== 'undefined'){ for (const u in POSTMAP){ if (POSTMAP[u].e !== e) continue; const Wk = WALKERS[u]; if (!Wk) continue; const q = Wk.av.g.position;
+      if (Math.abs(q.x-e.x) < e.hw && q.z > e.z0 && q.z < e.z1){ tgt = .75; break; } } }   // ada pekerja di dalam: dinding transparan supaya kelihatan
     if (Math.abs(e.t - tgt) < .01 && e.t === tgt) return;
     e.t += (tgt - e.t) * .18; if (Math.abs(e.t - tgt) < .01) e.t = tgt;
     e.shell.forEach(m=>{ m.material.opacity = m.userData.baseOp * (1 - .88*e.t); m.material.depthWrite = e.t < .5; });
@@ -5187,6 +5190,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 13:45</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 14:10</div>
 </body>
 </html>
