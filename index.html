@@ -2949,11 +2949,14 @@ function pejabatDaftar(){
   return o;
 }
 function bekerjaDiTempat(u){ const W = WALKERS[u]; try { return !!(W && W.zone === 'kota' && !W.path && bolehMasuk(u) && postWorker(u)); } catch(_) { return false; } }
+function sinkronPejabat(){
+  const pj = pejabatDaftar(), ubah = [...pj].filter(u=>!PEJABAT.has(u)).concat([...PEJABAT].filter(u=>!pj.has(u)));
+  if (!ubah.length) return; PEJABAT = new Set(pj);
+  setTimeout(()=>ubah.forEach(u=>{ try { if (WALKERS[u] && WINFO[u]) syncWalkers({[u]: WINFO[u]}); } catch(_) {} }), 0);
+}
 function barisSlot(k){
   const keys = Object.keys(WALKERS), pj = pejabatDaftar(), kj = new Set(keys.filter(u=>!pj.has(u) && bekerjaDiTempat(u))), sig = keys.length + ':' + keys.join(',') + '|' + [...pj].sort().join(',') + '|' + [...kj].sort().join(',');
   if (sig !== BARIS.sig){ BARIS.sig = sig; BARIS.slot = {};
-    const ubah = [...pj].filter(u=>!PEJABAT.has(u)).concat([...PEJABAT].filter(u=>!pj.has(u))); PEJABAT = new Set(pj);
-    if (ubah.length) setTimeout(()=>ubah.forEach(u=>{ try { if (WALKERS[u] && WINFO[u]) syncWalkers({[u]: WINFO[u]}); } catch(_) {} }), 0);
     keys.sort((a,b)=>String((WINFO[a]||{}).niwn || a).localeCompare(String((WINFO[b]||{}).niwn || b)));
     const off = c => c === 0 ? 0 : (c % 2 ? Math.ceil(c/2) : -c/2) * BARIS.DX;
     const aktif = keys.filter(u=>pj.has(u)), warga = keys.filter(u=>!pj.has(u) && !kj.has(u));
@@ -2979,9 +2982,11 @@ function stepBaris(W, F, dt){
   W.tag.position.set(g.position.x, g.position.y + 3.3, g.position.z);
 }
 function updateWalkers(dt, time){
+  if (!updateWalkers.t || time - updateWalkers.t > 1){ updateWalkers.t = time; try { sinkronPejabat(); } catch(_) {} }   // pejabat ditentukan sebelum posisi tiap orang dipilih
   for (const k in WALKERS){
     if (k === ctl.key) continue;
     const W = WALKERS[k], g = W.av.g;
+    if (typeof WPR !== 'undefined' && WPR.u === k){ W.av.g.visible = false; if (W.tag) W.tag.visible = false; continue; }   // Wakil Presiden diwakili karakter di sebelah Presiden, tidak pernah ke tempat kerja
     if (!PEJABAT.has(k) && bekerjaDiTempat(k)){ const ps = postWorker(k); if (ps){ stepPost(W, ps, dt, time); continue; } }   // pekerja: berdiri di tempat kerja; pejabat: ikut jabatan
     const FB = barisSlot(k); if (FB){ stepBaris(W, FB, dt); continue; }
     if (!W.path && W.zone === 'kota' && bolehMasuk(k)){ const ps = postWorker(k); if (ps){ stepPost(W, ps, dt, time); continue; } }
@@ -5745,6 +5750,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 01:55</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 02:05</div>
 </body>
 </html>
