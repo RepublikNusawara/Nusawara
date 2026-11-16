@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-1000">
+<meta name="nusawara-build" content="20261117-1100">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -108,7 +108,7 @@ if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.s
   #expbar span{position:absolute;left:0;right:0;top:0;height:100%;line-height:18px;text-align:center;color:#fff;font-size:11px;font-weight:800;text-shadow:0 1px 2px rgba(0,0,0,.5)}
   body.expon nav.actions{margin-bottom:32px}
   body.sheet-open #expbar{display:none!important}
-  body.no-game #akunBtn, body.no-game #caraBtn, body.no-game #hud, body.no-game #expbar{display:none!important}
+  body.no-game #caraBtn, body.no-game #hud, body.no-game #expbar{display:none!important}
   .hud{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 118px);z-index:5;width:178px;pointer-events:none;display:none;
     background:rgba(255,253,248,.92);border:1px solid var(--line);border-radius:12px;padding:7px 9px;box-shadow:0 6px 18px rgba(31,58,95,.12);font-size:11px;font-weight:800;color:#1f3a5f}
   .hud .r{display:flex;justify-content:space-between;margin-top:3px}.hud .b{height:9px;border-radius:5px;background:#e3e6ea;overflow:hidden;display:flex;margin-top:2px}
@@ -364,7 +364,7 @@ if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.s
 <script>
 (function(){
 "use strict";
-/* Sementara disembunyikan: sistem game (akun/saldo/stamina/Cara Main), tambang, hutan produksi, semua pabrik & kebun. Ubah ke false untuk menampilkan lagi. */
+/* Sementara disembunyikan: sistem game (Cara Main, stamina, bar level), tambang, hutan produksi, semua pabrik & kebun. Ubah ke false untuk menampilkan lagi. */
 const SEMBUNYI_GAME = true; if (SEMBUNYI_GAME) document.body.classList.add('no-game');
 if(!window.THREE || !THREE.OrbitControls){ document.getElementById('fail').style.display='grid'; return; }
 
@@ -776,7 +776,7 @@ function makeBengkelKaca(h){
   const dg = new THREE.Mesh(new THREE.BoxGeometry(3.3,2.8,.06), GLB); dg.position.set(-4.95,1.75,zf+.1); g.add(dg);
   box(.1,2.8,.12,DNAVY,-4.95,1.75,zf+.13,g); [-6.6,-3.3].forEach(x=>box(.18,3,.2,DNAVY,x,1.8,zf+.1,g));
   box(2,.8,.5,0xd9a05f,-4.95,.7,zf-.35,g);
-  [-6.9,-3.1].forEach(x=>box(.14,.5,.14,LAMP.color,x,2.2,zf+.2,g));                  // lampu dinding
+  [-6.9,-3.1].forEach(x=>box(.14,.5,.14,LAMP,x,2.2,zf+.2,g));                  // lampu dinding
   // --- bay 1: Ganti Kaca & Instalasi (ada mobil putih) ---
   const bay = (cx,w)=>{ box(w,2.9,.08,0xdfe6ee,cx,1.75,zf-.05,g); box(.3,3,.3,DNAVY,cx-w/2-.1,1.8,zf+.1,g); box(.3,3,.3,DNAVY,cx+w/2+.1,1.8,zf+.1,g);
     box(w,.12,.3,YEL,cx,3.25,zf+.1,g); box(w,.08,1.0,YEL,cx,.31,zf+.6,g); };
@@ -788,7 +788,7 @@ function makeBengkelKaca(h){
   // mobil putih di bay 1
   const car = new THREE.Group(); car.position.set(-.55,0,zf-.6); g.add(car);
   box(2.4,.7,1.0,WH,0,.85,0,car); box(1.6,.6,.9,WH,0,1.45,-.1,car); box(1.5,.4,.02,0x23303f,0,1.5,.36,car); box(2.3,.18,.04,0x23303f,0,.72,.52,car);
-  [-.8,.8].forEach(x=>{ box(.35,.18,.04,LAMP.color,x,1.0,.52,car); const w = new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,.2,12), M(0x222222)); w.rotation.z = Math.PI/2; w.position.set(x*1.3,.32,.3); car.add(w); });
+  [-.8,.8].forEach(x=>{ box(.35,.18,.04,LAMP,x,1.0,.52,car); const w = new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,.2,12), M(0x222222)); w.rotation.z = Math.PI/2; w.position.set(x*1.3,.32,.3); car.add(w); });
   // peralatan: lemari perkakas merah & rak kaca di bay 2
   box(1.1,.9,.5,0xd8262b,2.8,.75,zf-.45,g); box(1.1,.9,.5,0x2a4d9f,3.9,.75,zf-.45,g);
   [0,.7].forEach(y=>{ const pl = new THREE.Mesh(new THREE.BoxGeometry(1.7,1.0,.06), GLB); pl.position.set(5.6,1.1+y*.55,zf-.2); pl.rotation.x = -.15; g.add(pl); });
@@ -803,6 +803,8 @@ function makeBengkelKaca(h){
   papanT(h.id || 'BKT-MAWAR-002', 2.0, .42, '#1f2227', '#ffffff', 6.0, .6, zf+1.6, g);
   finishHouse(h, g);
   g.userData.fixed = true;   // jangan dipindah ke cincin kavling oleh kotaUpdate
+  { const L = label('🔧 BENGKEL KACA REPUBLIK NUSAWARA', {h:1.6, size:34, bg:'rgba(28,42,74,.97)', fg:'#fff'}); L.position.set(0, 10.5, zf); g.add(L); }
+  g.visible = true;
   g.position.set(289, 0, -246);   // ruko @iruzz BKT-MAWAR-002 (Bengkel Kaca): di sebelah timur Toko Kamera Republik Nusawara, menghadap +z seperti podium, di tepi jalan
 }
 Object.assign(DESAIN, {modern: makeModern, kaca: makeKaca, foto: makeFoto, merah: makeMerah, bengkel_kaca: makeBengkelKaca});
@@ -4946,7 +4948,7 @@ const TEMPAT = {
         for (let c=0;c<9;c++) S(1.2,0x2f8d3a,-17+c*4.3,y+.6,-17+r*5.6,g,.55); }
       const pd = new THREE.Group(); pd.position.set(-16,0,18); g.add(pd); box(4,2.6,3,0x8a5a36,0,1.3,0,pd); const ra = box(4.6,.25,3.6,0x2f6f3a,0,2.8,0,pd); ra.rotation.x = .3; }
   };
-  for (const id in TEMPAT){ const e = TEMPAT[id]; if (SEMBUNYI_GAME && /^(pabrik|kebun)_/.test(id)) continue; const g = new THREE.Group(); g.position.set(e.x, 0, e.z); scene.add(g); BUAT[id](g);
+  for (const id in TEMPAT){ const e = TEMPAT[id]; if (SEMBUNYI_GAME && /^(pabrik|kebun|peternakan)/.test(id)) continue; const g = new THREE.Group(); g.position.set(e.x, 0, e.z); scene.add(g); BUAT[id](g);
     const L = label(e.ikon + ' ' + e.nama.toUpperCase(), LBL); L.position.set(0, 15, 6); g.add(L);
     g.userData = {type:'eko', data:{id:'TMP-' + id}}; pickables.push(g); e.g = g; }
   (function putar(){ const k = TEMPAT.pabrik_tepung.g && TEMPAT.pabrik_tepung.g.userData.kincir; if (k) k.rotation.z += .01; requestAnimationFrame(putar); })();
@@ -5744,19 +5746,6 @@ function loop(){
   baris(62,134,[[8,9],[12,11],[10,10],[14,11],[9,9]], (x,w,d)=>{ parkir(x,w,-88); petak(x,-90.5-d/2,w,d,'',3.4); });                      // baris 3 barat
   baris(156,214,[[12,10],[9,9],[14,11]], (x,w,d)=>{ parkir(x,w,-88); petak(x,-90.5-d/2,w,d,'',3.4); });                                  // baris 3 timur
 
-  // ===== KAWASAN FASILITAS BARU (selatan Kota Timur): petak calon Pemadam, Polisi (nanti), Balai Warga =====
-  lb('🚒 KAWASAN FASILITAS BARU', 188, -12); PH = 'C';
-  baris(150,214,[[18,14],[24,17],[16,12]], (x,w,d)=>petak(x,-15+d/2,w,d));
-  // ===== TAMAN & HUTAN KOTA (tepi selatan) =====
-  { const TX = 145, TZ = 78;
-    box(92,.12,52,0x6fb84a,TX,.06,TZ);
-    const kolam = new THREE.Mesh(new THREE.CylinderGeometry(9,9,.1,32), M(0x5fb7e5)); kolam.position.set(TX,.14,TZ); scene.add(kolam);
-    const tepi = new THREE.Mesh(new THREE.CylinderGeometry(10.2,10.2,.08,32), M(0xd8cfb8)); tepi.position.set(TX,.11,TZ); scene.add(tepi);
-    box(92,.1,3,0xd8cfb8,TX,.13,TZ); box(3,.1,52,0xd8cfb8,TX,.13,TZ);          // jalan setapak silang
-    for (let i=0;i<30;i++){ const a = i*2.399, r = 14 + (i%7)*3.2; const x = TX + Math.cos(a)*r*1.9, z = TZ + Math.sin(a)*r*.95;
-      if (Math.abs(x-TX) < 3 || Math.abs(z-TZ) < 3) continue; if (Math.abs(x-TX) > 44 || Math.abs(z-TZ) > 24) continue; pohonE(x,z); }
-    [[-14,-3],[14,-3],[-14,3],[14,3]].forEach(([dx,dz])=>box(3,.5,.8,0x7a4a24,TX+dx,.4,TZ+dz*1.2));
-    lb('🌳 TAMAN & HUTAN KOTA', TX, TZ + 12); }
   // ===== STADIUM BOLA REPUBLIK NUSAWARA (belakang B14 & B15), mengikuti gambar acuan =====
   const _n0 = scene.children.length;
   { const SX = 300, SZ = -72, PK2 = 0x4b5059;
