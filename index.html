@@ -5837,6 +5837,32 @@ function loop(){
       L.forEach(([e,t],i)=>{ const y = 12+i*57; c.fillStyle=i%2?'#262b35':'#2c313c'; c.fillRect(6,y,w-12,52); c.font='30px sans-serif'; c.textAlign='left'; c.textBaseline='middle'; c.fillStyle='#fff'; c.fillText(e,14,y+27); c.font='700 25px sans-serif'; c.fillText(t,64,y+28); }); },-18.5,5.1,8.72);
     // ---- papan fasilitas lantai 2 (kanan) ----
     b(5.4,3.6,.3,0x20242d,12.4,8.0,8.35); tx(5.0,3.2,300,192,(c,w,h)=>{ c.fillStyle='#20242d'; c.fillRect(0,0,w,h); [['📷','Studio Foto'],['🖥️','Ruang Editing'],['👥','Ruang Workshop'],['👥','Ruang Komunitas']].forEach(([e,t],i)=>{ c.font='26px sans-serif'; c.textBaseline='middle'; c.textAlign='left'; c.fillStyle='#fff'; c.fillText(e,12,26+i*46); c.font='700 22px sans-serif'; c.fillText(t,52,28+i*46); }); },12.4,8.0,8.55);
+    // ---- atap datar (tampak atas sesuai gambar): dek abu, pagar tepi, ruang mesin, AC, panel surya, skylight berlampu ----
+    { const Y0 = 10.96, GR = 0x8e959f, RIM = 0xdfe3e8, LG = 0xdde0e5, DG = 0x2c3038, FR = 0x14171d;
+      b(30.2,.08,16.2,GR,0,Y0,0);                                                              // dek
+      for (let x=-14;x<=14;x+=2) b(.04,.02,16,0x7c838d,x,Y0+.05,0); for (let z=-7;z<=7;z+=2) b(30,.02,.04,0x7c838d,0,Y0+.05,z);   // kisi ubin
+      b(30.8,.7,.5,RIM,0,Y0+.35,-8.25); [-1,1].forEach(s=>{ b(.5,.7,16.8,RIM,s*15.15,Y0+.35,0); b(.3,2.4,15,RED,s*15.5,9.6,0); });   // pagar tepi + panel merah samping
+      // ruang mesin di tengah belakang
+      b(7.2,3.4,3.6,0xa9afb8,0,Y0+1.8,-5.6); b(7.8,.3,4.2,RIM,0,Y0+3.6,-5.6); b(1.0,1.9,.1,DG,-1.3,Y0+1.1,-3.76); b(.1,1.7,1.4,0x7c838d,3.65,Y0+1.8,-5.6); b(2.0,1.6,.1,0xc8ccd2,2.2,Y0+1.8,-3.76);
+      for (let i=0;i<5;i++){ b(.1,.08,1.3,0x5a606a,3.7,Y0+1.2+i*.28,-5.6); b(1.8,.08,.06,0x5a606a,2.2,Y0+1.2+i*.28,-3.72); }
+      b(1.5,.15,1.5,LG,2.4,Y0+3.8,-5.6); for (let i=0;i<4;i++) b(1.3,.05,.06,0x5a606a,2.4,Y0+3.9,-6.1+i*.35);   // kisi ventilasi atas
+      // pipa udara di belakang
+      [-1,1].forEach(s=>{ const pp = cyl2(.28,10.5,0xc4cad2,s*8.2,Y0+.9,-7.3,g,10); pp.rotation.z = Math.PI/2; cyl2(.28,1.4,0xc4cad2,s*13.6,Y0+.45,-7.3,g,10); });
+      // 2 unit AC berkipas
+      [-1,1].forEach(s=>{ b(5.0,1.5,3.2,LG,s*9.2,Y0+.8,-2.6); b(5.4,.3,3.6,0xc2c7ce,s*9.2,Y0+.2,-2.6);
+        [-1,1].forEach(d=>{ cyl2(.9,.14,DG,s*9.2+d*1.2,Y0+1.62,-2.6,g,20); for (let k=0;k<3;k++){ const bl = b(1.7,.05,.22,0x59606a,s*9.2+d*1.2,Y0+1.72,-2.6); bl.rotation.y = k*Math.PI/3; } }); });
+      // kisi ventilasi lantai
+      [-1,1].forEach(s=>{ b(3.0,.2,1.9,LG,s*9.4,Y0+.1,1.0); for (let i=0;i<4;i++) b(2.6,.05,.1,0x59606a,s*9.4,Y0+.24,.4+i*.4); });
+      // 2 panel surya
+      [-1,1].forEach(s=>{ b(5.6,.12,5.6,0xc2c7ce,s*8.8,Y0+.1,4.5); b(5.2,.1,5.2,0x1a2f6b,s*8.8,Y0+.2,4.5); for (let i=-1;i<=1;i++){ b(.05,.12,5.2,0xaab6d6,s*8.8+i*1.7,Y0+.22,4.5); b(5.2,.12,.05,0xaab6d6,s*8.8,Y0+.22,4.5+i*1.7); } });
+      // skylight tengah: bingkai putih, kaca berkisi, cincin lampu emas & tanaman di dalam
+      b(8.6,.5,8.6,RIM,0,Y0+.25,.9); b(7.6,.4,7.6,0x1d4f86,0,Y0+.42,.9); { const gl = b(7.6,.9,7.6,0x9fd6ee,0,Y0+.95,.9); gl.material = GLB; }
+      for (let i=-3;i<=3;i++){ b(.07,.9,7.6,0xdfe8f0,i*1.1,Y0+.95,.9); b(7.6,.9,.07,0xdfe8f0,0,Y0+.95,.9+i*1.1); }
+      { const tr = new THREE.Mesh(new THREE.TorusGeometry(2.2,.12,8,36), LIT); tr.rotation.x = Math.PI/2; tr.scale.y = .8; tr.position.set(0,Y0+.65,.9); g.add(tr); }
+      [-2.9,2.9].forEach(x=>{ b(.9,.5,.9,0xffffff,x,Y0+.7,.9); const pl = new THREE.Mesh(new THREE.SphereGeometry(.65,8,6), M(0x4f9c45)); pl.position.set(x,Y0+1.4,.9); g.add(pl); });
+      // 4 lampu sorot di tepi depan atap
+      [-9,-3,3,9].forEach(x=>{ b(1.7,.55,.9,0x8f959f,x,Y0+.55,7.5); const l = new THREE.Mesh(new THREE.BoxGeometry(1.4,.1,.6), LIT); l.position.set(x,Y0+.25,7.8); g.add(l); });
+    }
     // ---- billboard atap: bisa diganti owner (default mengikuti gambar) ----
     houseBoard({id:'KAMERA-NUSAWARA'}, 27.6, 5.4, 0, 13.7, 8.4, g, DKB);
     { const bd = boards['KAMERA-NUSAWARA'], t = canvasTex(1104,216,(c,w,h)=>{ c.fillStyle='#1a1f2b'; c.fillRect(0,0,w,h);
@@ -5865,6 +5891,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 04:55</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 05:10</div>
 </body>
 </html>
