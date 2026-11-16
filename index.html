@@ -3628,7 +3628,7 @@ const TUTO_LANGKAH = [
   {ikon:'⛏️', judul:'Menambang bahan', isi:'Pergi ke Kawasan Tambang di selatan Pelabuhan. Tekan tombol tambang untuk dapat bahan mentah. Menambang menguras ⚡ stamina.', pergi:'tambang', tombol:'⛏️ Lihat tambang'},
   {ikon:'🏭', judul:'Combine hasil tambang', isi:'Bawa bahan mentahmu ke pabrik, lalu <b>Olah</b> jadi <b>bahan olahan</b> atau <b>bahan material</b> (untuk membangun rumah). Cukup bayar biaya olah.', pergi:'industri', tombol:'🏭 Lihat pabrik'},
   {ikon:'🦅', judul:'Jual di PRN', isi:'Tekan gedung Garuda di Distrik Pusat. Jual bahan atau hasil olahanmu ke Negara untuk dapat Nusa, atau beli bahan yang kamu butuh.', pergi:'prn', tombol:'🦅 Lihat PRN'},
-  {ikon:'🏞️', judul:'Beli tanah & bangun', isi:'Beli kavling di belakang Distrik Pusat, setor material, lalu pilih desain rumahmu. Itu rumah & billboard milikmu sendiri!', pergi:'kavling', tombol:'🏞️ Lihat kavling'},
+  {ikon:'🏞️', judul:'Beli tanah & bangun', isi:'Menangkan Undian: rumah/toko hasil undian dibangun di selatan podium. Kawasan bisnis di belakang Distrik Pusat dibangun dari usulan warga. Itu rumah & billboard milikmu sendiri!', pergi:'kavling', tombol:'🏞️ Lihat kavling'},
   {ikon:'🤝', judul:'Donasi & jadi Warga Terbaik', isi:'Donasikan bahan atau N$ di Papan Donasi. Yang donasinya <b>paling banyak</b> tiap bulan jadi <b>🏆 Warga Terbaik</b> dan mendapat <b>tanah + rumah/toko modern</b> gratis. Juara 2 dan 3 juga dapat tanah.', pergi:'donasi', tombol:'🤝 Lihat Papan Donasi'}
 ];
 function tutoTampil(){ if (!TUTO){ tutoEl.style.display = 'none'; return; } const i = TUTO.i, L = TUTO_LANGKAH[i], akhir = i === TUTO_LANGKAH.length - 1;
@@ -3904,9 +3904,9 @@ const cyl2 = (r,h,c,x,y,z,g,seg=12) => { const m = new THREE.Mesh(new THREE.Cyli
   const fa = new THREE.Mesh(new THREE.CylinderGeometry(4.6,4.6,.5,28), M(0x52b6e0)); fa.position.set(18,.3,-312); scene.add(fa);
   cyl2(.5,3,0xeaf6fb,18,1.6,-312,scene);
   for (let z=-110; z>-306; z-=12){ [13.5,22.5].forEach(x=>{ cyl2(.25,1.2,0x6b4a2e,x,.6,z,scene,6); const b = new THREE.Mesh(new THREE.SphereGeometry(1.2,8,6), M(0xf2a7c3)); b.position.set(x,1.9,z); scene.add(b); }); }
-  [['🏘️ KAWASAN RESIDENSIAL (KAVLING WARGA)',18,-100],['🛍️ KAVLING TOKO',91,-2],['🏭 KAVLING PABRIK',-61,-134]].forEach(([t,x,z])=>{ const l = label(t, LBL); l.position.set(x, 10, z); scene.add(l); });
+  [['🏬 KAWASAN BISNIS WARGA (USULAN WARGA)',18,-100],['🏘️ RUMAH & TOKO UNDIAN (SELATAN PODIUM)',18,30],['🛍️ KAVLING TOKO',91,-2],['🏭 KAVLING PABRIK',-61,-134]].forEach(([t,x,z])=>{ const l = label(t, LBL); l.position.set(x, 10, z); scene.add(l); });
   [['A',44,-128],['B',-8,-128],['C',44,-176],['D',-8,-176],['E',44,-224],['F',-8,-224],['G',44,-277],['H',-8,-277]].forEach(([b,x,z])=>{
-    const l = label('BLOK ' + b, {h:1.2, size:34, bg:'rgba(47,158,72,.95)', fg:'#fff'}); l.position.set(x, 7, z + (b > 'F' ? 27 : 22)); scene.add(l); });
+    const l = label('ZONA BISNIS ' + b, {h:1.2, size:34, bg:'rgba(242,177,52,.95)', fg:'#3a2600'}); l.position.set(x, 7, z + (b > 'F' ? 27 : 22)); scene.add(l); });
   box(36,.1,36,0xd6d0c2,-61,.05,-154);                                        // lantai kavling pabrik
 })();
 
