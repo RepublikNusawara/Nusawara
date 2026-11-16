@@ -2526,11 +2526,14 @@ const isHex = v => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v);
 const pick = (v, list, d) => list.some(o=>o[0]===v) ? v : d;
 function bajuOpsi(u){ let off = false; try { off = PEJABAT.has(u) || (typeof WPR !== 'undefined' && WPR.u === u); } catch(_) {}
   return off ? AVA_OPT.bajuModel.concat([['batik','Batik Dinas']]) : AVA_OPT.bajuModel; }   // baju dinas hanya ada di pilihan pemegang jabatan; jabatan dicopot = pilihan hilang
-var PEJABAT = new Set();   // pemegang jabatan: berbaju batik dinas
+function sedangMain(u){ try { return ctl.key === u; } catch(_) { return false; } }
+var PEJABAT = new Set(), PJMAIN = null;   // pemegang jabatan: berbaju batik dinas
 function avatarSpec(w){ const sp = avatarSpec0(w), u = String((w && w.username) || '').toLowerCase();
   if (typeof WPR !== 'undefined' && WPR.u === u && !(w && w._jas)){ sp.bajuModel = 'batik'; sp.baju = '#1f2a6b'; }   // dimainkan: batik dinas
   else if (typeof WPR !== 'undefined' && WPR.u === u){ sp.bajuModel = 'jasnav'; sp.baju = '#253760'; sp.celana = '#1c2847'; sp.sepatu = '#171717'; sp.celanaModel = 'panjang'; }   // jas dinas Wakil Presiden (sama seperti Presiden)
-  else if (PEJABAT.has(u)){ sp.bajuModel = 'batik'; sp.baju = '#1f2a6b'; }
+  else if (PEJABAT.has(u)){
+    if (sedangMain(u)){ sp.bajuModel = 'batik'; sp.baju = '#1f2a6b'; }                       // dimainkan: batik dinas
+    else { sp.bajuModel = 'jasnav'; sp.baju = '#1c1c1f'; sp.celana = '#141416'; sp.sepatu = '#0c0c0c'; sp.celanaModel = 'panjang'; } }   // berdiri di barisan pejabat: jas & celana hitam
   return sp; }
 function avatarSpec0(w){
   const u = String((w && w.username) || '').toLowerCase(), h = hashStr(u), a = (w && w.avatar && typeof w.avatar === 'object') ? w.avatar : {};
@@ -2701,8 +2704,8 @@ function makeAvatar(sp){
     [-.2,.2].forEach(x=>v.box(x,1.3,Zf+.02,.18,.06,.02, GD));
   }
   if (sp.bajuModel === 'jasnav'){                                                 // jas dinas: kemeja putih, dasi navy, lencana emas, kerah jas lebih terang
-    v.box(0,1.58,Zf+.008,.18,.54,.02, 0xf7f7f4); v.box(0,1.62,Zf+.016,.065,.38,.02, 0x1a2a52); v.box(0,1.82,Zf+.02,.1,.06,.02, 0x1a2a52);
-    [-.13,.13].forEach(x=>v.box(x,1.68,Zf+.014,.08,.34,.03, 0x344c7a));
+    v.box(0,1.58,Zf+.008,.18,.54,.02, 0xf7f7f4); v.box(0,1.62,Zf+.016,.065,.38,.02, tone(B,.72)); v.box(0,1.82,Zf+.02,.1,.06,.02, tone(B,.72));
+    [-.13,.13].forEach(x=>v.box(x,1.68,Zf+.014,.08,.34,.03, tone(B,1.5)));
     v.rbox(.18,1.66,Zf+.03,.1,.11,.02, 0xe3b03a,.02); v.box(.18,1.66,Zf+.044,.045,.045,.012, 0xffffff); v.box(0,1.26,Zf+.02,.05,.05,.025, 0xe3b03a);
   }
   if (sp.bajuModel === 'jas'){ v.box(0,1.58,Zf+.008,.18,.54,.02, 0xf4f1ea); v.box(0,1.55,Zf+.016,.06,.42,.02, 0xb03030); v.box(0,1.78,Zf+.02,.08,.06,.02, 0xb03030);
@@ -2967,6 +2970,8 @@ function pejabatDaftar(){
 function bekerjaDiTempat(u){ const W = WALKERS[u]; try { return !!(W && W.zone === 'kota' && !W.path && bolehMasuk(u) && postWorker(u)); } catch(_) { return false; } }
 function sinkronPejabat(){
   const pj = pejabatDaftar(), ubah = [...pj].filter(u=>!PEJABAT.has(u)).concat([...PEJABAT].filter(u=>!pj.has(u)));
+  let m = null; try { m = ctl.key && pj.has(ctl.key) ? ctl.key : null; } catch(_) {}
+  if (m !== PJMAIN){ [PJMAIN, m].forEach(u=>{ if (u) ubah.push(u); }); PJMAIN = m; }   // ganti seragam saat mulai/berhenti dimainkan
   if (!ubah.length) return; PEJABAT = new Set(pj);
   setTimeout(()=>ubah.forEach(u=>{ try { if (WALKERS[u] && WINFO[u]) syncWalkers({[u]: WINFO[u]}); } catch(_) {} }), 0);
 }
@@ -5766,6 +5771,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 02:45</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 03:00</div>
 </body>
 </html>
