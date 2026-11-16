@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-1200">
+<meta name="nusawara-build" content="20261117-1300">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -5785,32 +5785,75 @@ function loop(){
     box(30,9,3,0xf4f4f1,SX,4.5,FZ); box(30.6,.7,3.5,0xd8212f,SX,9.3,FZ);
     [-1,1].forEach(s=>{ const w = new THREE.Group(); w.position.set(SX+s*20,0,FZ+1.4); w.rotation.y = -s*.42; scene.add(w);
       box(12,9,3,0xf4f4f1,0,4.5,0,w); box(12.4,.7,3.4,0xd8212f,0,9.3,0,w); box(.8,9,3.2,0xd8212f,-s*5.6,4.5,0,w); }); 
-    const bmas = canvasTex(640,400,(g,w,h)=>{ g.fillStyle='#2a73d8'; g.fillRect(0,0,w,h); g.fillStyle='#3a9a3a'; g.fillRect(0,h*.62,w,h*.38); g.fillStyle='#8fc6f2'; for (let i=0;i<14;i++) g.fillRect(i*46,h*.4,40,h*.22);
-      g.fillStyle='#d8212f'; g.beginPath(); g.moveTo(190,400); g.lineTo(215,270); g.lineTo(425,270); g.lineTo(450,400); g.fill();
-      g.fillStyle='#fff'; g.font='900 70px sans-serif'; g.textAlign='center'; g.fillText('10',320,360);
-      g.fillStyle='#f2c9a0'; g.beginPath(); g.arc(320,175,95,0,7); g.fill();
-      g.fillStyle='#111'; g.fillRect(238,62,164,58); g.beginPath(); g.arc(320,70,82,Math.PI,0); g.fill();
-      g.fillStyle='#fff'; g.strokeStyle='#111'; g.lineWidth=12; [[268,180],[372,180]].forEach(([x,y])=>{ g.beginPath(); g.roundRect ? g.roundRect(x-42,y-30,84,62,16) : g.rect(x-42,y-30,84,62); g.fill(); g.stroke(); });
-      g.fillStyle='#111'; [[268,182],[372,182]].forEach(([x,y])=>{ g.beginPath(); g.arc(x,y,13,0,7); g.fill(); }); g.beginPath(); g.moveTo(310,182); g.lineTo(330,182); g.stroke();
-      g.strokeStyle='#111'; g.lineWidth=9; g.beginPath(); g.arc(320,225,34,.15*Math.PI,.85*Math.PI); g.stroke();
-      g.fillStyle='#f2c9a0'; g.beginPath(); g.arc(488,150,42,0,7); g.fill(); g.fillStyle='#d8212f'; g.fillRect(470,185,40,90);
-      g.fillStyle='#fff'; g.beginPath(); g.arc(540,330,52,0,7); g.fill(); g.strokeStyle='#111'; g.lineWidth=5; g.stroke(); g.fillStyle='#111'; g.beginPath(); g.arc(540,330,16,0,7); g.fill(); });
-    const bpl = canvasTex(640,400,(g,w,h)=>{ g.fillStyle='#d8212f'; g.fillRect(0,0,w,h); g.fillStyle='#fff';
-      g.beginPath(); g.arc(380,95,40,0,7); g.fill(); g.fillRect(345,130,80,120); g.beginPath(); g.moveTo(350,140); g.lineTo(240,200); g.lineTo(255,230); g.lineTo(355,185); g.fill();
-      g.beginPath(); g.moveTo(420,140); g.lineTo(520,110); g.lineTo(535,140); g.lineTo(425,190); g.fill();
-      g.beginPath(); g.moveTo(350,245); g.lineTo(300,360); g.lineTo(335,372); g.lineTo(395,270); g.fill(); g.beginPath(); g.moveTo(400,245); g.lineTo(480,300); g.lineTo(560,290); g.lineTo(565,320); g.lineTo(470,335); g.lineTo(385,285); g.fill();
-      g.beginPath(); g.arc(120,320,45,0,7); g.fill(); g.strokeStyle='#d8212f'; g.lineWidth=6; g.stroke(); g.fillStyle='#d8212f'; g.beginPath(); g.arc(120,320,15,0,7); g.fill(); });
-    [[-1,bmas],[1,bpl]].forEach(([s,tex])=>{ const m = new THREE.Mesh(new THREE.PlaneGeometry(10.4,6.5), TXM(tex)); m.position.set(SX+s*20 - s*1.0, 5.2, FZ+3.15 + (s>0?.0:.0)); m.rotation.y = -s*.42; m.position.x = SX + s*(20 - 0.35); m.position.z = FZ + 1.4 + 1.62 + s*0; scene.add(m); });
+    // panel merah berlogo kota di kedua sayap (mengikuti gambar acuan baru)
+    const logoKota = canvasTex(512,320,(g,w,h)=>{ g.fillStyle='#c8102e'; g.fillRect(0,0,w,h); g.strokeStyle='#ffd36b'; g.lineWidth=10; g.strokeRect(14,14,w-28,h-28);
+      g.fillStyle='#fff'; [[150,190,36,70],[192,150,34,110],[232,100,46,160],[284,140,34,120],[324,175,36,85]].forEach(([x,y,ww,hh])=>g.fillRect(x,y,ww,hh)); g.fillRect(130,262,252,14); });
+    [-1,1].forEach(s=>{ const m = new THREE.Mesh(new THREE.PlaneGeometry(10.4,7.6), TXM(logoKota)); m.position.set(SX + s*19.65, 4.8, FZ + 3.02); m.rotation.y = -s*.42; scene.add(m); });
     // lobi kaca + panel piala + tiang
     box(24,5.4,.3,0x7fc4dc,SX,3.3,FZ+1.6); for (let i=-6;i<=6;i++) box(.18,5.4,.4,0x1c3f7a,SX+i*2,3.3,FZ+1.7);
     box(6,4.6,.25,0xb8161f,SX,3.2,FZ+1.8); { const tp = label('🏆', {h:3.2, size:90, bg:'rgba(184,22,31,.0)', fg:'#fff'}); tp.position.set(SX,3.4,FZ+2); scene.add(tp); }
     box(30,.5,6.4,0xf4f4f1,SX,5.9,FZ+3.2); [-13,-6.5,6.5,13].forEach(dx=>box(.8,5.8,.8,0xf4f4f1,SX+dx,2.9,FZ+5.6)); box(24,3.4,.2,0xffe08a,SX,2.2,FZ+1.9);
-    // gable merah dengan logo kota + bola, papan nama biru + pita merah
-    { const tr = new THREE.Shape(); tr.moveTo(-9,0); tr.lineTo(9,0); tr.lineTo(0,5.2); tr.lineTo(-9,0); const gb = new THREE.Mesh(new THREE.ExtrudeGeometry(tr,{depth:1.2,bevelEnabled:false}), M(0xd8212f)); gb.position.set(SX,9.6,FZ-.2); scene.add(gb);
-      const logo = canvasTex(512,256,(g,w,h)=>{ g.fillStyle='#d8212f'; g.fillRect(0,0,w,h); g.fillStyle='#fff'; [[110,150,40,86],[150,110,38,126],[188,70,40,166],[228,120,36,116],[262,90,34,146],[300,140,36,96]].forEach(([x,y,ww,hh])=>g.fillRect(x,y,ww,hh)); g.fillStyle='#fff'; g.beginPath(); g.arc(380,120,50,0,7); g.fill(); g.strokeStyle='#111'; g.lineWidth=5; g.stroke(); g.fillStyle='#111'; g.beginPath(); g.arc(380,120,15,0,7); g.fill(); });
-      const lm = new THREE.Mesh(new THREE.PlaneGeometry(9,4.5), TXM(logo)); lm.position.set(SX,11.6,FZ+1.05); scene.add(lm); }
-    box(25,5.4,.7,0x1c3f7a,SX,7.6,FZ+1.45); box(25.8,.5,.9,0xd8212f,SX,10.2,FZ+1.45);
-    papanT('STADIUM BOLA', 22, 2.8, '#1c3f7a', '#ffffff', SX, 8.5, FZ+1.85, scene); papanT('REPUBLIK NUSAWARA', 19, 1.5, '#d8212f', '#ffffff', SX, 6.4, FZ+1.9, scene);
+    // ===== BILLBOARD LAYAR BESAR (LED melengkung) di atas pintu utama, mengikuti gambar acuan =====
+    { const LW = 40, LH = 8.4, LY = 10.6, LZ = FZ + 4.2, BEND = 3.2;
+      const led = canvasTex(2048, 430, (g,w,h)=>{
+        const bg = g.createLinearGradient(0,0,w,0); bg.addColorStop(0,'#0b1d5c'); bg.addColorStop(.5,'#1d3fa8'); bg.addColorStop(1,'#0b1d5c'); g.fillStyle = bg; g.fillRect(0,0,w,h);
+        // gelombang merah-putih di kiri & kanan
+        [[0,1],[w,-1]].forEach(([x0,d])=>{ g.fillStyle='#d8212f'; g.beginPath(); g.moveTo(x0,40); g.quadraticCurveTo(x0+d*260,90,x0+d*560,30); g.lineTo(x0+d*560,190); g.quadraticCurveTo(x0+d*260,250,x0,200); g.fill();
+          g.fillStyle='#ffffff'; g.beginPath(); g.moveTo(x0,200); g.quadraticCurveTo(x0+d*260,250,x0+d*560,190); g.lineTo(x0+d*560,330); g.quadraticCurveTo(x0+d*260,390,x0,350); g.fill(); });
+        // sorot cahaya stadion
+        g.fillStyle='rgba(255,255,255,.18)'; for (let i=0;i<7;i++){ g.beginPath(); g.moveTo(700+i*110,0); g.lineTo(760+i*110,0); g.lineTo(900+i*60,h); g.lineTo(860+i*60,h); g.fill(); }
+        // karikatur Presiden (kiri)
+        const px = 470, py = 230;
+        g.fillStyle='#1c2a4a'; g.beginPath(); g.moveTo(px-150,h); g.quadraticCurveTo(px,py+40,px+150,h); g.fill(); g.fillStyle='#fff'; g.beginPath(); g.moveTo(px-40,py+90); g.lineTo(px,h); g.lineTo(px+40,py+90); g.fill(); g.fillStyle='#d8212f'; g.fillRect(px-12,py+100,24,90);
+        g.fillStyle='#f2c9a0'; g.beginPath(); g.arc(px,py,92,0,7); g.fill();
+        g.fillStyle='#111'; g.fillRect(px-80,py-150,160,62); g.beginPath(); g.ellipse(px,py-88,92,20,0,0,7); g.fill();
+        g.fillStyle='#fff'; g.strokeStyle='#111'; g.lineWidth=11; [[px-44,py+2],[px+44,py+2]].forEach(([x,y])=>{ g.beginPath(); g.rect(x-36,y-28,72,56); g.fill(); g.stroke(); });
+        g.fillStyle='#111'; [[px-44,py+4],[px+44,py+4]].forEach(([x,y])=>{ g.beginPath(); g.arc(x,y,11,0,7); g.fill(); });
+        g.lineWidth=8; g.beginPath(); g.arc(px,py+44,30,.15*Math.PI,.85*Math.PI); g.stroke();
+        g.fillStyle='#f2c9a0'; g.beginPath(); g.arc(px+175,py+20,40,0,7); g.fill(); g.fillStyle='#1c2a4a'; g.fillRect(px+150,py+55,50,120);   // kepalan tangan
+        // judul tengah
+        g.textAlign='center'; g.textBaseline='middle';
+        g.fillStyle='#ffd36b'; g.beginPath(); g.moveTo(1024,20); g.lineTo(1074,90); g.lineTo(974,90); g.fill();
+        g.font='900 118px sans-serif'; g.lineWidth=14; g.strokeStyle='#0b1d5c'; g.strokeText('STADION BOLA',1024,160); g.fillStyle='#ffffff'; g.fillText('STADION BOLA',1024,160);
+        g.fillStyle='#d8212f'; g.beginPath(); g.moveTo(760,215); g.lineTo(1288,215); g.lineTo(1310,250); g.lineTo(1288,285); g.lineTo(760,285); g.lineTo(738,250); g.fill();
+        g.font='800 52px sans-serif'; g.fillStyle='#fff'; g.fillText('REPUBLIK NUSAWARA',1024,252);
+        // bola
+        g.fillStyle='#fff'; g.beginPath(); g.arc(1024,355,48,0,7); g.fill(); g.strokeStyle='#111'; g.lineWidth=5; g.stroke(); g.fillStyle='#111'; g.beginPath(); g.arc(1024,355,15,0,7); g.fill();
+        [[-30,-22],[30,-22],[-34,18],[34,18],[0,38]].forEach(([dx,dy])=>{ g.beginPath(); g.arc(1024+dx,355+dy,8,0,7); g.fill(); });
+        // pemain menendang (kanan)
+        g.fillStyle='rgba(255,90,90,.95)'; const qx = 1620, qy = 120;
+        g.beginPath(); g.arc(qx,qy,36,0,7); g.fill(); g.fillRect(qx-30,qy+36,60,110);
+        g.beginPath(); g.moveTo(qx-25,qy+50); g.lineTo(qx-150,qy+10); g.lineTo(qx-140,qy-15); g.lineTo(qx-10,qy+30); g.fill();
+        g.beginPath(); g.moveTo(qx+25,qy+50); g.lineTo(qx+140,qy+110); g.lineTo(qx+125,qy+135); g.lineTo(qx+10,qy+80); g.fill();
+        g.beginPath(); g.moveTo(qx-20,qy+140); g.lineTo(qx-110,qy+270); g.lineTo(qx-80,qy+285); g.lineTo(qx+5,qy+160); g.fill();
+        g.beginPath(); g.moveTo(qx+20,qy+140); g.lineTo(qx+150,qy+190); g.lineTo(qx+140,qy+220); g.lineTo(qx+5,qy+175); g.fill();
+        g.fillStyle='#fff'; g.beginPath(); g.arc(qx+200,qy+235,30,0,7); g.fill(); g.strokeStyle='#111'; g.lineWidth=4; g.stroke();
+      });
+      const geo = new THREE.PlaneGeometry(LW, LH, 40, 1), pa = geo.attributes.position;
+      for (let i=0;i<pa.count;i++){ const x = pa.getX(i); pa.setZ(i, -BEND * Math.pow(x/(LW/2), 2)); } geo.computeVertexNormals();
+      const scr = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({map:led})); scr.position.set(SX, LY, LZ); scene.add(scr);
+      const bk = new THREE.Mesh(geo, M(0x1b1f27)); bk.position.set(SX, LY, LZ - .35); scene.add(bk);
+      // bingkai emas menyala mengikuti lengkungan
+      const GOLD = new THREE.MeshBasicMaterial({color:0xffc83d});
+      for (let i=0;i<20;i++){ const x0 = -LW/2 + i*LW/20, x1 = x0 + LW/20, z0 = -BEND*Math.pow(x0/(LW/2),2), z1 = -BEND*Math.pow(x1/(LW/2),2);
+        const len = Math.hypot(x1-x0, z1-z0), ang = Math.atan2(z1-z0, x1-x0);
+        [LY + LH/2 + .25, LY - LH/2 - .25].forEach(y=>{ const b = new THREE.Mesh(new THREE.BoxGeometry(len+.05,.5,.5), GOLD); b.position.set(SX + (x0+x1)/2, y, LZ + (z0+z1)/2 + .05); b.rotation.y = -ang; scene.add(b); }); }
+      [-1,1].forEach(s=>{ const b = new THREE.Mesh(new THREE.BoxGeometry(.5, LH+1, .5), GOLD); b.position.set(SX + s*(LW/2+.1), LY, LZ - BEND + .05); scene.add(b); });
+      // mahkota logo kota di atas layar
+      { const cr = canvasTex(512,256,(g,w,h)=>{ g.fillStyle='#c8102e'; g.beginPath(); g.moveTo(40,h); g.quadraticCurveTo(w/2,-60,w-40,h); g.fill(); g.strokeStyle='#ffc83d'; g.lineWidth=12; g.stroke();
+          g.fillStyle='#fff'; [[176,130,28,90],[208,100,28,120],[240,70,32,150],[276,105,28,115],[308,135,28,85]].forEach(([x,y,ww,hh])=>g.fillRect(x,y,ww,hh)); });
+        const c = new THREE.Mesh(new THREE.PlaneGeometry(9,4.5), new THREE.MeshBasicMaterial({map:cr, transparent:true})); c.position.set(SX, LY + LH/2 + 2.4, LZ + .1); scene.add(c); }
+      // lampu sorot di atas & bawah layar
+      const LAMPU = new THREE.MeshBasicMaterial({color:0xfff6c8});
+      [-15,-5,5,15].forEach(x=>{ const z = LZ - BEND*Math.pow(x/(LW/2),2); box(2.6,1.8,1,0x2a2f38,SX+x,LY+LH/2+1.4,z); const l = new THREE.Mesh(new THREE.BoxGeometry(2.2,1.4,.1), LAMPU); l.position.set(SX+x,LY+LH/2+1.4,z+.52); scene.add(l); });
+      [-12,12].forEach(x=>{ const z = LZ - BEND*Math.pow(x/(LW/2),2); box(2.2,1.4,1,0x2a2f38,SX+x,LY-LH/2-1.1,z); const l = new THREE.Mesh(new THREE.BoxGeometry(1.8,1.1,.1), LAMPU); l.position.set(SX+x,LY-LH/2-1.1,z+.52); scene.add(l); });
+    }
+    // papan pintu utama merah: STADIUM BOLA REPUBLIK NUSAWARA
+    box(20,3.4,.6,0xc8102e,SX,5.0,FZ+6.7); box(20.6,.35,.8,0xffc83d,SX,6.85,FZ+6.7); box(20.6,.35,.8,0xffc83d,SX,3.15,FZ+6.7);
+    papanT('STADIUM BOLA', 16, 1.7, '#c8102e', '#ffffff', SX, 5.6, FZ+7.02, scene); papanT('REPUBLIK NUSAWARA', 13, 1.1, '#c8102e', '#ffffff', SX, 4.2, FZ+7.03, scene);
+    // umbul-umbul merah di sepanjang plaza
+    { const ub = canvasTex(128,320,(g,w,h)=>{ g.fillStyle='#c8102e'; g.fillRect(0,0,w,h); g.fillStyle='#fff'; [[34,170,14,60],[50,140,14,90],[66,110,16,120],[84,150,14,80]].forEach(([x,y,ww,hh])=>g.fillRect(x,y,ww,hh)); g.fillRect(26,232,76,8); });
+      [[-26,-26],[-26,-40],[-16,-25],[16,-25],[26,-26],[26,-40]].forEach(([dx,z])=>{ cyl2(.12,6,0x2a2f38,SX+dx,3,z,scene,6); const u = new THREE.Mesh(new THREE.PlaneGeometry(1.2,3), new THREE.MeshBasicMaterial({map:ub, side:THREE.DoubleSide})); u.position.set(SX+dx+.65,4.2,z); scene.add(u); }); }
     // tiang bendera Merah Putih di depan
     cyl2(.18,17,0x9aa3ad,SX,17,FZ-1,scene,6); box(5,1.2,.1,0xe5262f,SX+2.6,24.8,FZ-1); box(5,1.2,.1,0xffffff,SX+2.6,23.6,FZ-1);
     // papan nama monolit (kiri plaza) + papan penunjuk arah (kanan) + bolard + pengunjung
@@ -5925,7 +5968,7 @@ function loop(){
       b(14,.12,3.2,0xe6e1d5,0,.08,zf+2.6); };
     foodcourt(252,-84);
     for (let x=244;x<=358;x+=9) pohonE(x,-109); [-100,-90,-50,-40,-30,-26].forEach(z=>{ pohonE(242,z); pohonE(358,z); });
-    lb('⚽ STADIUM BOLA REPUBLIK NUSAWARA', SX, -22);
+    lb('⚽ STADIUM BOLA REPUBLIK NUSAWARA', SX, -72);   // di atas stadion, supaya tidak menutupi billboard layar besar
     if (typeof COLL !== 'undefined') [[SX,SZ,34,27],[252,-84,7.4,5.9],[252,-62,7.4,5.9],[348,-84,7.4,5.9],[348,-62,7.4,5.9],[SX,-45.6,17.5,2]].forEach(c=>COLL.push([c[0]-152, c[1]-86, c[2], c[3]])); }
   { const _G = new THREE.Group(); scene.children.slice(_n0).forEach(o=>_G.add(o)); _G.position.set(-152, 0, -86); scene.add(_G); _G.userData = {type:'stadion', data:{id:'STADION-NUSAWARA'}}; pickables.push(_G); }   // pindah: tepat di belakang B14 & B15
   // ===== MALL REPUBLIK NUSAWARA — di belakang Stadium Bola; tampak depan & atas mengikuti gambar =====
