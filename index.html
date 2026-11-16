@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-2310">
+<meta name="nusawara-build" content="20261116-2325">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3050,7 +3050,7 @@ function profileHTML(key){
   return `<div class="kicker">Warga Republik Nusawara</div>
     <div class="idcard"><div class="ih">🛡️ REPUBLIK NUSAWARA · KARTU WARGA</div>
       <div class="ib"><button class="ip" ${unlocked ? `data-follow="${esc(key)}"` : `data-unlock="${esc(key)}"`} aria-label="Lihat karakter">${img ? `<img src="${img}" alt="">` : ''}<span>${unlocked ? '🧍 Lihat karakter' : '🔒 Terkunci'}</span></button>
-        <div class="if"><b>@${esc(u)}</b><div>NIWN</div><p class="mono">${esc(w.niwn || '-')}</p><div>STATUS</div><p>Warga (WRN)</p><div>GELAR</div><p>${typeof gelar === 'function' ? (g=>`${g.ikon} ${g.nama} · Lv ${g.lv}`)(gelar(lvOf(key))) : '-'}</p><div>TERDAFTAR</div><p>${esc(w.terdaftar || '-')}</p><div>PEKERJAAN</div><p>${esc(typeof kerjaLabel === 'function' ? kerjaLabel(key) : 'Belum bekerja')}</p></div></div>
+        <div class="if"><b>@${esc(u)}</b><div>NIWN</div><p class="mono">${esc(w.niwn || '-')}</p><div>STATUS</div><p>Warga (WRN)</p><div>PEKERJAAN & JABATAN</div><p>${esc(pjTeks(key))}</p><div>TERDAFTAR</div><p>${esc(w.terdaftar || '-')}</p><div>PEKERJAAN</div><p>${esc(typeof kerjaLabel === 'function' ? kerjaLabel(key) : 'Belum bekerja')}</p></div></div>
       <div class="ifoot"><span>${esc(w.niwn || '')}</span><span>${und.split(' ')[0]}</span></div></div>
     <p style="margin:0 0 10px;font-size:13px">${und}</p>
     ${unlocked ? '' : `<div class="card"><h3>🔒 Profil ini terkunci</h3><p>Hanya pemilik @${esc(u)} yang bisa membuka rumah, gaya karakter, dan memainkan karakter ini. Masukkan Kata Sandi Warga untuk membuka.</p>
@@ -3390,7 +3390,7 @@ const BRAND0 = (document.querySelector('.top .brand') || {}).innerHTML || '';
 function brandTampil(){ const el = document.querySelector('.top .brand'); if (!el) return; const k = AKUN.data && AKUN.u;
   if (!k){ if (el.classList.contains('me')){ el.classList.remove('me'); el.innerHTML = BRAND0; } return; }
   const w = (typeof wInfo === 'function' && wInfo(k)) || {username: k}, gl = gelar(lvOf(k)); let img = ''; try { img = portraitOf(w); } catch(_) {}
-  el.classList.add('me'); el.innerHTML = `${img ? `<img src="${img}" alt="">` : '<img alt="">'}<div><b>@${esc(String(w.username || k).replace(/^@+/,''))}</b><span>${gl.ikon} Lv ${gl.lv} · ${esc(gl.nama.replace(/^Warga /,''))}</span></div>`; }
+  el.classList.add('me'); el.innerHTML = `${img ? `<img src="${img}" alt="">` : '<img alt="">'}<div><b>@${esc(String(w.username || k).replace(/^@+/,''))}</b><span>${esc(pjTeks(k))}</span></div>`; }
 document.querySelector('.top .brand').addEventListener('click', ()=>{ if (AKUN.data && AKUN.u) showProfile(AKUN.u, 'search'); });
 function hudTampil(){ try { brandTampil(); } catch(_) {} const h = document.getElementById('hud'); if (!h) return; if (!AKUN.data){ h.style.display = 'none'; expBar(); return; } h.style.display = 'block'; h.innerHTML = hudHTML(AKUN.data); expBar(); }
 setInterval(()=>{ if (AKUN.u && !document.hidden) akunMuat(); }, 60000);
@@ -3425,6 +3425,7 @@ function pekerjaanJabatan(key){
     else for (const kode in JAB.pem) if (JAB.pem[kode].includes(u)){ const x = JAB.kat.find(a=>a.kode === kode); if (x) j = x.nama; }
     if (j) p.push('🏛️ ' + j.slice(0, 26)); } catch(_) {}
   return p; }
+function pjTeks(key){ const p = pekerjaanJabatan(key); return p.length ? p.join(' · ') : '💼 Pengangguran'; }
 function tagTeks(key, w){ if (w && w.tamu) return '🌍 ' + String(w.username||key); const p = pekerjaanJabatan(key); return (p.length ? p.join(' · ') : '💼 Pengangguran') + ' · @' + String((w && w.username) || key).replace(/^@+/,''); }
 function tagPerbarui(){ if (typeof WALKERS === 'undefined') return; for (const k in WALKERS){ const W = WALKERS[k], t = tagTeks(k, WINFO[k]); if (W.tagT === t) continue; W.tagT = t;
   const nl = label(t, {h:.75, size:28, bg:'rgba(255,253,248,.95)', fg:'#1f3a5f', onTop:true}); W.tag.material.map = nl.material.map; W.tag.material.needsUpdate = true; W.tag.scale.copy(nl.scale); scene.remove(nl); } }
@@ -3902,7 +3903,7 @@ async function jabMuat(ringan){
   try { const [k, p] = await Promise.all([SB.get('jabatan_katalog?select=*&order=urut'), SB.get('jabatan_pemegang?select=username,kode')]);
     JAB.kat = k || []; JAB.pem = {}; (p || []).forEach(r=>{ (JAB.pem[r.kode] = JAB.pem[r.kode] || []).push(r.username); }); JAB.muat = 2; } catch(_) { JAB.muat = 0; }
   if (!ringan && AKUN.u){ try { JAB.gaji = await SB.rpc('gaji_jabatan_saya', {p_user: AKUN.u, p_sandi: AKUN.s}); } catch(_) {} } else if (!ringan) JAB.gaji = null;
-  try { if (typeof tagPerbarui === 'function') tagPerbarui(); } catch(_) {}
+  try { if (typeof tagPerbarui === 'function') tagPerbarui(); if (typeof brandTampil === 'function') brandTampil(); } catch(_) {}
   if (sheetFn && sheetFn.eko && sheetBody.querySelector('[data-jabatan]')) sheetBody.innerHTML = sheetFn();
 }
 const jabTabs = a => `<div class="prow" style="margin:6px 0 10px"><button class="btn${a === 'jabatan' ? '' : ' ghost'}" data-jab-tab="jabatan">🏛️ Jabatan</button><button class="btn${a === 'pasar' ? '' : ' ghost'}" data-jab-tab="pasar">🛒 Pasar</button></div>`;
@@ -4271,7 +4272,7 @@ function donasiHTML(){
     <div class="card"><h3>🗳️ Wakil Presiden & Penasihat Negara</h3><p class="note">Setiap <b>hari Senin</b> dicek siapa donatur terbanyak:<br>👑 <b>Juara 1</b> langsung diangkat jadi <b>Wakil Presiden</b> minggu itu<br>🧑‍⚖️ <b>Juara 2 dan 3</b> diangkat jadi <b>Penasihat Negara</b><br>Pengumuman setiap Senin, dan Wakil Presiden berikutnya adalah donatur terbanyak pada Senin depan. Peringkat donasi tidak di-reset. Uang donasi langsung masuk <b>Kas Negara</b>.</p></div>`;
   return h;
 }
-function rowPeringkat(r,i){ const gl = gelar(lvOf(r.username)); return `<div class="jrow"><span class="ji">${i < 3 ? ['🥇','🥈','🥉'][i] : i+1}</span><span class="jt"><b>@${esc(String(r.nama || r.username).replace(/^@+/,''))}</b><small>${gl.ikon} ${gl.nama} · Lv ${gl.lv} · ${Number(r.poin).toLocaleString('id-ID')} poin · ${r.bahan} bahan · ${N$(r.nsa)} · 🎁 ${HADIAH(i+1)}</small></span></div>`; }
+function rowPeringkat(r,i){ const gl = gelar(lvOf(r.username)); return `<div class="jrow"><span class="ji">${i < 3 ? ['🥇','🥈','🥉'][i] : i+1}</span><span class="jt"><b>@${esc(String(r.nama || r.username).replace(/^@+/,''))}</b><small>${esc(pjTeks(r.username))} · ${Number(r.poin).toLocaleString('id-ID')} poin · ${r.bahan} bahan · ${N$(r.nsa)} · 🎁 ${HADIAH(i+1)}</small></span></div>`; }
 sheetBody.addEventListener('input', e=>{ if (e.target.id !== 'dnCari') return; const q = e.target.value.trim().toLowerCase().replace(/^@+/,''), out = document.getElementById('dnHasil'); if (!out) return;
   if (!q){ out.innerHTML = ''; return; }
   const hs = PAPAN.map((r,i)=>[r,i]).filter(([r])=>String(r.nama || '').toLowerCase().includes(q) || r.username.includes(q)).slice(0,10);
@@ -5585,6 +5586,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 23:10</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 23:25</div>
 </body>
 </html>
