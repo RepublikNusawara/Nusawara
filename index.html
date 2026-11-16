@@ -4232,7 +4232,7 @@ const TEMPAT = {
   kebun_buah:   {nama:'Kebun Buah', ikon:'🍓', x:96, z:-188},
   kebun_teh:    {nama:'Kebun Teh', ikon:'🌿', x:96, z:-236},
   pabrik_farmasi:{nama:'Pabrik Farmasi Nusawara', ikon:'💊', x:-62, z:-349},
-  gym:          {nama:'Gym Nusawara', ikon:'🏋️', x:129, z:-35.25}
+  gym:          {nama:'Gym Nusawara', ikon:'🏋️', x:42, z:-35.25}
 };
 (()=>{
   const C = (r,h,c,x,y,z,g,seg=12,rt) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt ?? r, r, h, seg), M(c)); m.position.set(x,y,z); m.castShadow = true; g.add(m); return m; };
@@ -4660,7 +4660,7 @@ function buildKopi(par, x, z){
     fas:'KOPI-NUSAWARA', pos:[[cx-6,z-10.8],[cx-2,z-10.8],[cx+2,z-10.8],[cx+6,z-10.8],[cx-3,z-1],[cx+3,z-1],[cx-8,z-3],[cx+8,z-3]]});
   return G;
 }
-const KOPI = buildKopi(scene, 74, -40.5);
+const KOPI = buildKopi(scene, -8, -40.5);
 KOPI.userData = {type:'fasilitas', data:{id:'KOPI-NUSAWARA'}}; pickables.push(KOPI);
 
 // ---------- AKADEMI NUSAWARA (usulan warga @carmecar._, dibangun DAY 4) ----------
@@ -4760,7 +4760,7 @@ function facBoard(id, title, sub, bg, fg, w, hh, x, y, z, g){
   facBoard('KOPI-NUSAWARA', 'KOPI NUSAWARA', 'Ngopi bareng warga, yuk!', '#3b2618', '#f2b134', 6.6, 3.6, -3, 7.7, -4.5, KOPI);
   facBoard('SEKOLAH-NUSAWARA', 'AKADEMI NUSAWARA', 'Belajar bareng warga!', '#c8101f', '#ffffff', 5.6, 3, -7.6, 9.4, -4.5, SEKOLAH);
   // Toko Matcha (area fasilitas)
-  const MG = new THREE.Group(); MG.position.set(99, 0, -37.5); MG.scale.setScalar(2); scene.add(MG);   // 2x lebih besar, bisa dimasuki
+  const MG = new THREE.Group(); MG.position.set(18, 0, -37.5); MG.scale.setScalar(2); scene.add(MG);   // 2x lebih besar, bisa dimasuki
   { const SH = [], RF = [], mb = (...a) => box(...a, MG), sh = (...a) => { const m = mb(...a); SH.push(shellMesh(m)); return m; }, rf = (...a) => { const m = mb(...a); RF.push(m); return m; };
     const CRM = 0xf3f7ef, GRN = 0x2f6f3a;
     mb(12,.12,12,0xd9d2c3,0,.06,0); mb(10.4,.04,7.4,0xb99b6b,0,.14,-1);
@@ -4782,7 +4782,7 @@ function facBoard(id, title, sub, bg, fg, w, hh, x, y, z, g){
     [-3.5,3.5].forEach(X=>{ mb(1.4,.12,1.4,0xe8e0c8,X,1,.5); mb(.14,.9,.14,0x333333,X,.5,.5); mb(.6,.6,.6,0x8a5a36,X-1.2,.35,.5); mb(.6,.6,.6,0x8a5a36,X+1.2,.35,.5); });
     [-4.7,4.7].forEach(X=>{ mb(.25,2.6,.25,0x5fa04a,X,1.4,-4.3); mb(.25,2.2,.25,0x4f9c35,X+.35,1.2,-4.3); });
     [-2.5,2.5].forEach(X=>{ mb(.08,.9,.08,0x333333,X,3.9,-1.5); const lp = new THREE.Mesh(new THREE.BoxGeometry(.6,.35,.6), new THREE.MeshStandardMaterial({color:0xcfeec0, emissive:0x6a9a50})); lp.position.set(X,3.35,-1.5); MG.add(lp); });
-    const cx = 99, cz = -37.5;
+    const cx = 18, cz = -37.5;
     daftarMasuk({x:cx, hw:10.6, z0:cz-10, z1:cz+6.4, shell:SH, roof:RF, fas:'MATCHA-NUSAWARA', pos:[[cx-6,cz-8.2],[cx-2,cz-8.2],[cx+2,cz-8.2],[cx+6,cz-8.2],[cx-3,cz-1],[cx+3,cz-1],[cx-8,cz+3],[cx+8,cz+3]],
       coll:[[cx, cz-9.7, 11, .3], [cx-10.7, cz-2, .3, 8], [cx+10.7, cz-2, .3, 8], [cx-6.8, cz+5.7, 4.2, .3], [cx+6.8, cz+5.7, 4.2, .3], [cx, cz-6.4, 7, 1.2]]}); }
   MG.userData = {type:'fasilitas', data:{id:'MATCHA-NUSAWARA'}}; pickables.push(MG);
@@ -4973,7 +4973,7 @@ sheetBody.addEventListener('click', async e=>{
     catch(_){ toast('Gagal tersambung.'); } }
 });
 // saat warga memainkan karakternya: ketuk gedung, atau tekan tombol yang muncul saat berada di dekat gedung
-const FAS_POS = {'RS-NUSAWARA':[163,-38.5,22], 'KOPI-NUSAWARA':[74,-27,19], 'SEKOLAH-NUSAWARA':[194,-34.1,20]};
+const FAS_POS = {'RS-NUSAWARA':[163,-38.5,22], 'KOPI-NUSAWARA':[-8,-27,19], 'SEKOLAH-NUSAWARA':[194,-34.1,20]};
 function openFasPlay(id){ if (typeof ctl !== 'undefined' && ctl.key){ Object.keys(ctl.d).forEach(k=>ctl.d[k] = 0); ctl.run = false; document.body.classList.add('fas-open'); } openSheet(()=>fasHTML(id)); }
 function fasTap(e){
   ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr, camera);
@@ -5040,12 +5040,13 @@ loop();
   const RW = 5, RD = 0x4b5059, PK = 0x4b5059;
   const jalan = (x0,x1,z)=>{ box(x1-x0,.12,RW,RD,(x0+x1)/2,.07,z); for (let x=x0+3;x<x1-2;x+=7) box(3,.03,.18,0xffffff,x,.14,z); };
   const jalanZ = (x,z0,z1)=>{ box(RW,.12,z1-z0,RD,x,.07,(z0+z1)/2); for (let z=z0+3;z<z1-2;z+=7) box(.18,.03,3,0xffffff,x,.14,z); };
+  jalan(-3,40,-18);                                    // jalan utara podium (Kopi, Matcha, Gym)
   jalan(61,216,-18);                                   // jalan timur diperpanjang (tersambung ke jalan timur lama & lingkaran podium)
   jalanZ(58,-104,-18);                                 // jalan penghubung utara-selatan -> baris toko -> blok kavling umum (menyambung ke jalan antar blok z=-104)
   jalan(58,142,-58);                                   // jalan baris toko 2
   jalan(58,142,-83);                                   // jalan baris toko 3
   const parkir = (cx,w,zc)=>{ box(w,.1,RW,PK,cx,.085,zc); const n = Math.max(2, Math.floor(w/3.2)); for (let i=0;i<=n;i++) box(.14,.03,RW-.6,0xffffff,cx-w/2+.1+i*((w-.2)/n),.15,zc); };
-  [[74,25],[99,24],[129,36],[163,30],[194,26]].forEach(([cx,w])=>parkir(cx,w,-23));                 // baris 1: Kopi, Matcha, Gym | RS, Sekolah
+  [[-8,25],[18,24],[42,26],[163,30],[194,26]].forEach(([cx,w])=>parkir(cx,w,-23));                 // baris 1: Kopi, Matcha, Gym | RS, Sekolah
   [[90,16],[110,16],[130,16]].forEach(([cx,w])=>parkir(cx,w,-63));                         // baris 2: Bengkel Kaca + 3 toko modern
   [70,82,94,106,118].forEach(cx=>parkir(cx,8,-88));                                                // baris 3: 5 toko kecil
 
@@ -5057,13 +5058,13 @@ loop();
     parkir(-60.25, 47.5, e.z+24); box(24,.1,RW,RD,e.x,.36,e.z+6); box(RW,.1,15,RD,e.x,.36,e.z+16); });
   [['peternakan',96],['kebun_buah',96],['kebun_teh',96]].forEach(([k,x])=>{ const e = TEMPAT[k]; if (!e) return; parkir(100, 52, e.z+24); });
   const lb = (t,x,z)=>{ const l = label(t, {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); l.position.set(x, 16, z); scene.add(l); };
-  lb('🛍️ KAWASAN BISNIS NUSAWARA', 98, -53); lb('🏛️ KAWASAN FASILITAS NEGARA', 178, -53); lb('🏬 KAVLING TOKO', 100, -103);
+  lb('🛍️ KAWASAN BISNIS NUSAWARA (UTARA PODIUM)', 18, -62); lb('🏛️ KAWASAN FASILITAS NEGARA', 178, -53); lb('🏬 KAVLING TOKO', 100, -103);
   box(.3,.12,RW,0xf2b134,148,.1,-23);                  // pembatas antar-kawasan
   // Kawasan Rumah & Toko Undian (selatan podium): jalan + sambungan dari lingkaran podium
   jalan(-10,46,28); jalanZ(18,17,28);
   lb('🏘️ RUMAH & TOKO UNDIAN', 18, 40);
 })();
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 11:30</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 11:45</div>
 </body>
 </html>
