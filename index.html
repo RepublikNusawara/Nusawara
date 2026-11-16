@@ -4239,7 +4239,7 @@ function stadionHTML(){
     <p style="font-size:13px;margin:0 0 6px">Dibangun ${STADION.hari} dari usulan warga @${esc(STADION.usul)}.</p>
     <div class="card"><h3>👑 Pemilik Stadium</h3><p style="margin:0;font-size:15px"><b>@${esc(STADION.usul)}</b></p><p class="note">Diangkat Presiden sebagai pemilik Stadium Bola Republik Nusawara, termasuk Toko Merchandise Official.</p></div>
     ${kerjaTombol('STADION-NUSAWARA')}
-    ${(()=>{ const G = (typeof BIZ !== 'undefined' && BIZ.gaji) || {}, gj = (p, d)=>G['STADION-NUSAWARA|' + p] ?? d;
+    ${SEMBUNYI_GAME ? '' : (()=>{ const G = (typeof BIZ !== 'undefined' && BIZ.gaji) || {}, gj = (p, d)=>G['STADION-NUSAWARA|' + p] ?? d;
       const peranKu = me ? (me.peran === 'pelatih' ? 'Pelatih' : 'Pemain') : (AKUN.u && AKUN.u === STADION.usul ? 'Pemilik Stadium' : '');
       const baris = [['Pemilik Stadium','👑',150,'1 orang'],['Pelatih','🧢',120,'1 per tim · 3 tim'],['Pemain','⚽',95,'15 per tim · 3 tim']];
       return `<div class="card"><h3>💵 Daftar gaji harian Stadium</h3>${baris.map(([p, ik, d, q])=>`<div class="jrow" style="${peranKu === p ? 'background:#fff4d6;border-radius:10px;' : ''}padding:5px 6px"><span style="font-size:22px;flex:none">${ik}</span><span class="jt"><b>${p}${peranKu === p ? ' (kamu)' : ''}</b><small>${q}</small></span><span style="display:inline-block;background:#f2c14e;color:#3b2600;font-weight:800;font-size:12px;border-radius:10px;padding:4px 8px;flex:none">${N$(gj(p, d))} / hari</span></div>`).join('')}
@@ -6055,7 +6055,7 @@ function bisnisHTML(id){
   }
   return h;
 }
-{ const _f = fasHTML; fasHTML = id => bisnisHTML(id) + _f(id); }
+{ const _f = fasHTML; fasHTML = id => (SEMBUNYI_GAME ? '' : bisnisHTML(id)) + _f(id); }   // halaman gedung: hanya Ruang Kerja, Billboard, Lowongan
 sheetBody.addEventListener('click', async e=>{
   const t = e.target.closest('button'); if (!t || !AKUN.u) return;
   const ulang = async id => { await Promise.all([bisnisMuat(id), barangMuat()]); await akunMuat(); };
@@ -6678,6 +6678,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 06:05</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 06:15</div>
 </body>
 </html>
