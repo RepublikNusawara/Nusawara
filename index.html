@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-2030">
+<meta name="nusawara-build" content="20261116-2100">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -1258,7 +1258,7 @@ function focusObj(obj){
   const t = obj.userData.type, p = obj.getWorldPosition(new THREE.Vector3());
   if (t==='stadion'){ select(null); openSheet(stadionHTML); hideHint(); stadionMuat(); return; }
   if (t==='fasilitas'){ select(null); openSheet(()=>fasHTML(obj.userData.data.id)); hideHint(); if (typeof bisnisMuat === 'function') bisnisMuat(obj.userData.data.id); return; }
-  if (t==='eko'){ select(null); const f = ()=>bangunInfo(obj.userData.data.id, ekoHTML(obj.userData.data.id)); f.eko = 1; openSheet(f); hideHint(); if (String(obj.userData.data.id).startsWith('TMP-') && typeof tgsMuat === 'function') tgsMuat().then(()=>{ if (sheetFn === f) sheetBody.innerHTML = f(); }); return; }
+  if (t==='eko'){ select(null); if (obj.userData.data.id === 'EKO-PRN') JAB.tab = 'jabatan'; const f = ()=>bangunInfo(obj.userData.data.id, ekoHTML(obj.userData.data.id)); f.eko = 1; openSheet(f); hideHint(); if (String(obj.userData.data.id).startsWith('TMP-') && typeof tgsMuat === 'function') tgsMuat().then(()=>{ if (sheetFn === f) sheetBody.innerHTML = f(); }); return; }
   if (t==='counter'){
     select(null); openSheet(counterHTML); hideHint(); return;
   }
@@ -3460,7 +3460,7 @@ async function akunMuat(){
 }
 function akunKeluar(diam){ AKUN.u = AKUN.s = AKUN.data = null; TAMU.u = TAMU.s = null; try { localStorage.removeItem('nusawara_akun'); } catch(_) {} akunTombol();
   if (!diam){ closeSheet(); toast('Kamu sudah keluar.'); } }
-const HADIAH_HARI = d => d <= 2 ? 50 : d <= 5 ? 75 : 100;
+const HADIAH_HARI = d => d <= 2 ? 10 : d <= 5 ? 25 : 50;
 function masukHTML(){ if (GINFO) return gHTML(); return `<div class="kicker">Akun Warga</div><h2>🔑 Masuk</h2>
   ${TAMU.u ? `<div class="card"><h3>🌍 Tamu · ${esc(TAMU.u)}</h3><p class="note">Kamu bisa menambang untuk Negara, tanpa N$ dan tanpa akun.</p><button class="btn ghost" data-tamu-keluar>Keluar</button></div>` : `<p style="font-size:14px;line-height:1.5">Masuk dengan username dan kata sandi, daftar, atau jalan-jalan sebagai tamu.</p><button class="btn" data-gerbang>🔑 Masuk / Daftar / Tamu</button>`}
   <button class="btn ghost" data-cara>📖 Cara Main di Republik Nusawara</button>`; }
@@ -3878,7 +3878,7 @@ const EKO = {
         for (let i=0;i<=n;i++) box(.14,.03,3.4,0xffffff,-(W+2)/2+.1+i*((W+1.8)/n),.15,D/2+2,g);
         box(.12,2,.12,0x9aa0a6,-W/2-.2,1,D/2+3.9,g); papan('P', 1.1, 1.1, '#1f5fbf', '#ffffff', -W/2-.2, 2.3, D/2+3.9, g); } }
     g.userData = {type:'eko', data:{id}}; pickables.push(g); e.g = g; }
-  const pl = label('🏪 PASAR REPUBLIK NUSAWARA (PRN)', {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); pl.position.set(18, 30, -78); scene.add(pl);
+  const pl = label('🏛️ JABATAN KENEGARAAN (PRN)', {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); pl.position.set(18, 30, -78); scene.add(pl);
 })();
 const brg = k => BARANG.find(b=>b.kode===k) || {nama:k, ikon:'📦'};
 const punya = k => ((AKUN.data && AKUN.data.tas) || {})[k] || 0;
@@ -3888,11 +3888,54 @@ const saldoBar = () => AKUN.data ? `<p class="note">Saldo: <b>${N$(AKUN.data.sal
 const BANGUN_DEF = {hari:'DAY 3', oleh:'Republik Nusawara (Bapak Presiden)'};
 function bangunInfo(id, html){ if (!html || KAV[id] || id === 'EKO-DONASI') return html; const b = Object.assign({}, BANGUN_DEF, (typeof BANGUN !== 'undefined' && BANGUN[id]) || {});
   return html.replace('</h2>', `</h2><p style="font-size:13px;margin:0 0 8px">🏗️ Dibangun <b>${esc(b.hari)}</b> oleh <b>${esc(b.oleh)}</b>.</p>`); }
+const JAB = {tab:'jabatan', kat:[], pem:{}, muat:0};
+async function jabMuat(){
+  try { const [k, p] = await Promise.all([SB.get('jabatan_katalog?select=*&order=urut'), SB.get('jabatan_pemegang?select=username,kode')]);
+    JAB.kat = k || []; JAB.pem = {}; (p || []).forEach(r=>{ (JAB.pem[r.kode] = JAB.pem[r.kode] || []).push(r.username); }); JAB.muat = 2; } catch(_) { JAB.muat = 0; }
+  if (sheetFn && sheetFn.eko && sheetBody.querySelector('[data-jabatan]')) sheetBody.innerHTML = sheetFn();
+}
+const jabTabs = a => `<div class="prow" style="margin:6px 0 10px"><button class="btn${a === 'jabatan' ? '' : ' ghost'}" data-jab-tab="jabatan">🏛️ Jabatan</button><button class="btn${a === 'pasar' ? '' : ' ghost'}" data-jab-tab="pasar">🛒 Pasar</button></div>`;
+const jabHarga = v => `<span style="flex:none;background:#c8102e;color:#fff;font-weight:800;font-size:12px;border-radius:10px;padding:4px 8px;margin-right:6px">${v}</span>`;
+function jabRow(k){
+  const l = JAB.pem[k.kode] || [], full = l.length >= k.kuota;
+  return `<div class="jrow"><div class="ji">${k.ikon}</div><div class="jt"><b>${esc(k.nama)}</b><small>${l.length}/${k.kuota} terisi${l.length ? ' · ' + l.map(u=>'@' + esc(u)).join(', ') : ''}</small></div>${jabHarga(N$(k.harga))}
+    <button class="btn${full ? ' ghost' : ''}" ${full ? 'disabled' : `data-jab-beli="${esc(k.kode)}"`}>${full ? 'Penuh' : 'Beli'}</button></div>`;
+}
+function jabatanHTML(){
+  if (JAB.muat === 0){ JAB.muat = 1; jabMuat(); }
+  let h = `<div class="kicker" data-jabatan="1">Distrik Pusat · Pemerintahan</div><h2>🏛️ Daftar Jabatan Kenegaraan</h2>${saldoBar()}${jabTabs('jabatan')}
+    <p class="note">Beli jabatan dengan Nusa (N$). Hasil penjualan masuk <b>Kas Negara</b> (sekarang ${N$(KAS)}). Satu warga satu jabatan.</p>`;
+  if (!AKUN.data) h += perluMasuk();
+  h += `<div class="card"><h3>👑 Pimpinan Negara</h3>
+    <div class="jrow"><div class="ji">👑</div><div class="jt"><b>Presiden</b><small>Mr. Bung</small></div>${jabHarga('Menjabat')}</div>
+    <div class="jrow"><div class="ji">👑</div><div class="jt"><b>Wakil Presiden</b><small>Belum terisi · ditentukan lewat Voting</small></div>${jabHarga('Voting')}</div></div>`;
+  if (!JAB.kat.length) return h + '<p class="note">Memuat jabatan…</p>';
+  const dp = JAB.kat.find(k=>k.kode === 'DEWAN-PENASIHAT');
+  if (dp) h += `<div class="card"><h3>🧑‍⚖️ Dewan Penasihat Negara · ${(JAB.pem[dp.kode] || []).length}/${dp.kuota}</h3>${jabRow(dp)}<p class="note">${dp.kuota} kursi penasihat untuk Presiden, bisa dibeli warga.</p></div>`;
+  const urut = []; JAB.kat.forEach(k=>{ if (k.kelompok !== 'penasihat' && !urut.includes(k.kelompok)) urut.push(k.kelompok); });
+  urut.forEach(g=>{ const ks = JAB.kat.filter(k=>k.kelompok === g);
+    h += `<div class="card"><h3>${esc(ks[0].kelompok_nama)}</h3>${ks.map(jabRow).join('')}</div>`; });
+  return h;
+}
+const JABMSG = {sandi:'❌ Kata sandi salah. Masuk ulang.', sudah_punya:'🏛️ Kamu sudah memegang satu jabatan. Satu warga satu jabatan.', penuh:'Kursi jabatan ini sudah penuh.', saldo_kurang:'❌ Saldo N$ tidak cukup.', tidak_ada:'Jabatan tidak ditemukan.'};
+async function jabBeli(btn){
+  if (!AKUN.u){ toast('Masuk dulu untuk membeli jabatan.'); return; }
+  const k = JAB.kat.find(x=>x.kode === btn.dataset.jabBeli); if (!k) return;
+  if (!confirm(`Beli jabatan "${k.nama}" seharga ${N$(k.harga)}? Uang masuk Kas Negara dan tidak bisa dikembalikan.`)) return;
+  btn.disabled = true;
+  try { const r = await SB.rpc('beli_jabatan', {p_user: AKUN.u, p_sandi: AKUN.s, p_kode: k.kode});
+    if (r && r.ok){ popHadiah('−' + N$(k.harga)); sfx(523, .25, 'triangle', .08, 0, 1046); toast(`🏛️ Selamat! Kamu sekarang ${k.nama}.`); }
+    else toast(JABMSG[r && r.alasan] || 'Gagal. Coba lagi.');
+  } catch(_) { toast('Jaringan bermasalah. Coba lagi.'); }
+  await Promise.all([jabMuat(), typeof negaraMuat === 'function' ? negaraMuat() : 0]); await akunMuat();
+  if (sheetFn && sheetFn.eko) sheetBody.innerHTML = sheetFn();
+}
 function ekoHTML(id){
   if (id.startsWith('TMP-')) return tempatHTML(id.slice(4));
   if (KAV[id]) return kavHTML(id);
   if (id === 'EKO-DONASI') return donasiHTML();
   const e = EKO[id]; if (!e) return '';
+  if (id === 'EKO-PRN' && JAB.tab === 'jabatan') return jabatanHTML();
   let h = `<div class="kicker">Kawasan Industri Nusawara</div><h2>${esc(e.nama)}</h2>${saldoBar()}`;
   if (e.k === 'tambang'){
     const t = TAMBANG.find(x=>x.kode===e.kode); if (!t) return h + '<p class="note">Memuat…</p>';
@@ -3914,6 +3957,7 @@ function ekoHTML(id){
         <button class="btn" data-olah="${r.kode}" ${maks < 1 ? 'disabled' : ''}>Olah</button></div>` : ''}</div>`; }).join('');
     if (!AKUN.data) h += perluMasuk();
   } else {
+    h += jabTabs('pasar');
     h += `<p class="note">Jual-beli bahan dengan Negara. <b>Beli</b> = harga dari Negara (selama stok ada), <b>Jual</b> = harga yang dibayar Negara (selama Kas Negara cukup). Kas Negara: <b>${N$(KAS)}</b></p>`;
     if (!AKUN.data) h += perluMasuk();
     h += BARANG.map(b=>`<div class="jrow"><span class="ji">${b.ikon}</span><span class="jt"><b>${esc(b.nama)}</b><small>Beli ${N$(b.harga_beli)} · Jual ${N$(b.harga_jual)} · stok Negara ${Number(b.stok||0).toLocaleString('id-ID')}${AKUN.data ? ' · punya ' + punya(b.kode) : ''}</small></span>
@@ -3932,6 +3976,8 @@ async function ekoAksi(btn, fn, args, sukses){
 }
 sheetBody.addEventListener('click', e=>{
   const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.jabTab){ JAB.tab = t.dataset.jabTab; if (sheetFn) sheetBody.innerHTML = sheetFn(); return; }
+  if (t.dataset.jabBeli){ jabBeli(t); return; }
   if (t.hasAttribute('data-eko-masuk')) { openSheet(akunHTML); return; }
   if (t.dataset.pergi){ const e2 = t.dataset.pergi === 'kebun' ? {x:-62, z:-445} : t.dataset.pergi === 'kavling' ? {x:18, z:-160} : t.dataset.pergi === 'donasi' ? {x:7, z:-6} : t.dataset.pergi === 'prn' ? EKO['EKO-PRN'] : t.dataset.pergi === 'tambang' ? {x:-59, z:150} : {x:-62, z:-100}; closeSheet();
     flyTo(new THREE.Vector3(e2.x, 2, e2.z), (t.dataset.pergi === 'tambang' || t.dataset.pergi === 'kebun') ? new THREE.Vector3(e2.x + 70, 80, e2.z + 40) : new THREE.Vector3(e2.x + 10, 30, e2.z + 38)); return; }
@@ -5512,6 +5558,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 20:30</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 21:00</div>
 </body>
 </html>
