@@ -3448,7 +3448,7 @@ function profileHTML(key){
     ${unlocked ? `<div class="prow"><button class="btn" data-follow="${esc(key)}">🧍 Lihat karakter</button><button class="btn" data-gaya="${esc(key)}">👕 Wardrobe${isOwner ? '' : ' 🔑'}</button></div>
     <button class="btn" data-main="${esc(key)}" style="margin-top:8px;background:#f2b134;color:#2a1b00">🎮 Main karakter (jalan, lompat, lari)</button>
     ${land}${(()=>{ const ks = (window.KERJA_ALL || []).filter(r=>String(r.username||'').toLowerCase() === key && FAS[r.fasilitas]); if (!ks.length && kerjaOf(key)) ks.push(Object.assign({username:key}, kerjaOf(key)));
-      return ks.length ? `<div class="card"><h3>💼 Pekerjaan (${ks.length}/2)</h3>${ks.map(k=>`<div class="prow" style="align-items:center"><p style="flex:1;margin:0">${FAS[k.fasilitas].ikon} ${esc(k.posisi)} · ${esc(FAS[k.fasilitas].nama)}</p><button class="btn ghost" style="flex:none;width:auto" data-keluar="${esc(key)}|${esc(k.fasilitas)}">Keluar</button></div>`).join('')}<p class="note">Setiap warga boleh bekerja di maksimal 2 tempat.</p></div>` : ''; })() || `<div class="card"><h3>💼 Pekerjaan</h3><p>Belum bekerja. Ketuk Rumah Sakit, Kopi Nusawara, atau gedung lain di peta untuk melihat lowongan.</p></div>`}${own}` : ''}`;
+      return ks.length ? `<div class="card"><h3>💼 Pekerjaan</h3>${ks.map(k=>`<div class="prow" style="align-items:center"><p style="flex:1;margin:0">${FAS[k.fasilitas].ikon} ${esc(k.posisi)} · ${esc(FAS[k.fasilitas].nama)}</p><button class="btn ghost" style="flex:none;width:auto" data-keluar="${esc(key)}|${esc(k.fasilitas)}">Keluar</button></div>`).join('')}<p class="note">Satu warga hanya boleh <b>satu pekerjaan</b> dan <b>satu jabatan</b>. Wakil Presiden hanya boleh memegang jabatan.</p></div>` : ''; })() || `<div class="card"><h3>💼 Pekerjaan</h3><p>Belum bekerja. Ketuk Rumah Sakit, Kopi Nusawara, atau gedung lain di peta untuk melihat lowongan.</p></div>`}${own}` : ''}`;
 }
 function sandiCard(key, u){
   const k = typeof SANDI !== 'undefined' ? SANDI[key] : null;
@@ -4264,7 +4264,7 @@ function stadionHTML(){
       const baris = [['Pemilik Stadium','👑',150,'1 orang'],['Pelatih','🧢',120,'1 per tim · 3 tim'],['Pemain','⚽',95,'15 per tim · 3 tim']];
       return `<div class="card"><h3>💵 Daftar gaji harian Stadium</h3>${baris.map(([p, ik, d, q])=>`<div class="jrow" style="${peranKu === p ? 'background:#fff4d6;border-radius:10px;' : ''}padding:5px 6px"><span style="font-size:22px;flex:none">${ik}</span><span class="jt"><b>${p}${peranKu === p ? ' (kamu)' : ''}</b><small>${q}</small></span><span style="display:inline-block;background:#f2c14e;color:#3b2600;font-weight:800;font-size:12px;border-radius:10px;padding:4px 8px;flex:none">${N$(gj(p, d))} / hari</span></div>`).join('')}
         <p class="note">Gaji per hari untuk setiap posisi di Stadium Bola Republik Nusawara.</p></div>`; })()}
-    <p style="font-size:13px;margin:0 0 10px">Pilih satu tim, lalu daftar sebagai pelatih (1 orang per tim) atau pemain (15 orang per tim). Setiap warga boleh bekerja di <b>maksimal 2 tempat</b> (tim bola dihitung 1 tempat). Pindah tim boleh kapan saja.</p>
+    <p style="font-size:13px;margin:0 0 10px">Pilih satu tim, lalu daftar sebagai pelatih (1 orang per tim) atau pemain (15 orang per tim). Satu warga hanya boleh <b>satu pekerjaan</b> (termasuk tim bola) dan satu jabatan; keluar dulu dari pekerjaan lain sebelum daftar. Pindah tim boleh kapan saja.</p>
     ${!AKUN.u ? `<div class="card"><p class="note">Masuk sebagai warga dulu untuk mendaftar. Tamu hanya bisa melihat.</p><button class="btn" data-gerbang>🔑 Masuk / Daftar</button></div>` : me ? `<div class="card"><p class="note">Kamu terdaftar sebagai <b>${me.peran === 'pelatih' ? 'Pelatih' : 'Pemain'} ${TIM[me.tim].nama}</b>.</p><button class="btn ghost" data-tim-keluar>Keluar dari tim</button></div>` : ''}
     ${kartu}<p class="note" id="timM"></p>`;
 }
@@ -4275,7 +4275,7 @@ sheetBody.addEventListener('click', async e=>{
     if (kb){ const [tim, peran] = kb.dataset.tim.split('|'); kb.disabled = true; r = await SB.rpc('daftar_tim_bola', {p_user: AKUN.u, p_sandi: AKUN.s, p_tim: tim, p_peran: peran});
       if (r === 'ok') toast('🎉 @' + AKUN.u + ' sekarang ' + (peran === 'pelatih' ? 'Pelatih ' : 'Pemain ') + TIM[tim].nama); }
     else { r = await SB.rpc('keluar_tim_bola', {p_user: AKUN.u, p_sandi: AKUN.s}); if (r === 'ok') toast('Kamu keluar dari tim.'); }
-    if (r !== 'ok' && m) m.textContent = r === 'penuh' ? 'Posisi ini sudah penuh. Pilih yang lain.' : r === 'sudah' ? '❌ Kamu sudah bekerja di 2 tempat (maksimal). Keluar dulu dari salah satunya di profilmu.' : r === 'sudah_tempat' ? '❌ Kamu sudah bekerja di Stadium dengan posisi lain.' : r === 'jabatan_tinggi' ? '❌ Pemegang jabatan negara tidak bisa bekerja.' : r === 'warga' ? '❌ Hanya untuk Warga Republik Nusawara.' : r === 'sandi' ? 'Kata sandi berubah. Keluar lalu masuk lagi.' : 'Gagal. Coba lagi.';
+    if (r !== 'ok' && m) m.textContent = r === 'penuh' ? 'Posisi ini sudah penuh. Pilih yang lain.' : r === 'sudah' ? '❌ Kamu sudah punya pekerjaan. Satu warga hanya boleh satu pekerjaan; keluar dulu di profilmu.' : r === 'sudah_tempat' ? '❌ Kamu sudah bekerja di Stadium dengan posisi lain.' : r === 'jabatan_tinggi' ? '❌ Pemegang jabatan negara tidak bisa bekerja.' : r === 'warga' ? '❌ Hanya untuk Warga Republik Nusawara.' : r === 'sandi' ? 'Kata sandi berubah. Keluar lalu masuk lagi.' : 'Gagal. Coba lagi.';
     await stadionMuat();
   } catch(_) { if (m) m.textContent = 'Gagal tersambung. Periksa internet lalu coba lagi.'; if (kb) kb.disabled = false; }
 });
@@ -5973,7 +5973,7 @@ function fasHTML(id){
     ${facTop(id) ? `<p style="font-size:13px;margin:0 0 10px">👑 <b>${esc(F.pos[0][0])}:</b> ${F.ownerTeks ? esc(F.ownerTeks) : '@' + esc(facTop(id))}</p>` : ''}
     ${kerjaTombol(id)}
     <div class="card"><h3>🖼️ Billboard gedung</h3>${boardPreview(id, '')}${editBtn(id)}</div>
-    <div class="card"><h3>💼 Lowongan kerja · ${terisi}/${tot} terisi</h3><p class="note">Hanya untuk Warga Republik Nusawara. Setiap warga boleh bekerja di maksimal 2 tempat (gedung berbeda); daftar dengan Kata Sandi Warga.</p>${rows}</div>
+    <div class="card"><h3>💼 Lowongan kerja · ${terisi}/${tot} terisi</h3><p class="note">Hanya untuk Warga Republik Nusawara. Satu warga hanya boleh satu pekerjaan dan satu jabatan (Wakil Presiden hanya jabatan); daftar dengan Kata Sandi Warga.</p>${rows}</div>
     <div class="card" id="jform" style="display:none"><h3 id="jfT">Daftar kerja</h3>
       <input id="jfU" placeholder="Username Instagram" autocomplete="off" autocapitalize="none" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccd;margin:4px 0">
       <input id="jfP" type="password" placeholder="Kata Sandi Warga" autocomplete="off" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccd;margin:4px 0">
@@ -6134,7 +6134,7 @@ sheetBody.addEventListener('click', async e=>{
     if (!/^[A-Z0-9]{4,20}$/.test(pw)) { m.textContent = 'Masukkan Kata Sandi Warga.'; return; }
     e.target.disabled = true; m.textContent = 'Mengirim…';
     try { const r = await SB.rpc('daftar_kerja', {p_user:u, p_sandi:pw, p_fasilitas:jSel.id, p_posisi:jSel.p}); e.target.disabled = false;
-      const msg = {ok:'', jabatan_tinggi:'🏛️ Wakil Presiden dan Penasihat Negara tidak boleh punya pekerjaan lain.', sandi:'❌ Kata sandi salah.', penuh:'Posisi ini sudah penuh. Pilih posisi lain.', sudah:'Kamu sudah bekerja di 2 tempat (maksimal). Keluar dulu dari salah satunya di profilmu.', sudah_tempat:'Kamu sudah bekerja di gedung ini. Satu gedung hanya satu posisi.', sudah_posisi:'Kamu sudah bekerja di posisi ini.', warga:'Username belum terdaftar sebagai warga.', tunjuk:'Jabatan ini ditunjuk langsung oleh Presiden.'}[r] ;
+      const msg = {ok:'', jabatan_tinggi:'🏛️ Wakil Presiden dan Penasihat Negara hanya boleh memegang jabatan, tidak boleh punya pekerjaan.', sandi:'❌ Kata sandi salah.', penuh:'Posisi ini sudah penuh. Pilih posisi lain.', sudah:'Kamu sudah punya pekerjaan. Satu warga hanya boleh satu pekerjaan; keluar dulu dari profilmu kalau mau pindah.', sudah_tempat:'Kamu sudah bekerja di gedung ini. Satu gedung hanya satu posisi.', sudah_posisi:'Kamu sudah bekerja di posisi ini.', warga:'Username belum terdaftar sebagai warga.', tunjuk:'Jabatan ini ditunjuk langsung oleh Presiden.'}[r] ;
       if (r === 'ok'){ if (!KERJA[u]) KERJA[u] = {fasilitas:jSel.id, posisi:jSel.p}; if (window.KERJA_ALL) KERJA_ALL.push({username:u, fasilitas:jSel.id, posisi:jSel.p}); UNLOCK[u] = pw; toast(`🎉 Selamat! @${u} sekarang ${jSel.p} di ${FAS[jSel.id].nama}`); if (sheetFn) sheetBody.innerHTML = sheetFn(); }
       else m.textContent = msg || 'Gagal mendaftar. Coba lagi.'; }
     catch(_){ e.target.disabled = false; m.textContent = 'Gagal tersambung. Periksa internet lalu coba lagi.'; }
