@@ -2075,7 +2075,7 @@ function updateWapresChar(dt, time){
     if (WPR.sync !== WPR.u){ const lama = WPR.sync; WPR.sync = WPR.u; [lama, WPR.u].forEach(u=>{ if (u && WALKERS[u] && WINFO[u]) syncWalkers({[u]: WINFO[u]}); }); WPR.sig = ''; }   // gaya dinas dipasang/dilepas di karakter jalannya
     if (WPR.u){ const w = WINFO[WPR.u] || (typeof wInfo === 'function' ? wInfo(WPR.u) : null);
       if (w){ const sp = avatarSpec(Object.assign({}, w, {_jas:1})), sg = JSON.stringify(sp);
-        if (sg !== WPR.sig){ WPR.sig = sg; try { const t = '🟡 Wakil Presiden - @' + WPR.u; if (wpTag.userData.t !== t){ wpTag.userData.t = t; const nl = label(t, {h:1.2, size:30, bg:'rgba(122,90,10,.94)', fg:'#fff', onTop:true}); wpTag.material.map = nl.material.map; wpTag.material.needsUpdate = true; wpTag.scale.copy(nl.scale); scene.remove(nl); } } catch(_) {}
+        if (sg !== WPR.sig){ WPR.sig = sg; try { const t = '👑 Wakil Presiden - @' + WPR.u; if (wpTag.userData.t !== t){ wpTag.userData.t = t; const nl = label(t, {h:1.2, size:30, bg:'rgba(122,90,10,.94)', fg:'#fff', onTop:true}); wpTag.material.map = nl.material.map; wpTag.material.needsUpdate = true; wpTag.scale.copy(nl.scale); scene.remove(nl); } } catch(_) {}
         const op = wpChar.position.clone(); scene.remove(wpChar); wpChar = makeAvatar(sp).g; wpChar.position.copy(op); wpChar.scale.setScalar(1.15); wpChar.userData = {type:'warga', data:{username: WPR.u}}; scene.add(wpChar); } } }
     const tampil = !!WPR.u && !(typeof ctl !== 'undefined' && ctl.key === WPR.u);
     wpChar.visible = wpTag.visible = tampil;
@@ -3548,8 +3548,8 @@ function pjTeks(key){ const p = pekerjaanJabatan(key); return p.length ? p.join(
 const PINEMOJI = {penasihat:'🟡', utama:'🔴', pembangunan:'🟠', ekonomi:'🟢', sosial:'🔵', budaya:'🟣', pendukung:'🔘', perwakilan:'🔷', daerah:'🟤', peradilan:'⚪', kota:'🟨'};
 function jabatanDari(key){   // {nama, pin} jabatan kenegaraan seseorang, atau null
   const u = String(key || '').toLowerCase().replace(/^@+/,'');
-  try { const w = wapresNow(); if (w && w.username === u) return {nama:'Wakil Presiden', pin:'🟡'}; if (w && (w.penasihat || []).includes(u)) return {nama:'Penasihat Negara', pin:'🟡'};
-    for (const kode in JAB.pem) if ((JAB.pem[kode] || []).includes(u)){ const x = JAB.kat.find(a=>a.kode === kode); if (x) return {nama:x.nama, pin: PINEMOJI[x.kelompok] || '🟡'}; } } catch(_) {}
+  try { const w = wapresNow(); if (w && w.username === u) return {nama:'Wakil Presiden', pin:'👑'}; if (w && (w.penasihat || []).includes(u)) return {nama:'Penasihat Negara', pin:'🧑‍⚖️'};
+    for (const kode in JAB.pem) if ((JAB.pem[kode] || []).includes(u)){ const x = JAB.kat.find(a=>a.kode === kode); if (x) return {nama:x.nama, pin: x.ikon || '🏛️'}; } } catch(_) {}
   return null;
 }
 function tagTeks(key, w){ if (w && w.tamu) return '🌍 ' + String(w.username||key);
@@ -5787,6 +5787,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 03:20</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 03:30</div>
 </body>
 </html>
