@@ -1,5 +1,5 @@
 
-// ===================== FILM DAY 5 (hanya untuk perekaman) =====================
+// ===================== FILM DAY 5 v2 (audio Day_6.mp3 + Day_5_2.mp3, ±67 dtk; hanya untuk perekaman) =====================
 window.FILM_INIT = function(){
 if (!houseGroups['BKT-MAWAR-002']) return false;
 const V3 = (x,y,z)=>new THREE.Vector3(x,y,z);
@@ -18,6 +18,7 @@ const BLD = {
   stad: findG(u=>u.type==='stadion'),
   kam:  findG(u=>u.data && u.data.id==='KAMERA-NUSAWARA'),
   bkl:  (typeof houseGroups!=='undefined' && houseGroups['BKT-MAWAR-002']) || findG(u=>u.data && u.data.id==='BKT-MAWAR-002'),
+  pel:  findG(u=>u.data && u.data.id==='PELABUHAN-NUSAWARA'),
 };
 const INFO = {};
 Object.keys(BLD).forEach(k=>{
@@ -121,41 +122,54 @@ function stamp(t0,t){ const d = t - t0; if (d < 0) return; const k = 1 - Math.po
 function shot(C,T){ camera.position.copy(C); camera.lookAt(T); }
 function orbit(I, ang, distK, hK, tY){ const r = Math.max(I.s.x, I.s.z)*distK + 10; return [V3(I.c.x + Math.sin(ang)*r, I.box.min.y + I.s.y*hK + 6, I.c.z + Math.cos(ang)*r), V3(I.c.x, I.box.min.y + I.s.y*(tY==null?.35:tY), I.c.z)]; }
 
+// ---------- LINIMASA v2 (sesuai jeda di audio Day_6.mp3 + Day_5_2.mp3) ----------
+// 0–9.4 kapal | 9.4–13.0 sambutan | 13.0–17.7 hari ke-5, 300 warga | 17.7–21.3 4 bangunan + 1 fasilitas
+// 21.3 Mall | 26.9 Stadion | 34.9 Toko Kamera | 40.3 Bengkel | 44.9 Pelabuhan | 51.4 kota | 56.03–66.95 ajakan
+const E_SAMBUT = 9.4, E_HARI = 13.0, E_4B = 17.7, E_SEG = 21.3, E_PEL = 44.9, E_KOTA = 51.4, E_CTA = 56.03, E_END = 66.95;
 // segmen pembangunan: [kunci, mulai, gambar sampai, timelapse sampai, selesai]
-const SEG = [['mall',18.0,20.6,24.3,25.85],['stad',25.85,29.6,32.6,34.1],['kam',34.1,36.5,40.3,44.0],['bkl',44.0,46.6,48.9,50.15]];
+const SEG = [['mall',21.3,23.9,25.9,26.9],['stad',26.9,29.0,30.6,34.9],['kam',34.9,37.0,39.2,40.3],['bkl',40.3,41.9,43.6,44.9]];
+const PEL = {t0:44.9, tl0:45.8, tl1:50.0, stamp:50.26, t1:51.4};
 const CARD = {mall:['vote','poll','Bangun Mall — 56% suara'], stad:['usul','fajri','Usulan @f4jr1_aj487'], kam:['usul','kindom','Usulan @kindomcream'], bkl:['desain','iruzz','Milik @iruzz']};
 const TITLE = {mall:[['#1 MALL MODERN','#ffd21f',96],['Pilihan Voting Warga','#ffffff',54]], stad:[['#2 STADION BOLA','#ffd21f',96],['Usulan @f4jr1_aj487','#ffffff',54]], kam:[['#3 TOKO KAMERA','#ffd21f',96],['Usulan @kindomcream','#ffffff',54]], bkl:[['#4 BENGKEL KACA','#ffd21f',96],['Milik @iruzz','#ffffff',54]]};
-const ANG = {mall:.35, stad:.5, kam:-.35, bkl:.4};
+const ANG = {mall:.35, stad:.5, kam:-.35, bkl:.4, pel:-.6};
+// waktu kapal/warga: adegan lama 0–5.5 & 5.5–10.05 diregangkan ke 0–9.4 & 9.4–13.0
+const tf = t => t < E_SAMBUT ? t*5.5/E_SAMBUT : t < E_HARI ? 5.5 + (t-E_SAMBUT)*4.55/(E_HARI-E_SAMBUT) : 10.05 + (t-E_HARI);
+const STAD_SCR = (()=>{ const I = INFO.stad; return I ? {x:I.c.x, z:I.box.max.z} : null; })();
 
-window.FILM = { info: Object.fromEntries(Object.keys(INFO).map(k=>[k,{c:INFO[k].c.toArray(), s:INFO[k].s.toArray()}])), frame(t){
-  const dt = 1/30;
+window.FILM = { info: Object.fromEntries(Object.keys(INFO).map(k=>[k,{c:INFO[k].c.toArray(), s:INFO[k].s.toArray()}])), dur:E_END, frame(t){
+  const dt = 1/30, u0 = tf(t);
   try { kotaTick(dt, t); } catch(e){}
   // bendera
   const pa = flagGeo.attributes.position.array; for (let i=0;i<pa.length;i+=3){ const x = flagBase[i] + 2.25; pa[i+2] = Math.sin(x*1.6 - t*4)*.18*(x/4.5); } flagGeo.attributes.position.needsUpdate = true;
   // status bangunan
-  Object.keys(INFO).forEach(k=>{ const S = SEG.find(s=>s[0]===k); let p = 0;
-    if (t < 14.1) p = 0; else if (t < 18.0) p = 1; else p = t < S[2] ? 0 : t < S[3] ? sm(S[2],S[3],t) : 1; progress(k, p); });
-  // kapal
-  const fk = 1 - Math.pow(1 - cl(t/5.6,0,1), 2.4); const fx = lerp(FERRY_X0, FERRY_X1, fk);
-  ferry.position.set(fx, Math.sin(t*1.3)*.12, FZ); ferry.rotation.z = Math.sin(t*1.1)*.01; ferry.visible = t < 10.2; ramp.visible = t > 5.6 && t < 10.2;
-  crowdHide(t < 10.2); if (t < 10.2) crowdAt(t, fx);
+  Object.keys(INFO).forEach(k=>{ let p = 0;
+    if (k === 'pel'){ p = t < E_SEG ? 1 : t < PEL.tl0 ? 0 : t < PEL.tl1 ? sm(PEL.tl0,PEL.tl1,t) : 1; }
+    else { const S = SEG.find(s=>s[0]===k); p = t < E_4B ? 0 : t < E_SEG ? 1 : t < S[2] ? 0 : t < S[3] ? sm(S[2],S[3],t) : 1; }
+    progress(k, p); });
+  // kapal (waktu diregangkan)
+  const fk = 1 - Math.pow(1 - cl(u0/5.6,0,1), 2.4); const fx = lerp(FERRY_X0, FERRY_X1, fk);
+  ferry.position.set(fx, Math.sin(t*1.3)*.12, FZ); ferry.rotation.z = Math.sin(t*1.1)*.01; ferry.visible = t < E_HARI; ramp.visible = u0 > 5.6 && t < E_HARI;
+  crowdHide(t < E_HARI); if (t < E_HARI) crowdAt(u0, fx);
   // presiden & ayam
-  if (t < 10.2){ pres.position.set(-100.5, 1.3, FZ+1.2); pres.rotation.y = -Math.PI/2; chick.position.set(-100.8, 1.3, FZ+3.4); chick.rotation.y = -Math.PI/2 + Math.sin(t*3)*.3; chick.position.y = 1.3 + Math.abs(Math.sin(t*7))*.15*(t>7.6&&t<9.6?1:0); }
-  else { pres.position.copy(PRES0); pres.rotation.y = PRESR; chick.position.copy(CH0); chick.rotation.y = CHR; }
+  if (t < E_HARI){ pres.position.set(-100.5, 1.3, FZ+1.2); pres.rotation.y = -Math.PI/2; chick.position.set(-100.8, 1.3, FZ+3.4); chick.rotation.y = -Math.PI/2 + Math.sin(t*3)*.3; chick.position.y = 1.3 + Math.abs(Math.sin(t*7))*.15*(t>10.9&&t<12.8?1:0); }
+  else { pres.position.copy(PRES0); pres.rotation.y = PRESR; chick.position.copy(CH0); chick.rotation.y = CHR; chick.position.y = CH0.y + (t > E_CTA ? Math.abs(Math.sin(t*6))*.12 : 0); }
   // penduduk
-  setCount(t < 10.3 ? 278 : Math.round(lerp(278,300, sm(10.4,13.0,t))));
+  const nWarga = t < 14.4 ? 278 : Math.round(lerp(278,300, sm(14.4,15.95,t)));
+  setCount(nWarga);
   // ---- kamera per adegan ----
   let C, T;
-  if (t < 5.5){ const k = sm(0,5.5,t); C = V3(lerp(fx-36, -165, k), lerp(9,13,k), lerp(42, 30, k)); T = V3(fx + 14, 5, FZ); }
-  else if (t < 10.05){ const k = sm(5.5,10.05,t); C = V3(lerp(-88,-91,k), lerp(7.5,9,k), lerp(6,4,k)); T = V3(lerp(-114,-108,k), 3.2, FZ); }
-  else if (t < 14.1){ const k = sm(10.05,14.1,t); C = V3(cntW.x + lerp(5,1.5,k), cntW.y + lerp(-2.5,-1,k), cntW.z + lerp(30,15,k)); T = V3(cntW.x, cntW.y - lerp(3.5,1.6,k), cntW.z); }
-  else if (t < 18.0){ const keys = ['mall','stad','kam','bkl'], i = cl(Math.floor((t-14.1)/.975),0,3), I = INFO[keys[i]], k = (t-14.1-i*.975)/.975; [C,T] = orbit(I, ANG[keys[i]] + .25 - k*.5, 1.15, .7); }
-  else if (t < 50.15){ const S = SEG.find(s=>t>=s[1] && t<s[4]) || SEG[3], k = S[0], I = INFO[k], u = (t - S[1])/(S[4]-S[1]);
-    if (k === 'kam' && t > 40.3){ const q = sm(40.3,44,t); C = V3(I.c.x + lerp(14,4,q), lerp(12,15,q), I.box.max.z + lerp(30,18,q)); T = V3(I.c.x, lerp(9,13.5,q), I.box.max.z - 6); }
-    else if (k === 'bkl' && t > 48.9){ const q = sm(48.9,50.15,t), K = INFO.kam; const m = lv(I.c, K.c, .5); C = V3(lerp(I.c.x+12, m.x+8, q), lerp(14,24,q), Math.max(I.box.max.z,K.box.max.z) + lerp(26,46,q)); T = V3(lerp(I.c.x,m.x,q), 5, lerp(I.c.z,m.z,q)); }
+  if (t < E_SAMBUT){ const k = sm(0,E_SAMBUT,t); C = V3(lerp(fx-36, -165, k), lerp(9,13,k), lerp(42, 30, k)); T = V3(fx + 14, 5, FZ); }
+  else if (t < E_HARI){ const k = sm(E_SAMBUT,E_HARI,t); C = V3(lerp(-88,-91,k), lerp(7.5,9,k), lerp(6,4,k)); T = V3(lerp(-114,-108,k), 3.2, FZ); }
+  else if (t < E_4B){ const k = sm(E_HARI,E_4B,t); C = V3(cntW.x + lerp(5,1.5,k), cntW.y + lerp(-2.5,-1,k), cntW.z + lerp(30,15,k)); T = V3(cntW.x, cntW.y - lerp(3.5,1.6,k), cntW.z); }
+  else if (t < E_SEG){ const keys = ['mall','stad','kam','bkl','pel'], L = (E_SEG-E_4B)/5, i = cl(Math.floor((t-E_4B)/L),0,4), I = INFO[keys[i]], k = (t-E_4B-i*L)/L; [C,T] = orbit(I, ANG[keys[i]] + .25 - k*.5, keys[i]==='pel' ? .75 : 1.15, .7); }
+  else if (t < E_PEL){ const S = SEG.find(s=>t>=s[1] && t<s[4]) || SEG[3], k = S[0], I = INFO[k], u = (t - S[1])/(S[4]-S[1]);
+    if (k === 'stad' && t > S[3]){ const q = sm(S[3],S[4],t); C = V3(STAD_SCR.x + lerp(-10,0,q), lerp(16,12,q), STAD_SCR.z + lerp(40,26,q)); T = V3(STAD_SCR.x, lerp(8,10,q), STAD_SCR.z - 8); }   // billboard layar besar
+    else if (k === 'kam' && t > S[3]){ const q = sm(S[3],S[4],t); C = V3(I.c.x + lerp(14,4,q), lerp(12,15,q), I.box.max.z + lerp(30,18,q)); T = V3(I.c.x, lerp(9,13.5,q), I.box.max.z - 6); }
+    else if (k === 'bkl' && t > S[3]){ const q = sm(S[3],S[4],t), K = INFO.kam; const m = lv(I.c, K.c, .5); C = V3(lerp(I.c.x+12, m.x+8, q), lerp(16,28,q), Math.max(I.box.max.z,K.box.max.z) + lerp(34,56,q)); T = V3(lerp(I.c.x,m.x,q), 6, lerp(I.c.z,m.z,q)); }
     else [C,T] = orbit(I, ANG[k] - u*.9, k==='stad' ? .95 : 1.15, k==='stad' ? 1.6 : .75); }
-  else if (t < 55.42){ const k = sm(50.15,55.42,t); C = V3(lerp(40,120,k), lerp(30,150,k), lerp(90,230,k)); T = V3(lerp(14,60,k), 0, lerp(-6,-90,k)); }
-  else { const k = sm(55.42,60.6,t); C = V3(PRES0.x + lerp(-1,1.5,k), PRES0.y + lerp(3.2,2.6,k), PRES0.z + lerp(13,8.5,k)); T = V3(PRES0.x+.6, PRES0.y + 1.9, PRES0.z); }
+  else if (t < E_KOTA){ const I = INFO.pel, u = (t-PEL.t0)/(PEL.t1-PEL.t0); [C,T] = orbit(I, ANG.pel - u*.8, .8, .9); }
+  else if (t < E_CTA){ const k = sm(E_KOTA,E_CTA,t); C = V3(lerp(40,120,k), lerp(30,150,k), lerp(90,230,k)); T = V3(lerp(14,60,k), 0, lerp(-6,-90,k)); }
+  else { const k = sm(E_CTA,E_END,t); C = V3(PRES0.x + lerp(-1.5,1.5,k), PRES0.y + lerp(3.4,2.6,k), PRES0.z + lerp(14,8.5,k)); T = V3(PRES0.x+.6, PRES0.y + 1.9, PRES0.z); }
   shot(C,T);
   renderer.render(scene, camera);
   // ---- overlay ----
@@ -163,31 +177,45 @@ window.FILM = { info: Object.fromEntries(Object.keys(INFO).map(k=>[k,{c:INFO[k].
   const vig = cx.createLinearGradient(0,0,0,1920); vig.addColorStop(0,'rgba(0,0,0,.35)'); vig.addColorStop(.18,'rgba(0,0,0,0)'); vig.addColorStop(.78,'rgba(0,0,0,0)'); vig.addColorStop(1,'rgba(0,0,0,.4)'); cx.fillStyle = vig; cx.fillRect(0,0,1080,1920);
   dayBadge();
   const pop = a=>cl((t-a)/.25,0,1);
-  if (t < 5.5){ headline([['KAPAL BESAR','#ffffff',110],['TIBA DI NUSAWARA!','#ffd21f',104]], 360, sm(0,.2,t)*(1-sm(5.2,5.5,t)), pop(0)); pill('🚢 Siapa saja di dalamnya?!', 1660, '#ffd21f', '#13233b', sm(2.6,2.9,t)*(1-sm(5.2,5.5,t)), 52); }
-  else if (t < 10.05){ headline([['SELAMAT DATANG','#ffffff',104],['WARGA BARU!','#ffd21f',120]], 360, sm(5.5,5.8,t)*(1-sm(9.8,10.05,t)), pop(5.5)); confetti(7.7, t, 260, 1.15); flash(7.7,t); pill('Disambut langsung Bapak Presiden', 1660, '#ffffff', '#13233b', sm(6,6.3,t)*(1-sm(9.8,10.05,t)), 46); }
-  else if (t < 14.1){ const n = t < 10.3 ? 278 : Math.round(lerp(278,300, sm(10.4,13.0,t)));
-    const a = sm(10.05,10.3,t)*(1-sm(13.9,14.1,t)), big = t > 13.0 ? 1 + .18*Math.max(0,1-(t-13)/.4) : 1;
+  if (t < E_SAMBUT){ headline([['LIHAT!','#ffd21f',150],['KAPAL BESAR DATANG!','#ffffff',96]], 360, sm(0,.15,t)*(1-sm(E_SAMBUT-.3,E_SAMBUT,t)), pop(0)); flash(0,t);
+    pill('🚢 Bawa apa kapal ini?', 1660, '#ffd21f', '#13233b', sm(3.7,4.0,t)*(1-sm(5.4,5.6,t)), 52);
+    pill('🎉 Warga Baru Nusawara tiba!', 1660, '#ffffff', '#13233b', sm(7.0,7.3,t)*(1-sm(E_SAMBUT-.3,E_SAMBUT,t)), 52); }
+  else if (t < E_HARI){ headline([['SELAMAT DATANG','#ffffff',104],['DI NUSAWARA!','#ffd21f',120]], 360, sm(E_SAMBUT,E_SAMBUT+.3,t)*(1-sm(E_HARI-.25,E_HARI,t)), pop(E_SAMBUT)); confetti(10.95, t, 260, 1.15); flash(10.95,t); pill('Disambut langsung Bapak Presiden', 1660, '#ffffff', '#13233b', sm(9.7,10,t)*(1-sm(E_HARI-.25,E_HARI,t)), 46); }
+  else if (t < E_4B){ const n = nWarga;
+    const a = sm(E_HARI,E_HARI+.25,t)*(1-sm(E_4B-.2,E_4B,t)), big = t > 15.95 ? 1 + .18*Math.max(0,1-(t-15.95)/.4) : 1;
     cx.save(); cx.globalAlpha = a; rr(140,1260,800,330,40); cx.fillStyle='rgba(31,58,95,.95)'; cx.fill(); cx.lineWidth=12; cx.strokeStyle='#f2b134'; cx.stroke();
     cx.fillStyle='#fff'; cx.font=`900 52px ${FONT2}`; cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText('JUMLAH PENDUDUK',540,1330);
     cx.translate(540,1470); cx.scale(big,big); cx.fillStyle='#ffd21f'; cx.font=`900 170px ${FONT2}`; cx.fillText(String(n),0,0); cx.restore();
-    if (t > 13.0){ headline([['🔥 300 WARGA','#ffd21f',120],['RESMI!','#ffffff',110]], 380, sm(13,13.2,t)*(1-sm(13.9,14.1,t)), pop(13)); firework(13.0,t,250,700,'#ffd21f'); firework(13.25,t,830,620,'#ff6fa8'); firework(13.5,t,540,520,'#7ed957'); confetti(13.0,t,140,.9); flash(13.0,t); }
-    else headline([['HARI INI KITA PUNYA...','#ffffff',80]], 380, a, pop(10.05)); }
-  else if (t < 18.0){ cx.fillStyle='rgba(5,10,20,.55)'; cx.fillRect(0,0,1080,1920); const i = Math.floor((t-14.1)/.975); flash(14.1+i*.975, t);
-    headline([['4 BANGUNAN','#ffd21f',130],['DALAM 1 HARI!','#ffffff',112]], 400, 1, pop(14.1));
+    if (t > 15.95){ headline([['🔥 300 WARGA','#ffd21f',120],['RESMI!','#ffffff',110]], 380, sm(15.95,16.15,t)*(1-sm(E_4B-.2,E_4B,t)), pop(15.95)); firework(15.95,t,250,700,'#ffd21f'); firework(16.2,t,830,620,'#ff6fa8'); firework(16.45,t,540,520,'#7ed957'); confetti(15.95,t,140,.9); flash(15.95,t); }
+    else headline([['HARI KE-5','#ffd21f',130],['NUSAWARA','#ffffff',96]], 380, a, pop(E_HARI)); }
+  else if (t < E_SEG){ cx.fillStyle='rgba(5,10,20,.55)'; cx.fillRect(0,0,1080,1920); const L = (E_SEG-E_4B)/5, i = cl(Math.floor((t-E_4B)/L),0,4); flash(E_4B+i*L, t);
+    headline(t < 19.06 ? [['4 BANGUNAN','#ffd21f',130],['BARU!','#ffffff',112]] : [['4 BANGUNAN','#ffd21f',120],['+ 1 FASILITAS','#ffffff',104]], 400, 1, pop(t < 19.06 ? E_4B : 19.06));
     cx.save(); cx.font=`900 300px ${FONT2}`; cx.textAlign='center'; cx.textBaseline='middle'; cx.fillStyle='rgba(255,255,255,.9)'; cx.lineWidth=16; cx.strokeStyle='#13233b'; cx.strokeText('?',540,1050); cx.fillText('?',540,1050); cx.restore();
-    pill(`${i+1} / 4`, 1660, '#c8102e', '#ffffff', 1, 56); }
-  else if (t < 50.15){ const S = SEG.find(s=>t>=s[1] && t<s[4]) || SEG[3], k = S[0], cd = CARD[k];
+    pill(i < 4 ? `${i+1} / 4` : '⚓ + 1 FASILITAS', 1660, '#c8102e', '#ffffff', 1, 56); }
+  else if (t < E_PEL){ const S = SEG.find(s=>t>=s[1] && t<s[4]) || SEG[3], k = S[0], cd = CARD[k];
     headline(TITLE[k], 330, sm(S[1],S[1]+.25,t)*(1-sm(S[4]-.2,S[4],t)), pop(S[1]));
     card(cd[0], cd[1], cd[2], sm(S[1],S[1]+.2,t)*(1-sm(S[2]-.25,S[2],t)), S[1], t);
     if (t > S[2] && t < S[3]){ tlBadge(sm(S[2],S[2]+.2,t)*(1-sm(S[3]-.1,S[3],t)), sm(S[2],S[3],t)); cx.fillStyle=`rgba(255,200,80,${.08+.05*Math.sin(t*40)})`; cx.fillRect(0,0,1080,1920); }
     if (t >= S[3]){ stamp(S[3],t); confetti(S[3],t,120,.85); flash(S[3],t); }
-    if (k==='bkl' && t > 48.9) pill('Tepat di sebelah Toko Kamera!', 1660, '#ffd21f', '#13233b', sm(48.9,49.1,t), 48); }
-  else if (t < 55.42){ headline([['KOTA INI MILIK','#ffffff',100],['KITA SEMUA!','#ffd21f',130]], 380, sm(50.3,50.6,t)*(1-sm(55.2,55.42,t)), pop(50.3)); }
-  else { const a = sm(55.5,55.8,t);
-    headline([['DAY 6','#ffd21f',150],['BANGUN APA?','#ffffff',120]], 360, a, pop(55.5));
-    pill('🔗 Klik link untuk DAFTAR', 1440, '#ffd21f', '#13233b', sm(56.5,56.8,t), 56);
-    pill('💬 Komen usulanmu sekarang!', 1590, '#ffffff', '#13233b', sm(58,58.3,t), 56);
-    const b = 1 + .06*Math.sin(t*8); cx.save(); cx.globalAlpha = sm(58.6,58.9,t); cx.translate(540,1740); cx.scale(b,b); cx.font=`900 70px ${FONT2}`; cx.textAlign='center'; cx.fillText('👇👇👇',0,0); cx.restore(); }
+    if (k==='stad' && t > 30.55){ pill('⚽ Daftar jadi PEMAIN & PELATIH!', 1520, '#ffd21f', '#13233b', sm(30.55,30.8,t)*(1-sm(S[4]-.2,S[4],t)), 52);
+      pill('Pertandingan pertama segera dimulai!', 1660, '#ffffff', '#13233b', sm(32.5,32.8,t)*(1-sm(S[4]-.2,S[4],t)), 44); }
+    if (k==='bkl' && t > S[3]) pill('Tepat di sebelah Toko Kamera!', 1660, '#ffd21f', '#13233b', sm(S[3],S[3]+.2,t)*(1-sm(S[4]-.2,S[4],t)), 48); }
+  else if (t < E_KOTA){
+    headline([['⚓ PELABUHAN','#ffd21f',110],['DIPERBESAR!','#ffffff',110]], 330, sm(PEL.t0,PEL.t0+.25,t)*(1-sm(PEL.t1-.2,PEL.t1,t)), pop(PEL.t0));
+    pill('🚢 Warga terus berdatangan…', 1520, '#ffffff', '#13233b', sm(45.0,45.3,t)*(1-sm(PEL.tl0+.6,PEL.tl0+.9,t)), 50);
+    if (t > PEL.tl0 && t < PEL.tl1){ tlBadge(sm(PEL.tl0,PEL.tl0+.2,t)*(1-sm(PEL.tl1-.1,PEL.tl1,t)), sm(PEL.tl0,PEL.tl1,t)); cx.fillStyle=`rgba(255,200,80,${.08+.05*Math.sin(t*40)})`; cx.fillRect(0,0,1080,1920); }
+    if (t >= PEL.stamp){ const d = t - PEL.stamp, k = 1 - Math.pow(1-cl(d/.3,0,1),3), a = cl(PEL.t1 - t, 0, .25)*4; cx.save(); cx.globalAlpha = a; cx.translate(540,1250); cx.rotate(-.12); cx.scale(2.2-1.2*k, 2.2-1.2*k);
+      rr(-330,-70,660,140,24); cx.fillStyle='rgba(200,16,46,.95)'; cx.fill(); cx.lineWidth=10; cx.strokeStyle='#fff'; cx.stroke(); cx.fillStyle='#fff'; cx.font=`900 74px ${FONT2}`; cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText('✂️ RESMI DIBUKA!',0,6); cx.restore();
+      confetti(PEL.stamp,t,160,.95); flash(PEL.stamp,t); } }
+  else if (t < E_CTA){ headline([['KOTA INI MILIK','#ffffff',100],['KITA SEMUA!','#ffd21f',130]], 380, sm(E_KOTA+.1,E_KOTA+.4,t)*(1-sm(E_CTA-.2,E_CTA,t)), pop(E_KOTA+.1)); }
+  else { const a = sm(E_CTA,E_CTA+.3,t);
+    headline([['IKUT MEMBANGUN','#ffffff',100],['NUSAWARA!','#ffd21f',130]], 340, a*(1-sm(64.4,64.6,t)), pop(E_CTA));
+    headline([['SAMPAI JUMPA','#ffffff',104],['DI DAY 6!','#ffd21f',140]], 340, sm(64.6,64.9,t), pop(64.6));
+    pill('➕ FOLLOW akun ini', 1300, '#c8102e', '#ffffff', sm(57.9,58.2,t), 58);
+    pill('📝 DAFTAR jadi warga · link di bio', 1450, '#ffd21f', '#13233b', sm(59.0,59.3,t), 52);
+    pill('💬 KOMEN: Day 6 bangun apa?', 1600, '#ffffff', '#13233b', sm(61.1,61.4,t), 54);
+    const b = 1 + .06*Math.sin(t*8); cx.save(); cx.globalAlpha = sm(62.8,63.1,t); cx.translate(540,1760); cx.scale(b,b); cx.font=`900 70px ${FONT2}`; cx.textAlign='center'; cx.fillText('👇👇👇',0,0); cx.restore();
+    confetti(64.6, t, 200, 1.0); }
   return 1;
 }, look(c,t){ cx.clearRect(0,0,1080,1920); camera.position.set(...c); camera.lookAt(...t); renderer.render(scene,camera); } };
 return true;

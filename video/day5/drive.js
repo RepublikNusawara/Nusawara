@@ -1,9 +1,9 @@
 const {spawn}=require('child_process'); const fs=require('fs');
 const [,,mode,a,b]=process.argv;
-const chrome=spawn('google-chrome',['--headless=new','--no-sandbox','--remote-debugging-port=9333','--window-size=1080,1920','--force-device-scale-factor=1','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--hide-scrollbars','--mute-audio','about:blank'],{stdio:'ignore'});
+const chrome=spawn('google-chrome',['--headless=new','--no-sandbox','--remote-debugging-port='+(process.env.PORT||9333)+'','--window-size=1080,1920','--force-device-scale-factor=1','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--hide-scrollbars','--mute-audio','about:blank'],{stdio:'ignore'});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 (async()=>{
-  let ws; for(let i=0;i<40;i++){ try{ const l=await (await fetch('http://127.0.0.1:9333/json')).json(); const p=l.find(x=>x.type==='page'); if(p){ws=new WebSocket(p.webSocketDebuggerUrl);break;} }catch(e){} await sleep(300); }
+  let ws; for(let i=0;i<40;i++){ try{ const l=await (await fetch('http://127.0.0.1:'+(process.env.PORT||9333)+'/json')).json(); const p=l.find(x=>x.type==='page'); if(p){ws=new WebSocket(p.webSocketDebuggerUrl);break;} }catch(e){} await sleep(300); }
   await new Promise(r=>ws.onopen=r); let id=0; const pend={};
   ws.onmessage=m=>{const d=JSON.parse(m.data); if(d.method==='Runtime.exceptionThrown'){const x=d.params.exceptionDetails; console.log('PAGEERR',(x.exception&&x.exception.description||x.text).slice(0,500));} if(d.id&&pend[d.id]){pend[d.id](d);delete pend[d.id];}};
   const send=(method,params={})=>new Promise(r=>{const i=++id;pend[i]=r;ws.send(JSON.stringify({id:i,method,params}));});

@@ -15,7 +15,27 @@ Kelompok Pelabuhan (KG) bergeser +18 di sumbu x (KX=18): koordinat dunia = lokal
 Pelabuhan baru (17 Nov 07:30): Ferry asli `FERRY` di lokal (-142,0,-42) dan `FERRY2` di (-142,0,26), dermaga jari + koridor kaca, terminal menghadap timur.
 `film.js` saat ini masih membuat kapal feri sendiri (kode lama) di dekat x -124 — GANTI adegan kapal agar memakai `FERRY` asli (gerakkan dari laut barat ke posisinya, warga turun lewat dermaga jari, Presiden + ayam menyambut di dermaga).
 
-## Linimasa (sesuai jeda di suara-day5.mp3)
+## Versi 2 (16 Nov 2026) — audio baru
+Suara: `Day_6.mp3` (56,0 dtk, narasi utama) lalu `Day_5_2.mp3` (10,9 dtk, ajakan penutup) digabung jadi `suara-day5-v2.mp3` (±67 dtk).
+`film.js` sudah diperbarui ke linimasa v2 (waktu diambil dari jeda di audio):
+
+| Detik | Adegan |
+|---|---|
+| 0–9,4 | Kapal datang ("Lihat! … Warga Baru Nusawara telah tiba!") |
+| 9,4–13,0 | Sambutan Presiden + confetti ("Selamat datang di Republik Nusawara!") |
+| 13,0–17,7 | HARI KE-5, papan penduduk naik ke 300 |
+| 17,7–21,3 | 4 bangunan + 1 fasilitas (5 potongan cepat) |
+| 21,3–26,9 | Mall: kartu voting -> timelapse -> RESMI BERDIRI |
+| 26,9–34,9 | Stadion: komentar @f4jr1_aj487 -> timelapse -> billboard layar besar + ajakan daftar pemain & pelatih |
+| 34,9–40,3 | Toko Kamera: komentar @kindomcream -> timelapse |
+| 40,3–44,9 | Bengkel Kaca @iruzz -> timelapse -> geser ke Toko Kamera |
+| 44,9–51,4 | Pelabuhan diperbesar: timelapse -> RESMI DIBUKA |
+| 51,4–56,0 | Kota dari udara ("Kota ini milik kita semua!") |
+| 56,0–67,0 | Presiden di podium: FOLLOW, DAFTAR (link di bio), KOMEN Day 6, "Sampai jumpa di Day 6!" |
+
+Render paralel: `PORT=9333 node drive.js render 0 1005` dan `PORT=9334 node drive.js render 1005 2010`, lalu gabung `part_0.mp4` + `part_1005.mp4` dan suara.
+
+## Linimasa v1 (suara-day5.mp3, lama)
 | Detik | Adegan | Kalimat |
 |---|---|---|
 | 0–5,5 | Kapal Ferry besar datang | "Lihat itu... kapal BESAR datang! Siapa saja... yang ada di dalamnya?!" |
