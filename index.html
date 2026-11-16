@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-2150">
+<meta name="nusawara-build" content="20261116-2215">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3888,17 +3888,18 @@ const saldoBar = () => AKUN.data ? `<p class="note">Saldo: <b>${N$(AKUN.data.sal
 const BANGUN_DEF = {hari:'DAY 3', oleh:'Republik Nusawara (Bapak Presiden)'};
 function bangunInfo(id, html){ if (!html || KAV[id] || id === 'EKO-DONASI') return html; const b = Object.assign({}, BANGUN_DEF, (typeof BANGUN !== 'undefined' && BANGUN[id]) || {});
   return html.replace('</h2>', `</h2><p style="font-size:13px;margin:0 0 8px">🏗️ Dibangun <b>${esc(b.hari)}</b> oleh <b>${esc(b.oleh)}</b>.</p>`); }
-const JAB = {tab:'jabatan', kat:[], pem:{}, muat:0};
+const JAB = {tab:'jabatan', kat:[], pem:{}, muat:0, gaji:null}, GAJI_WAPRES = 250, GAJI_PENASIHAT = 100;
 async function jabMuat(){
   try { const [k, p] = await Promise.all([SB.get('jabatan_katalog?select=*&order=urut'), SB.get('jabatan_pemegang?select=username,kode')]);
     JAB.kat = k || []; JAB.pem = {}; (p || []).forEach(r=>{ (JAB.pem[r.kode] = JAB.pem[r.kode] || []).push(r.username); }); JAB.muat = 2; } catch(_) { JAB.muat = 0; }
+  if (AKUN.u){ try { JAB.gaji = await SB.rpc('gaji_jabatan_saya', {p_user: AKUN.u, p_sandi: AKUN.s}); } catch(_) {} } else JAB.gaji = null;
   if (sheetFn && sheetFn.eko && sheetBody.querySelector('[data-jabatan]')) sheetBody.innerHTML = sheetFn();
 }
 const jabTabs = a => `<div class="prow" style="margin:6px 0 10px"><button class="btn${a === 'jabatan' ? '' : ' ghost'}" data-jab-tab="jabatan">🏛️ Jabatan</button><button class="btn${a === 'pasar' ? '' : ' ghost'}" data-jab-tab="pasar">🛒 Pasar</button></div>`;
 const jabHarga = v => `<span style="flex:none;background:#c8102e;color:#fff;font-weight:800;font-size:12px;border-radius:10px;padding:4px 8px;margin-right:6px">${v}</span>`;
 function jabRow(k){
   const l = JAB.pem[k.kode] || [], full = l.length >= k.kuota;
-  return `<div class="jrow"><div class="ji">${k.ikon}</div><div class="jt"><b>${esc(k.nama)}</b><small>${l.length}/${k.kuota} terisi${l.length ? ' · ' + l.map(u=>'@' + esc(u)).join(', ') : ''}</small></div>${jabHarga(N$(k.harga))}
+  return `<div class="jrow"><div class="ji">${k.ikon}</div><div class="jt"><b>${esc(k.nama)}</b><small>${l.length}/${k.kuota} terisi · 💼 ${N$(k.gaji || 0)}/hari${l.length ? ' · ' + l.map(u=>'@' + esc(u)).join(', ') : ''}</small></div>${jabHarga(N$(k.harga))}
     <button class="btn${full ? ' ghost' : ''}" ${full ? 'disabled' : `data-jab-beli="${esc(k.kode)}"`}>${full ? 'Penuh' : 'Beli'}</button></div>`;
 }
 function jabatanHTML(){
@@ -3906,9 +3907,10 @@ function jabatanHTML(){
   let h = `<div class="kicker" data-jabatan="1">Distrik Pusat · Pemerintahan</div><h2>🏛️ Daftar Jabatan Kenegaraan</h2>${saldoBar()}${jabTabs('jabatan')}
     <p class="note">Beli jabatan dengan Nusa (N$). Hasil penjualan masuk <b>Kas Negara</b> (sekarang ${N$(KAS)}). Satu warga satu jabatan.</p>`;
   if (!AKUN.data) h += perluMasuk();
+  if (JAB.gaji && JAB.gaji.ok && JAB.gaji.gaji > 0) h += `<div class="card"><h3>💼 Gaji jabatanmu</h3><p class="note">Gaji harian pemegang jabatan dibayar dari Kas Negara. Klaim sekali sehari (reset 00.00 WIB).</p>${JAB.gaji.sudah ? '<button class="btn ghost" disabled>✓ Gaji hari ini sudah diambil</button>' : `<button class="btn" data-jab-gaji="1">Klaim gaji · +${N$(JAB.gaji.gaji)}</button>`}</div>`;
   h += `<div class="card"><h3>👑 Pimpinan Negara</h3>
     <div class="jrow"><div class="ji">👑</div><div class="jt"><b>Presiden</b><small>Mr. Bung</small></div>${jabHarga('Menjabat')}</div>
-    <div class="jrow"><div class="ji">👑</div><div class="jt"><b>Wakil Presiden</b><small>${wapresNow() ? esc(namaW(wapresNow().username)) + ' · menjabat minggu ini' : 'Belum terisi · donatur terbanyak, diumumkan tiap Senin'}</small></div>${jabHarga(wapresNow() ? 'Menjabat' : 'Donasi')}</div></div>`;
+    <div class="jrow"><div class="ji">👑</div><div class="jt"><b>Wakil Presiden</b><small>${wapresNow() ? esc(namaW(wapresNow().username)) + ' · menjabat minggu ini · 💼 ' + N$(GAJI_WAPRES) + '/hari' : 'Belum terisi · donatur terbanyak, diumumkan tiap Senin'}</small></div>${jabHarga(wapresNow() ? 'Menjabat' : 'Donasi')}</div></div>`;
   if (!JAB.kat.length) return h + '<p class="note">Memuat jabatan…</p>';
   const dp = JAB.kat.find(k=>k.kode === 'DEWAN-PENASIHAT');
   if (dp) h += `<div class="card"><h3>🧑‍⚖️ Dewan Penasihat Negara · ${(JAB.pem[dp.kode] || []).length}/${dp.kuota}</h3>${jabRow(dp)}${wapresNow() && (wapresNow().penasihat || []).length ? `<p class="note">🧑‍⚖️ Penasihat dari donasi: ${wapresNow().penasihat.map(u=>esc(namaW(u))).join(', ')}</p>` : ''}<p class="note">${dp.kuota} kursi penasihat untuk Presiden, bisa dibeli warga.</p></div>`;
@@ -3917,7 +3919,16 @@ function jabatanHTML(){
     h += `<div class="card"><h3>${esc(ks[0].kelompok_nama)}</h3>${ks.map(jabRow).join('')}</div>`; });
   return h;
 }
-const JABMSG = {sandi:'❌ Kata sandi salah. Masuk ulang.', sudah_punya:'🏛️ Kamu sudah memegang satu jabatan. Satu warga satu jabatan.', penuh:'Kursi jabatan ini sudah penuh.', saldo_kurang:'❌ Saldo N$ tidak cukup.', tidak_ada:'Jabatan tidak ditemukan.'};
+const JABMSG = {bukan_pejabat:'Kamu belum memegang jabatan.', sudah:'Gaji hari ini sudah kamu ambil.', kas_kurang:'Kas Negara sedang tidak cukup. Coba lagi nanti.', sandi:'❌ Kata sandi salah. Masuk ulang.', sudah_punya:'🏛️ Kamu sudah memegang satu jabatan. Satu warga satu jabatan.', penuh:'Kursi jabatan ini sudah penuh.', saldo_kurang:'❌ Saldo N$ tidak cukup.', tidak_ada:'Jabatan tidak ditemukan.'};
+async function jabGaji(btn){
+  if (!AKUN.u) return; btn.disabled = true;
+  try { const r = await SB.rpc('klaim_gaji_jabatan', {p_user: AKUN.u, p_sandi: AKUN.s});
+    if (r && r.ok){ popHadiah('+' + N$(r.gaji) + ' 💼'); sfx(660, .15, 'sine', .08, 0, 990); toast('💼 Gaji jabatan ' + N$(r.gaji) + ' masuk saldomu.'); }
+    else toast(JABMSG[r && r.alasan] || 'Gagal. Coba lagi.');
+  } catch(_) { toast('Jaringan bermasalah. Coba lagi.'); }
+  await Promise.all([jabMuat(), typeof negaraMuat === 'function' ? negaraMuat() : 0]); await akunMuat();
+  if (sheetFn && sheetFn.eko) sheetBody.innerHTML = sheetFn();
+}
 async function jabBeli(btn){
   if (!AKUN.u){ toast('Masuk dulu untuk membeli jabatan.'); return; }
   const k = JAB.kat.find(x=>x.kode === btn.dataset.jabBeli); if (!k) return;
@@ -3978,6 +3989,7 @@ sheetBody.addEventListener('click', e=>{
   const t = e.target.closest('button'); if (!t) return;
   if (t.dataset.jabTab){ JAB.tab = t.dataset.jabTab; if (sheetFn) sheetBody.innerHTML = sheetFn(); return; }
   if (t.dataset.jabBeli){ jabBeli(t); return; }
+  if (t.dataset.jabGaji){ jabGaji(t); return; }
   if (t.hasAttribute('data-eko-masuk')) { openSheet(akunHTML); return; }
   if (t.dataset.pergi){ const e2 = t.dataset.pergi === 'kebun' ? {x:-62, z:-445} : t.dataset.pergi === 'kavling' ? {x:18, z:-160} : t.dataset.pergi === 'donasi' ? {x:7, z:-6} : t.dataset.pergi === 'prn' ? EKO['EKO-PRN'] : t.dataset.pergi === 'tambang' ? {x:-59, z:150} : {x:-62, z:-100}; closeSheet();
     flyTo(new THREE.Vector3(e2.x, 2, e2.z), (t.dataset.pergi === 'tambang' || t.dataset.pergi === 'kebun') ? new THREE.Vector3(e2.x + 70, 80, e2.z + 40) : new THREE.Vector3(e2.x + 10, 30, e2.z + 38)); return; }
@@ -4231,7 +4243,7 @@ function kavHTML(id){
   return h;
 }
 function wapresCard(){ const w = wapresNow();
-  return `<div class="card"><h3>👑 Wakil Presiden & Penasihat minggu ini</h3>${w ? `<div class="jrow"><span class="ji">👑</span><span class="jt"><b>${esc(namaW(w.username))}</b><small>Wakil Presiden · donatur terbanyak</small></span></div>` + (w.penasihat || []).map(u=>`<div class="jrow"><span class="ji">🧑‍⚖️</span><span class="jt"><b>${esc(namaW(u))}</b><small>Penasihat Negara</small></span></div>`).join('') : '<p class="note">Belum terisi. Diumumkan hari Senin berikutnya, dari donatur terbanyak.</p>'}</div>`; }
+  return `<div class="card"><h3>👑 Wakil Presiden & Penasihat minggu ini</h3>${w ? `<div class="jrow"><span class="ji">👑</span><span class="jt"><b>${esc(namaW(w.username))}</b><small>Wakil Presiden · donatur terbanyak · 💼 ${N$(GAJI_WAPRES)}/hari</small></span></div>` + (w.penasihat || []).map(u=>`<div class="jrow"><span class="ji">🧑‍⚖️</span><span class="jt"><b>${esc(namaW(u))}</b><small>Penasihat Negara · 💼 ${N$(GAJI_PENASIHAT)}/hari</small></span></div>`).join('') : '<p class="note">Belum terisi. Diumumkan hari Senin berikutnya, dari donatur terbanyak.</p>'}</div>`; }
 function donasiHTML(){
   let h = `<div class="kicker">Membangun Republik Bersama</div><h2>🤝 Papan Donasi</h2>${saldoBar()}
     <div class="card"><h3>📜 Syarat poin</h3><p class="note">Setiap bahan yang didonasikan ke Negara dihitung poin sesuai jenisnya, dan <b>N$1 = 1 poin</b>. Bahan masuk stok PRN, uang masuk Kas Negara.<br>
@@ -5562,6 +5574,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 21:50</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 22:15</div>
 </body>
 </html>
