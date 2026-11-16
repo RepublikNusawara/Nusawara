@@ -3160,11 +3160,11 @@ const wPos = i => new THREE.Vector3(WNODES[i].x, 0, WNODES[i].z);
 const zoneNodes = zone => WNODES.map((n,i)=>n.zone===zone ? i : -1).filter(i=>i>=0);
 const bolehMasuk = key => isFollow((wInfo(key) || {}).follow);
 const WALKERS = {}, WINFO = {};
-const MAX_WALKERS = 40;
+const MAX_WALKERS = 5000;   // semua warga tampil di peta
 function nearestNode(x, z, zone){ let bi = 0, bd = 1e9; WNODES.forEach((n,i)=>{ if (zone && n.zone !== zone) return; const d = Math.hypot(n.x-x, n.z-z); if (d < bd){ bd = d; bi = i; } }); return bi; }
 function syncWalkers(list){
   if (!list || typeof list !== 'object') return;
-  Object.values(list).slice(0, 400).forEach(w=>{
+  Object.values(list).forEach(w=>{
     if (!w || !w.username || !w.niwn) return;
     const key = String(w.username).toLowerCase();
     WINFO[key] = Object.assign({}, WINFO[key] || {}, w);
@@ -4483,7 +4483,7 @@ async function jabMuat(ringan){
   try { if (typeof tagPerbarui === 'function') tagPerbarui(); if (typeof brandTampil === 'function') brandTampil(); lowonganPerbarui(); } catch(_) {}
   if (sheetFn && sheetFn.eko && sheetBody.querySelector('[data-jabatan]')) sheetBody.innerHTML = sheetFn();
 }
-const jabTabs = a => `<div class="prow" style="margin:6px 0 10px"><button class="btn${a === 'jabatan' ? '' : ' ghost'}" data-jab-tab="jabatan">🏛️ Jabatan</button><button class="btn${a === 'pasar' ? '' : ' ghost'}" data-jab-tab="pasar">🛒 Pasar</button></div>`;
+const jabTabs = a => `<div class="prow" style="margin:6px 0 10px"><button class="btn${a === 'jabatan' ? '' : ' ghost'}" data-jab-tab="jabatan">🏛️ Jabatan</button>${SEMBUNYI_GAME ? '' : `<button class="btn${a === 'pasar' ? '' : ' ghost'}" data-jab-tab="pasar">🛒 Pasar</button>`}</div>`;
 const jabHarga = v => `<span style="flex:none;background:#c8102e;color:#fff;font-weight:800;font-size:12px;border-radius:10px;padding:4px 8px;margin-right:6px">${v}</span>`;
 function jabRow(k){
   const l = JAB.pem[k.kode] || [], full = l.length >= k.kuota;
@@ -5422,6 +5422,7 @@ addEventListener('keyup', e=>{
   if (m) ctl.d[m] = 0; if (k === 'c') ctlCrouch(false); if (k === 'shift') ctl.run = false;
 });
 function startCtl(key){
+  if (!WALKERS[key]){ const w = wInfo(key); if (w){ (window.FORCE_WALK = window.FORCE_WALK || {})[key] = 1; syncWalkers({[key]: w}); } }
   const W = WALKERS[key]; if (!W) { toast('Karakter belum muncul di peta.'); return; }
   if (playing) setPlay(false); if (shotMode) setShot(false);
   closeSheet(); followKey = null; anim = null;
@@ -6534,6 +6535,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 04:15</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 04:30</div>
 </body>
 </html>
