@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-0345">
+<meta name="nusawara-build" content="20261117-0415">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -1520,6 +1520,7 @@ function focusObj(obj){
   if (typeof followKey !== 'undefined') followKey = null;
   const t = obj.userData.type, p = obj.getWorldPosition(new THREE.Vector3());
   if (t==='stadion'){ select(null); openSheet(stadionHTML); hideHint(); stadionMuat(); return; }
+  if (t==='pabrik_uang'){ select(null); hideHint(); pabrikUangBuka(); return; }
   if (t==='fasilitas'){ select(null); openSheet(()=>fasHTML(obj.userData.data.id)); hideHint(); if (typeof bisnisMuat === 'function') bisnisMuat(obj.userData.data.id); return; }
   if (t==='eko'){ select(null); if (obj.userData.data.id === 'EKO-PRN') JAB.tab = 'jabatan'; const f = ()=>bangunInfo(obj.userData.data.id, ekoHTML(obj.userData.data.id)); f.eko = 1; openSheet(f); hideHint(); if (String(obj.userData.data.id).startsWith('TMP-') && typeof tgsMuat === 'function') tgsMuat().then(()=>{ if (sheetFn === f) sheetBody.innerHTML = f(); }); return; }
   if (t==='counter'){
@@ -3884,6 +3885,114 @@ async function gajiCek(){
     gajiTampil({kerja, jab});
   } catch(_) { GJ.buka = false; }
 }
+// ---------- PABRIK UANG: pop-up Mesin Pencetak Uang (tap = N$1, total tap & ranking tidak pernah direset) ----------
+const TAPU = {ov:null, pending:0, sesi:0, total:null, rank:null, top:[], sibuk:false, timer:null, rkTimer:null, tolak:0};
+(()=>{ const st = document.createElement('style'); st.textContent = `
+  #tapU{position:fixed;inset:0;z-index:99990;background:rgba(8,14,28,.72);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(10px,env(safe-area-inset-top)) 8px 16px;font-family:inherit;-webkit-user-select:none;user-select:none}
+  #tapU .tu{width:100%;max-width:440px;border-radius:22px;padding:12px 12px 14px;background:linear-gradient(180deg,#cfe6f5 0%,#9fb4c4 38%,#6f7f8c 100%);box-shadow:0 14px 40px rgba(0,0,0,.5);border:3px solid #f2c14e;position:relative}
+  #tapU .rbtn{position:absolute;top:10px;width:40px;height:40px;border-radius:50%;border:3px solid #f2c14e;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.3)}
+  #tapU .hdr{margin:4px auto 10px;max-width:300px;text-align:center;background:linear-gradient(180deg,#e0162f,#a50d22);border:4px solid #f2c14e;border-radius:60px 60px 18px 18px;padding:12px 10px 8px;color:#f7d774;box-shadow:0 4px 0 #7a0a18}
+  #tapU .hdr b{display:block;font-size:24px;line-height:1.05;font-weight:900;letter-spacing:.5px;text-shadow:0 2px 0 #6b0614}
+  #tapU .hdr span{display:inline-block;margin-top:6px;background:#f6f2ea;color:#2b2d33;font-weight:800;font-size:11px;border-radius:8px;padding:3px 10px}
+  #tapU .bar{display:flex;gap:8px;margin-bottom:10px}
+  #tapU .chip{flex:1;display:flex;align-items:center;gap:8px;background:#1f2328e6;color:#fff;border:2px solid #f2c14e;border-radius:16px;padding:6px 10px;min-width:0}
+  #tapU .chip i{font-style:normal;font-size:22px}#tapU .chip small{display:block;font-size:10px;opacity:.8}#tapU .chip b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #tapU .coin{width:30px;height:30px;flex:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff1a8,#f2c14e 60%,#b8860b);border:2px solid #9a6b00;color:#6b4300;font-weight:900;font-size:10px;display:flex;align-items:center;justify-content:center}
+  #tapU .mesin{position:relative;height:190px;margin:0 6px 10px;border-radius:18px 18px 8px 8px;background:linear-gradient(180deg,#d7dde3,#9aa3ab);border:3px solid #6b7178;overflow:hidden}
+  #tapU .plat{position:absolute;left:50%;top:8px;transform:translateX(-50%);background:linear-gradient(#f4f4f4,#c9cfd6);border:2px solid #f2c14e;border-radius:8px;padding:3px 10px;font-weight:900;font-size:11px;color:#2b2d33;text-align:center;line-height:1.15;white-space:nowrap}
+  #tapU .mesin .bigc{position:absolute;left:50%;top:52px;transform:translateX(-50%);width:46px;height:46px;font-size:14px;box-shadow:0 0 18px #ffd84a}
+  #tapU .lampu{position:absolute;top:56px;width:10px;height:44px;border-radius:5px;background:#ffd84a;box-shadow:0 0 12px #ffd84a}
+  #tapU .robot{position:absolute;bottom:28px;font-size:40px;filter:drop-shadow(0 2px 2px #0006)}
+  #tapU .stack{position:absolute;bottom:6px;font-size:26px}
+  #tapU .belt{position:absolute;left:22%;right:22%;bottom:0;height:78px;background:repeating-linear-gradient(180deg,#3a3f46 0 6px,#2b2f36 6px 12px);border-left:4px solid #c9cfd6;border-right:4px solid #c9cfd6;animation:tuBelt .6s linear infinite}
+  @keyframes tuBelt{to{background-position:0 12px}}
+  #tapU .note{position:absolute;left:50%;width:120px;height:44px;margin-left:-60px;border-radius:6px;background:linear-gradient(135deg,#fbe3e6,#f19aa6 60%,#e66a7c);border:2px solid #c8102e;box-shadow:0 3px 6px #0005;color:#a50d22;font-weight:900;text-align:center;font-size:16px;line-height:24px}
+  #tapU .note small{display:block;font-size:7px;color:#5a1020;line-height:10px;font-weight:800}
+  #tapU .note.fly{animation:tuNote .9s ease-in forwards}
+  @keyframes tuNote{0%{bottom:70px;opacity:0;transform:scale(.6)}20%{opacity:1;transform:scale(1)}100%{bottom:-50px;opacity:.2;transform:scale(1.15)}}
+  #tapU .bawah{display:grid;grid-template-columns:1fr 120px 1.2fr;gap:7px;align-items:stretch}
+  #tapU .pan{background:#1f2328ee;border:2px solid #f2c14e;border-radius:16px;color:#fff;padding:8px;min-width:0}
+  #tapU .pan h4{margin:0 0 4px;font-size:11px;font-weight:800;text-align:center}
+  #tapU .val{display:flex;align-items:center;gap:6px;background:#00000055;border-radius:10px;padding:5px 6px;margin-bottom:6px}
+  #tapU .val b{font-size:15px;color:#f7d774;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #tapU .tbtn{width:120px;height:120px;border-radius:50%;border:6px solid #c9cfd6;background:radial-gradient(circle at 40% 30%,#ff6a7c,#e0162f 45%,#8f0a1d);color:#fff;font-weight:900;cursor:pointer;box-shadow:0 8px 0 #6b0614,0 0 24px #ffd84a99;align-self:center;touch-action:manipulation;position:relative;-webkit-tap-highlight-color:transparent}
+  #tapU .tbtn:active,#tapU .tbtn.on{transform:translateY(5px);box-shadow:0 3px 0 #6b0614,0 0 30px #ffd84a}
+  #tapU .tbtn .t1{display:block;font-size:30px;line-height:1;font-style:italic}#tapU .tbtn .t2{display:block;font-size:11px;margin-top:2px}#tapU .tbtn .t3{display:block;font-size:24px;color:#ffe066;font-style:italic;text-shadow:0 2px 0 #7a0a18}
+  #tapU .plus{position:absolute;left:50%;top:10px;color:#ffe066;font-weight:900;font-size:22px;text-shadow:0 2px 0 #7a0a18;pointer-events:none;animation:tuPlus .8s ease-out forwards}
+  @keyframes tuPlus{to{transform:translate(-50%,-70px);opacity:0}}
+  #tapU .rk{list-style:none;margin:0;padding:0;max-height:156px;overflow:auto;font-size:11px}
+  #tapU .rk li{display:flex;gap:5px;align-items:center;padding:3px 4px;border-radius:7px;line-height:1.15}
+  #tapU .rk li.me{background:#f2c14e;color:#3b2600;font-weight:800}
+  #tapU .rk li .n{flex:none;width:18px;text-align:center;font-weight:800}#tapU .rk li .u{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}#tapU .rk li .u small{display:block;font-size:10px;font-weight:800;color:#f7d774}#tapU .rk li.me .u small{color:#3b2600}
+  #tapU .lnk{display:block;width:100%;margin-top:4px;background:none;border:1px solid #f2c14e;color:#f7d774;border-radius:8px;font:inherit;font-size:10px;font-weight:800;padding:4px;cursor:pointer}
+  #tapU .foot{margin:12px auto 0;max-width:300px;text-align:center;background:#1f2328;color:#fff;border:2px solid #f2c14e;border-radius:12px;padding:7px;font-weight:800;font-size:15px}
+  #tapU .foot b{color:#ffe066;font-style:italic}
+  #tapU .msg{text-align:center;color:#fff;font-size:11px;min-height:15px;margin-top:6px;text-shadow:0 1px 2px #000}
+  #tapU .full{position:absolute;inset:0;background:#141820f5;border-radius:19px;padding:14px;color:#fff;overflow:auto}
+  #tapU .full table{width:100%;border-collapse:collapse;font-size:13px}#tapU .full th{color:#f7d774;text-align:left;border-bottom:2px solid #f2c14e;padding:6px 4px}#tapU .full td{padding:6px 4px;border-bottom:1px solid #ffffff22}
+  #tapU .full tr.me td{background:#f2c14e;color:#3b2600;font-weight:800}
+  @media (max-width:380px){ #tapU .bawah{grid-template-columns:1fr 112px 1fr} #tapU .tbtn{width:112px;height:112px} #tapU .tbtn .t1{font-size:25px} #tapU .tbtn .t3{font-size:20px} #tapU .hdr b{font-size:20px} }`; document.head.appendChild(st); })();
+function tapuNote(){ const m = TAPU.ov && TAPU.ov.querySelector('.mesin'); if (!m) return; const n = document.createElement('div'); n.className = 'note fly'; n.innerHTML = 'N$1<small>REPUBLIK NUSAWARA</small>'; m.appendChild(n); setTimeout(()=>n.remove(), 950); }
+function tapuRender(){ const o = TAPU.ov; if (!o) return; const q = s=>o.querySelector(s);
+  if (q('#tuSesi')) q('#tuSesi').textContent = N$(TAPU.sesi);
+  if (q('#tuTot')) q('#tuTot').textContent = TAPU.total == null ? '…' : Number(TAPU.total + TAPU.pending).toLocaleString('id-ID');
+  if (q('#tuRank')) q('#tuRank').textContent = TAPU.rank ? '#' + TAPU.rank : '–';
+  if (q('#tuSaldo')) q('#tuSaldo').textContent = N$((AKUN.data && AKUN.data.saldo || 0) + TAPU.pending);
+  const me = AKUN.u, li = TAPU.top.slice(0, 10).map(r=>`<li class="${r.u === me ? 'me' : ''}"><span class="n">${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : r.rank}</span><span class="u">${esc(namaW(r.u))}<small>${Number(r.total).toLocaleString('id-ID')} tap</small></span></li>`);
+  if (me && TAPU.rank > 10 && TAPU.total != null) li.push(`<li class="me"><span class="n">${TAPU.rank}</span><span class="u">${esc(namaW(me))}<small>${Number(TAPU.total).toLocaleString('id-ID')} tap</small></span></li>`);
+  if (q('#tuRk')) q('#tuRk').innerHTML = li.join('') || '<li><span class="u" style="opacity:.75">Belum ada yang tap. Jadilah yang pertama!</span></li>'; }
+async function tapuPeringkat(){ try { const r = await SB.rpc('tap_peringkat', {p_user: AKUN.u || null, p_limit: 100}); if (!r) return;
+    TAPU.top = r.top || []; if (r.saya){ if (!TAPU.pending){ TAPU.total = r.saya.total; } TAPU.rank = r.saya.rank; } else if (TAPU.total == null) TAPU.total = 0;
+    TAPU.warga = r.warga || 0; tapuRender(); if (TAPU.ov && TAPU.ov.querySelector('.full')) tapuFull(); } catch(_) {} }
+async function tapuKirim(){ if (TAPU.sibuk || !TAPU.pending || !AKUN.u) return; TAPU.sibuk = true; const n = Math.min(TAPU.pending, 40);
+  try { const r = await SB.rpc('tap_uang', {p_user: AKUN.u, p_sandi: AKUN.s, p_jumlah: n}); TAPU.pending -= n;
+    if (r && r.ok){ const tolak = n - r.diterima; if (tolak > 0){ TAPU.sesi -= tolak; const m = TAPU.ov && TAPU.ov.querySelector('.msg'); if (m) m.textContent = '⚠️ Terlalu cepat! Maksimal ±10 tap per detik.'; }
+      TAPU.total = r.total; TAPU.rank = r.rank; if (AKUN.data) AKUN.data.saldo = r.saldo; }
+    else { TAPU.sesi -= n; const m = TAPU.ov && TAPU.ov.querySelector('.msg'); if (m) m.textContent = r && r.alasan === 'warga' ? '❌ Hanya untuk Warga Republik Nusawara.' : '❌ Sesi masuk berakhir. Masuk lagi.'; }
+  } catch(_) { TAPU.pending -= n; TAPU.sesi -= n; const m = TAPU.ov && TAPU.ov.querySelector('.msg'); if (m) m.textContent = '❌ Gagal tersambung. Coba lagi.'; }
+  TAPU.sibuk = false; tapuRender(); if (TAPU.pending) setTimeout(tapuKirim, 250); }
+function tapuFull(){ const o = TAPU.ov; if (!o) return; let f = o.querySelector('.full'); if (!f){ f = document.createElement('div'); f.className = 'full'; o.querySelector('.tu').appendChild(f); }
+  const me = AKUN.u, rows = TAPU.top.map(r=>`<tr class="${r.u === me ? 'me' : ''}"><td>${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : r.rank}</td><td>${esc(namaW(r.u))}</td><td style="text-align:right">${Number(r.total).toLocaleString('id-ID')}</td></tr>`).join('');
+  f.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><b style="flex:1;font-size:18px;color:#f7d774">🏆 Tabel Pemenang Tap</b><button class="lnk" style="width:auto;padding:6px 12px;margin:0" data-tutup-full>✕ Tutup</button></div>
+    <p style="font-size:12px;opacity:.85;margin:0 0 8px">Peringkat berdasarkan total tap sejak terdaftar (tidak pernah direset). ${TAPU.warga || 0} warga sudah mencetak uang.</p>
+    <table><tr><th>#</th><th>Warga</th><th style="text-align:right">Total tap</th></tr>${rows || '<tr><td colspan="3" style="opacity:.75">Belum ada data.</td></tr>'}</table>`; }
+function tapuTutup(){ if (!TAPU.ov) return; tapuKirim(); clearInterval(TAPU.timer); clearInterval(TAPU.rkTimer); TAPU.ov.remove(); TAPU.ov = null; if (sheetFn === akunHTML) sheetBody.innerHTML = akunHTML(); }
+function pabrikUangBuka(){
+  if (TAPU.ov) return; TAPU.sesi = 0; TAPU.pending = 0;
+  const ov = document.createElement('div'); ov.id = 'tapU'; TAPU.ov = ov;
+  const masuk = !!(AKUN.u && AKUN.s);
+  ov.innerHTML = `<div class="tu">
+    <button class="rbtn" data-tu-help style="left:10px;background:#f7d774;color:#3b2600">?</button><button class="rbtn" data-tu-x style="right:10px;background:#e0162f;color:#fff">✕</button>
+    <div class="hdr"><div style="font-size:14px">🪙🪙🪙</div><b>PABRIK UANG<br>NUSAWARA</b><span>REPUBLIK NUSAWARA</span></div>
+    <div class="bar"><div class="chip"><i>👤</i><div style="min-width:0"><small>Warga Nusawara</small><b>${masuk ? esc(namaW(AKUN.u)) : 'Belum masuk'}</b></div></div>
+      <div class="chip"><span class="coin">N$</span><div style="min-width:0"><small>Saldo Kamu</small><b id="tuSaldo">${masuk ? N$(AKUN.data && AKUN.data.saldo) : '–'}</b></div></div></div>
+    <div class="mesin"><div class="plat">MESIN<br>PENCETAK UANG<br>NUSAWARA</div><span class="coin bigc">N$</span>
+      <span class="lampu" style="left:30%"></span><span class="lampu" style="right:30%"></span>
+      <span class="robot" style="left:4px">🦾</span><span class="robot" style="right:4px;transform:scaleX(-1)">🦾</span>
+      <span class="stack" style="left:8px">💴💴</span><span class="stack" style="right:8px">💴💴</span><div class="belt"></div></div>
+    <div class="bawah">
+      <div class="pan"><h4>Hasil Tap Sesi Ini</h4><div class="val"><span class="coin">N$</span><b id="tuSesi">N$0</b></div>
+        <h4>Total Tap · Rank</h4><div class="val" style="flex-direction:column;align-items:stretch;gap:2px"><b id="tuTot" style="text-align:center">…</b><span style="text-align:center;font-size:12px">Rank <b id="tuRank" style="font-size:14px">–</b></span></div></div>
+      <button class="tbtn" id="tuTap" ${masuk ? '' : 'disabled style="filter:grayscale(.6)"'}><span class="t1">TAP</span><span class="t2">CETAK UANG</span><span class="t3">N$1</span></button>
+      <div class="pan"><h4>🏆 Ranking Tap</h4><ul class="rk" id="tuRk"><li><span class="u" style="opacity:.7">Memuat…</span></li></ul><button class="lnk" data-tu-full>Lihat semua</button></div>
+    </div>
+    <div class="msg">${masuk ? '' : '🔑 Masuk sebagai warga dulu untuk mencetak uang. <button class="lnk" style="display:inline;width:auto;margin:0 0 0 4px" data-tu-masuk>Masuk</button>'}</div>
+    <div class="foot">Setiap 1 kali tap = <b>N$1</b></div></div>`;
+  document.body.appendChild(ov);
+  const btn = ov.querySelector('#tuTap');
+  btn.addEventListener('pointerdown', e=>{ e.preventDefault(); if (!masuk) return; btn.classList.add('on'); setTimeout(()=>btn.classList.remove('on'), 90);
+    TAPU.pending++; TAPU.sesi++; tapuNote(); const p = document.createElement('span'); p.className = 'plus'; p.textContent = '+N$1'; btn.appendChild(p); setTimeout(()=>p.remove(), 800);
+    if (navigator.vibrate) try { navigator.vibrate(8); } catch(_) {}
+    tapuRender(); if (TAPU.pending >= 20) tapuKirim(); });
+  ov.addEventListener('click', e=>{ const t = e.target.closest('button'); if (!t) { if (e.target === ov) tapuTutup(); return; }
+    if (t.hasAttribute('data-tu-x')) tapuTutup();
+    else if (t.hasAttribute('data-tu-full')){ tapuFull(); tapuPeringkat(); }
+    else if (t.hasAttribute('data-tutup-full')){ const f = ov.querySelector('.full'); if (f) f.remove(); }
+    else if (t.hasAttribute('data-tu-masuk')){ tapuTutup(); openSheet(akunHTML); }
+    else if (t.hasAttribute('data-tu-help')){ const m = ov.querySelector('.msg'); m.textContent = 'Ketuk tombol merah untuk mencetak uang: setiap tap = N$1 langsung masuk saldo. Total tap & rank tidak pernah direset.'; } });
+  TAPU.timer = setInterval(tapuKirim, 700); TAPU.rkTimer = setInterval(tapuPeringkat, 6000);
+  TAPU.total = null; TAPU.rank = null; tapuRender(); tapuPeringkat();
+}
 function gajiTampil(d){
   const kj = d.kerja.reduce((a, i)=>a + i.jumlah, 0), jb = d.jab ? d.jab.gaji : 0, total = kj + jb;
   const nama = d.kerja.map(i=>i.posisi).concat(d.jab ? [d.jab.nama] : []).join(' & ');
@@ -4810,6 +4919,7 @@ const cyl2 = (r,h,c,x,y,z,g,seg=12) => { const m = new THREE.Mesh(new THREE.Cyli
     for (let x=-56;x<=56;x+=8){ if (Math.abs(x) < 12) continue; lampu(x,-158.8,3.4); }
   }
 
+  PU.userData = {type:'pabrik_uang'}; pickables.push(PU);   // ketuk gedung → pop-up Mesin Pencetak Uang
   const l = label('🏦 PABRIK UANG NUSAWARA', {h:1.8, size:36, bg:'rgba(200,16,46,.96)', fg:'#fff'}); l.position.set(23.25, 50, -150); scene.add(l);
 })();
 
@@ -5880,6 +5990,7 @@ function fasTap(e){
   const hit = ray.intersectObjects(pickables, true)[0]; if (!hit) return;
   let o = hit.object; while (o && !(o.userData && o.userData.type)) o = o.parent;
   if (o && o.userData.type === 'fasilitas') openFasPlay(o.userData.data.id);
+  else if (o && o.userData.type === 'pabrik_uang'){ if (typeof ctl !== 'undefined' && ctl.key){ Object.keys(ctl.d).forEach(k=>ctl.d[k] = 0); ctl.run = false; } pabrikUangBuka(); }
   else if (o && o.userData.type === 'stadion'){ if (typeof ctl !== 'undefined' && ctl.key){ Object.keys(ctl.d).forEach(k=>ctl.d[k] = 0); ctl.run = false; document.body.classList.add('fas-open'); } openSheet(stadionHTML); stadionMuat(); }
 }
 const fasNearEl = document.createElement('button'); fasNearEl.className = 'near'; fasNearEl.style.bottom = 'calc(210px + env(safe-area-inset-bottom))'; document.body.appendChild(fasNearEl);
@@ -6423,6 +6534,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 04:00</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 04:15</div>
 </body>
 </html>
