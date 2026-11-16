@@ -4047,51 +4047,59 @@ function ktSuara(){ try { const A = KTP.ac || (KTP.ac = new (window.AudioContext
   [[1320,0],[1980,.06]].forEach(([fq,dt])=>{ const o = A.createOscillator(), g = A.createGain(); o.type = 'sine'; o.frequency.value = fq; g.gain.setValueAtTime(.16, t+dt); g.gain.exponentialRampToValueAtTime(.001, t+dt+.18); o.connect(g).connect(A.destination); o.start(t+dt); o.stop(t+dt+.2); }); } catch(_) {} }
 function ktSisaWaktu(iso){ const ms = new Date(iso) - Date.now(); if (!(ms > 0)) return 'sebentar lagi'; const d = Math.floor(ms/864e5), h = Math.floor(ms%864e5/36e5), m = Math.floor(ms%36e5/6e4); return (d ? d + ' hari ' : '') + h + ' jam ' + m + ' menit'; }
 function ktRender(){ const o = KTP.ov, I = KTP.info; if (!o) return; const F = FAS[KTP.id] || {nama:KTP.id, ikon:'🏢'}, me = AKUN.u;
-  const kas = I ? Number(I.kas) + KTP.pending * 10 : null, gt = I ? Number(I.gaji_total) : 0, sy = (I && I.saya) || {}, hari = (sy.hari_ini || 0) + KTP.pending, mgu = (sy.minggu || 0) + KTP.pending;
+  const kas = I ? Number(I.kas) + KTP.pending * 10 : null, gt = I ? Number(I.gaji_total) : 0, sy = (I && I.saya) || {}, hari = Number((I && I.toko_hari) || 0) + KTP.pending, mgu = (sy.minggu || 0) + KTP.pending;
   const status = !I ? '' : gt <= 0 ? '<div class="stat" style="background:#ffffff1a">Belum ada pekerja yang digaji di gedung ini.</div>'
     : kas >= gt ? `<div class="stat" style="background:#2e9e4840;border:1px solid #7ee08a">✅ Kas cukup untuk membayar gaji penuh hari ini (${N$(gt)}).</div>`
     : kas > 0 ? `<div class="stat" style="background:#f2c14e33;border:1px solid #f2c14e">⚠️ Kas kurang dari total gaji ${N$(gt)}: gedung hanya membayar 30% gaji (dibagi sesuai gaji tiap karyawan). Ayo tap!</div>`
     : `<div class="stat" style="background:#e0162f40;border:1px solid #ff6a7c">❌ Kas kosong: gaji hari ini <b>tidak dibayar</b>. Tap untuk mengisi kas!</div>`;
   const bonus = ['+50% gaji','+25% gaji','+10% gaji'], top = (I && I.top) || [];
-  const rows = top.map(r=>`<tr class="${r.u === me ? 'me' : ''}"><td>${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : r.rank}</td><td>${esc(namaW(r.u))}</td><td style="text-align:right">${Number(r.jumlah + (r.u === me ? KTP.pending : 0)).toLocaleString('id-ID')}</td><td class="bn">${r.rank <= 3 ? bonus[r.rank-1] : ''}</td></tr>`).join('');
+  const rows = top.map(r=>`<tr class="${r.u === me ? 'me' : ''}"><td>${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : r.rank}</td><td>${esc(namaW(r.u))}</td><td style="text-align:right"${r.u === me ? ' id="ktMyRow"' : ''}>${Number(r.jumlah + (r.u === me ? KTP.pending : 0)).toLocaleString('id-ID')}</td><td class="bn">${r.rank <= 3 ? bonus[r.rank-1] : ''}</td></tr>`).join('');
   const lalu = ((I && I.juara_lalu) || []).map(r=>`${['🥇','🥈','🥉'][r.rank-1]} ${esc(namaW(r.u))}${r.bonus ? ' (+' + N$(r.bonus) + ')' : ''}`).join(' · ');
   const bisa = !!(sy.pekerja && AKUN.s), penuh = hari >= 1000;
   o.querySelector('.isi').innerHTML = `
     <h2>${F.ikon} ${esc(F.nama)}</h2><p class="sub">Ruang Kerja · setiap tap = <b>+N$10</b> ke kas gedung untuk membayar gaji karyawan</p>
-    <div class="row"><div class="box"><small>💰 Kas gedung</small><b>${kas == null ? '…' : N$(kas)}</b></div><div class="box"><small>💵 Total gaji / hari</small><b>${I ? N$(gt) : '…'}</b></div></div>
+    <div class="row"><div class="box"><small>💰 Kas gedung</small><b id="ktKas">${kas == null ? '…' : N$(kas)}</b></div><div class="box"><small>💵 Total gaji / hari</small><b>${I ? N$(gt) : '…'}</b></div></div>
     ${status}
     <button class="tap" id="ktTap" ${bisa && !penuh ? '' : 'disabled'}><span class="a">👆</span><span class="b">TAP</span><span class="c">+N$10 kas</span></button>
-    <div class="msg" id="ktMsg">${!me ? '🔑 Masuk sebagai warga dulu.' : !sy.pekerja ? 'Hanya karyawan gedung ini yang bisa tap di sini.' : penuh ? '✅ Batas 1.000 tap hari ini tercapai. Lanjut besok!' : ''}</div>
-    ${sy.pekerja ? `<div class="row"><div class="box"><small>Tap hari ini</small><b>${hari.toLocaleString('id-ID')} / 1.000</b><div class="prog"><i style="width:${Math.min(100, hari/10)}%"></i></div></div>
-      <div class="box"><small>Minggu ini · rank</small><b>${mgu.toLocaleString('id-ID')} tap · ${sy.rank ? '#' + sy.rank : '–'}</b><small>${esc(sy.posisi || '')}</small></div></div>` : ''}
+    <div class="msg" id="ktMsg">${!me ? '🔑 Masuk sebagai warga dulu.' : !sy.pekerja ? 'Hanya karyawan gedung ini yang bisa tap di sini.' : penuh ? '✅ Batas 1.000 tap toko ini hari ini tercapai. Lanjut besok!' : ''}</div>
+    ${sy.pekerja ? `<div class="row"><div class="box"><small>Tap toko hari ini</small><b id="ktHari">${hari.toLocaleString('id-ID')} / 1.000</b><div class="prog"><i id="ktProg" style="width:${Math.min(100, hari/10)}%"></i></div></div>
+      <div class="box"><small>Minggu ini · rank</small><b><span id="ktMgu">${mgu.toLocaleString('id-ID')}</span> tap · ${sy.rank ? '#' + sy.rank : '–'}</b><small>${esc(sy.posisi || '')}</small></div></div>` : ''}
     <div class="box" style="margin-top:4px"><b style="font-size:14px;margin-bottom:4px">🏆 Karyawan Terbaik Minggu Ini</b>
       <table><tr><th>#</th><th>Karyawan</th><th style="text-align:right">Tap</th><th>Bonus</th></tr>${rows || '<tr><td colspan="4" style="opacity:.75">Belum ada yang tap minggu ini.</td></tr>'}</table>
       <small style="display:block;margin-top:6px">🔄 Ranking direset setiap <strong>Minggu 00.00 WIB</strong>${I && I.reset ? ' · ' + ktSisaWaktu(I.reset) + ' lagi' : ''}</small>
       ${lalu ? `<small style="display:block;margin-top:4px">Juara minggu lalu: ${lalu}</small>` : ''}</div>
-    <p class="note">• Hanya karyawan gedung ini yang bisa tap, maks <b>1.000 tap per hari</b>, jeda 0,2 detik per tap.<br>• Gaji dibayar dari kas gedung: kas cukup = gaji penuh; kas kurang = hanya 30% gaji; kas kosong = tidak digaji.<br>• Bonus mingguan dari kas gedung: 🥇 50%, 🥈 25%, 🥉 10% dari gaji harian.</p>`;
+    <p class="note">• Hanya karyawan gedung ini yang bisa tap, maks <b>1.000 tap per hari untuk setiap toko</b> (dibagi bersama semua karyawan), jeda 0,2 detik per tap.<br>• Gaji dibayar dari kas gedung: kas cukup = gaji penuh; kas kurang = hanya 30% gaji; kas kosong = tidak digaji.<br>• Bonus mingguan dari kas gedung: 🥇 50%, 🥈 25%, 🥉 10% dari gaji harian.</p>`;
   const b = o.querySelector('#ktTap'); if (b) b.addEventListener('pointerdown', ktTap); }
 function ktTap(e){ e.preventDefault(); const b = e.currentTarget, kini = performance.now(); if (b.disabled || kini - KTP.last < 200) return; KTP.last = kini;
-  const sy = (KTP.info && KTP.info.saya) || {}; if ((sy.hari_ini || 0) + KTP.pending >= 1000) return;
+  if (Number((KTP.info && KTP.info.toko_hari) || 0) + KTP.pending >= 1000) return;
   ktSuara(); b.classList.add('on'); setTimeout(()=>b.classList.remove('on'), 90); KTP.pending++;
   const p = document.createElement('span'); p.className = 'plus'; p.textContent = '+N$10'; b.appendChild(p); setTimeout(()=>p.remove(), 800);
   if (navigator.vibrate) try { navigator.vibrate(8); } catch(_) {}
-  const o = KTP.ov; const kb = o && o.querySelector('.box b'); if (kb && KTP.info) kb.textContent = N$(Number(KTP.info.kas) + KTP.pending * 10);
+  ktLive();
   if (KTP.pending >= 20) ktKirim(); }
-async function ktMuat(){ if (!KTP.id) return; try { const r = await SB.rpc('kerja_tap_info', {p_fasilitas: KTP.id, p_user: AKUN.u || null}); if (r && !KTP.pending){ KTP.info = r; ktRender(); } } catch(_) {} }
+function ktLive(){ const o = KTP.ov, I = KTP.info; if (!o || !I) return; const q = id => o.querySelector('#' + id), sy = I.saya || {};
+  const hari = Number(I.toko_hari || 0) + KTP.pending, mgu = Number(sy.minggu || 0) + KTP.pending;
+  if (q('ktKas')) q('ktKas').textContent = N$(Number(I.kas) + KTP.pending * 10);
+  if (q('ktHari')) q('ktHari').textContent = hari.toLocaleString('id-ID') + ' / 1.000';
+  if (q('ktProg')) q('ktProg').style.width = Math.min(100, hari/10) + '%';
+  if (q('ktMgu')) q('ktMgu').textContent = mgu.toLocaleString('id-ID');
+  if (q('ktMyRow')) q('ktMyRow').textContent = mgu.toLocaleString('id-ID');
+  if (hari >= 1000){ const b = q('ktTap'), m = q('ktMsg'); if (b) b.disabled = true; if (m) m.textContent = '✅ Batas 1.000 tap toko ini hari ini tercapai. Lanjut besok!'; } }
+async function ktMuat(){ if (!KTP.id) return; try { const r = await SB.rpc('kerja_tap_info', {p_fasilitas: KTP.id, p_user: AKUN.u || null}); if (r){ if (!KTP.pending && !KTP.sibuk){ KTP.info = r; ktRender(); } else if (KTP.info){ KTP.info.top = r.top; KTP.info.gaji_total = r.gaji_total; } } } catch(_) {} }
 async function ktKirim(){ if (KTP.sibuk || !KTP.pending || !AKUN.u) return; KTP.sibuk = true; const n = Math.min(KTP.pending, 40);
   try { const r = await SB.rpc('kerja_tap', {p_user: AKUN.u, p_sandi: AKUN.s, p_fasilitas: KTP.id, p_jumlah: n}); KTP.pending -= n;
-    if (r && r.ok && KTP.info){ KTP.info.kas = r.kas; KTP.info.saya = Object.assign(KTP.info.saya || {}, {hari_ini: r.hari_ini, minggu: r.minggu, rank: r.rank});
-      const t = (KTP.info.top || []).find(x=>x.u === AKUN.u); if (t) t.jumlah = r.minggu; if (n - r.diterima > 0) setTimeout(()=>{ const m = KTP.ov && KTP.ov.querySelector('#ktMsg'); if (m) m.textContent = '⚠️ Terlalu cepat atau batas harian tercapai.'; }, 0); }
+    if (r && r.ok && KTP.info){ KTP.info.kas = r.kas; KTP.info.toko_hari = r.toko_hari; KTP.info.saya = Object.assign(KTP.info.saya || {}, {hari_ini: r.hari_ini, minggu: r.minggu, rank: r.rank});
+      const t = (KTP.info.top || []).find(x=>x.u === AKUN.u); if (t) t.jumlah = r.minggu; if (n - r.diterima > 0) setTimeout(()=>{ const m = KTP.ov && KTP.ov.querySelector('#ktMsg'); if (m) m.textContent = '⚠️ Terlalu cepat atau batas 1.000 tap toko hari ini tercapai.'; }, 0); }
     else if (r && !r.ok){ const m = KTP.ov && KTP.ov.querySelector('#ktMsg'); if (m) m.textContent = r.alasan === 'bukan_pekerja' ? '❌ Kamu bukan karyawan gedung ini.' : '❌ Sesi masuk berakhir. Masuk lagi.'; }
   } catch(_) { KTP.pending -= n; }
-  KTP.sibuk = false; if (!KTP.pending) ktRender(); else setTimeout(ktKirim, 250); }
+  KTP.sibuk = false; ktLive(); if (KTP.pending) setTimeout(ktKirim, 250); }
 function kerjaTutup(){ if (!KTP.ov) return; ktKirim(); clearInterval(KTP.timer); clearInterval(KTP.rkTimer); KTP.ov.remove(); KTP.ov = null; }
 function kerjaBuka(id){ if (KTP.ov) kerjaTutup(); KTP.id = id; KTP.pending = 0; KTP.info = null;
   const ov = document.createElement('div'); ov.id = 'kerjaT'; KTP.ov = ov; ov.innerHTML = `<div class="kt"><button class="x" data-kt-x>✕</button><div class="isi"><p class="sub">Memuat…</p></div></div>`;
   document.body.appendChild(ov); ov.addEventListener('click', e=>{ if (e.target === ov || e.target.closest('[data-kt-x]')) kerjaTutup(); });
   KTP.timer = setInterval(ktKirim, 700); KTP.rkTimer = setInterval(ktMuat, 8000); ktRender(); ktMuat(); }
 document.addEventListener('click', e=>{ const b = e.target.closest && e.target.closest('[data-kerjatap]'); if (b){ e.preventDefault(); kerjaBuka(b.dataset.kerjatap); } });
-function kerjaTombol(id){ return `<div class="card" style="background:#eef6ea;border:2px solid #2e9e48"><h3>⚒️ Ruang Kerja</h3><p class="note">Karyawan gedung ini: tap untuk mengisi kas gedung (+N$10 per tap, maks 1.000 tap/hari). Kas dipakai untuk membayar gaji. Karyawan terbaik tiap minggu dapat bonus.</p><button class="btn" data-kerjatap="${esc(id)}">⚒️ Kerja</button></div>`; }
+function kerjaTombol(id){ return `<div class="card" style="background:#eef6ea;border:2px solid #2e9e48"><h3>⚒️ Ruang Kerja</h3><p class="note">Karyawan gedung ini: tap untuk mengisi kas gedung (+N$10 per tap, maks 1.000 tap/hari per toko). Kas dipakai untuk membayar gaji. Karyawan terbaik tiap minggu dapat bonus.</p><button class="btn" data-kerjatap="${esc(id)}">⚒️ Kerja</button></div>`; }
 // ---------- tombol 💰 di peta: pilih "Cetak Uang untuk Negara" (Pabrik Uang) atau "Kerja" (Ruang Kerja tempat bekerja) ----------
 function kerjaSaya(){ const u = AKUN.u; if (!u) return [];
   const rows = (window.KERJA_ALL || []).filter(r=>String(r.username || '').toLowerCase() === u).map(r=>r.fasilitas);
@@ -6670,6 +6678,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 05:55</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 06:05</div>
 </body>
 </html>
