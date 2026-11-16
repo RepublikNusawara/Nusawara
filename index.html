@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-0515">
+<meta name="nusawara-build" content="20261117-0540">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -4080,6 +4080,36 @@ function kerjaBuka(id){ if (KTP.ov) kerjaTutup(); KTP.id = id; KTP.pending = 0; 
   KTP.timer = setInterval(ktKirim, 700); KTP.rkTimer = setInterval(ktMuat, 8000); ktRender(); ktMuat(); }
 document.addEventListener('click', e=>{ const b = e.target.closest && e.target.closest('[data-kerjatap]'); if (b){ e.preventDefault(); kerjaBuka(b.dataset.kerjatap); } });
 function kerjaTombol(id){ return `<div class="card" style="background:#eef6ea;border:2px solid #2e9e48"><h3>⚒️ Ruang Kerja</h3><p class="note">Karyawan gedung ini: tap untuk mengisi kas gedung (+N$10 per tap, maks 1.000 tap/hari). Kas dipakai untuk membayar gaji. Karyawan terbaik tiap minggu dapat bonus.</p><button class="btn" data-kerjatap="${esc(id)}">⚒️ Kerja</button></div>`; }
+// ---------- tombol 💰 di peta: pilih "Cetak Uang untuk Negara" (Pabrik Uang) atau "Kerja" (Ruang Kerja tempat bekerja) ----------
+function kerjaSaya(){ const u = AKUN.u; if (!u) return [];
+  const rows = (window.KERJA_ALL || []).filter(r=>String(r.username || '').toLowerCase() === u).map(r=>r.fasilitas);
+  if (!rows.length && KERJA[u]) rows.push(KERJA[u].fasilitas);
+  return [...new Set(rows)].filter(id=>FAS[id]); }
+function tapPilihBuka(){
+  const old = document.getElementById('tapPilih'); if (old) old.remove();
+  const ov = document.createElement('div'); ov.id = 'tapPilih';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99989;background:rgba(8,14,28,.6);display:flex;align-items:center;justify-content:center;padding:18px;font-family:inherit';
+  const kj = kerjaSaya();
+  const kartu = (ik, judul, ket, attr, warna) => `<button ${attr} style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:3px solid #f2c14e;border-radius:18px;padding:14px;margin-top:10px;cursor:pointer;color:#fff;background:${warna};font:inherit;box-shadow:0 5px 0 rgba(0,0,0,.25)">
+      <span style="font-size:38px;line-height:1">${ik}</span><span><b style="display:block;font-size:17px">${judul}</b><small style="display:block;font-size:12px;opacity:.9;margin-top:2px">${ket}</small></span></button>`;
+  ov.innerHTML = `<div style="width:100%;max-width:360px;background:linear-gradient(180deg,#1f3a5f,#16263d);border:3px solid #f2c14e;border-radius:22px;padding:16px;color:#fff;position:relative;box-shadow:0 14px 40px rgba(0,0,0,.5)">
+    <button data-tp-x style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:2px solid #f2c14e;background:#e0162f;color:#fff;font-weight:900;cursor:pointer">✕</button>
+    <div style="font-size:12px;opacity:.8">💰 Tap N$</div><b style="font-size:20px">Mau tap untuk apa?</b>
+    ${kartu('🏭', 'Cetak Uang untuk Negara', 'Pabrik Uang Nusawara · 200 tap/hari ke saldo-mu, selebihnya donasi Kas Negara', 'data-tp-negara', 'linear-gradient(135deg,#e0162f,#8f0a1d)')}
+    ${kartu('⚒️', 'Kerja', !AKUN.u ? 'Masuk dulu sebagai warga' : kj.length ? 'Tap +N$10 ke kas ' + esc(kj.map(id=>FAS[id].nama).join(', ')) : 'Kamu belum punya pekerjaan', 'data-tp-kerja', 'linear-gradient(135deg,#2e9e48,#17602a)')}
+    <div id="tpPilihan"></div><p id="tpMsg" style="font-size:12px;margin:10px 2px 0;min-height:14px"></p></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e=>{ const b = e.target.closest('button');
+    if (e.target === ov || (b && b.hasAttribute('data-tp-x'))){ ov.remove(); return; }
+    if (!b) return;
+    if (b.hasAttribute('data-tp-negara')){ ov.remove(); pabrikUangBuka(); return; }
+    if (b.dataset.tpFas){ ov.remove(); kerjaBuka(b.dataset.tpFas); return; }
+    if (b.hasAttribute('data-tp-kerja')){ const m = ov.querySelector('#tpMsg');
+      if (!AKUN.u){ ov.remove(); openSheet(akunHTML); return; }
+      if (!kj.length){ m.innerHTML = '❌ Kamu belum bekerja. Daftar kerja dulu di gedung yang membuka lowongan (cari papan <b>📢 DIBUKA LOWONGAN PEKERJAAN</b>).'; return; }
+      if (kj.length === 1){ ov.remove(); kerjaBuka(kj[0]); return; }
+      ov.querySelector('#tpPilihan').innerHTML = '<p style="font-size:12px;margin:12px 2px 0">Pilih tempat kerja:</p>' + kj.map(id=>`<button data-tp-fas="${esc(id)}" style="display:block;width:100%;margin-top:6px;padding:10px;border-radius:12px;border:2px solid #7ee08a;background:#0005;color:#fff;font:inherit;font-weight:700;cursor:pointer;text-align:left">${FAS[id].ikon} ${esc(FAS[id].nama)}</button>`).join(''); } });
+}
 function gajiTampil(d){
   const kj = d.kerja.reduce((a, i)=>a + i.jumlah, 0), jb = d.jab ? d.jab.gaji : 0, total = kj + jb;
   const nama = d.kerja.map(i=>i.posisi).concat(d.jab ? [d.jab.nama] : []).join(' & ');
@@ -4316,7 +4346,7 @@ function pergiKe(t){
 /* tombol bulat "Tap N$" di peta (bergerak naik-turun) */
 { const c = document.createElement('button'); c.id = 'misiChip'; c.type = 'button'; c.setAttribute('aria-label','Tap N$');
   c.innerHTML = '<span class="uang">💰</span><span class="lbl">Tap N$</span>'; document.body.appendChild(c);
-  c.addEventListener('click', ()=>{ if (typeof select === 'function') select(null); if (typeof hideHint === 'function') hideHint(); pabrikUangBuka(); });
+  c.addEventListener('click', ()=>{ if (typeof select === 'function') select(null); if (typeof hideHint === 'function') hideHint(); tapPilihBuka(); });
   window.misiChipPerbarui = ()=>{ c.style.display = AKUN.data ? 'flex' : 'none'; };
   setInterval(()=>{ try { window.misiChipPerbarui(); } catch(_) {} }, 1500); }
 /* tandai misi selesai dari aksi server yang sukses */
@@ -6625,6 +6655,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 05:30</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 05:40</div>
 </body>
 </html>
