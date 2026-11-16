@@ -61,7 +61,7 @@ const gang = new THREE.Group(); scene.add(gang); { const L = Math.hypot(6.6, DEC
 function crowdAt(t, fz){
   crowd.forEach(c=>{ const a = c.a; const deckX = RF_X + 1.6 - c.col*1.4, deckZ = fz + 4 + c.row*2.4;
     const leave = 6.0 + c.i*.16;                                   // mulai turun
-    if (t < leave){ a.position.set(deckX, DECK_Y, deckZ); a.rotation.y = Math.PI/2; return; }
+    if (t < leave){ FERRY.updateMatrixWorld(true); a.position.copy(FERRY.localToWorld(V3(deckX - RF_X, DECK_Y, deckZ - fz))); a.rotation.y = FERRY.rotation.y + Math.PI/2; return; }
     const lz = EXIT_Z+(c.col-1.5)*.4;
     const path = [V3(deckX,DECK_Y,deckZ), V3(RF_X+5.4,DECK_Y,lz), V3(RF_X+12.9,1.3,lz), V3(PIER_END,1.3,lz), V3(PX - 4.5 - c.row*1.4, 1.3, PZ - 2.4 + c.col*1.6)];
     const L = [0]; for (let i=1;i<path.length;i++) L.push(L[i-1] + path[i].distanceTo(path[i-1])); const N = path.length-1;
@@ -70,6 +70,7 @@ function crowdAt(t, fz){
     const dir = V3().subVectors(path[k],path[k-1]); a.rotation.y = Math.atan2(dir.x,dir.z);
     const sw = Math.sin(d*2.2)*.6; if (c.av.legL) c.av.legL.rotation.x = sw; if (c.av.legR) c.av.legR.rotation.x = -sw; if (c.av.armL) c.av.armL.rotation.x = -sw; if (c.av.armR) c.av.armR.rotation.x = sw; });
 }
+window.FILM_DBG = ()=>({FERRY, FERRY2, scene});
 window.FILM_CROWD = ()=>crowd.map(c=>c.a.position.toArray().map(v=>+v.toFixed(1)));
 function crowdHide(v){ crowd.forEach(c=>c.a.visible = v); }
 
@@ -153,9 +154,12 @@ window.FILM = { info: Object.fromEntries(Object.keys(INFO).map(k=>[k,{c:INFO[k].
     progress(k, p); });
   // kapal (waktu diregangkan)
   // kapal: FERRY asli datang dari utara ke dermaganya (waktu diregangkan); ferry lama film tidak dipakai
-  const fk = 1 - Math.pow(1 - cl(u0/5.6,0,1), 2.4), fzL = t < E_HARI ? lerp(RF_LZ0, RF_Z, fk) : RF_Z, fz = fzL;
+  // kapal datang dari BARAT (laut lepas), memutar haluan ke selatan, lalu merapat pelan ke dermaga — tidak melewati Terminal Kargo
+  const fk = cl(u0/5.6,0,1), fz = RF_Z, fzL = RF_Z;
+  const kA = 1 - Math.pow(1 - cl(fk/.6,0,1), 1.6), kB = sm(.55,.85,fk), kC = sm(.8,1,fk);
+  const ferryLX = t < E_HARI ? (fk < .8 ? lerp(-348, -184, kA) : lerp(-184, -142, kC)) : -142, ferryRY = t < E_HARI ? lerp(Math.PI/2, 0, kB) : 0;
   ferry.visible = false; ramp.visible = false;
-  try { FERRY.visible = true; FERRY.position.z = fzL; FERRY.position.y = t < E_HARI ? Math.sin(t*1.3)*.1 : FERRY.position.y; FERRY2.visible = t >= E_HARI; } catch(e){}
+  try { FERRY.visible = true; FERRY.position.z = fzL; FERRY.position.x = ferryLX; FERRY.rotation.y = ferryRY; FERRY.position.y = t < E_HARI ? Math.sin(t*1.3)*.1 : FERRY.position.y; FERRY2.visible = t >= E_HARI; } catch(e){}
   gang.visible = u0 > 5.6 && t < E_HARI;
   crowdHide(t < E_HARI); if (t < E_HARI) crowdAt(u0, fz);
   // presiden & ayam
@@ -166,7 +170,7 @@ window.FILM = { info: Object.fromEntries(Object.keys(INFO).map(k=>[k,{c:INFO[k].
   setCount(nWarga);
   // ---- kamera per adegan ----
   let C, T;
-  if (t < E_SAMBUT){ const k = sm(0,E_SAMBUT,t); C = V3(lerp(-150,-156,k), lerp(13,15,k), lerp(-4,8,k)); T = V3(lerp(RF_X,RF_X+8,k), 6, lerp(fz+20, fz, k)); }
+  if (t < E_SAMBUT){ const k = sm(0,E_SAMBUT,t), fwx = ferryLX + 18; C = V3(lerp(-92,-100,k), lerp(20,15,k), lerp(-2,-8,k)); T = V3(fwx, 5, lerp(-44, -40, k)); }
   else if (t < E_HARI){ const k = sm(E_SAMBUT,E_HARI,t); const ctr = V3(); crowd.forEach(c=>ctr.add(c.a.position)); ctr.multiplyScalar(1/crowd.length); const tx = Math.max(-114, Math.min(-83, lerp(ctr.x, -83, sm(12.0,12.9,t)))); C = V3(tx + 5, lerp(8,7,k), -18.5); T = V3(tx - 1, 2.2, -31.2); }
   else if (t < E_4B){ const k = sm(E_HARI,E_4B,t); C = V3(cntW.x + lerp(5,1.5,k), cntW.y + lerp(-2.5,-1,k), cntW.z + lerp(30,15,k)); T = V3(cntW.x, cntW.y - lerp(3.5,1.6,k), cntW.z); }
   else if (t < E_SEG){ const keys = ['mall','stad','kam','bkl','pel'], L = (E_SEG-E_4B)/5, i = cl(Math.floor((t-E_4B)/L),0,4), I = INFO[keys[i]], k = (t-E_4B-i*L)/L; [C,T] = orbit(I, ANG[keys[i]] + .25 - k*.5, keys[i]==='pel' ? .75 : 1.15, .7); }
