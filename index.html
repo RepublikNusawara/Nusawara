@@ -4282,7 +4282,8 @@ function stadionHTML(){
       return `<div class="jrow"><div class="ji">${ik}</div><div class="jt"><b>${label}</b><small>${list.length}/${q} terisi${list.length ? ' · ' + list.map(r=>esc(namaW(r.username))).join(', ') : ''}</small></div>
       ${mine ? '<span style="font-size:12px;font-weight:700;color:#2f7d32;flex:none">✅ Kamu</span>' : `<button class="btn${penuh ? ' ghost' : ''}" ${penuh ? 'disabled' : `data-tim="${k}|${peran}"`}>${penuh ? 'Penuh' : 'Daftar'}</button>`}</div>`; };
     return `<div class="card"><h3>${T.ikon} ${T.nama}</h3>${baris('pelatih','Pelatih','🧢',pl,1)}${baris('pemain','Pemain','⚽',pm,15)}</div>`; }).join('');
-  return `<div class="kicker">Fasilitas Republik Nusawara</div><h2>⚽ Stadium Bola Republik Nusawara</h2>
+  if (KASB['STADION-NUSAWARA'] == null) kasbMuat();
+  return `<div class="kicker">Fasilitas Republik Nusawara</div><h2>⚽ Stadium Bola Republik Nusawara</h2>${kasKolom('Kas Stadium', KASB['STADION-NUSAWARA'] != null ? KASB['STADION-NUSAWARA'] : (KASB_AT ? 0 : null), '', 'STADION-NUSAWARA')}
     <p style="font-size:13px;margin:0 0 6px">Dibangun ${STADION.hari} dari usulan warga @${esc(STADION.usul)}.</p>
     <div class="card"><h3>👑 Pemilik Stadium</h3><p style="margin:0;font-size:15px"><b>@${esc(STADION.usul)}</b></p><p class="note">Diangkat Presiden sebagai pemilik Stadium Bola Republik Nusawara, termasuk Toko Merchandise Official.</p></div>
     ${kerjaTombol('STADION-NUSAWARA')}
@@ -4646,7 +4647,19 @@ const sisaDetik = kode => { const t = AKUN.data && AKUN.data.tambang && AKUN.dat
 const perluMasuk = () => `<div class="card"><p>Masuk dulu supaya hasilnya tersimpan di akunmu.</p><button class="btn" data-eko-masuk>🔑 Masuk</button></div>`;
 const saldoBar = () => AKUN.data ? `<p class="note">Saldo: <b>${N$(AKUN.data.saldo)}</b></p>` : '';
 const BANGUN_DEF = {hari:'DAY 3', oleh:'Republik Nusawara (Bapak Presiden)'};
-function bangunInfo(id, html){ if (!html || KAV[id] || id === 'EKO-DONASI') return html; const b = Object.assign({}, BANGUN_DEF, (typeof BANGUN !== 'undefined' && BANGUN[id]) || {});
+// kolom kas di setiap halaman gedung/toko: kas perusahaan/kantor (tabel bisnis) atau Kas Negara untuk gedung milik Negara
+const KASB = {}; let KASB_AT = 0;
+async function kasbMuat(paksa){ if (!paksa && Date.now() - KASB_AT < 4000) return; KASB_AT = Date.now();
+  try { (await SB.get('bisnis?select=kode,kas') || []).forEach(b=>{ KASB[b.kode] = Number(b.kas) || 0; }); } catch(_) {}
+  try { await negaraMuat(); } catch(_) {}
+  sheetBody.querySelectorAll('.kasKolom[data-kas]').forEach(el=>{ const k = el.dataset.kas, v = k === 'NEGARA' ? KAS : (KASB[k] || 0); const b = el.querySelector('b'); if (b && v != null) b.textContent = N$(v); }); }
+setInterval(()=>{ if (sheet.classList.contains('open') && sheetBody.querySelector('.kasKolom')) kasbMuat(); }, 8000);
+function kasKolom(label, nilai, ket, kode){ return `<div class="card kasKolom" data-kas="${kode || 'NEGARA'}" style="display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#1f3a5f,#16263d);color:#fff;border:2px solid #f2c14e;padding:10px 12px">
+  <span style="font-size:28px;line-height:1">🏦</span><span style="flex:1;min-width:0"><small style="display:block;font-size:11px;opacity:.85">${label}</small><b style="font-size:20px;color:#ffe066">${nilai == null ? '…' : N$(nilai)}</b>${ket ? `<small style="display:block;font-size:10px;opacity:.75">${ket}</small>` : ''}</span></div>`; }
+function kasSisip(html, label, nilai, ket){ return html ? html.replace('</h2>', '</h2>' + kasKolom(label, nilai, ket, 'NEGARA')) : html; }
+function kasLabelFas(id){ return /RS-|SEKOLAH-|PELABUHAN-/.test(id) ? 'Kas Kantor' : id.startsWith('STADION-') ? 'Kas Stadium' : 'Kas Perusahaan'; }
+function bangunInfo(id, html){ if (!html || KAV[id]) return html; if (id === 'EKO-DONASI') return kasSisip(html, 'Saldo Kas Negara', KAS, 'Semua donasi N$ masuk ke sini');
+  html = kasSisip(html, 'Saldo Kas Negara', KAS, 'Gedung milik Negara · kas dikelola Negara'); kasbMuat(); const b = Object.assign({}, BANGUN_DEF, (typeof BANGUN !== 'undefined' && BANGUN[id]) || {});
   return html.replace('</h2>', `</h2><p style="font-size:13px;margin:0 0 8px">🏗️ Dibangun <b>${esc(b.hari)}</b> oleh <b>${esc(b.oleh)}</b>.</p>`); }
 const JAB = {tab:'jabatan', kat:[], pem:{}, muat:0, gaji:null}, GAJI_WAPRES = 250, GAJI_PENASIHAT = 100;
 const LOWONGAN = {};
@@ -5991,7 +6004,8 @@ function fasHTML(id){
     return `<div class="jrow"><div class="ji">${ic}</div><div class="jt"><b>${esc(p)}</b><small>${top ? (l.length ? 'Ditunjuk Presiden' : 'Ditunjuk langsung oleh Presiden · masih kosong') : `${l.length}/${q} terisi`}${l.length ? ' · ' + (top && F.ownerTeks ? esc(F.ownerTeks) : l.map(u=>esc(namaW(u))).join(', ')) : ''}</small></div>
       ${BIZ.gaji[id + '|' + p] != null ? `<span style="flex:none;background:#f2c14e;color:#3b2600;font-weight:800;font-size:12px;border-radius:10px;padding:4px 8px;margin-right:6px">${N$(BIZ.gaji[id + '|' + p])}/hari</span>` : ''}
       ${top ? '<span style="font-size:12px;font-weight:700;color:#8a6d1f;flex:none">👑 Jabatan</span>' : `<button class="btn${full ? ' ghost' : ''}" ${full ? 'disabled' : `data-kerja="${esc(id)}|${esc(p)}"`}>${full ? 'Penuh' : 'Daftar'}</button>`}</div>`; }).join('');
-  return `<div class="kicker">Fasilitas Republik Nusawara</div><h2>${F.ikon} ${esc(F.nama)}</h2>
+  if (KASB[id] == null) kasbMuat();
+  return `<div class="kicker">Fasilitas Republik Nusawara</div><h2>${F.ikon} ${esc(F.nama)}</h2>${kasKolom(kasLabelFas(id) + ' · ' + esc(F.nama), KASB[id] != null ? KASB[id] : (FAS[id] && BIZ.lap[id] && BIZ.lap[id].kas != null ? BIZ.lap[id].kas : (KASB_AT ? 0 : null)), '', id)}
     <p style="font-size:13px;margin:0 0 6px">Dibangun <b>${F.hari}</b> ${F.usulTeks ? 'dari ' + esc(F.usulTeks) : 'dari usulan warga @' + esc(F.usul)}.</p>
     ${facTop(id) ? `<p style="font-size:13px;margin:0 0 10px">👑 <b>${esc(F.pos[0][0])}:</b> ${F.ownerTeks ? esc(F.ownerTeks) : '@' + esc(facTop(id))}</p>` : ''}
     ${kerjaTombol(id)}
@@ -6722,6 +6736,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 07:30</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 07:40</div>
 </body>
 </html>
