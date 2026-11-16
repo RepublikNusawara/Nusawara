@@ -4077,7 +4077,7 @@ function ktRender(){ const o = KTP.ov, I = KTP.info; if (!o) return; const F = F
     : kas >= gt ? `<div class="stat" style="background:#2e9e4840;border:1px solid #7ee08a">✅ Kas cukup untuk membayar gaji penuh hari ini (${N$(gt)}).</div>`
     : kas > 0 ? `<div class="stat" style="background:#f2c14e33;border:1px solid #f2c14e">⚠️ Kas kurang dari total gaji ${N$(gt)}: gedung hanya membayar 30% gaji (dibagi sesuai gaji tiap karyawan). Ayo tap!</div>`
     : `<div class="stat" style="background:#e0162f40;border:1px solid #ff6a7c">❌ Kas kosong: gaji hari ini <b>tidak dibayar</b>. Tap untuk mengisi kas!</div>`;
-  const bonus = ['+50% gaji','+25% gaji','+10% gaji'], top = (I && I.top) || [];
+  const bonus = ['+100% gaji','+75% gaji','+50% gaji'], top = (I && I.top) || [];
   const rows = top.map(r=>`<tr class="${r.u === me ? 'me' : ''}"><td>${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : r.rank}</td><td>${esc(namaW(r.u))}</td><td style="text-align:right"${r.u === me ? ' id="ktMyRow"' : ''}>${Number(r.jumlah + (r.u === me ? KTP.pending : 0)).toLocaleString('id-ID')}</td><td class="bn">${r.rank <= 3 ? bonus[r.rank-1] : ''}</td></tr>`).join('');
   const lalu = ((I && I.juara_lalu) || []).map(r=>`${['🥇','🥈','🥉'][r.rank-1]} ${esc(namaW(r.u))}${r.bonus ? ' (+' + N$(r.bonus) + ')' : ''}`).join(' · ');
   const bisa = !!(sy.pekerja && AKUN.s), penuh = hari >= 1000;
@@ -4095,7 +4095,7 @@ function ktRender(){ const o = KTP.ov, I = KTP.info; if (!o) return; const F = F
       <table><tr><th>#</th><th>Karyawan</th><th style="text-align:right">Tap</th><th>Bonus</th></tr>${rows || '<tr><td colspan="4" style="opacity:.75">Belum ada yang tap minggu ini.</td></tr>'}</table>
       <small style="display:block;margin-top:6px">🔄 Ranking direset setiap <strong>Minggu 00.00 WIB</strong>${I && I.reset ? ' · ' + ktSisaWaktu(I.reset) + ' lagi' : ''}</small>
       ${lalu ? `<small style="display:block;margin-top:4px">Juara minggu lalu: ${lalu}</small>` : ''}</div>
-    <p class="note">• Hanya karyawan gedung ini yang bisa tap, maks <b>1.000 tap per hari untuk setiap toko</b> (dibagi bersama semua karyawan), jeda 0,2 detik per tap.<br>• Gaji dibayar dari kas gedung: kas cukup = gaji penuh; kas kurang = hanya 30% gaji; kas kosong = tidak digaji.<br>• Bonus mingguan dari kas gedung: 🥇 50%, 🥈 25%, 🥉 10% dari gaji harian.</p>`;
+    <p class="note">• Hanya karyawan gedung ini yang bisa tap, maks <b>1.000 tap per hari untuk setiap toko</b> (dibagi bersama semua karyawan), jeda 0,2 detik per tap.<br>• Karyawan dengan tap <b>kurang dari 20 per hari</b> tidak digaji hari itu.<br>• Gaji dibayar dari kas gedung: kas cukup = gaji penuh; kas kurang = hanya 30% gaji; kas kosong = tidak digaji.<br>• Bonus mingguan dari kas gedung: 🥇 100%, 🥈 75%, 🥉 50% dari gaji harian. Bonus hanya dibayar dari sisa kas, sehingga kas tetap cukup untuk gaji harian semua karyawan.</p>`;
   const b = o.querySelector('#ktTap'); if (b) b.addEventListener('pointerdown', ktTap); }
 function ktTap(e){ e.preventDefault(); const b = e.currentTarget, kini = performance.now(); if (b.disabled || kini - KTP.last < 200) return; KTP.last = kini;
   if (Number((KTP.info && KTP.info.toko_hari) || 0) + KTP.pending >= 1000) return;
@@ -6738,6 +6738,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 07:45</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 07:50</div>
 </body>
 </html>
