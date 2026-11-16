@@ -1099,6 +1099,7 @@ const PT = (function(){
     const sp = canvasTex(256,128,(c,w,h)=>{ c.fillStyle='#1e3a78'; c.fillRect(0,0,w,h); c.strokeStyle='#8fa8d8'; c.lineWidth=3; for (let x=0;x<=w;x+=32){ c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); } for (let y=0;y<=h;y+=32){ c.beginPath(); c.moveTo(0,y); c.lineTo(w,y); c.stroke(); } });
     [-1,1].forEach(k=>{ const p = new THREE.Mesh(new THREE.PlaneGeometry(10,6), new THREE.MeshLambertMaterial({map:sp})); p.rotation.x = -Math.PI/2+.2; p.position.set(s*(15+k*6.5),11.5,-2); T.add(p); });
     for (let i=0;i<9;i++){ const sh = new THREE.Mesh(new THREE.SphereGeometry(.7,8,6), M(i%3==1?0xe85a8a:i%2?0x5aa83e:0x3f8f37)); sh.position.set(s*(7+i*3.2),11.4,6.2); T.add(sh); } });
+  [-1,1].forEach(s=>{ b(3.2,1,2.4,0xeeeeee,s*27,11.6,-4.5); [-1,1].forEach(d=>{ const f = new THREE.Mesh(new THREE.CylinderGeometry(.6,.6,.1,12), M(0x2c3038)); f.position.set(s*27+d*.8,12.15,-4.5); T.add(f); }); });
   b(22.6,.7,18.6,WH,0,14.4,1); b(18,.5,16,0x9fd6ee,0,14.6,0); b(24,.4,3,WH,0,14.8,9.6);
   { const p = new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,6,6), M(0xdddddd)); p.position.set(0,18.4,4); T.add(p); const f = new THREE.Mesh(new THREE.PlaneGeometry(2.6,1.7), capFlagMat); f.position.set(1.35,20.4,4); T.add(f); }
   // papan layanan (kiri & kanan pintu masuk)
@@ -1107,18 +1108,32 @@ const PT = (function(){
   pl(9,6.4,papan([['🧳','Terminal Penumpang'],['🎫','Check-in & Tiket'],['🪑','Ruang Tunggu'],['🍽️','Food Court'],['🛍️','Toko & Oleh-oleh']]),-15.5,6.2,8.25,0,true);
   pl(9,6.4,papan([['🚗','Terminal Kendaraan'],['👑','Ruang VIP'],['📦','Layanan Kargo'],['🛂','Imigrasi & Keamanan'],['ℹ️','Pusat Informasi']]),15.5,6.2,8.25,0,true);
   // gate + garbarata (jembatan penumpang) ke kapal di sisi laut (barat = lokal -z)
-  [[32,'GATE 1'],[0,'GATE 2'],[-32,'GATE 3']].forEach(([x,t])=>{
+  [[30,'GATE 1'],[-4,'GATE 2'],[-38,'GATE 3']].forEach(([x,t])=>{
     const gt = canvasTex(256,96,(c,w,h)=>{ c.fillStyle='#ffd21f'; c.fillRect(0,0,w,h); c.fillStyle='#111'; c.fillRect(0,0,w,10); c.fillRect(0,h-10,w,10); c.font='900 54px Poppins, sans-serif'; c.textAlign='center'; c.textBaseline='middle'; c.fillText(t,w/2,h/2+2); });
-    b(6.4,2.4,.6,0x111111,x,12.4,-8.4); pl(6,2.1,gt,x,12.4,-8.75,Math.PI,true);
-    b(3.4,3,15.4,0xeef1f4,x,6.9,-15.6); const gw = new THREE.Mesh(new THREE.PlaneGeometry(15,1.2), new THREE.MeshBasicMaterial({color:0x7fc6ea})); gw.rotation.y = Math.PI/2; gw.position.set(x+1.72,7.1,-15.6); T.add(gw);
-    const gw2 = gw.clone(); gw2.rotation.y = -Math.PI/2; gw2.position.x = x-1.72; T.add(gw2); b(3.6,.3,15.6,0x9aa3ad,x,8.5,-15.6);
-    [-12,-19].forEach(z=>b(.6,5.4,.6,0x9aa3ad,x,4,z)); });
+    [-2.6,2.6].forEach(dx=>b(.25,4.4,.25,0x333333,x+dx,3.45,-12)); b(6.4,2.4,.4,0x111111,x,5.6,-12); const gp = pl(6,2.1,gt,x,5.6,-12.25,Math.PI,true); gp.material.side = THREE.DoubleSide;
+    const gp2 = pl(6,2.1,gt,x,5.6,-11.75,0,true);
+    for (let k=0;k<3;k++){ const ch = b(2.6,.03,.5,0xf2c400,x,1.3,-17+k*1.4); } });
   T.userData = {type:'pelabuhan'};
   const lbl = label('⚓ PELABUHAN REPUBLIK NUSAWARA', {h:2.4, size:34, bg:'rgba(31,58,95,.97)', fg:'#fff'}); lbl.position.set(0,24,0); T.add(lbl);
   return T;
 })();
+// dermaga jari + koridor kaca berlampu ke kedua kapal (seperti tampak atas)
+[-42,26].forEach(zc=>[-22,10].forEach(dz=>{ const z = zc+dz;
+  kbox(26,1.2,5.4,0xcfc6b4,-121,.6,z); kbox(26,.06,5.4,0xd9d2c3,-121,1.23,z); kbox(4,1.2,12,0xcfc6b4,-133,.6,z);
+  kbox(25,.2,2.6,0xffffff,-121,4.2,z-1.2); kbox(25,.2,2.6,0xffffff,-121,1.4,z-1.2);
+  [-1,1].forEach(s=>{ const gl = new THREE.Mesh(new THREE.PlaneGeometry(25,2.6), new THREE.MeshPhongMaterial({color:0x6cc6f2, transparent:true, opacity:.6, shininess:90, side:THREE.DoubleSide})); gl.position.set(-121,2.8,z-1.2+s*1.3); KG.add(gl); });
+  const rf = new THREE.Mesh(new THREE.CylinderGeometry(1.35,1.35,25,12,1,false,0,Math.PI), new THREE.MeshPhongMaterial({color:0x8fd3f0, transparent:true, opacity:.7, shininess:90, side:THREE.DoubleSide})); rf.rotation.z = Math.PI/2; rf.rotation.x = -Math.PI/2; rf.position.set(-121,4.3,z-1.2); KG.add(rf);
+  for (let x=-131;x<=-111;x+=5){ kbox(.15,2.4,.15,0x555555,x,2.45,z+2.3); kbox(.4,.2,.4,0xfff1b0,x,3.7,z+2.3); }
+  for (let k=0;k<3;k++) kbox(2.4,.03,.4,0xf2c400,-110.5+k*-1.2,1.28,z+1.2); }));
+// pemecah ombak (tetrapod) + mercusuar di ujung selatan
+{ kbox(52,1.0,4,0xbdb6a6,-130,.5,78); kbox(4,1.0,22,0xbdb6a6,-104,.5,70);
+  for (let i=0;i<60;i++){ const x = -154+i*.85, sd = i%2 ? 1 : -1; const tp = kbox(1.6,1.2,1.6,0x6e7177,x,.6,78+sd*(2.8+((i*7)%3)*.3)); tp.rotation.set(i*.7,i*1.3,i*.4); }
+  const pf = new THREE.Mesh(new THREE.CylinderGeometry(6,6.6,1.2,24), M(0xbdb6a6)); pf.position.set(-160,.6,78); KG.add(pf);
+  for (let i=0;i<22;i++){ const a = i/22*Math.PI*2; const tp = kbox(1.6,1.2,1.6,0x6e7177,-160+Math.cos(a)*7.4,.5,78+Math.sin(a)*7.4); tp.rotation.set(i,i*2,i*.5); } }
+// truk di pelabuhan kargo
+for (let i=0;i<5;i++){ const z = -118+i*4; kbox(8,2.6,2.2,0xffffff,-118,2.55,z); kbox(2.4,2,2.24,i%2?0xf2c400:0xc8102e,-112.6,2.25,z); }
 // menara kontrol pelabuhan
-{ const g = new THREE.Group(); g.position.set(-100,1.25,40); KG.add(g);
+{ const g = new THREE.Group(); g.position.set(-88,0,32); KG.add(g);
   const tw = new THREE.Mesh(new THREE.CylinderGeometry(2.6,3.2,16,20), M(0xf7f7f4)); tw.position.y = 8; g.add(tw);
   const lt = canvasTex(256,256,(c,w,h)=>{ c.fillStyle='#f7f7f4'; c.fillRect(0,0,w,h); c.fillStyle='#c8102e'; [[0,.55,.14,.45],[.18,.2,.14,.8],[.36,0,.14,1],[.54,.3,.14,.7],[.72,.5,.14,.5]].forEach(([dx,dy,ww,hh])=>c.fillRect(70+dx*120,70+dy*120,ww*120,hh*120)); });
   const lp = new THREE.Mesh(new THREE.PlaneGeometry(4,4), new THREE.MeshBasicMaterial({map:lt})); lp.position.set(3.1,8,0); lp.rotation.y = Math.PI/2; g.add(lp);
@@ -1131,6 +1146,7 @@ const PT = (function(){
 // halaman depan: jalan depan terminal, bundaran + monumen, parkir penumpang (selatan) & parkir bus/truk (utara)
 { const AS = 0x4b5059, rd = (w,d,x,z)=>{ kbox(w,.12,d,AS,x,.07,z); };
   kbox(12,.1,80,0xe6dccb,-74.5,.05,-18);                                                        // trotoar & plaza depan
+  rd(30,5,-81,23.5); rd(30,5,-81,-59.5); for (let x=-94;x<-68;x+=7){ kbox(3,.03,.18,0xffffff,x,.14,23.5); kbox(3,.03,.18,0xffffff,x,.14,-59.5); }
   rd(5,80,-66,-18); for (let z=-55;z<20;z+=7) kbox(.18,.03,3,0xffffff,-66,.14,z);              // jalan depan terminal (utara-selatan)
   { const ring = new THREE.Mesh(new THREE.RingGeometry(7.5,13,40), M(AS)); ring.rotation.x = -Math.PI/2; ring.position.set(-50,.09,-18); KG.add(ring);
     rd(8,5,-62.5,-18);                                                                          // sambungan ke jalan depan
@@ -1145,9 +1161,11 @@ const PT = (function(){
     for (let i=0;i<Math.floor(d/3);i++) [-1,1].forEach((s,k)=>{ if ((i*7+k*3)%5===4) return; const cx = x+s*w*.29, cz = z-d/2+1.5+i*3;
       if (trucks){ kbox(w*.36,2.4,2.2,(i+k)%2?0xffffff:0xf4f4f4,cx,1.3,cz); kbox(2.2,.9,2.24,0xc8102e,cx+s*-w*.1,1.2,cz); kbox(.1,1,1.9,0x2c3e5a,cx-s*w*.18,1.8,cz); }
       else { kbox(3.6,1.0,1.8,C[(i*3+k)%6],cx,.65,cz); kbox(2,.6,1.6,0x2c3e5a,cx,1.35,cz); } }); };
-  park(-50,8,16,18,false); park(-50,-44,16,18,true);
+  park(-50,8,16,18,false);
+  kbox(16,.1,18,AS,-50,.06,-44); for (let i=0;i<4;i++){ const z = -51+i*4.6; kbox(10,2.6,2.3,0xf7f7f4,-51,1.45,z); kbox(10.02,.5,2.32,0xc8102e,-51,1.0,z); kbox(10.02,.8,2.32,0x2c3e5a,-51,2.2,z); kbox(.1,1.6,2,0x2c3e5a,-46,1.9,z); }
+  [-1,1].forEach(s=>{ kbox(5,.25,3,0xf7f7f4,-44,3.2,-44+s*5); [-1,1].forEach(d=>kbox(.15,3.2,.15,0x9aa3ad,-44+d*2.3,1.6,-44+s*5)); });
   [-55,-45].forEach(x=>{ kbox(.3,2.4,.3,0x9aa3ad,x,1.2,18.6); }); 
-  [['P','Parkir Penumpang',-42,18.2],['P','Parkir Truk & Bus',-42,-54]].forEach(([p,t,x,z])=>{ const tt = canvasTex(320,96,(c,w,h)=>{ c.fillStyle='#1f3a5f'; c.fillRect(0,0,w,h); c.fillStyle='#2f6fd0'; c.fillRect(8,8,80,80); c.fillStyle='#fff'; c.font='900 64px Poppins, sans-serif'; c.textAlign='center'; c.textBaseline='middle'; c.fillText(p,48,52); c.textAlign='left'; c.font='700 26px Poppins, sans-serif'; c.fillText(t,100,50); });
+  [['P','Mobil',-42,18.2],['P','Bus',-42,-54]].forEach(([p,t,x,z])=>{ const tt = canvasTex(320,96,(c,w,h)=>{ c.fillStyle='#1f3a5f'; c.fillRect(0,0,w,h); c.fillStyle='#2f6fd0'; c.fillRect(8,8,80,80); c.fillStyle='#fff'; c.font='900 64px Poppins, sans-serif'; c.textAlign='center'; c.textBaseline='middle'; c.fillText(p,48,52); c.textAlign='left'; c.font='700 26px Poppins, sans-serif'; c.fillText(t,100,50); });
     kbox(.2,3,.2,0x9aa3ad,x,1.5,z); const m = new THREE.Mesh(new THREE.PlaneGeometry(4,1.2), new THREE.MeshBasicMaterial({map:tt})); m.position.set(x+.15,3.2,z); m.rotation.y = Math.PI/2; KG.add(m); });
   // palem & bunga di depan terminal
   for (let z=-54;z<=18;z+=8){ if (Math.abs(z+18) < 9) continue; const x = -72; kbox(.4,4.5,.4,0x8a6a3e,x,2.25,z); for (let k=0;k<6;k++){ const lf = kbox(3,.12,.7,0x3f9b3a,x+Math.cos(k*1.05)*1.3,4.5,z+Math.sin(k*1.05)*1.3); lf.rotation.y = -k*1.05; lf.rotation.z = .35; }
@@ -1183,7 +1201,7 @@ function ship(x,z,sc,col,name){const g=new THREE.Group();g.position.set(x,0,z);g
   KANIM.push(t=>{g.position.y=Math.sin(t*1.3+x)*.15;g.rotation.z=Math.sin(t*1.1+z)*.015});return g}
 // ===== FERRY REPUBLIK NUSAWARA (Ferry Express) — bersandar di Pelabuhan, buritan & ramp terbuka ke dermaga =====
 const FERRY = (function(){
-  const g = new THREE.Group(); g.position.set(-114.7,0,-42); KG.add(g);   // sejajar dermaga, haluan ke selatan; pintu & ramp di sisi kanan (timur) menghadap dermaga
+  const g = new THREE.Group(); g.position.set(-142,0,-42); KG.add(g);   // sejajar dermaga, haluan ke selatan; pintu & ramp di sisi kanan (timur) menghadap dermaga
   const b = (w,h,d,c,x,y,z)=>kbox(w,h,d,c,x,y,z,g), WH = 0xf7f7f4, RD = 0xc8102e, NV = 0x1b2a4a;
   const logo = (c,x,y,s,col)=>{ c.fillStyle=col; [[0,.55,.14,.45],[.18,.2,.14,.8],[.36,0,.14,1],[.54,.3,.14,.7],[.72,.5,.14,.5]].forEach(([dx,dy,w,h])=>c.fillRect(x+dx*s,y+dy*s,w*s,h*s)); c.fillRect(x-.05*s,y+s,1.0*s,.07*s); };
   const plane = (w,h,tex,x,y,z,ry,basic)=>{ const m = new THREE.Mesh(new THREE.PlaneGeometry(w,h), basic ? new THREE.MeshBasicMaterial({map:tex}) : new THREE.MeshLambertMaterial({map:tex})); m.position.set(x,y,z); m.rotation.y = ry; g.add(m); return m; };
@@ -1263,10 +1281,10 @@ const FERRY = (function(){
   const lbl = label('🚢 FERRY REPUBLIK NUSAWARA', {h:2.2, size:34, bg:'rgba(200,16,46,.97)', fg:'#fff'}); lbl.position.set(0,24,0); g.add(lbl);
   return g;
 })();
-const FERRY2 = FERRY.clone(true); FERRY2.position.set(-114.7,0,26); KG.add(FERRY2); pickables.push(FERRY2); KANIM.push(t=>{ FERRY2.position.y = Math.sin(t*.9+1.7)*.05; });
+const FERRY2 = FERRY.clone(true); FERRY2.position.set(-142,0,26); KG.add(FERRY2); pickables.push(FERRY2); KANIM.push(t=>{ FERRY2.position.y = Math.sin(t*.9+1.7)*.05; });
 
 // mercusuar
-const LH=new THREE.Group();LH.position.set(-112,0,-82);KG.add(LH);
+const LH=new THREE.Group();LH.position.set(-160,1.2,78);KG.add(LH);
 for(let i=0;i<6;i++){const c=new THREE.Mesh(new THREE.CylinderGeometry(2.4-i*.22,2.6-i*.22,3,16),M(i%2?0xffffff:0xd2463c));c.position.y=1.5+i*3;c.castShadow=true;LH.add(c)}
 kbox(2.6,2,2.6,0xfff1b0,0,19,0,LH);const lc=new THREE.Mesh(new THREE.ConeGeometry(2.2,2.4,8),M(0x1f3a5f));lc.position.y=21.2;LH.add(lc);
 
@@ -6084,6 +6102,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 07:10</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 07:30</div>
 </body>
 </html>
