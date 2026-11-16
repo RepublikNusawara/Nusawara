@@ -2913,12 +2913,22 @@ function stepPost(W, ps, dt, time){
 }
 /* ---------- BARISAN WARGA: semua karakter diam & berbaris di depan podium (5 baris ke belakang, sisanya menyamping) ---------- */
 const BARIS = {sig:'', slot:{}, X:18, Z0:3, DZ:2.1, DX:1.9, N:5};
+function pejabatDaftar(){
+  const o = new Set(); let wp = null;
+  try { Object.values(JAB.pem || {}).forEach(l=>l.forEach(u=>o.add(String(u).toLowerCase())));
+    const w = wapresNow(); if (w){ wp = String(w.username).toLowerCase(); (w.penasihat || []).forEach(u=>o.add(String(u).toLowerCase())); } } catch(_) {}
+  if (wp) o.delete(wp);   // Wakil Presiden berdiri di sebelah Presiden
+  return o;
+}
 function barisSlot(k){
-  const keys = Object.keys(WALKERS), sig = keys.length + ':' + keys.join(',');
+  const keys = Object.keys(WALKERS), pj = pejabatDaftar(), sig = keys.length + ':' + keys.join(',') + '|' + [...pj].sort().join(',');
   if (sig !== BARIS.sig){ BARIS.sig = sig; BARIS.slot = {};
     keys.sort((a,b)=>String((WINFO[a]||{}).niwn || a).localeCompare(String((WINFO[b]||{}).niwn || b)));
-    keys.forEach((u,i)=>{ const c = Math.floor(i / BARIS.N), r = i % BARIS.N, off = c === 0 ? 0 : (c % 2 ? Math.ceil(c/2) : -c/2) * BARIS.DX;
-      BARIS.slot[u] = {x: BARIS.X + off, z: BARIS.Z0 + r*BARIS.DZ}; }); }
+    const off = c => c === 0 ? 0 : (c % 2 ? Math.ceil(c/2) : -c/2) * BARIS.DX;
+    const aktif = keys.filter(u=>pj.has(u)), warga = keys.filter(u=>!pj.has(u));
+    aktif.forEach((u,i)=>{ BARIS.slot[u] = {x: 29 + off(Math.floor(i/2)), z: -1.6 + (i % 2)*1.9}; });   // pejabat: di lapangan pusat, depan tiang bendera
+    warga.forEach((u,i)=>{ const c = Math.floor(i / BARIS.N), r = i % BARIS.N;
+      BARIS.slot[u] = {x: BARIS.X + off(c), z: BARIS.Z0 + r*BARIS.DZ}; }); }
   return BARIS.slot[k] || null;
 }
 function stepBaris(W, F, dt){
@@ -5703,6 +5713,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 01:00</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 01:10</div>
 </body>
 </html>
