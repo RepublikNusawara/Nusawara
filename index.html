@@ -2072,7 +2072,7 @@ const WPR = {u:null, t:-1e9};
 function updateWapresChar(dt, time){
   try {
     if (time - WPR.t > 60 || WPR.t < 0){ WPR.t = time; SB.get('wapres?select=username,minggu&order=minggu.desc&limit=1').then(r=>{ WPR.u = (r && r[0] && r[0].minggu === mingguKini()) ? r[0].username : null; }).catch(()=>{}); }
-    const tampil = !!WPR.u && WPR.u !== AKUN.u;
+    const tampil = !!WPR.u && !(typeof ctl !== 'undefined' && ctl.key === WPR.u);
     wpChar.visible = wpTag.visible = tampil;
     if (WPR.u && typeof WALKERS !== 'undefined' && WALKERS[WPR.u]){ const W = WALKERS[WPR.u]; W.av.g.visible = !tampil; if (W.tag) W.tag.visible = !tampil; }
     if (!tampil) return;
@@ -2900,20 +2900,31 @@ function syncWalkers(list){
 }
 /* ---------- PEKERJA TERDAFTAR BERDIRI DI DALAM TOKO ---------- */
 let POSTMAP = {}, POSTSIG = '';
+var FASBOX = {};
+function fasBox(id){
+  if (FASBOX[id]) return FASBOX[id];
+  try { for (const o of pickables){ const u = o && o.userData; if (u && u.type === 'fasilitas' && u.data && u.data.id === id){ const b = new THREE.Box3().setFromObject(o); if (isFinite(b.min.x)) return (FASBOX[id] = b); } } } catch(_) {}
+  return null;
+}
 function postWorker(k){
   let EN; try { EN = ENTERABLE; } catch(_) { return null; }
   const L = Array.isArray(window.KERJA_ALL) && window.KERJA_ALL.length ? window.KERJA_ALL : Object.entries(KERJA).map(([u,v])=>({username:u, fasilitas:v.fasilitas, posisi:v.posisi}));
-  const sig = L.length + ':' + EN.length;
+  const sig = L.length + ':' + EN.length + ':' + Object.keys(FASBOX).length;
   if (sig !== POSTSIG){ POSTSIG = sig; POSTMAP = {}; const first = {}, cnt = {};
     L.forEach(r=>{ const u = String(r.username||'').toLowerCase(); if (u && !first[u]) first[u] = r.fasilitas; });
-    Object.keys(first).forEach(u=>{ const e = EN.find(x=>x.fas === first[u]); if (!e) return; const i = cnt[e.fas] = (cnt[e.fas]||0) + 1; const st = e.pos[(i-1) % e.pos.length]; POSTMAP[u] = {e, x:st[0], z:st[1], y:st[2]||0}; }); }
+    Object.keys(first).sort().forEach(u=>{ const f = first[u], e = EN.find(x=>x.fas === f), i = cnt[f] = (cnt[f]||0) + 1;
+      if (e){ const n = e.pos.length, st = e.pos[(i-1) % n], r = Math.floor((i-1) / n);   // tiap pekerja punya titik sendiri; kelebihan digeser agar tidak menumpuk
+        POSTMAP[u] = {e, x: st[0] + r*1.3, z: st[1] + (r % 2 ? 1.3 : 0), y: st[2]||0}; }
+      else { const b = fasBox(f); if (b){ const cx = (b.min.x + b.max.x)/2, per = 8, c = (i-1) % per, rw = Math.floor((i-1) / per);   // gedung tanpa ruang dalam: berjajar di depan gedung
+        POSTMAP[u] = {e:null, x: cx + (c - (per-1)/2)*1.8, z: b.max.z + 2.4 + rw*1.9, y:0}; } } }); }
   return POSTMAP[k] || null;
 }
 function stepPost(W, ps, dt, time){
   const g = W.av.g, e = ps.e;
-  const ins = Math.abs(g.position.x - e.x) < e.hw && g.position.z > e.z0 && g.position.z < e.z1;
+  const ins = e ? Math.abs(g.position.x - e.x) < e.hw && g.position.z > e.z0 && g.position.z < e.z1 : false;
   let tx = ps.x, tz = ps.z;
-  if (!ins && !(Math.abs(g.position.x - e.x) < 1.6 && g.position.z < e.z1 + 2.2)){ tx = e.x; tz = e.z1 + 2.6; }
+  if (e && !ins && !(Math.abs(g.position.x - e.x) < 1.6 && g.position.z < e.z1 + 2.2)){ tx = e.x; tz = e.z1 + 2.6; }
+  if (!e){ const dd = Math.hypot(tx - g.position.x, tz - g.position.z); if (dd > 40){ g.position.x = tx; g.position.z = tz; } }
   const dx = tx - g.position.x, dz = tz - g.position.z, d = Math.hypot(dx, dz);
   if (d > .15){
     const st = Math.min(d, W.speed*dt); g.position.x += dx/d*st; g.position.z += dz/d*st;
@@ -5734,6 +5745,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 01:40</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 01:55</div>
 </body>
 </html>
