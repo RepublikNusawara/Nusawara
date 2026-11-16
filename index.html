@@ -3724,7 +3724,10 @@ function sbApplyGaya(rows){
 // warga baru dari formulir pendaftaran: langsung muncul (tanpa menunggu sinkron tiap jam)
 function sbApplyWarga(rows){
   const add = {};
-  (rows || []).forEach(r=>{ if (!r || !r.username || !/^[a-z0-9._]{1,30}$/.test(r.username) || WARGA[r.username]) return;
+  (rows || []).forEach(r=>{ if (!r || !r.username || !/^[a-z0-9._]{1,30}$/.test(r.username)) return;
+    const lama = WARGA[r.username];
+    if (lama){ const nm = String(r.nama || '').slice(0,30);   // nama di atas kepala dari database selalu dipakai
+      if (nm && lama.username !== nm){ lama.username = nm; if (WINFO[r.username]) WINFO[r.username].username = nm; add[r.username] = lama; } return; }
     const w = {username: String(r.nama || r.username).slice(0,30), niwn: String(r.niwn || ''), terdaftar: String(r.terdaftar || ''), houseId: null, follow: null};
     if (window.SB_GAYA && SB_GAYA[r.username]) w.avatar = SB_GAYA[r.username];
     WARGA[r.username] = w; add[r.username] = w; });
@@ -6771,6 +6774,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 08:25</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 09:35</div>
 </body>
 </html>
