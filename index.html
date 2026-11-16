@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-0500">
+<meta name="nusawara-build" content="20261117-0515">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3944,16 +3944,17 @@ function tapuRender(){ const o = TAPU.ov; if (!o) return; const q = s=>o.querySe
   if (q('#tuSesi')) q('#tuSesi').textContent = N$(TAPU.sesi);
   if (q('#tuTot')) q('#tuTot').textContent = TAPU.total == null ? '…' : Number(TAPU.total + TAPU.pending).toLocaleString('id-ID');
   if (q('#tuRank')) q('#tuRank').textContent = TAPU.rank ? '#' + TAPU.rank : '–';
-  if (q('#tuSaldo')) q('#tuSaldo').textContent = N$((AKUN.data && AKUN.data.saldo || 0) + TAPU.pending);
+  if (q('#tuSaldo')) q('#tuSaldo').textContent = N$((AKUN.data && AKUN.data.saldo || 0) + Math.max(0, Math.min(TAPU.pending, 200 - (TAPU.hari || 0))));
+  const hh = (TAPU.hari || 0) + TAPU.pending; if (q('#tuHari')) q('#tuHari').innerHTML = hh >= 200 ? `Hari ini ${hh.toLocaleString('id-ID')} tap · <b style="color:#7ee08a;font-size:11px">donasi ${N$(hh - 200)}</b>` : `Hari ini ${hh}/200 ke saldo`;
   const me = AKUN.u, li = TAPU.top.slice(0, 10).map(r=>`<li class="${r.u === me ? 'me' : ''}"><span class="n">${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : r.rank}</span><span class="u">${esc(namaW(r.u))}<small>${Number(r.total).toLocaleString('id-ID')} tap</small></span></li>`);
   if (me && TAPU.rank > 10 && TAPU.total != null) li.push(`<li class="me"><span class="n">${TAPU.rank}</span><span class="u">${esc(namaW(me))}<small>${Number(TAPU.total).toLocaleString('id-ID')} tap</small></span></li>`);
   if (q('#tuRk')) q('#tuRk').innerHTML = li.join('') || '<li><span class="u" style="opacity:.75">Belum ada yang tap. Jadilah yang pertama!</span></li>'; }
 async function tapuPeringkat(){ try { const r = await SB.rpc('tap_peringkat', {p_user: AKUN.u || null, p_limit: 100}); if (!r) return;
-    TAPU.top = r.top || []; if (r.saya){ if (!TAPU.pending){ TAPU.total = r.saya.total; } TAPU.rank = r.saya.rank; } else if (TAPU.total == null) TAPU.total = 0;
+    TAPU.top = r.top || []; if (r.saya){ if (!TAPU.pending){ TAPU.total = r.saya.total; TAPU.hari = r.saya.hari_ini || 0; } TAPU.rank = r.saya.rank; } else if (TAPU.total == null) TAPU.total = 0;
     TAPU.warga = r.warga || 0; tapuRender(); if (TAPU.ov && TAPU.ov.querySelector('.full')) tapuFull(); } catch(_) {} }
 async function tapuKirim(){ if (TAPU.sibuk || !TAPU.pending || !AKUN.u) return; TAPU.sibuk = true; const n = Math.min(TAPU.pending, 40);
   try { const r = await SB.rpc('tap_uang', {p_user: AKUN.u, p_sandi: AKUN.s, p_jumlah: n}); TAPU.pending -= n;
-    if (r && r.ok){ const tolak = n - r.diterima; if (tolak > 0){ TAPU.sesi -= tolak; const m = TAPU.ov && TAPU.ov.querySelector('.msg'); if (m) m.textContent = '⚠️ Terlalu cepat! Maksimal ±10 tap per detik.'; }
+    if (r && r.ok){ TAPU.hari = r.hari_ini; const tolak = n - r.diterima; if (tolak > 0){ TAPU.sesi = Math.max(0, TAPU.sesi - tolak); const m = TAPU.ov && TAPU.ov.querySelector('.msg'); if (m) m.textContent = '⚠️ Terlalu cepat! Tunggu sebentar lalu tap lagi.'; }
       TAPU.total = r.total; TAPU.rank = r.rank; if (AKUN.data) AKUN.data.saldo = r.saldo; }
     else { TAPU.sesi -= n; const m = TAPU.ov && TAPU.ov.querySelector('.msg'); if (m) m.textContent = r && r.alasan === 'warga' ? '❌ Hanya untuk Warga Republik Nusawara.' : '❌ Sesi masuk berakhir. Masuk lagi.'; }
   } catch(_) { TAPU.pending -= n; TAPU.sesi -= n; const m = TAPU.ov && TAPU.ov.querySelector('.msg'); if (m) m.textContent = '❌ Gagal tersambung. Coba lagi.'; }
@@ -3966,7 +3967,7 @@ function tapuFull(){ const o = TAPU.ov; if (!o) return; let f = o.querySelector(
 function tapuTutup(){ if (!TAPU.ov) return; tapuKirim(); clearInterval(TAPU.timer); clearInterval(TAPU.rkTimer); TAPU.ov.remove(); TAPU.ov = null; if (sheetFn === akunHTML) sheetBody.innerHTML = akunHTML(); }
 function pabrikUangBuka(){
   if (TAPU.ov) return; TAPU.sesi = 0; TAPU.pending = 0;
-  const ov = document.createElement('div'); ov.id = 'tapU'; TAPU.ov = ov;
+  const ov = document.createElement('div'); ov.id = 'tapU'; TAPU.ov = ov; TAPU.donSesi = 0;
   const masuk = !!(AKUN.u && AKUN.s);
   ov.innerHTML = `<div class="tu">
     <button class="rbtn" data-tu-help style="left:10px;background:#f7d774;color:#3b2600">?</button><button class="rbtn" data-tu-x style="right:10px;background:#e0162f;color:#fff">✕</button>
@@ -3978,17 +3979,17 @@ function pabrikUangBuka(){
       <span class="robot" style="left:4px">🦾</span><span class="robot" style="right:4px;transform:scaleX(-1)">🦾</span>
       <span class="stack" style="left:8px">💴💴</span><span class="stack" style="right:8px">💴💴</span><div class="belt"></div><div class="note" style="bottom:14px;transform:scale(1.05)"></div></div>
     <div class="bawah">
-      <div class="pan"><div class="val"><span class="coin" style="width:20px;height:20px;font-size:7px;border-width:1.5px">N$</span><b id="tuSesi" style="font-size:12px">N$0</b></div>
+      <div class="pan"><div class="val"><span class="coin" style="width:20px;height:20px;font-size:7px;border-width:1.5px">N$</span><b id="tuSesi" style="font-size:12px">N$0</b></div><small id="tuHari" style="display:block;text-align:center;font-size:10px;margin:-2px 0 6px;opacity:.9"></small>
         <h4>Total Tap · Rank</h4><div class="val" style="flex-direction:column;align-items:stretch;gap:2px"><b id="tuTot" style="text-align:center">…</b><span style="text-align:center;font-size:12px">Rank <b id="tuRank" style="font-size:14px">–</b></span></div></div>
       <button class="tbtn" id="tuTap" ${masuk ? '' : 'disabled style="filter:grayscale(.6)"'}><span class="t1">TAP</span><span class="t2">CETAK UANG</span><span class="t3">N$1</span></button>
       <div class="pan"><h4>🏆 Ranking Tap</h4><ul class="rk" id="tuRk"><li><span class="u" style="opacity:.7">Memuat…</span></li></ul><button class="lnk" data-tu-full>Lihat semua</button></div>
     </div>
     <div class="msg">${masuk ? '' : '🔑 Masuk sebagai warga dulu untuk mencetak uang. <button class="lnk" style="display:inline;width:auto;margin:0 0 0 4px" data-tu-masuk>Masuk</button>'}</div>
-    <div class="foot">Setiap 1 kali tap = <b>N$1</b></div></div>`;
+    <div class="foot">Setiap 1 kali tap = <b>N$1</b><small style="display:block;font-size:10px;font-weight:600;margin-top:2px">200 tap/hari ke saldo · selebihnya donasi ke Kas Negara</small></div></div>`;
   document.body.appendChild(ov);
   const btn = ov.querySelector('#tuTap');
-  btn.addEventListener('pointerdown', e=>{ e.preventDefault(); if (!masuk) return; const kini = performance.now(); if (kini - (TAPU.last || 0) < 200) return; TAPU.last = kini; tapuSuara(); btn.classList.add('on'); setTimeout(()=>btn.classList.remove('on'), 90);
-    TAPU.pending++; TAPU.sesi++; tapuNote(); const p = document.createElement('span'); p.className = 'plus'; p.textContent = '+N$1'; btn.appendChild(p); setTimeout(()=>p.remove(), 800);
+  btn.addEventListener('pointerdown', e=>{ e.preventDefault(); if (!masuk) return; const kini = performance.now(); if (kini - (TAPU.last || 0) < 400) return; TAPU.last = kini; tapuSuara(); btn.classList.add('on'); const don = (TAPU.hari || 0) + TAPU.pending >= 200; setTimeout(()=>btn.classList.remove('on'), 90);
+    TAPU.pending++; if (don) TAPU.donSesi = (TAPU.donSesi || 0) + 1; else TAPU.sesi++; tapuNote(); const p = document.createElement('span'); p.className = 'plus'; p.textContent = don ? '+N$1 donasi' : '+N$1'; if (don) p.style.fontSize = '15px'; btn.appendChild(p); setTimeout(()=>p.remove(), 800);
     if (navigator.vibrate) try { navigator.vibrate(8); } catch(_) {}
     tapuRender(); if (TAPU.pending >= 20) tapuKirim(); });
   ov.addEventListener('click', e=>{ const t = e.target.closest('button'); if (!t) { if (e.target === ov) tapuTutup(); return; }
@@ -3996,7 +3997,7 @@ function pabrikUangBuka(){
     else if (t.hasAttribute('data-tu-full')){ tapuFull(); tapuPeringkat(); }
     else if (t.hasAttribute('data-tutup-full')){ const f = ov.querySelector('.full'); if (f) f.remove(); }
     else if (t.hasAttribute('data-tu-masuk')){ tapuTutup(); openSheet(akunHTML); }
-    else if (t.hasAttribute('data-tu-help')){ const m = ov.querySelector('.msg'); m.textContent = 'Ketuk tombol merah untuk mencetak uang: setiap tap = N$1 langsung masuk saldo. Total tap & rank tidak pernah direset.'; } });
+    else if (t.hasAttribute('data-tu-help')){ const m = ov.querySelector('.msg'); m.textContent = 'Setiap tap = N$1. 200 tap pertama setiap hari masuk saldo-mu; tap ke-201 dst. otomatis masuk Kas Negara sebagai donasi. Jeda 0,4 detik per tap. Total tap & rank tidak pernah direset.'; } });
   TAPU.timer = setInterval(tapuKirim, 700); TAPU.rkTimer = setInterval(tapuPeringkat, 6000);
   TAPU.total = null; TAPU.rank = null; tapuRender(); tapuPeringkat();
 }
@@ -6616,6 +6617,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 05:05</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 05:15</div>
 </body>
 </html>
