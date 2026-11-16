@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-0440">
+<meta name="nusawara-build" content="20261117-0500">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -4000,6 +4000,78 @@ function pabrikUangBuka(){
   TAPU.timer = setInterval(tapuKirim, 700); TAPU.rkTimer = setInterval(tapuPeringkat, 6000);
   TAPU.total = null; TAPU.rank = null; tapuRender(); tapuPeringkat();
 }
+// ---------- RUANG KERJA: pekerja tap +N$10 ke kas gedung (maks 1.000 tap/hari); ranking karyawan terbaik mingguan ----------
+const KTP = {ov:null, id:null, pending:0, info:null, sibuk:false, timer:null, rkTimer:null, last:0, ac:null};
+(()=>{ const st = document.createElement('style'); st.textContent = `
+  #kerjaT{position:fixed;inset:0;z-index:99990;background:rgba(8,14,28,.72);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(10px,env(safe-area-inset-top)) 8px 16px;font-family:inherit;-webkit-user-select:none;user-select:none}
+  #kerjaT .kt{width:100%;max-width:440px;border-radius:22px;padding:12px;background:linear-gradient(180deg,#1f3a5f,#16263d);border:3px solid #f2c14e;color:#fff;position:relative;box-shadow:0 14px 40px rgba(0,0,0,.5)}
+  #kerjaT .x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:3px solid #f2c14e;background:#e0162f;color:#fff;font-weight:900;font-size:18px;cursor:pointer}
+  #kerjaT h2{margin:4px 44px 2px 4px;font-size:20px;line-height:1.2}#kerjaT .sub{margin:0 4px 10px;font-size:12px;opacity:.8}
+  #kerjaT .row{display:flex;gap:8px;margin-bottom:8px}
+  #kerjaT .box{flex:1;background:#0006;border:2px solid #f2c14e66;border-radius:14px;padding:7px 9px;min-width:0}
+  #kerjaT .box small{display:block;font-size:10px;opacity:.8}#kerjaT .box b{display:block;font-size:16px;color:#f7d774;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #kerjaT .stat{font-size:12px;border-radius:10px;padding:6px 9px;margin-bottom:10px;font-weight:700}
+  #kerjaT .tap{display:block;margin:6px auto 4px;width:150px;height:150px;border-radius:50%;border:6px solid #f7d774;background:radial-gradient(circle at 40% 30%,#7ee08a,#2e9e48 50%,#17602a);color:#fff;font-weight:900;cursor:pointer;box-shadow:0 8px 0 #0f4a1f,0 0 26px #7ee08a88;position:relative;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  #kerjaT .tap:disabled{filter:grayscale(.8);opacity:.7}
+  #kerjaT .tap.on{transform:translateY(5px);box-shadow:0 3px 0 #0f4a1f,0 0 32px #7ee08a}
+  #kerjaT .tap .a{display:block;font-size:44px;line-height:1}#kerjaT .tap .b{display:block;font-size:26px;font-style:italic}#kerjaT .tap .c{display:block;font-size:12px;color:#f7d774}
+  #kerjaT .plus{position:absolute;left:50%;top:6px;color:#f7d774;font-weight:900;font-size:22px;text-shadow:0 2px 0 #000;pointer-events:none;animation:ktPlus .8s ease-out forwards}
+  @keyframes ktPlus{to{transform:translate(-50%,-70px);opacity:0}}
+  #kerjaT .prog{height:10px;border-radius:6px;background:#0007;overflow:hidden;margin:6px 0 2px}#kerjaT .prog i{display:block;height:100%;background:linear-gradient(90deg,#f7d774,#f2c14e)}
+  #kerjaT table{width:100%;border-collapse:collapse;font-size:13px}#kerjaT th{text-align:left;color:#f7d774;font-size:11px;border-bottom:2px solid #f2c14e;padding:5px 4px}#kerjaT td{padding:6px 4px;border-bottom:1px solid #ffffff1f}
+  #kerjaT tr.me td{background:#f2c14e;color:#3b2600;font-weight:800}
+  #kerjaT .bn{font-size:11px;font-weight:800;color:#7ee08a}#kerjaT tr.me .bn{color:#17602a}
+  #kerjaT .msg{text-align:center;font-size:12px;min-height:16px;margin:4px 0}
+  #kerjaT .note{font-size:11px;opacity:.8;line-height:1.45;margin:10px 2px 0}`; document.head.appendChild(st); })();
+function ktSuara(){ try { const A = KTP.ac || (KTP.ac = new (window.AudioContext || window.webkitAudioContext)()); if (A.state === 'suspended') A.resume(); const t = A.currentTime;
+  [[1320,0],[1980,.06]].forEach(([fq,dt])=>{ const o = A.createOscillator(), g = A.createGain(); o.type = 'sine'; o.frequency.value = fq; g.gain.setValueAtTime(.16, t+dt); g.gain.exponentialRampToValueAtTime(.001, t+dt+.18); o.connect(g).connect(A.destination); o.start(t+dt); o.stop(t+dt+.2); }); } catch(_) {} }
+function ktSisaWaktu(iso){ const ms = new Date(iso) - Date.now(); if (!(ms > 0)) return 'sebentar lagi'; const d = Math.floor(ms/864e5), h = Math.floor(ms%864e5/36e5), m = Math.floor(ms%36e5/6e4); return (d ? d + ' hari ' : '') + h + ' jam ' + m + ' menit'; }
+function ktRender(){ const o = KTP.ov, I = KTP.info; if (!o) return; const F = FAS[KTP.id] || {nama:KTP.id, ikon:'🏢'}, me = AKUN.u;
+  const kas = I ? Number(I.kas) + KTP.pending * 10 : null, gt = I ? Number(I.gaji_total) : 0, sy = (I && I.saya) || {}, hari = (sy.hari_ini || 0) + KTP.pending, mgu = (sy.minggu || 0) + KTP.pending;
+  const status = !I ? '' : gt <= 0 ? '<div class="stat" style="background:#ffffff1a">Belum ada pekerja yang digaji di gedung ini.</div>'
+    : kas >= gt ? `<div class="stat" style="background:#2e9e4840;border:1px solid #7ee08a">✅ Kas cukup untuk membayar gaji penuh hari ini (${N$(gt)}).</div>`
+    : kas > 0 ? `<div class="stat" style="background:#f2c14e33;border:1px solid #f2c14e">⚠️ Kas kurang dari total gaji ${N$(gt)}: gedung hanya membayar 30% gaji (dibagi sesuai gaji tiap karyawan). Ayo tap!</div>`
+    : `<div class="stat" style="background:#e0162f40;border:1px solid #ff6a7c">❌ Kas kosong: gaji hari ini <b>tidak dibayar</b>. Tap untuk mengisi kas!</div>`;
+  const bonus = ['+50% gaji','+25% gaji','+10% gaji'], top = (I && I.top) || [];
+  const rows = top.map(r=>`<tr class="${r.u === me ? 'me' : ''}"><td>${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : r.rank}</td><td>${esc(namaW(r.u))}</td><td style="text-align:right">${Number(r.jumlah + (r.u === me ? KTP.pending : 0)).toLocaleString('id-ID')}</td><td class="bn">${r.rank <= 3 ? bonus[r.rank-1] : ''}</td></tr>`).join('');
+  const lalu = ((I && I.juara_lalu) || []).map(r=>`${['🥇','🥈','🥉'][r.rank-1]} ${esc(namaW(r.u))}${r.bonus ? ' (+' + N$(r.bonus) + ')' : ''}`).join(' · ');
+  const bisa = !!(sy.pekerja && AKUN.s), penuh = hari >= 1000;
+  o.querySelector('.isi').innerHTML = `
+    <h2>${F.ikon} ${esc(F.nama)}</h2><p class="sub">Ruang Kerja · setiap tap = <b>+N$10</b> ke kas gedung untuk membayar gaji karyawan</p>
+    <div class="row"><div class="box"><small>💰 Kas gedung</small><b>${kas == null ? '…' : N$(kas)}</b></div><div class="box"><small>💵 Total gaji / hari</small><b>${I ? N$(gt) : '…'}</b></div></div>
+    ${status}
+    <button class="tap" id="ktTap" ${bisa && !penuh ? '' : 'disabled'}><span class="a">👆</span><span class="b">TAP</span><span class="c">+N$10 kas</span></button>
+    <div class="msg" id="ktMsg">${!me ? '🔑 Masuk sebagai warga dulu.' : !sy.pekerja ? 'Hanya karyawan gedung ini yang bisa tap di sini.' : penuh ? '✅ Batas 1.000 tap hari ini tercapai. Lanjut besok!' : ''}</div>
+    ${sy.pekerja ? `<div class="row"><div class="box"><small>Tap hari ini</small><b>${hari.toLocaleString('id-ID')} / 1.000</b><div class="prog"><i style="width:${Math.min(100, hari/10)}%"></i></div></div>
+      <div class="box"><small>Minggu ini · rank</small><b>${mgu.toLocaleString('id-ID')} tap · ${sy.rank ? '#' + sy.rank : '–'}</b><small>${esc(sy.posisi || '')}</small></div></div>` : ''}
+    <div class="box" style="margin-top:4px"><b style="font-size:14px;margin-bottom:4px">🏆 Karyawan Terbaik Minggu Ini</b>
+      <table><tr><th>#</th><th>Karyawan</th><th style="text-align:right">Tap</th><th>Bonus</th></tr>${rows || '<tr><td colspan="4" style="opacity:.75">Belum ada yang tap minggu ini.</td></tr>'}</table>
+      <small style="display:block;margin-top:6px">🔄 Ranking direset setiap <strong>Minggu 00.00 WIB</strong>${I && I.reset ? ' · ' + ktSisaWaktu(I.reset) + ' lagi' : ''}</small>
+      ${lalu ? `<small style="display:block;margin-top:4px">Juara minggu lalu: ${lalu}</small>` : ''}</div>
+    <p class="note">• Hanya karyawan gedung ini yang bisa tap, maks <b>1.000 tap per hari</b>, jeda 0,2 detik per tap.<br>• Gaji dibayar dari kas gedung: kas cukup = gaji penuh; kas kurang = hanya 30% gaji; kas kosong = tidak digaji.<br>• Bonus mingguan dari kas gedung: 🥇 50%, 🥈 25%, 🥉 10% dari gaji harian.</p>`;
+  const b = o.querySelector('#ktTap'); if (b) b.addEventListener('pointerdown', ktTap); }
+function ktTap(e){ e.preventDefault(); const b = e.currentTarget, kini = performance.now(); if (b.disabled || kini - KTP.last < 200) return; KTP.last = kini;
+  const sy = (KTP.info && KTP.info.saya) || {}; if ((sy.hari_ini || 0) + KTP.pending >= 1000) return;
+  ktSuara(); b.classList.add('on'); setTimeout(()=>b.classList.remove('on'), 90); KTP.pending++;
+  const p = document.createElement('span'); p.className = 'plus'; p.textContent = '+N$10'; b.appendChild(p); setTimeout(()=>p.remove(), 800);
+  if (navigator.vibrate) try { navigator.vibrate(8); } catch(_) {}
+  const o = KTP.ov; const kb = o && o.querySelector('.box b'); if (kb && KTP.info) kb.textContent = N$(Number(KTP.info.kas) + KTP.pending * 10);
+  if (KTP.pending >= 20) ktKirim(); }
+async function ktMuat(){ if (!KTP.id) return; try { const r = await SB.rpc('kerja_tap_info', {p_fasilitas: KTP.id, p_user: AKUN.u || null}); if (r && !KTP.pending){ KTP.info = r; ktRender(); } } catch(_) {} }
+async function ktKirim(){ if (KTP.sibuk || !KTP.pending || !AKUN.u) return; KTP.sibuk = true; const n = Math.min(KTP.pending, 40);
+  try { const r = await SB.rpc('kerja_tap', {p_user: AKUN.u, p_sandi: AKUN.s, p_fasilitas: KTP.id, p_jumlah: n}); KTP.pending -= n;
+    if (r && r.ok && KTP.info){ KTP.info.kas = r.kas; KTP.info.saya = Object.assign(KTP.info.saya || {}, {hari_ini: r.hari_ini, minggu: r.minggu, rank: r.rank});
+      const t = (KTP.info.top || []).find(x=>x.u === AKUN.u); if (t) t.jumlah = r.minggu; if (n - r.diterima > 0) setTimeout(()=>{ const m = KTP.ov && KTP.ov.querySelector('#ktMsg'); if (m) m.textContent = '⚠️ Terlalu cepat atau batas harian tercapai.'; }, 0); }
+    else if (r && !r.ok){ const m = KTP.ov && KTP.ov.querySelector('#ktMsg'); if (m) m.textContent = r.alasan === 'bukan_pekerja' ? '❌ Kamu bukan karyawan gedung ini.' : '❌ Sesi masuk berakhir. Masuk lagi.'; }
+  } catch(_) { KTP.pending -= n; }
+  KTP.sibuk = false; if (!KTP.pending) ktRender(); else setTimeout(ktKirim, 250); }
+function kerjaTutup(){ if (!KTP.ov) return; ktKirim(); clearInterval(KTP.timer); clearInterval(KTP.rkTimer); KTP.ov.remove(); KTP.ov = null; }
+function kerjaBuka(id){ if (KTP.ov) kerjaTutup(); KTP.id = id; KTP.pending = 0; KTP.info = null;
+  const ov = document.createElement('div'); ov.id = 'kerjaT'; KTP.ov = ov; ov.innerHTML = `<div class="kt"><button class="x" data-kt-x>✕</button><div class="isi"><p class="sub">Memuat…</p></div></div>`;
+  document.body.appendChild(ov); ov.addEventListener('click', e=>{ if (e.target === ov || e.target.closest('[data-kt-x]')) kerjaTutup(); });
+  KTP.timer = setInterval(ktKirim, 700); KTP.rkTimer = setInterval(ktMuat, 8000); ktRender(); ktMuat(); }
+document.addEventListener('click', e=>{ const b = e.target.closest && e.target.closest('[data-kerjatap]'); if (b){ e.preventDefault(); kerjaBuka(b.dataset.kerjatap); } });
+function kerjaTombol(id){ return `<div class="card" style="background:#eef6ea;border:2px solid #2e9e48"><h3>⚒️ Ruang Kerja</h3><p class="note">Karyawan gedung ini: tap untuk mengisi kas gedung (+N$10 per tap, maks 1.000 tap/hari). Kas dipakai untuk membayar gaji. Karyawan terbaik tiap minggu dapat bonus.</p><button class="btn" data-kerjatap="${esc(id)}">⚒️ Kerja</button></div>`; }
 function gajiTampil(d){
   const kj = d.kerja.reduce((a, i)=>a + i.jumlah, 0), jb = d.jab ? d.jab.gaji : 0, total = kj + jb;
   const nama = d.kerja.map(i=>i.posisi).concat(d.jab ? [d.jab.nama] : []).join(' & ');
@@ -4108,6 +4180,7 @@ function stadionHTML(){
   return `<div class="kicker">Fasilitas Republik Nusawara</div><h2>⚽ Stadium Bola Republik Nusawara</h2>
     <p style="font-size:13px;margin:0 0 6px">Dibangun ${STADION.hari} dari usulan warga @${esc(STADION.usul)}.</p>
     <div class="card"><h3>👑 Pemilik Stadium</h3><p style="margin:0;font-size:15px"><b>@${esc(STADION.usul)}</b></p><p class="note">Diangkat Presiden sebagai pemilik Stadium Bola Republik Nusawara, termasuk Toko Merchandise Official.</p></div>
+    ${kerjaTombol('STADION-NUSAWARA')}
     ${(()=>{ const G = (typeof BIZ !== 'undefined' && BIZ.gaji) || {}, gj = (p, d)=>G['STADION-NUSAWARA|' + p] ?? d;
       const peranKu = me ? (me.peran === 'pelatih' ? 'Pelatih' : 'Pemain') : (AKUN.u && AKUN.u === STADION.usul ? 'Pemilik Stadium' : '');
       const baris = [['Pemilik Stadium','👑',150,'1 orang'],['Pelatih','🧢',120,'1 per tim · 3 tim'],['Pemain','⚽',95,'15 per tim · 3 tim']];
@@ -5818,6 +5891,7 @@ function fasHTML(id){
   return `<div class="kicker">Fasilitas Republik Nusawara</div><h2>${F.ikon} ${esc(F.nama)}</h2>
     <p style="font-size:13px;margin:0 0 6px">Dibangun <b>${F.hari}</b> ${F.usulTeks ? 'dari ' + esc(F.usulTeks) : 'dari usulan warga @' + esc(F.usul)}.</p>
     ${facTop(id) ? `<p style="font-size:13px;margin:0 0 10px">👑 <b>${esc(F.pos[0][0])}:</b> ${F.ownerTeks ? esc(F.ownerTeks) : '@' + esc(facTop(id))}</p>` : ''}
+    ${kerjaTombol(id)}
     <div class="card"><h3>🖼️ Billboard gedung</h3>${boardPreview(id, '')}${editBtn(id)}</div>
     <div class="card"><h3>💼 Lowongan kerja · ${terisi}/${tot} terisi</h3><p class="note">Hanya untuk Warga Republik Nusawara. Satu warga satu pekerjaan; daftar dengan Kata Sandi Warga.</p>${rows}</div>
     <div class="card" id="jform" style="display:none"><h3 id="jfT">Daftar kerja</h3>
@@ -6542,6 +6616,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 04:40</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 05:00</div>
 </body>
 </html>
