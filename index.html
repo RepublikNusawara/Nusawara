@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-1715">
+<meta name="nusawara-build" content="20261116-1740">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -5204,18 +5204,28 @@ function loop(){
     box(124,.08,90,0x7fc15a,SX,.05,-65.5);                                   // halaman kompleks
     box(56,.12,24,0xe6e1d5,SX,.07,-35); box(8,.12,22,0xe6e1d5,SX,.07,-58);    // plaza depan + jalur masuk
     const ell = (a,b,h,c,y0)=>{ const m = new THREE.Mesh(new THREE.CylinderGeometry(1,1,h,56), M(c)); m.scale.set(a,1,b); m.position.set(SX,y0+h/2,SZ); m.castShadow = true; m.receiveShadow = true; scene.add(m); return m; };
-    ell(32,25,9,0xf4f4f1,0); ell(30,23,8,0xd8212f,0); ell(27.5,20.5,6.8,0xeeeeee,0); ell(25,18,5.6,0xd8212f,0); ell(22.5,15.5,.5,0x3f9d3c,0);
-    // lapangan: garis, lingkaran tengah, kotak penalti, gawang
-    const WL = 0xffffff, ly = .56;
-    [[0,-10,30,.25],[0,10,30,.25]].forEach(([x,z,w,d])=>box(w,.03,d,WL,SX+x,ly,SZ+z)); [[-15,0],[15,0]].forEach(([x])=>box(.25,.03,20.2,WL,SX+x,ly,SZ)); box(.25,.03,20,WL,SX,ly,SZ);
-    for (let i=-2;i<=2;i++) box(5,.02,19.8,i%2?0x45a843:0x3a9338,SX+i*6,.53,SZ);
-    const cc = new THREE.Mesh(new THREE.RingGeometry(3.2,3.45,40), new THREE.MeshBasicMaterial({color:WL, side:THREE.DoubleSide})); cc.rotation.x = -Math.PI/2; cc.position.set(SX,.58,SZ); scene.add(cc);
-    [-1,1].forEach(s=>{ box(.25,.03,10,WL,SX+s*10,ly,SZ); box(5,.03,.25,WL,SX+s*12.5,ly,SZ-5); box(5,.03,.25,WL,SX+s*12.5,ly,SZ+5); box(1.2,1.6,5,0xffffff,SX+s*15.4,1.3,SZ); });
+    // ===== BAGIAN DALAM: dinding cincin, tribun berundak (penonton merah-putih), lapangan bergaris =====
+    const rrP = (w,d,r,Cls)=>{ const p = new Cls(), x = -w/2, y = -d/2; p.moveTo(x+r,y); p.lineTo(x+w-r,y); p.quadraticCurveTo(x+w,y,x+w,y+r); p.lineTo(x+w,y+d-r); p.quadraticCurveTo(x+w,y+d,x+w-r,y+d); p.lineTo(x+r,y+d); p.quadraticCurveTo(x,y+d,x,y+d-r); p.lineTo(x,y+r); p.quadraticCurveTo(x,y,x+r,y); return p; };
+    const ringRR = (ow,od,or_,hw,hd,hr,h,mat,y0)=>{ const sp = rrP(ow,od,or_,THREE.Shape); sp.holes.push(rrP(hw,hd,hr,THREE.Path)); const m = new THREE.Mesh(new THREE.ExtrudeGeometry(sp,{depth:h,bevelEnabled:false,curveSegments:10}), mat); m.rotation.x = -Math.PI/2; m.position.set(SX,y0,SZ); m.castShadow = true; m.receiveShadow = true; scene.add(m); return m; };
+    const crowd = (base)=>{ const t = canvasTex(128,128,(g,w,h)=>{ g.fillStyle = base; g.fillRect(0,0,w,h); const cs = ['#ffffff','#f4f4f1','#1b1b1b','#f2b134','#ffd9d9']; for (let i=0;i<170;i++){ g.fillStyle = cs[i%cs.length]; g.fillRect((i*37)%124,(i*61)%124,4,4); } });
+      t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(1/5,1/5); return new THREE.MeshLambertMaterial({map:t}); };
+    const wall = new THREE.Shape(); wall.absellipse(0,0,32,25,0,Math.PI*2,false,0); const wh = new THREE.Path(); wh.absellipse(0,0,31,24,0,Math.PI*2,true,0); wall.holes.push(wh);
+    const wm = new THREE.Mesh(new THREE.ExtrudeGeometry(wall,{depth:9,bevelEnabled:false,curveSegments:56}), M(0xf4f4f1)); wm.rotation.x = -Math.PI/2; wm.position.set(SX,0,SZ); wm.castShadow = true; scene.add(wm);
+    ell(31,24,.3,0xd9d2c3,0);                                              // lantai konkours
+    ringRR(54,38,15,48,32,13,8,crowd('#c9222e'),0); ringRR(48,32,13,42,26,11,6.8,crowd('#e9e9e6'),0); ringRR(42,26,11,36,20,7,5.6,crowd('#c9222e'),0);
+    box(38,.5,22,0x3f9d3c,SX,.25,SZ);                                      // lapangan
+    const WL = 0xffffff, ly = .53;
+    for (let i=-4;i<=4;i++) box(4,.02,20,i%2?0x45a843:0x3a9338,SX+i*4,.52,SZ);
+    [-1,1].forEach(s=>{ box(34,.03,.25,WL,SX,ly,SZ+s*9); box(.25,.03,18.25,WL,SX+s*17,ly,SZ); box(.25,.03,10,WL,SX+s*12,ly,SZ); box(5,.03,.25,WL,SX+s*14.5,ly,SZ-5); box(5,.03,.25,WL,SX+s*14.5,ly,SZ+5); box(1.2,1.6,5,0xffffff,SX+s*17.9,1.3,SZ); });
+    box(.25,.03,18,WL,SX,ly,SZ);
+    const cc = new THREE.Mesh(new THREE.RingGeometry(3.1,3.35,40), new THREE.MeshBasicMaterial({color:WL, side:THREE.DoubleSide})); cc.rotation.x = -Math.PI/2; cc.position.set(SX,.55,SZ); scene.add(cc);
     // atap cincin + tiang + bingkai merah
     const sh = new THREE.Shape(); sh.absellipse(0,0,33,26,0,Math.PI*2,false,0); const hl = new THREE.Path(); hl.absellipse(0,0,25,18,0,Math.PI*2,true,0); sh.holes.push(hl);
     const roof = new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.7,bevelEnabled:false,curveSegments:56}), M(0xf8f8f6)); roof.rotation.x = -Math.PI/2; roof.position.set(SX,10,SZ); roof.castShadow = true; scene.add(roof);
     const sh2 = new THREE.Shape(); sh2.absellipse(0,0,33.6,26.6,0,Math.PI*2,false,0); const h2 = new THREE.Path(); h2.absellipse(0,0,33,26,0,Math.PI*2,true,0); sh2.holes.push(h2);
     const edge = new THREE.Mesh(new THREE.ExtrudeGeometry(sh2,{depth:1.1,bevelEnabled:false,curveSegments:56}), M(0xd8212f)); edge.rotation.x = -Math.PI/2; edge.position.set(SX,9.8,SZ); scene.add(edge);
+    for (let i=0;i<24;i++){ const a = i/24*Math.PI*2; const px = SX+Math.cos(a)*29, pz = SZ+Math.sin(a)*22; const b = box(8,.05,.22,0xc9ced6,px,10.75,pz); b.rotation.y = -a; }
+    for (let i=0;i<16;i++){ const a = (i+.5)/16*Math.PI*2; const l = box(2.4,.3,.5,0xfff1b0,SX+Math.cos(a)*25.3,10.6,SZ+Math.sin(a)*18.3); l.rotation.y = -a; l.material = new THREE.MeshBasicMaterial({color:0xfff1b0}); }
     for (let i=0;i<28;i++){ const a = i/28*Math.PI*2; cyl2(.45,10,0xf4f4f1,SX+Math.cos(a)*31,5,SZ+Math.sin(a)*24,scene,8); }
     [[-35,-28],[35,-28],[-35,28],[35,28]].forEach(([dx,dz])=>{ cyl2(.5,19,0x9aa3ad,SX+dx,9.5,SZ+dz,scene,8); box(3.6,1.6,.6,0xfff1b0,SX+dx,19.4,SZ+dz+(dz>0?.5:-.5)); });
     // fasad depan (mengikuti gambar): sayap melengkung dengan baliho, kaca lobi, gable merah, papan nama, bendera
@@ -5287,6 +5297,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 17:15</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 17:40</div>
 </body>
 </html>
