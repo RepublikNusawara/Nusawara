@@ -3,8 +3,8 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-1415">
-<script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var t=document.getElementById('verTag');if(t){t.style.pointerEvents='auto';t.style.maxWidth='92vw';t.style.whiteSpace='normal';t.style.background='#c62828cc';t.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}}catch(_){}});</script>
+<meta name="nusawara-build" content="20261116-1445">
+<script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
 if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.setItem('nusawara_rl_'+x[1],'1');location.replace(location.pathname+'?v='+x[1]);}}).catch(function(){});}catch(e){}})();</script>
@@ -5068,9 +5068,6 @@ function loop(){
   renderer.render(scene, camera);
   requestAnimationFrame(loop);
 }
-loop();
-})();
-
 /* ---------- KAWASAN TIMUR PODIUM: Area Bisnis + Area Fasilitas Negara ---------- */
 // Aturan: lebar jalan = 5 (sama dengan jalan timur). Parkir di depan = 1x lebar jalan. Di belakang bangunan ada ruang 1x lebar jalan, lalu jalan aspal,
 // lalu parkir 1x lebar jalan, lalu baris bangunan berikutnya (semua menghadap selatan/+z). Semua jalan tersambung lewat jalan timur & jalan penghubung utara-selatan.
@@ -5094,16 +5091,6 @@ loop();
   const lb = (t,x,z)=>{ const l = label(t, {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); l.position.set(x, 16, z); scene.add(l); };
   lb('🛍️ KAWASAN BISNIS NUSAWARA', 98, -53); lb('🏛️ KAWASAN FASILITAS NEGARA', 178, -53);
   box(.3,.12,RW,0xf2b134,148,.1,-23);                  // pembatas antar-kawasan
-})();
-</script>
-<script>
-/* ---------- KOTA TIMUR + KAWASAN UNDIAN SELATAN: blok mandiri (tetap jalan walau ada error di blok lain) ---------- */
-(function(){ try {
-  const RW = 5, RD = 0x4b5059, PK = 0x4b5059;
-  const jalan = (x0,x1,z)=>{ box(x1-x0,.12,RW,RD,(x0+x1)/2,.07,z); for (let x=x0+3;x<x1-2;x+=7) box(3,.03,.18,0xffffff,x,.14,z); };
-  const jalanZ = (x,z0,z1)=>{ box(RW,.12,z1-z0,RD,x,.07,(z0+z1)/2); for (let z=z0+3;z<z1-2;z+=7) box(.18,.03,3,0xffffff,x,.14,z); };
-  const parkir = (cx,w,zc)=>{ box(w,.1,RW,PK,cx,.085,zc); const n = Math.max(2, Math.floor(w/3.2)); for (let i=0;i<=n;i++) box(.14,.03,RW-.6,0xffffff,cx-w/2+.1+i*((w-.2)/n),.15,zc); };
-  const lb = (t,x,z)=>{ const l = label(t, {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); l.position.set(x, 16, z); scene.add(l); };
   // Kawasan Rumah & Toko Undian (selatan podium): jalan + sambungan dari lingkaran podium
   jalan(-10,46,28); jalanZ(18,17,28);
   jalan(-10,46,54); jalanZ(48,28,54); parkir(36,20,49);   // jalan depan ruko @iruzz (BKT-MAWAR-002)
@@ -5130,8 +5117,11 @@ loop();
   [[90,'🚌 TERMINAL'],[110,'🎭 TEATER'],[130,'🔧 GARASI'],[160,'🏦 BANK'],[180,'🏨 HOTEL'],[200,'🏪 MINIMARKET']].forEach(([x,n])=>{ parkir(x,16,-63); petak(x,-73,16,15,n); });
   [[70,'🍎 TOKO SAYUR'],[82,'💈 PANGKAS'],[94,'📚 TOKO BUKU'],[106,'👕 BUTIK'],[118,'🧁 KUE'],[160,'🍽️ RESTORAN'],[180,'💊 APOTEK'],[200,'🛒 PASAR']].forEach(([x,n])=>{ parkir(x,10,-88); petak(x,-96,11,11,n,3.6); });
 
-} catch(e){ var d=document.createElement('div'); d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw'; d.textContent='ERR kota timur: '+e.message+' | '+(e.stack||'').split('\n')[0]; document.body.appendChild(d); } })();
+})();
+loop();
+})();
+
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 14:15</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 14:45</div>
 </body>
 </html>
