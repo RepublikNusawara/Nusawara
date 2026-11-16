@@ -3477,10 +3477,11 @@ function gajiTampil(d){
   const kj = d.kerja.reduce((a, i)=>a + i.jumlah, 0), jb = d.jab ? d.jab.gaji : 0, total = kj + jb;
   const nama = d.kerja.map(i=>i.posisi).concat(d.jab ? [d.jab.nama] : []).join(' & ');
   const rinci = kj && jb ? `<div style="font-size:15px;font-weight:700;color:#5a4a2a;margin-top:12px">💼 ${N$(kj)} + 🏛️ ${N$(jb)} =</div>` : '';
-  const ov = document.createElement('div');
+  const wp = !!(d.jab && /Wakil Presiden/.test(d.jab.nama)), ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,20,40,.62);display:flex;align-items:center;justify-content:center;padding:18px';
   ov.innerHTML = `<div style="background:#fffaf0;border:4px solid #f2c14e;border-radius:22px;max-width:340px;width:100%;padding:22px 20px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.45);font-family:inherit">
-    <div style="font-size:46px;line-height:1">💼</div>
+    <div style="font-size:46px;line-height:1">${wp ? '🇮🇩' : '💼'}</div>
+    ${wp ? `<div style="background:#fff1c9;border:2px solid #f2c14e;border-radius:14px;padding:10px 12px;margin-top:10px;font-size:13px;line-height:1.45;color:#3b2600"><b>Yang Terhormat Wakil Presiden Republik Nusawara, @${esc(AKUN.u)}</b><br>Selamat pagi dan selamat bertugas. Terima kasih sudah mengabdi untuk Nusawara. Semoga setiap keputusan Anda membawa kemajuan bagi seluruh warga. 🙏</div>` : ''}
     <div style="font-size:19px;font-weight:800;color:#3b2600;margin-top:8px">Gaji - ${esc(nama)}</div>
     ${rinci}<div style="font-size:40px;font-weight:900;color:#2e7d32;margin:${rinci ? '2px' : '14px'} 0 18px">${N$(total)}</div>
     <button class="btn" id="gjOk" style="width:100%;font-size:17px;padding:12px">Terima Gaji</button>
@@ -5638,6 +5639,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 00:10</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 00:20</div>
 </body>
 </html>
