@@ -3468,34 +3468,34 @@ async function gajiCek(){
   try {
     const r = await SB.rpc('gaji_tunggu_saya', {p_user: AKUN.u, p_sandi: AKUN.s});
     if (!r || !r.ok){ GJ.buka = false; return; }
-    const q = (r.item || []).map(i=>({fas: i.fasilitas, pos: i.posisi, jumlah: i.jumlah, nama: i.posisi, tempat: (typeof FAS !== 'undefined' && FAS[i.fasilitas]) ? FAS[i.fasilitas].nama : i.fasilitas}));
-    if (r.jabatan) q.push({jab: 1, jumlah: r.jabatan.gaji, nama: r.jabatan.nama, tempat: 'Kas Negara'});
-    if (!q.length){ GJ.buka = false; return; }
-    gajiTampil(q, 0);
+    const kerja = (r.item || []).filter(i=>i.jumlah > 0), jab = r.jabatan && r.jabatan.gaji > 0 ? r.jabatan : null;
+    if (!kerja.length && !jab){ GJ.buka = false; return; }
+    gajiTampil({kerja, jab});
   } catch(_) { GJ.buka = false; }
 }
-function gajiTampil(q, i){
-  if (i >= q.length){ GJ.buka = false; return; }
-  const it = q[i], ov = document.createElement('div');
+function gajiTampil(d){
+  const kj = d.kerja.reduce((a, i)=>a + i.jumlah, 0), jb = d.jab ? d.jab.gaji : 0, total = kj + jb;
+  const nama = d.kerja.map(i=>i.posisi).concat(d.jab ? [d.jab.nama] : []).join(' & ');
+  const rinci = kj && jb ? `<div style="font-size:15px;font-weight:700;color:#5a4a2a;margin-top:12px">💼 ${N$(kj)} + 🏛️ ${N$(jb)} =</div>` : '';
+  const ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,20,40,.62);display:flex;align-items:center;justify-content:center;padding:18px';
   ov.innerHTML = `<div style="background:#fffaf0;border:4px solid #f2c14e;border-radius:22px;max-width:340px;width:100%;padding:22px 20px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.45);font-family:inherit">
     <div style="font-size:46px;line-height:1">💼</div>
-    <div style="font-size:19px;font-weight:800;color:#3b2600;margin-top:8px">Gaji - ${esc(it.nama)}</div>
-    <div style="font-size:12px;color:#7a6a4a;margin-top:2px">${esc(it.tempat)}${q.length > 1 ? ' · ' + (i + 1) + '/' + q.length : ''}</div>
-    <div style="font-size:40px;font-weight:900;color:#2e7d32;margin:14px 0 18px">${N$(it.jumlah)}</div>
-    <button class="btn" id="gjOk" style="width:100%;font-size:17px;padding:12px">Terima Gaji</button><div style="font-size:11px;color:#8a7a5a;margin-top:8px">Gaji harian: hanya bisa diterima hari ini (sebelum 00.00 WIB).</div></div>`;
+    <div style="font-size:19px;font-weight:800;color:#3b2600;margin-top:8px">Gaji - ${esc(nama)}</div>
+    ${rinci}<div style="font-size:40px;font-weight:900;color:#2e7d32;margin:${rinci ? '2px' : '14px'} 0 18px">${N$(total)}</div>
+    <button class="btn" id="gjOk" style="width:100%;font-size:17px;padding:12px">Terima Gaji</button>
+    <div style="font-size:11px;color:#8a7a5a;margin-top:8px">Gaji harian: hanya bisa diterima hari ini (sebelum 00.00 WIB).</div></div>`;
   document.body.appendChild(ov); gajiBunyiMasuk();
   const b = ov.querySelector('#gjOk');
   b.addEventListener('click', async ()=>{
-    b.disabled = true; let ok = false, pesan = '';
-    try {
-      const r = it.jab ? await SB.rpc('klaim_gaji_jabatan', {p_user: AKUN.u, p_sandi: AKUN.s}) : await SB.rpc('terima_gaji', {p_user: AKUN.u, p_sandi: AKUN.s, p_fasilitas: it.fas, p_posisi: it.pos});
-      if (r && r.ok){ ok = true; gajiBunyiUang(); popHadiah('+' + N$(r.gaji) + ' 💰'); }
-      else pesan = r && r.alasan === 'kas_kurang' ? 'Kas Negara sedang kurang. Coba lagi nanti.' : r && r.alasan === 'sudah' ? 'Gaji ini sudah diterima.' : 'Gagal. Coba lagi.';
-    } catch(_) { pesan = 'Jaringan bermasalah. Coba lagi.'; }
-    if (!ok && pesan && !/diterima/.test(pesan)){ toast('❌ ' + pesan); b.disabled = false; return; }
-    ov.remove(); try { await akunMuat(); if (typeof jabMuat === 'function') jabMuat(); } catch(_) {}
-    setTimeout(()=>gajiTampil(q, i + 1), ok ? 900 : 0);
+    b.disabled = true; let got = 0, pesan = '';
+    const coba = async (fn, a)=>{ try { const r = await SB.rpc(fn, a); if (r && r.ok) got += r.gaji; else if (r && r.alasan === 'kas_kurang') pesan = 'Kas Negara sedang kurang untuk gaji jabatan.'; else if (!r || r.alasan !== 'sudah') pesan = 'Sebagian gaji gagal diterima.'; } catch(_) { pesan = 'Jaringan bermasalah.'; } };
+    for (const i of d.kerja) await coba('terima_gaji', {p_user: AKUN.u, p_sandi: AKUN.s, p_fasilitas: i.fasilitas, p_posisi: i.posisi});
+    if (d.jab) await coba('klaim_gaji_jabatan', {p_user: AKUN.u, p_sandi: AKUN.s});
+    if (got > 0){ gajiBunyiUang(); popHadiah('+' + N$(got) + ' 💰'); }
+    if (pesan) toast('❌ ' + pesan);
+    if (!got && pesan){ b.disabled = false; return; }
+    ov.remove(); GJ.buka = false; try { await akunMuat(); if (typeof jabMuat === 'function') jabMuat(); } catch(_) {}
   });
 }
 async function akunMuat(){
@@ -5638,6 +5638,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 23:59c</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 00:10</div>
 </body>
 </html>
