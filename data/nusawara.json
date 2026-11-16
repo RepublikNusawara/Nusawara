@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-15T19:24:10Z",
-  "penduduk": 268,
+  "updatedAt": "2026-11-16T12:23:14+11:00",
+  "penduduk": 272,
   "warga": {
     "29_rezky": {
       "username": "29_Rezky",
@@ -135,16 +135,16 @@
       "houseId": null,
       "follow": true
     },
-    "akademi nusawara": {
-      "username": "Akademi Nusawara",
-      "niwn": "NUS-000082",
+    "akademi.nusawara": {
+      "username": "Akademi.Nusawara",
+      "niwn": "NUS-000085",
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
     },
-    "akademi.nusawara": {
-      "username": "Akademi.Nusawara",
-      "niwn": "NUS-000085",
+    "akademi nusawara": {
+      "username": "Akademi Nusawara",
+      "niwn": "NUS-000082",
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
@@ -1066,16 +1066,16 @@
       "houseId": null,
       "follow": null
     },
-    "rahmat rafli saputra": {
-      "username": "Rahmat Rafli Saputra",
-      "niwn": "NUS-000079",
+    "rahmat016": {
+      "username": "Rahmat016",
+      "niwn": "NUS-000094",
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
     },
-    "rahmat016": {
-      "username": "Rahmat016",
-      "niwn": "NUS-000094",
+    "rahmat rafli saputra": {
+      "username": "Rahmat Rafli Saputra",
+      "niwn": "NUS-000079",
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
@@ -1465,6 +1465,13 @@
       "houseId": null,
       "follow": true
     },
+    "warga_47b035d5": {
+      "username": "warga_47b035d5",
+      "niwn": "NUS-000272",
+      "terdaftar": "16 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "warga_48730443": {
       "username": "warga_48730443",
       "niwn": "NUS-000183",
@@ -1506,6 +1513,13 @@
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "warga_4de94301": {
+      "username": "warga_4de94301",
+      "niwn": "NUS-000273",
+      "terdaftar": "16 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "warga_514b82b3": {
       "username": "warga_514b82b3",
@@ -1555,6 +1569,13 @@
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "warga_65855f31": {
+      "username": "warga_65855f31",
+      "niwn": "NUS-000271",
+      "terdaftar": "16 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "warga_6d3a4b3e": {
       "username": "warga_6d3a4b3e",
@@ -1727,6 +1748,13 @@
     "warga_c4033736": {
       "username": "warga_c4033736",
       "niwn": "NUS-000270",
+      "terdaftar": "16 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "warga_c6500b9b": {
+      "username": "warga_c6500b9b",
+      "niwn": "NUS-000274",
       "terdaftar": "16 Nov 2026",
       "houseId": null,
       "follow": null
@@ -3050,17 +3078,20 @@
     "warga_392514ff": "ff3f4e46de053fc9efa65ead6cde22789dd068e228d677afff91e82e95c88396",
     "warga_3b39137b": "e71355dd2f61f7b0628146ddb565d9ad300039c5de2391b37169cad803888683",
     "warga_3b81441a": "c0707c5ff39f9044eb3f3e74dc30aceaf445a94de42843f18d3d675ba78e2897",
+    "warga_47b035d5": "2bf0a973f0649a5ab48373bab1737b24c104ff041c1adfec8b3bc7513f35cd43",
     "warga_48730443": "7d8c02270aa58eca3cf009bf55e04e450d3da29617d4f80da1b2c0067393f3e3",
     "warga_49440534": "d11dcbc23fd3478da4ecaa5111e04afb2579abcf08205f0050a8d698f925c9a2",
     "warga_4a1ca25d": "80d5cc45ae5b585dd04193f636b840bfc82fd0b4f20f6cfc7b34d96f15c5c4de",
     "warga_4bfa5209": "8ae3497ac3175261eda85bba757a68c7ec006bd24bfdb7dfe3984b7b7b21c3a3",
     "warga_4d20ec6e": "5cc6f95965a1ba29cfc2cdad892e05d5a03563a80d582fb4b7b54366c66e59eb",
+    "warga_4de94301": "f2166d020b95bbdb86338c9b724ff7ba0979dc0dc31c2b17e7612f3c4d370af7",
     "warga_514b82b3": "57cd081a67dc0c0ef3103e0b55119fca52dfca3018eead1fa344c80c1b70cb77",
     "warga_5318e481": "bc0a95e30ee8118b8b70e088a0b04885bc15a615a139b22ae0608fd17834a73f",
     "warga_5706e676": "69d52e16dc09c409f8241a579a0c9a84856aa2ca80ea2c4969a17d9905cf314c",
     "warga_5cfdbd17": "0759ed6e70af14d9f698d65f0374ec5126bc5ea4c5c757a5616d03836cc8c08c",
     "warga_5d0e34ce": "8c1ea68f76ecbe9b70124f7b32eaca7ab875050a9543a3154f8f0d8a77ef1826",
     "warga_64b613bb": "84d4ca6fa9a60ae83f4ab2dc5faebcc42f072c2e653a2d20bf67fae37662ad18",
+    "warga_65855f31": "a945342abcd3236cdd03a1d27dae37f63cd759228406d384b1d52167cd0257d6",
     "warga_6d3a4b3e": "5bf89d53250954fd14f0cc94be55f58a838403c0a81571ed8fd57a8d60d9c82a",
     "warga_6e3a7078": "c48c3eed4a7f535d315f24c9e60c85e121b11b602dc77b91283c1d310bd4b81e",
     "warga_6e605820": "76fe580e20aa7eb6c801a6f98b0062b18dc758f0f23a33a4c1a7926a520e65e1",
@@ -3083,6 +3114,7 @@
     "warga_b1f05251": "4efdd834fcabfbc8349d5de2ea826564de6b0b5a296121d25d71dc3682b8ee5b",
     "warga_be6b9485": "0e78b21485d2bec38876057c5bc22543b9ff3c2b21cd93d407890c77df9c4a48",
     "warga_c4033736": "1dd373a1f82248ec78f191178898d745fff43548da37b10e7ab1afb1a6f76114",
+    "warga_c6500b9b": "0bdc01a177af7b914f36f8499329c984b0d55ea715eec500ccf2e2563cfcdd51",
     "warga_c69f5c82": "d653419a030783777b0d3bf978ed8a1211a519ed60290f03310c93b3fc805af8",
     "warga_d167b7e7": "2484f9346bd01e5d24693c947c2a0a8cb7bd00a85744415f60953577d85cfcdf",
     "warga_d34065fb": "32006122c92722974babeb0315471f50dbe52e0febae094933cf904c1d2283cb",
