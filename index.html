@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-2300">
+<meta name="nusawara-build" content="20261116-2310">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3425,7 +3425,7 @@ function pekerjaanJabatan(key){
     else for (const kode in JAB.pem) if (JAB.pem[kode].includes(u)){ const x = JAB.kat.find(a=>a.kode === kode); if (x) j = x.nama; }
     if (j) p.push('🏛️ ' + j.slice(0, 26)); } catch(_) {}
   return p; }
-function tagTeks(key, w){ if (w && w.tamu) return '🌍 ' + String(w.username||key); const p = pekerjaanJabatan(key); return (p.length ? p.join(' · ') + ' · ' : '') + '@' + String((w && w.username) || key).replace(/^@+/,''); }
+function tagTeks(key, w){ if (w && w.tamu) return '🌍 ' + String(w.username||key); const p = pekerjaanJabatan(key); return (p.length ? p.join(' · ') : '💼 Pengangguran') + ' · @' + String((w && w.username) || key).replace(/^@+/,''); }
 function tagPerbarui(){ if (typeof WALKERS === 'undefined') return; for (const k in WALKERS){ const W = WALKERS[k], t = tagTeks(k, WINFO[k]); if (W.tagT === t) continue; W.tagT = t;
   const nl = label(t, {h:.75, size:28, bg:'rgba(255,253,248,.95)', fg:'#1f3a5f', onTop:true}); W.tag.material.map = nl.material.map; W.tag.material.needsUpdate = true; W.tag.scale.copy(nl.scale); scene.remove(nl); } }
 async function lvMuat(){ try { const r = await SB.rpc('level_warga', {}); if (r && typeof r === 'object') window.LVW = r; } catch(_) {} tagPerbarui(); }
@@ -5585,6 +5585,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 23:00</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 23:10</div>
 </body>
 </html>
