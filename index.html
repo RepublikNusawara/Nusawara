@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-0830">
+<meta name="nusawara-build" content="20261117-0900">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -1120,7 +1120,7 @@ const PT = (function(){
     [-2.6,2.6].forEach(dx=>b(.25,4.4,.25,0x333333,x+dx,3.45,-12)); b(6.4,2.4,.4,0x111111,x,5.6,-12); const gp = pl(6,2.1,gt,x,5.6,-12.25,Math.PI,true); gp.material.side = THREE.DoubleSide;
     const gp2 = pl(6,2.1,gt,x,5.6,-11.75,0,true);
     for (let k=0;k<3;k++){ const ch = b(2.6,.03,.5,0xf2c400,x,1.3,-17+k*1.4); } });
-  T.userData = {type:'pelabuhan'};
+  T.userData = {type:'fasilitas', data:{id:'PELABUHAN-NUSAWARA'}}; pickables.push(T);
   const lbl = label('⚓ PELABUHAN REPUBLIK NUSAWARA', {h:2.4, size:34, bg:'rgba(31,58,95,.97)', fg:'#fff'}); lbl.position.set(0,24,0); T.add(lbl);
   return T;
 })();
@@ -3960,7 +3960,7 @@ function stadionHTML(){
   const me = AKUN.u ? TIMDATA.find(r=>r.username === AKUN.u) : null;
   const kartu = Object.keys(TIM).map(k=>{ const T = TIM[k], pl = TIMDATA.filter(r=>r.tim === k && r.peran === 'pelatih'), pm = TIMDATA.filter(r=>r.tim === k && r.peran === 'pemain');
     const baris = (peran, label, ik, list, q)=>{ const penuh = list.length >= q, mine = me && me.tim === k && me.peran === peran;
-      return `<div class="jrow"><div class="ji">${ik}</div><div class="jt"><b>${label}</b><small>${list.length}/${q} terisi${list.length ? ' · ' + list.map(r=>'@' + esc(r.username)).join(', ') : ''}</small></div>
+      return `<div class="jrow"><div class="ji">${ik}</div><div class="jt"><b>${label}</b><small>${list.length}/${q} terisi${list.length ? ' · ' + list.map(r=>esc(namaW(r.username))).join(', ') : ''}</small></div>
       ${mine ? '<span style="font-size:12px;font-weight:700;color:#2f7d32;flex:none">✅ Kamu</span>' : `<button class="btn${penuh ? ' ghost' : ''}" ${penuh ? 'disabled' : `data-tim="${k}|${peran}"`}>${penuh ? 'Penuh' : 'Daftar'}</button>`}</div>`; };
     return `<div class="card"><h3>${T.ikon} ${T.nama}</h3>${baris('pelatih','Pelatih','🧢',pl,1)}${baris('pemain','Pemain','⚽',pm,15)}</div>`; }).join('');
   return `<div class="kicker">Fasilitas Republik Nusawara</div><h2>⚽ Stadium Bola Republik Nusawara</h2>
@@ -3971,7 +3971,7 @@ function stadionHTML(){
       const baris = [['Pemilik Stadium','👑',150,'1 orang'],['Pelatih','🧢',120,'1 per tim · 3 tim'],['Pemain','⚽',95,'15 per tim · 3 tim']];
       return `<div class="card"><h3>💵 Daftar gaji harian Stadium</h3>${baris.map(([p, ik, d, q])=>`<div class="jrow" style="${peranKu === p ? 'background:#fff4d6;border-radius:10px;' : ''}padding:5px 6px"><span style="font-size:22px;flex:none">${ik}</span><span class="jt"><b>${p}${peranKu === p ? ' (kamu)' : ''}</b><small>${q}</small></span><span style="display:inline-block;background:#f2c14e;color:#3b2600;font-weight:800;font-size:12px;border-radius:10px;padding:4px 8px;flex:none">${N$(gj(p, d))} / hari</span></div>`).join('')}
         <p class="note">Gaji per hari untuk setiap posisi di Stadium Bola Republik Nusawara.</p></div>`; })()}
-    <p style="font-size:13px;margin:0 0 10px">Pilih satu tim, lalu daftar sebagai pelatih (1 orang per tim) atau pemain (15 orang per tim). Satu warga satu peran; kamu bisa pindah kapan saja.</p>
+    <p style="font-size:13px;margin:0 0 10px">Pilih satu tim, lalu daftar sebagai pelatih (1 orang per tim) atau pemain (15 orang per tim). Satu warga hanya boleh <b>satu pekerjaan</b> (termasuk tim bola); keluar dulu dari pekerjaan lain sebelum daftar. Pindah tim boleh kapan saja.</p>
     ${!AKUN.u ? `<div class="card"><p class="note">Masuk sebagai warga dulu untuk mendaftar. Tamu hanya bisa melihat.</p><button class="btn" data-gerbang>🔑 Masuk / Daftar</button></div>` : me ? `<div class="card"><p class="note">Kamu terdaftar sebagai <b>${me.peran === 'pelatih' ? 'Pelatih' : 'Pemain'} ${TIM[me.tim].nama}</b>.</p><button class="btn ghost" data-tim-keluar>Keluar dari tim</button></div>` : ''}
     ${kartu}<p class="note" id="timM"></p>`;
 }
@@ -3982,7 +3982,7 @@ sheetBody.addEventListener('click', async e=>{
     if (kb){ const [tim, peran] = kb.dataset.tim.split('|'); kb.disabled = true; r = await SB.rpc('daftar_tim_bola', {p_user: AKUN.u, p_sandi: AKUN.s, p_tim: tim, p_peran: peran});
       if (r === 'ok') toast('🎉 @' + AKUN.u + ' sekarang ' + (peran === 'pelatih' ? 'Pelatih ' : 'Pemain ') + TIM[tim].nama); }
     else { r = await SB.rpc('keluar_tim_bola', {p_user: AKUN.u, p_sandi: AKUN.s}); if (r === 'ok') toast('Kamu keluar dari tim.'); }
-    if (r !== 'ok' && m) m.textContent = r === 'penuh' ? 'Posisi ini sudah penuh. Pilih yang lain.' : r === 'sandi' ? 'Kata sandi berubah. Keluar lalu masuk lagi.' : 'Gagal. Coba lagi.';
+    if (r !== 'ok' && m) m.textContent = r === 'penuh' ? 'Posisi ini sudah penuh. Pilih yang lain.' : r === 'sudah' ? '❌ Kamu sudah punya pekerjaan lain. Satu warga hanya boleh satu pekerjaan.' : r === 'jabatan_tinggi' ? '❌ Pemegang jabatan negara tidak bisa bekerja.' : r === 'warga' ? '❌ Hanya untuk Warga Republik Nusawara.' : r === 'sandi' ? 'Kata sandi berubah. Keluar lalu masuk lagi.' : 'Gagal. Coba lagi.';
     await stadionMuat();
   } catch(_) { if (m) m.textContent = 'Gagal tersambung. Periksa internet lalu coba lagi.'; if (kb) kb.disabled = false; }
 });
@@ -4334,7 +4334,7 @@ function lowonganPerbarui(){
     Object.keys(FAS).forEach(id=>{ const F = FAS[id]; let buka = false;
       F.pos.forEach(([p,q],i)=>{ if (i === 0) return; if (rows.filter(r=>r.fasilitas === id && r.posisi === p).length < q) buka = true; });
       let L = LOWONGAN[id];
-      if (!L){ const g = scene.children.find(o=>o.userData && o.userData.type === 'fasilitas' && o.userData.data && o.userData.data.id === id); if (!g) return;
+      if (!L){ let g = null; scene.traverse(o=>{ if (!g && o.userData && (o.userData.type === 'fasilitas' || o.userData.type === 'stadion') && o.userData.data && o.userData.data.id === id) g = o; }); if (!g) return;
         const bb = new THREE.Box3().setFromObject(g), l = label('📢 DIBUKA LOWONGAN PEKERJAAN', {h:1.6, size:30, bg:'rgba(200,16,31,.97)', fg:'#fff'});
         l.position.set((bb.min.x + bb.max.x)/2, bb.max.y + 4, (bb.min.z + bb.max.z)/2); scene.add(l); L = LOWONGAN[id] = l; }
       L.visible = buka; });
@@ -5388,6 +5388,8 @@ FAS['MALL-NUSAWARA'] = {nama:'Mall Republik Nusawara', ikon:'🏬', usul:'', usu
 FAS['MATCHA-NUSAWARA'] = {nama:'Toko Matcha Nusawara', ikon:'🍵', usul:'julianto_jul', hari:'November 2026', ownerTeks:'Admin', pos:[['Owner',1,'👑'],['Tea Specialist',4,'🍵']]};
 FAS['KAMERA-NUSAWARA'] = {nama:'Toko Kamera Republik Nusawara', ikon:'📷', usul:'kindomcream', hari:'DAY 8', ownerTeks:'Admin', pos:[['Owner',1,'👑'],['Kasir',3,'💵'],['Pegawai Kamera & Lensa',4,'📷'],['Teknisi Service',3,'🔧'],['Fotografer Studio',3,'📸'],['Editor Foto & Video',3,'🖥️'],['Petugas Printing Foto',2,'🖨️'],['Pemandu Workshop',2,'🎓'],['Petugas Keamanan',2,'👮'],['Petugas Kebersihan',2,'🧹']]};
 FAS['FERRY-NUSAWARA'] = {nama:'Ferry Republik Nusawara', ikon:'🚢', usul:'', usulTeks:'keputusan Bapak Presiden untuk menyambut warga baru', hari:'DAY 5', ownerTeks:'Admin', pos:[['Kapten Kapal (Owner)',1,'⚓'],['Mualim (Perwira Navigasi)',2,'🧭'],['Kepala Kamar Mesin',1,'⚙️'],['Teknisi Mesin',3,'🔧'],['Juru Mudi',2,'🛞'],['Petugas Keselamatan',2,'🦺'],['Petugas Dek Kendaraan',4,'🚗'],['Pramugara/Pramugari Kabin',6,'🛎️'],['Petugas Tiket & Loket',3,'🎟️'],['Koki Food Court',3,'👨‍🍳'],['Pelayan Food Court',4,'🍽️'],['Petugas Kebersihan',3,'🧹']]};
+FAS['PELABUHAN-NUSAWARA'] = {nama:'Pelabuhan Republik Nusawara', ikon:'⚓', usul:'', usulTeks:'keputusan Bapak Presiden sebagai pintu masuk warga baru', hari:'DAY 5', pos:[['Syahbandar (Kepala Pelabuhan)',1,'⚓'],['Wakil Kepala Pelabuhan',1,'🧑‍✈️'],['Petugas Menara Kontrol',2,'🗼'],['Operator Derek Kargo',2,'🏗️'],['Petugas Imigrasi',3,'🛂'],['Petugas Bea Cukai',2,'🛃'],['Penjaga Mercusuar',1,'🚨'],['Satpam',3,'👮'],['Petugas Check-in & Tiket',3,'🎫'],['Petugas Gudang Kargo',4,'📦'],['Sopir Truk Kargo',3,'🚚'],['Petugas Informasi',2,'ℹ️'],['Petugas Parkir',2,'🅿️'],['Petugas Kebersihan',3,'🧹']]};
+FAS['STADION-NUSAWARA'] = {nama:'Stadium Bola Republik Nusawara', ikon:'⚽', usul:'f4jr1_aj487', hari:'DAY 5', pos:[['Pemilik Stadium',1,'👑'],['Pelatih',3,'🧢'],['Pemain',45,'⚽']]};
 /* gedung RS & Akademi: dinding memudar saat ada orang di dalam, pekerja berdiri di lantai gedung */
 function jadikanMasuk(G, fas, cx, hw, z0, z1, pos){
   const shell = [], bb = new THREE.Box3(); G.updateMatrixWorld(true);
@@ -5451,7 +5453,7 @@ function fasHTML(id){
   const isi = {}; (window.KERJA_ALL || Object.entries(KERJA).map(([u,k])=>({username:u, fasilitas:k.fasilitas, posisi:k.posisi}))).forEach(k=>{ if (k.fasilitas === id) (isi[k.posisi] = isi[k.posisi] || []).push(k.username); });
   const tot = F.pos.reduce((a,p)=>a+p[1],0), terisi = Object.values(isi).reduce((a,l)=>a+l.length,0);
   const rows = F.pos.map(([p,q,ic],i)=>{ const l = isi[p] || [], full = l.length >= q, top = i === 0;
-    return `<div class="jrow"><div class="ji">${ic}</div><div class="jt"><b>${esc(p)}</b><small>${top ? (l.length ? 'Ditunjuk Presiden' : 'Ditunjuk langsung oleh Presiden · masih kosong') : `${l.length}/${q} terisi`}${l.length ? ' · ' + (top && F.ownerTeks ? esc(F.ownerTeks) : l.map(u=>'@'+esc(u)).join(', ')) : ''}</small></div>
+    return `<div class="jrow"><div class="ji">${ic}</div><div class="jt"><b>${esc(p)}</b><small>${top ? (l.length ? 'Ditunjuk Presiden' : 'Ditunjuk langsung oleh Presiden · masih kosong') : `${l.length}/${q} terisi`}${l.length ? ' · ' + (top && F.ownerTeks ? esc(F.ownerTeks) : l.map(u=>esc(namaW(u))).join(', ')) : ''}</small></div>
       ${BIZ.gaji[id + '|' + p] != null ? `<span style="flex:none;background:#f2c14e;color:#3b2600;font-weight:800;font-size:12px;border-radius:10px;padding:4px 8px;margin-right:6px">${N$(BIZ.gaji[id + '|' + p])}/hari</span>` : ''}
       ${top ? '<span style="font-size:12px;font-weight:700;color:#8a6d1f;flex:none">👑 Jabatan</span>' : `<button class="btn${full ? ' ghost' : ''}" ${full ? 'disabled' : `data-kerja="${esc(id)}|${esc(p)}"`}>${full ? 'Penuh' : 'Daftar'}</button>`}</div>`; }).join('');
   return `<div class="kicker">Fasilitas Republik Nusawara</div><h2>${F.ikon} ${esc(F.nama)}</h2>
@@ -5928,7 +5930,7 @@ function loop(){
     for (let x=244;x<=358;x+=9) pohonE(x,-109); [-100,-90,-50,-40,-30,-26].forEach(z=>{ pohonE(242,z); pohonE(358,z); });
     lb('⚽ STADIUM BOLA REPUBLIK NUSAWARA', SX, -22);
     if (typeof COLL !== 'undefined') [[SX,SZ,34,27],[252,-84,7.4,5.9],[252,-62,7.4,5.9],[348,-84,7.4,5.9],[348,-62,7.4,5.9],[SX,-45.6,17.5,2]].forEach(c=>COLL.push([c[0]-152, c[1]-86, c[2], c[3]])); }
-  { const _G = new THREE.Group(); scene.children.slice(_n0).forEach(o=>_G.add(o)); _G.position.set(-152, 0, -86); scene.add(_G); _G.userData = {type:'stadion', data:{}}; pickables.push(_G); }   // pindah: tepat di belakang B14 & B15
+  { const _G = new THREE.Group(); scene.children.slice(_n0).forEach(o=>_G.add(o)); _G.position.set(-152, 0, -86); scene.add(_G); _G.userData = {type:'stadion', data:{id:'STADION-NUSAWARA'}}; pickables.push(_G); }   // pindah: tepat di belakang B14 & B15
   // ===== MALL REPUBLIK NUSAWARA — di belakang Stadium Bola; tampak depan & atas mengikuti gambar =====
   { const MX = 148, MZ = -250;
     jalanZ(84,-300,-200); jalanZ(212,-300,-200); jalan(84,212,-300);                  // jalan keliling (sisi selatan = jalan utara Stadium)
@@ -6148,6 +6150,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 08:30</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 09:00</div>
 </body>
 </html>
