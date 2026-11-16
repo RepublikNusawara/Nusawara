@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-0330">
+<meta name="nusawara-build" content="20261117-0345">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -4531,10 +4531,10 @@ const cyl2 = (r,h,c,x,y,z,g,seg=12) => { const m = new THREE.Mesh(new THREE.Cyli
 
 /* Kawasan Bisnis Warga (usulan warga) di utara podium: dihapus seluruhnya (permintaan Presiden, 17 Nov 2026) */
 /* ---------- PABRIK UANG NUSAWARA (di lahan bekas Kawasan Bisnis Warga), mengikuti gambar acuan (tampak depan & tampak atas) ----------
-   Lahan 120 x 160 m (skala 0,95 agar pas di antara jalan barat x=-36,5 dan jalan Stadium x=83):
+   Lahan 120 x 160 m (skala 0,665 = diperkecil 30% dari ukuran awal 0,95; di antara jalan barat x=-36,5 dan jalan Stadium x=83):
    plaza depan 45 m | gedung 80 m | area belakang (logistik & utilitas) 35 m. Muka gedung menghadap selatan (ke Podium). */
 (()=>{
-  const PU = new THREE.Group(); PU.position.set(23.25, 0, -107); PU.scale.setScalar(.95); scene.add(PU);
+  const PU = new THREE.Group(); PU.position.set(23.25, 0, -107); PU.scale.setScalar(.665); scene.add(PU);   // diperkecil 30% (dari skala 0,95)
   const b = (w,h,d,c,x,y,z,p) => box(w,h,d,c,x,y,z,p||PU);
   const cy = (rt,rb,h,c,x,y,z,seg=24,p) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg), typeof c === 'object' ? c : M(c)); m.position.set(x,y,z); m.castShadow = true; (p||PU).add(m); return m; };
   // potongan silinder (lengkung) — theta 0 = arah +z (depan)
@@ -4561,8 +4561,8 @@ const cyl2 = (r,h,c,x,y,z,g,seg=12) => { const m = new THREE.Mesh(new THREE.Cyli
     b(w+.6,.3,d+.6,0xb9c0c8,x,y+.15,z,p); flat(w,d,t,x,y+.32,z,p); };
 
   // ===== jalan keliling: depan (sudah tersambung ke jalan barat & jalan Stadium) + belakang =====
-  [-104.5,-262].forEach(zz=>{ box(117,.12,5,0x4b5059,23.25,.07,zz); for (let x=-31;x<79;x+=7) box(3,.03,.18,0xffffff,x,.14,zz); });
-  [[-6],[52],[23.25]].forEach(([x])=>{ for (let i=-2;i<=2;i++) box(.9,.03,2.6,0xffffff,x+i*1.1,.15,-104.5); });
+  [-104.5,-216].forEach(zz=>{ box(117,.12,5,0x4b5059,23.25,.07,zz); for (let x=-31;x<79;x+=7) box(3,.03,.18,0xffffff,x,.14,zz); });
+  [[23.25]].forEach(([x])=>{ for (let i=-2;i<=2;i++) box(.9,.03,2.6,0xffffff,x+i*1.1,.15,-104.5); });
 
   // ===== LAHAN =====
   b(120,.1,160,0xd8d2c4,0,.05,-80);
@@ -4811,7 +4811,7 @@ const cyl2 = (r,h,c,x,y,z,g,seg=12) => { const m = new THREE.Mesh(new THREE.Cyli
     for (let x=-56;x<=56;x+=8){ if (Math.abs(x) < 12) continue; lampu(x,-158.8,3.4); }
   }
 
-  const l = label('🏦 PABRIK UANG NUSAWARA', {h:1.8, size:36, bg:'rgba(200,16,46,.96)', fg:'#fff'}); l.position.set(23.25, 72, -170); scene.add(l);
+  const l = label('🏦 PABRIK UANG NUSAWARA', {h:1.8, size:36, bg:'rgba(200,16,46,.96)', fg:'#fff'}); l.position.set(23.25, 50, -150); scene.add(l);
 })();
 
 // ----- bangunan siap pakai (sesuai gambar desain) -----
@@ -6424,6 +6424,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 03:30</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 03:45</div>
 </body>
 </html>
