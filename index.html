@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-1520">
+<meta name="nusawara-build" content="20261116-1600">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3990,13 +3990,13 @@ const cyl2 = (r,h,c,x,y,z,g,seg=12) => { const m = new THREE.Mesh(new THREE.Cyli
     const pp = new THREE.Group(); pp.position.set(30,0,z0-3); scene.add(pp); box(.2,3.6,.2,0x2a2f38,0,1.8,0,pp); box(1.8,1.8,.15,0x1f6fe0,0,4.2,0,pp);
     const t = label('🅿️ PARKIR UMUM', {h:1.4, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); t.position.set(18,6,z0+BD/2-2); scene.add(t); }
   // petak calon bisnis (usulan warga): alas, pagar rendah, papan
-  const slot = (cx,r,nama)=>{ const z0 = HZ[r]-RW/2-BD/2; box(BW-3,.13,BD-3,0xcfd6c4,cx,.12,z0); parkirU(cx,BW-3,HZ[r]-RW);
-    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>{ cyl2(.2,1.1,0x6b4a2e,cx+a*(BW/2-2),.55,z0+b*(BD/2-2),scene,6); });
-    pohon(cx-BW/2+3,z0-BD/2+4); pohon(cx+BW/2-3,z0-BD/2+4);
-    const t = label('A' + (slot.n = (slot.n||0) + 1), {h:2, size:44, bg:'rgba(242,177,52,.96)', fg:'#3a2600'}); t.position.set(cx,4,z0+BD/2-6); scene.add(t); };
-  slot(-14,1,'🛍️ MALL'); slot(50,1,'🍽️ RESTORAN');
-  slot(-14,2,'💈 BARBERSHOP'); slot(50,2,'🏦 BANK');
-  slot(-14,3,'🏨 HOTEL'); slot(18,3,'🏪 MINIMARKET'); slot(50,3,'💇 SALON');
+  const slot = (cx,r,w,d)=>{ const z0 = HZ[r]-RW*1.5-d/2; box(w,.13,d,0xcfd6c4,cx,.12,z0); parkirU(cx,w,HZ[r]-RW);
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>{ cyl2(.2,1.1,0x6b4a2e,cx+a*(w/2-2),.55,z0+b*(d/2-2),scene,6); });
+    pohon(cx-w/2+3,z0-d/2+4); pohon(cx+w/2-3,z0-d/2+4);
+    const t = label('A' + (slot.n = (slot.n||0) + 1), {h:2, size:44, bg:'rgba(242,177,52,.96)', fg:'#3a2600'}); t.position.set(cx,4,z0+d/2-6); scene.add(t); };
+  slot(-14,1,26,27); slot(50,1,22,24);
+  slot(-14,2,20,20); slot(50,2,24,25);
+  slot(-14,3,26,27); slot(18,3,20,22); slot(50,3,18,20);
   const l0 = label('🏙️ TATA KOTA BISNIS UTARA PODIUM', {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); l0.position.set(18,14,-100); scene.add(l0);
 })();
 
@@ -5149,8 +5149,6 @@ function loop(){
   jalan(58,142,-83);                                   // jalan baris toko 3
   const parkir = (cx,w,zc)=>{ box(w,.1,RW,PK,cx,.085,zc); const n = Math.max(2, Math.floor(w/3.2)); for (let i=0;i<=n;i++) box(.14,.03,RW-.6,0xffffff,cx-w/2+.1+i*((w-.2)/n),.15,zc); };
   [[163,30],[194,26]].forEach(([cx,w])=>parkir(cx,w,-23));                 // baris 1: Kopi, Matcha, Gym | RS, Sekolah
-  [[90,16],[110,16],[130,16]].forEach(([cx,w])=>parkir(cx,w,-63));                         // baris 2: Bengkel Kaca + 3 toko modern
-  [70,82,94,106,118].forEach(cx=>parkir(cx,8,-88));                                                // baris 3: 5 toko kecil
 
   // jalan aspal untuk pabrik & kebun di utara: jalan induk barat/timur + jalan depan tiap tempat (menyatu dengan parkir)
   jalanZ(-36.5,-525,-104.5);
@@ -5178,15 +5176,17 @@ function loop(){
     [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>cyl2(.18,1,0x6b4a2e,cx+a*(w/2-1.4),.5,zc+b*(d/2-1),scene,6));
     pohonE(cx-w/2+2.2,zc-d/2+2.5); pohonE(cx+w/2-2.2,zc-d/2+2.5);
     PN[PH] = (PN[PH]||0) + 1; const t = label(PH + PN[PH], {h:1.6, size:38, bg:'rgba(242,177,52,.96)', fg:'#3a2600'}); t.position.set(cx,3.2,zc+d/2-3); scene.add(t); };
-  // baris 1 (depan jalan raya): 3 petak di kiri bundaran (RS dan Sekolah tetap di kanan)
-  [[74,'☕ KAFE'],[99,'🍞 TOKO ROTI'],[124,'🏤 KANTOR POS']].forEach(([x,n])=>{ parkir(x,24,-23); petak(x,-38.5,24,26,n); });
-  // baris 2 (jalan z=-58) dan baris 3 (jalan z=-83): petak kecil
-  [[90,'🚌 TERMINAL'],[110,'🎭 TEATER'],[130,'🔧 GARASI'],[160,'🏦 BANK'],[180,'🏨 HOTEL'],[200,'🏪 MINIMARKET']].forEach(([x,n])=>{ parkir(x,16,-63); petak(x,-73,16,15,n); });
-  [[70,'🍎 TOKO SAYUR'],[82,'💈 PANGKAS'],[94,'📚 TOKO BUKU'],[106,'👕 BUTIK'],[118,'🧁 KUE'],[160,'🍽️ RESTORAN'],[180,'💊 APOTEK'],[200,'🛒 PASAR']].forEach(([x,n])=>{ parkir(x,10,-88); petak(x,-96,11,11,n,3.6); });
+  // ukuran lahan beragam [lebar, dalam]; parkir mengikuti lebar lahan, lahan menempel di parkir sehingga tidak menimpa aspal
+  const baris = (x0,x1,L,fn)=>{ const g = 3, tot = L.reduce((a,l)=>a+l[0],0) + g*(L.length-1); let x = x0 + (x1-x0-tot)/2; L.forEach(l=>{ fn(x + l[0]/2, l[0], l[1]); x += l[0] + g; }); };
+  baris(62,134,[[18,22],[22,26],[26,30]], (x,w,d)=>{ parkir(x,w,-23); petak(x,-25.5-d/2,w,d); });                                       // baris 1
+  baris(62,134,[[18,12],[22,15],[16,13]], (x,w,d)=>{ parkir(x,w,-63); petak(x,-65.5-d/2,w,d); });                                         // baris 2 barat
+  baris(156,214,[[18,14],[14,12],[20,15]], (x,w,d)=>{ parkir(x,w,-63); petak(x,-65.5-d/2,w,d); });                                        // baris 2 timur
+  baris(62,134,[[8,9],[12,11],[10,10],[14,11],[9,9]], (x,w,d)=>{ parkir(x,w,-88); petak(x,-90.5-d/2,w,d,'',3.4); });                      // baris 3 barat
+  baris(156,214,[[12,10],[9,9],[14,11]], (x,w,d)=>{ parkir(x,w,-88); petak(x,-90.5-d/2,w,d,'',3.4); });                                  // baris 3 timur
 
   // ===== KAWASAN FASILITAS BARU (selatan Kota Timur): petak calon Pemadam, Polisi (nanti), Balai Warga =====
   lb('🚒 KAWASAN FASILITAS BARU', 188, -12); PH = 'C';
-  [[162,'🚒 PEMADAM'],[188,'🚓 KANTOR POLISI'],[214,'🏛️ BALAI WARGA']].forEach(([x,n])=>petak(x,-4,22,17,n));
+  baris(150,214,[[18,14],[24,17],[16,12]], (x,w,d)=>petak(x,-15+d/2,w,d));
   // ===== TAMAN & HUTAN KOTA (tepi selatan) =====
   { const TX = 145, TZ = 78;
     box(92,.12,52,0x6fb84a,TX,.06,TZ);
@@ -5202,6 +5202,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 15:20</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 16:00</div>
 </body>
 </html>
