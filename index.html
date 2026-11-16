@@ -120,8 +120,10 @@ if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.s
   @media (max-width:520px){ .top{gap:6px} .brand{padding:5px 8px 5px 6px} .brand svg{width:24px;height:28px} .brand b{font-size:12px} .brand span{display:none}
     .stats{padding:3px 2px} .stats div{padding:1px 6px} .stats b{font-size:13px} .stats span{font-size:9px} .akunbtn{padding:8px 9px;font-size:12px} .hud{width:160px} }
   /* panduan pemula */
-  #misiChip{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 118px);z-index:5;max-width:178px;display:none;font:inherit;font-weight:800;font-size:12px;line-height:1.3;text-align:left;
-    background:#fffdf8;color:#1f3a5f;border:2px solid #f2b134;border-radius:12px;padding:7px 9px;box-shadow:0 4px 14px rgba(0,0,0,.18);animation:misiGlow 1.6s ease-in-out infinite}
+  #misiChip{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 118px);z-index:5;width:68px;height:68px;border-radius:50%;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0;cursor:pointer;
+    font:inherit;font-weight:900;font-size:11px;line-height:1;color:#5a3b00;background:radial-gradient(circle at 35% 30%,#fff3b0,#f7c948 55%,#d99a1c);border:3px solid #fff;box-shadow:0 5px 14px rgba(0,0,0,.25);animation:tapNaik 1.4s ease-in-out infinite;touch-action:manipulation}
+  #misiChip .uang{font-size:28px;line-height:1}
+  @keyframes tapNaik{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
   body.expon #misiChip{top:calc(env(safe-area-inset-top,0px) + 190px)}
   @keyframes misiGlow{0%,100%{box-shadow:0 0 0 0 rgba(242,177,52,.7)}50%{box-shadow:0 0 0 7px rgba(242,177,52,0)}}
   .mrow{display:flex;gap:10px;align-items:flex-start;padding:9px 8px;border-radius:12px;margin-top:6px;background:#f6f3ea}
@@ -4115,12 +4117,11 @@ function pergiKe(t){
   if (t === 'akun'){ openSheet(akunHTML); if (AKUN.u) akunMuat(); return; }
   const e2 = t === 'kavling' ? {x:18, z:-160} : t === 'donasi' ? {x:7, z:-6} : t === 'prn' ? EKO['EKO-PRN'] : t === 'tambang' ? {x:-59, z:150} : {x:-62, z:-100}; closeSheet();
   flyTo(new THREE.Vector3(e2.x, 2, e2.z), t === 'tambang' ? new THREE.Vector3(e2.x + 70, 80, e2.z + 40) : new THREE.Vector3(e2.x + 10, 30, e2.z + 38)); }
-/* chip petunjuk berikutnya (selalu terlihat setelah masuk) */
-{ const c = document.createElement('button'); c.id = 'misiChip'; c.type = 'button'; document.body.appendChild(c);
+/* tombol bulat "Tap N$" di peta (bergerak naik-turun) */
+{ const c = document.createElement('button'); c.id = 'misiChip'; c.type = 'button'; c.setAttribute('aria-label','Tap N$');
+  c.innerHTML = '<span class="uang">💰</span><span class="lbl">Tap N$</span>'; document.body.appendChild(c);
   c.addEventListener('click', ()=>{ openSheet(akunHTML); if (AKUN.u) akunMuat(); });
-  window.misiChipPerbarui = ()=>{ c.style.display = 'none'; return; /* chip misi di peta dihapus */ if (!AKUN.data){ c.style.display = 'none'; return; }
-    const nx = misiDaftar().find(m=>!m.ok); if (!nx){ c.style.display = 'none'; return; }
-    c.style.display = 'block'; c.innerHTML = `🎯 Misi berikutnya:<br>${nx.ikon} ${nx.judul}`; };
+  window.misiChipPerbarui = ()=>{ c.style.display = AKUN.data ? 'flex' : 'none'; };
   setInterval(()=>{ try { window.misiChipPerbarui(); } catch(_) {} }, 1500); }
 /* tandai misi selesai dari aksi server yang sukses */
 { const _p = SB.rpc.bind(SB);
@@ -6365,6 +6366,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 03:05</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 03:10</div>
 </body>
 </html>
