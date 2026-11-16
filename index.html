@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-1440">
+<meta name="nusawara-build" content="20261116-1500">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -5185,11 +5185,24 @@ function loop(){
   [[90,'🚌 TERMINAL'],[110,'🎭 TEATER'],[130,'🔧 GARASI'],[160,'🏦 BANK'],[180,'🏨 HOTEL'],[200,'🏪 MINIMARKET']].forEach(([x,n])=>{ parkir(x,16,-63); petak(x,-73,16,15,n); });
   [[70,'🍎 TOKO SAYUR'],[82,'💈 PANGKAS'],[94,'📚 TOKO BUKU'],[106,'👕 BUTIK'],[118,'🧁 KUE'],[160,'🍽️ RESTORAN'],[180,'💊 APOTEK'],[200,'🛒 PASAR']].forEach(([x,n])=>{ parkir(x,10,-88); petak(x,-96,11,11,n,3.6); });
 
+  // ===== KAWASAN FASILITAS BARU (selatan Kota Timur): petak calon Pemadam, Polisi (nanti), Balai Warga =====
+  lb('🚒 KAWASAN FASILITAS BARU', 188, -12);
+  [[162,'🚒 PEMADAM'],[188,'🚓 KANTOR POLISI'],[214,'🏛️ BALAI WARGA']].forEach(([x,n])=>petak(x,-4,22,17,n));
+  // ===== TAMAN & HUTAN KOTA (tepi selatan) =====
+  { const TX = 145, TZ = 78;
+    box(92,.12,52,0x6fb84a,TX,.06,TZ);
+    const kolam = new THREE.Mesh(new THREE.CylinderGeometry(9,9,.1,32), M(0x5fb7e5)); kolam.position.set(TX,.14,TZ); scene.add(kolam);
+    const tepi = new THREE.Mesh(new THREE.CylinderGeometry(10.2,10.2,.08,32), M(0xd8cfb8)); tepi.position.set(TX,.11,TZ); scene.add(tepi);
+    box(92,.1,3,0xd8cfb8,TX,.13,TZ); box(3,.1,52,0xd8cfb8,TX,.13,TZ);          // jalan setapak silang
+    for (let i=0;i<30;i++){ const a = i*2.399, r = 14 + (i%7)*3.2; const x = TX + Math.cos(a)*r*1.9, z = TZ + Math.sin(a)*r*.95;
+      if (Math.abs(x-TX) < 3 || Math.abs(z-TZ) < 3) continue; if (Math.abs(x-TX) > 44 || Math.abs(z-TZ) > 24) continue; pohonE(x,z); }
+    [[-14,-3],[14,-3],[-14,3],[14,3]].forEach(([dx,dz])=>box(3,.5,.8,0x7a4a24,TX+dx,.4,TZ+dz*1.2));
+    lb('🌳 TAMAN & HUTAN KOTA', TX, TZ + 12); }
 })();
 loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 14:40</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 15:00</div>
 </body>
 </html>
