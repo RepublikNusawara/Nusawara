@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-1450">
+<meta name="nusawara-build" content="20261116-1240">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3414,7 +3414,7 @@ function gelar(lv){ lv = Math.max(1, lv || 1); const G = [[30,'🏆','Warga Keho
   const g = G.find(x=>lv >= x[0]); return {ikon: g[1], nama: g[2], lv}; }
 window.LVW = window.LVW || {};
 function lvOf(u){ const k = String(u || '').toLowerCase().replace(/^@+/,''); try { if (AKUN.u === k && AKUN.data && AKUN.data.level) return AKUN.data.level; } catch(_) {} return (window.LVW || {})[k] || 1; }
-function tagTeks(key, w){ const g = gelar(lvOf(key)); return `${g.ikon} Lv${g.lv} · @${String((w && w.username) || key).replace(/^@+/,'')}`; }
+function tagTeks(key, w){ if (w && w.tamu) return '🌍 ' + String(w.username||key); const g = gelar(lvOf(key)); return `${g.ikon} Lv${g.lv} · @${String((w && w.username) || key).replace(/^@+/,'')}`; }
 function tagPerbarui(){ if (typeof WALKERS === 'undefined') return; for (const k in WALKERS){ const W = WALKERS[k], t = tagTeks(k, WINFO[k]); if (W.tagT === t) continue; W.tagT = t;
   const nl = label(t, {h:.75, size:28, bg:'rgba(255,253,248,.95)', fg:'#1f3a5f', onTop:true}); W.tag.material.map = nl.material.map; W.tag.material.needsUpdate = true; W.tag.scale.copy(nl.scale); scene.remove(nl); } }
 async function lvMuat(){ try { const r = await SB.rpc('level_warga', {}); if (r && typeof r === 'object') window.LVW = r; } catch(_) {} tagPerbarui(); }
@@ -3460,11 +3460,7 @@ function akunKeluar(diam){ AKUN.u = AKUN.s = AKUN.data = null; TAMU.u = TAMU.s =
   if (!diam){ closeSheet(); toast('Kamu sudah keluar.'); } }
 const HADIAH_HARI = d => d <= 2 ? 50 : d <= 5 ? 75 : 100;
 function masukHTML(){ if (GINFO) return gHTML(); return `<div class="kicker">Akun Warga</div><h2>🔑 Masuk</h2>
-  <p style="font-size:14px;line-height:1.5">Semua warga wajib <b>masuk dengan Gmail</b> terlebih dahulu. Warga lama: setelah masuk Gmail, tautkan akunmu (NIWN, saldo, tas, dan tanah tetap sama).</p>
-  <button class="btn" data-google style="background:#fff;color:#1f2227;border:1px solid #ccd;display:flex;align-items:center;justify-content:center;gap:8px"><b style="color:#4285f4;font-size:18px">G</b> Masuk dengan Gmail</button>
-  <div style="text-align:center;margin:12px 0 0;color:#667;font-size:12px">— atau —</div>
-  ${TAMU.u ? `<div class="card"><h3>🌍 Warga Asing · ${esc(TAMU.u)}</h3><p class="note">Kamu bisa menambang untuk Negara, tanpa N$ dan tanpa akun.</p><button class="btn ghost" data-tamu-keluar>Keluar</button></div>` : `<div class="card"><h3>🌍 Jalan-jalan sebagai Warga Asing</h3><p class="note">Tanpa Gmail dan tanpa akun. Cukup isi nama dan kata sandi bebas. Kamu boleh membantu misi (menambang untuk Negara), tetapi tidak mendapat N$.</p>
-  <form id="tmF"><input id="tmU" placeholder="Username" autocapitalize="none" autocorrect="off" spellcheck="false" style="font:inherit;font-size:17px;padding:12px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box;margin:6px 0 8px">${pwInput('tmP','Kata sandi')}<button class="btn" style="margin-top:4px">Masuk sebagai Warga Asing</button></form><p class="note" id="tmM"></p></div>`}
+  ${TAMU.u ? `<div class="card"><h3>🌍 Tamu · ${esc(TAMU.u)}</h3><p class="note">Kamu bisa menambang untuk Negara, tanpa N$ dan tanpa akun.</p><button class="btn ghost" data-tamu-keluar>Keluar</button></div>` : `<p style="font-size:14px;line-height:1.5">Masuk dengan username dan kata sandi, daftar, atau jalan-jalan sebagai tamu.</p><button class="btn" data-gerbang>🔑 Masuk / Daftar / Tamu</button>`}
   <button class="btn ghost" data-cara>📖 Cara Main di Republik Nusawara</button>`; }
 function masukLamaHTML(){ return `<div class="kicker">Akun Warga</div><h2>🔑 Masuk</h2>
   <p style="font-size:14px;line-height:1.5;margin:0 0 6px">Masuk dengan <b>username Instagram</b> dan <b>Kata Sandi Warga</b> untuk mengumpulkan Nusa (N$), absen harian, dan melihat isi tasmu.</p>
@@ -3519,6 +3515,62 @@ sheetBody.addEventListener('submit', async e=>{
     akunTombol(); sheetBody.innerHTML = akunHTML(); toast('✓ Selamat datang, @' + u + '!');
   } catch(_) { btn.disabled = false; m.textContent = 'Jaringan bermasalah. Coba lagi.'; }
 });
+/* ---------- PINTU MASUK: popup Masuk / Daftar / Tamu ---------- */
+(()=>{
+  const G = document.createElement('div'); G.id = 'gate';
+  G.style.cssText = 'position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:rgba(10,20,40,.75);padding:16px;box-sizing:border-box';
+  document.body.appendChild(G);
+  const IN = 'font:inherit;font-size:17px;padding:12px;border:1px solid #cfd6e4;border-radius:12px;width:100%;box-sizing:border-box;margin:6px 0 8px;background:#fff;color:#1f2227';
+  const BT = 'font:inherit;font-size:16px;font-weight:700;padding:13px;border:0;border-radius:12px;width:100%;box-sizing:border-box;margin:6px 0;cursor:pointer';
+  const wrap = h => `<div style="background:#fff;color:#1f2227;border-radius:18px;padding:20px;width:100%;max-width:360px;max-height:92vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.45);font-family:system-ui,sans-serif">${h}</div>`;
+  const acak = () => 'Tamu' + (1000 + Math.floor(Math.random()*9000));
+  function tampil(mode, pesan){
+    if (mode === 'daftar') G.innerHTML = wrap(`<h2 style="margin:0 0 6px">📝 Daftar Warga</h2><p style="font-size:14px;margin:0 0 6px">Tulis username Instagram kamu (tanpa @), lalu lanjut ke formulir.</p>
+      <input id="gdU" placeholder="username instagram" autocapitalize="none" autocorrect="off" spellcheck="false" style="${IN}"><p id="gdM" style="color:#c62828;font-size:13px;margin:0;min-height:16px"></p>
+      <button id="gdGo" style="${BT};background:#f2b134;color:#3a2600">Lanjut ke formulir</button><button id="gdBack" style="${BT};background:#eef1f7;color:#1f2227">← Kembali</button>`);
+    else if (mode === 'tamu') G.innerHTML = wrap(`<h2 style="margin:0 0 6px">🌍 Masuk sebagai Tamu</h2><p style="font-size:14px;margin:0 0 6px">Nama bebas, tidak perlu akun. Tamu bisa jalan-jalan dan membantu menambang, tanpa N$.</p>
+      <input id="gtU" value="${acak()}" autocapitalize="none" autocorrect="off" spellcheck="false" style="${IN}">
+      <button id="gtGo" style="${BT};background:#2fb5a8;color:#fff">Mulai jalan-jalan</button><button id="gdBack" style="${BT};background:#eef1f7;color:#1f2227">← Kembali</button>`);
+    else G.innerHTML = wrap(`<div style="text-align:center;font-size:13px;color:#667;font-weight:700;letter-spacing:.5px">REPUBLIK NUSAWARA</div><h2 style="margin:2px 0 8px;text-align:center">🔑 Masuk</h2>
+      <form id="gmF"><input id="gmU" placeholder="Username Instagram" autocapitalize="none" autocorrect="off" spellcheck="false" style="${IN}"><input id="gmP" type="password" placeholder="Kata Sandi Warga" autocapitalize="none" autocomplete="current-password" style="${IN}">
+      <p id="gmM" style="color:#c62828;font-size:13px;margin:0;min-height:16px">${pesan || ''}</p><button id="gmB" style="${BT};background:#1f3a5f;color:#fff">Masuk</button></form>
+      <div style="text-align:center;color:#889;font-size:12px;margin:8px 0 2px">— belum punya akun? —</div>
+      <button id="gmDaftar" style="${BT};background:#f2b134;color:#3a2600">📝 Daftar</button><button id="gmTamu" style="${BT};background:#2fb5a8;color:#fff">🌍 Masuk sebagai Tamu</button>`);
+    G.style.display = 'flex';
+  }
+  function tutup(){ G.style.display = 'none'; G.innerHTML = ''; }
+  function main(key){ window.FORCE_WALK = window.FORCE_WALK || {}; FORCE_WALK[key] = 1; const w = wInfo(key); if (w) syncWalkers({[key]: w}); setTimeout(()=>startCtl(key), 400); }
+  G.addEventListener('click', e=>{
+    const id = e.target.id;
+    if (id === 'gmDaftar') tampil('daftar'); else if (id === 'gmTamu') tampil('tamu'); else if (id === 'gdBack') tampil('masuk');
+    else if (id === 'gdGo'){
+      const u = String(document.getElementById('gdU').value || '').trim().replace(/^@+/,'').replace(/\s+/g,'');
+      if (u.length < 2){ document.getElementById('gdM').textContent = '❌ Isi username Instagram kamu.'; return; }
+      tutup(); document.getElementById('tallyFrame').src = 'https://tally.so/embed/Z9or5e?username=' + encodeURIComponent(u) + '&alignLeft=1&transparentBackground=1'; document.getElementById('tallyw').classList.add('open');
+    } else if (id === 'gtGo'){
+      let n = String(document.getElementById('gtU').value || '').replace(/[^A-Za-z0-9_.]/g,'').slice(0,20); if (n.length < 2) n = acak();
+      let key = n.toLowerCase(); if (wInfo(key)) key = (key + (10 + Math.floor(Math.random()*90))).slice(0,30);
+      TAMU.u = key; TAMU.s = 'tamu'; (window.FORCE_WALK = window.FORCE_WALK || {})[key] = 1;
+      syncWalkers({[key]: {username:key, niwn:'TAMU', follow:'Yes', tamu:1}}); akunTombol(); tutup();
+      toast('🌍 Selamat datang, ' + key + '! Ketuk ikon tambang untuk membantu Negara.'); setTimeout(()=>startCtl(key), 400);
+    }
+  });
+  G.addEventListener('submit', async e=>{
+    if (e.target.id !== 'gmF') return; e.preventDefault();
+    const u = String(document.getElementById('gmU').value || '').trim().toLowerCase().replace(/^@+/,''), pw = normPw(document.getElementById('gmP').value), m = document.getElementById('gmM'), b = document.getElementById('gmB');
+    if (!/^[a-z0-9._]{1,30}$/.test(u)){ m.textContent = '❌ Username tidak valid.'; return; }
+    if (!pw){ m.textContent = '❌ Isi kata sandi.'; return; }
+    b.disabled = true; m.style.color = '#667'; m.textContent = 'Memeriksa…';
+    try { const r = await SB.rpc('akun_saya', {p_user: u, p_sandi: pw}); b.disabled = false; m.style.color = '#c62828';
+      if (!r || !r.ok){ m.textContent = '❌ Username atau kata sandi salah.'; return; }
+      Object.assign(AKUN, {u, s: pw, data: r}); UNLOCK[u] = pw; try { localStorage.setItem('nusawara_akun', JSON.stringify({u, s: pw})); } catch(_) {}
+      akunTombol(); tutup(); toast('✓ Selamat datang, @' + u + '!'); main(u);
+    } catch(_) { b.disabled = false; m.style.color = '#c62828'; m.textContent = 'Jaringan bermasalah. Coba lagi.'; }
+  });
+  document.getElementById('tallyClose').addEventListener('click', ()=>{ if (!AKUN.u && !TAMU.u) tampil('masuk'); });
+  window.bukaGerbang = () => tampil('masuk');
+  setTimeout(()=>{ if (!AKUN.u && !TAMU.u) tampil('masuk'); }, 1200);
+})();
 sheetBody.addEventListener('click', async e=>{
   const t = e.target.closest('button'); if (!t) return;
   if (t.id === 'akOut') akunKeluar();
@@ -3610,7 +3662,7 @@ sheetBody.addEventListener('submit', e=>{
   if (!p) { m.textContent = '❌ Isi kata sandi.'; return; }
   TAMU.u = u; TAMU.s = p; akunTombol(); sheetBody.innerHTML = masukHTML(); toast('🌍 Selamat datang, Warga Asing ' + u + '! Ketuk ikon tambang untuk membantu Negara.');
 });
-sheetBody.addEventListener('click', e=>{ if (e.target.closest('[data-tamu-keluar]')) { akunKeluar(); } });
+sheetBody.addEventListener('click', e=>{ if (e.target.closest('[data-tamu-keluar]')) { akunKeluar(); setTimeout(()=>window.bukaGerbang&&bukaGerbang(), 300); } else if (e.target.closest('[data-gerbang]')) { closeSheet(); window.bukaGerbang&&bukaGerbang(); } });
 function tambangTamu(id){
   const e = EKO[id]; if (!e || e.k !== 'tambang' || !TAMU.u) return false;
   const t = TAMBANG.find(x=>x.kode === e.kode); if (!t) return false;
@@ -5121,6 +5173,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 14:50</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 12:40</div>
 </body>
 </html>
