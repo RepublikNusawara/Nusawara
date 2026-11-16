@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-1240">
+<meta name="nusawara-build" content="20261116-1255">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -4293,7 +4293,7 @@ let _gReady; window.GREADY = new Promise(r=>{ _gReady = r; }); setTimeout(()=>_g
   c.auth.onAuthStateChange((_e, ss)=>{ window.GTOKEN = ss ? ss.access_token : null; });
   _gReady(); if (!data || !data.session) return;
   if (/[?&]code=/.test(location.href)) history.replaceState(null, '', location.pathname);
-  const { data: g } = await c.rpc('google_saya'); GINFO = g && g.ok ? g : null; if (!GINFO) return;
+  const { data: g } = await c.rpc('google_saya'); GINFO = null; return;   /* Gmail tidak dipakai lagi */
   if (AKUN.u && GINFO.username === AKUN.u) return;
   const f = ()=>gHTML(); f.eko = 1; openSheet(f); })();
 
@@ -5173,6 +5173,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 12:40</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 12:55</div>
 </body>
 </html>
