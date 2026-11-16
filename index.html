@@ -5297,16 +5297,19 @@ function kavHTML(id){
 }
 function wapresCard(){ const w = wapresNow();
   return `<div class="card"><h3>👑 Wakil Presiden & Penasihat minggu ini</h3>${w ? `<div class="jrow"><span class="ji">👑</span><span class="jt"><b>${esc(namaW(w.username))}</b><small>Wakil Presiden · donatur terbanyak · 💼 ${N$(GAJI_WAPRES)}/hari</small></span></div>` + (w.penasihat || []).map(u=>`<div class="jrow"><span class="ji">🧑‍⚖️</span><span class="jt"><b>${esc(namaW(u))}</b><small>Penasihat Negara · 💼 ${N$(GAJI_PENASIHAT)}/hari</small></span></div>`).join('') : '<p class="note">Belum terisi. Diumumkan hari Senin berikutnya, dari donatur terbanyak.</p>'}</div>`; }
-let DN_SEMUA = false;
-sheetBody.addEventListener('click', e=>{ if (!e.target.closest('[data-dnsemua]')) return; DN_SEMUA = !DN_SEMUA; const y = sheetBody.scrollTop; sheetBody.innerHTML = sheetFn(); sheetBody.scrollTop = y; });
+function dnSemuaHTML(){
+  return `<button class="btn ghost" data-dnkembali style="margin-bottom:8px">← Kembali ke Papan Donasi</button>
+    <div class="kicker">Papan Donasi</div><h2>🏆 Semua Rank Donatur</h2><p class="note">${PAPAN.length.toLocaleString('id-ID')} warga sudah berdonasi · urut dari rank 1 sampai terakhir.</p>
+    <div class="card">${PAPAN.length ? PAPAN.map((r,i)=>rowPeringkat(r,i)).join('') : '<p class="note">Belum ada donasi.</p>'}</div>
+    <button class="btn ghost" data-dnkembali style="width:100%">← Kembali ke Papan Donasi</button>`; }
+sheetBody.addEventListener('click', e=>{
+  if (e.target.closest('[data-dnsemua]')){ const f = ()=>dnSemuaHTML(); f.eko = 1; openSheet(f); try { sheet.scrollTop = 0; sheetBody.scrollTop = 0; } catch(_) {} return; }
+  if (e.target.closest('[data-dnkembali]')){ try { focusObj(DON); } catch(_) {} } });
 function donasiHTML(){
   let h = `<div class="kicker">Membangun Republik Bersama</div><h2>🤝 Papan Donasi</h2>${saldoBar()}
     <div class="card"><h3>🏆 Peringkat donasi (1–20)</h3><div class="dnScroll" style="max-height:290px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;border-radius:10px">${PAPAN.length ? PAPAN.slice(0,20).map((r,i)=>rowPeringkat(r,i)).join('') : '<p class="note">Belum ada donasi.</p>'}</div>
     <p class="note">${PAPAN.length > 5 ? '↕️ Geser ke bawah untuk melihat sampai peringkat 20. ' : ''}Peringkat tidak di-reset. Setiap hari Senin dicek siapa donatur terbanyak.</p>
-    ${PAPAN.length ? `<button class="btn ghost" data-dnsemua style="width:100%;margin-top:6px">📋 ${DN_SEMUA ? 'Tutup' : 'Lihat semua'} rank donatur (${PAPAN.length})</button>
-    ${DN_SEMUA ? `<div style="max-height:260px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin-top:8px;border:1px solid var(--line);border-radius:10px"><table style="width:100%;border-collapse:collapse;font-size:12px">
-      <tr style="position:sticky;top:0;background:#1f3a5f;color:#fff"><th style="padding:6px;text-align:left">#</th><th style="padding:6px;text-align:left">Warga</th><th style="padding:6px;text-align:right">Poin</th><th style="padding:6px;text-align:right">N$</th></tr>
-      ${PAPAN.map((r, i)=>`<tr style="${r.username === AKUN.u ? 'background:#f2c14e;font-weight:800' : i % 2 ? 'background:#f6f7f9' : ''}"><td style="padding:5px 6px">${i + 1}</td><td style="padding:5px 6px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(namaW(r.username))}</td><td style="padding:5px 6px;text-align:right">${Number(r.poin).toLocaleString('id-ID')}</td><td style="padding:5px 6px;text-align:right">${Number(r.nsa || 0).toLocaleString('id-ID')}</td></tr>`).join('')}</table></div>` : ''}` : ''}</div>`;
+    ${PAPAN.length ? `<button class="btn ghost" data-dnsemua style="width:100%;margin-top:6px">📋 Lihat semua rank donatur (${PAPAN.length})</button>` : ''}</div>`;
   if (AKUN.data){
     h += `<div class="card"><h3>💰 Donasi N$</h3><div class="prow"><input type="number" min="1" value="100" id="dn-uang" style="font:inherit;font-size:17px;padding:10px;border:1px solid var(--line);border-radius:12px;width:120px;margin-top:14px"><button class="btn" data-donasi="uang">Donasi N$</button></div></div>`;
   } else h += perluMasuk();
@@ -6768,6 +6771,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 08:15</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 08:20</div>
 </body>
 </html>
