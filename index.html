@@ -4118,7 +4118,7 @@ function pergiKe(t){
 /* chip petunjuk berikutnya (selalu terlihat setelah masuk) */
 { const c = document.createElement('button'); c.id = 'misiChip'; c.type = 'button'; document.body.appendChild(c);
   c.addEventListener('click', ()=>{ openSheet(akunHTML); if (AKUN.u) akunMuat(); });
-  window.misiChipPerbarui = ()=>{ if (!AKUN.data){ c.style.display = 'none'; return; }
+  window.misiChipPerbarui = ()=>{ c.style.display = 'none'; return; /* chip misi di peta dihapus */ if (!AKUN.data){ c.style.display = 'none'; return; }
     const nx = misiDaftar().find(m=>!m.ok); if (!nx){ c.style.display = 'none'; return; }
     c.style.display = 'block'; c.innerHTML = `🎯 Misi berikutnya:<br>${nx.ikon} ${nx.judul}`; };
   setInterval(()=>{ try { window.misiChipPerbarui(); } catch(_) {} }, 1500); }
@@ -6365,6 +6365,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 03:00</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 02:35</div>
 </body>
 </html>
