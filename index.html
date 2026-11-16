@@ -799,7 +799,7 @@ function makeBengkelKaca(h){
   [[-6.4,zf+1.0],[-3.4,zf+1.0],[-1.7,zf+1.2],[2.6,zf+1.0],[6.4,zf+1.0]].forEach(([x,z])=>{ box(.8,.7,.8,0x8d949b,x,.65,z,g); const b = new THREE.Mesh(new THREE.SphereGeometry(.65,8,6), M(0x3f9d3a)); b.position.set(x,1.4,z); g.add(b); });
   papanT(h.id || 'BKT-MAWAR-002', 2.0, .42, '#1f2227', '#ffffff', 6.0, .6, zf+1.6, g);
   finishHouse(h, g);
-  g.position.set(36, 0, 42);   // ruko @iruzz BKT-MAWAR-002: di selatan podium (kawasan Rumah & Toko Undian), menghadap selatan, parkir di depan
+  g.position.set(289, 0, -246);   // ruko @iruzz BKT-MAWAR-002 (Bengkel Kaca): di sebelah timur Toko Kamera Republik Nusawara, menghadap +z seperti podium, di tepi jalan
 }
 Object.assign(DESAIN, {modern: makeModern, kaca: makeKaca, foto: makeFoto, merah: makeMerah, bengkel_kaca: makeBengkelKaca});
 function makeHouse(h){ if (h.status === 'tanah') return makePlot(h); return (DESAIN[h.desain] || makeRuko)(h); }
@@ -5784,6 +5784,7 @@ function loop(){
   try { const TX = 262, TZ = -250;
     jalan(212,296,-233);
     box(50,.06,34,0xe9e2d3,TX,.04,TZ+6); box(50,.07,5,0xcfc8b8,TX,.06,TZ+12.5);
+    box(20,.06,26,0xe9e2d3,289,.04,-238); box(20,.07,4,0xcfc8b8,289,.06,-236);   // lahan Bengkel Kaca @iruzz, sebaris di sebelah timur Toko Kamera
     const g = new THREE.Group(); g.position.set(TX,0,TZ); scene.add(g);
     const b = (w,h,d,c,x,y,z)=>box(w,h,d,c,x,y,z,g);
     const RED = 0xc8102e, DKB = 0x1a1f2b, WOOD = 0x6b4a2e, GOLD = 0xf2b134, BLK = 0x15181d;
