@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-1100">
+<meta name="nusawara-build" content="20261117-1200">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -803,9 +803,10 @@ function makeBengkelKaca(h){
   papanT(h.id || 'BKT-MAWAR-002', 2.0, .42, '#1f2227', '#ffffff', 6.0, .6, zf+1.6, g);
   finishHouse(h, g);
   g.userData.fixed = true;   // jangan dipindah ke cincin kavling oleh kotaUpdate
-  { const L = label('🔧 BENGKEL KACA REPUBLIK NUSAWARA', {h:1.6, size:34, bg:'rgba(28,42,74,.97)', fg:'#fff'}); L.position.set(0, 10.5, zf); g.add(L); }
+  { const S = 2.2, inner = new THREE.Group(); inner.scale.setScalar(S); while (g.children.length) inner.add(g.children[0]); g.add(inner); }   // ukuran disamakan dengan Toko Kamera (± 31 × 18)
+  { const L = label('🔧 BENGKEL KACA REPUBLIK NUSAWARA', {h:1.6, size:34, bg:'rgba(28,42,74,.97)', fg:'#fff'}); L.position.set(0, 19.6, 7); g.add(L); }
   g.visible = true;
-  g.position.set(289, 0, -246);   // ruko @iruzz BKT-MAWAR-002 (Bengkel Kaca): di sebelah timur Toko Kamera Republik Nusawara, menghadap +z seperti podium, di tepi jalan
+  g.position.set(306, 0, -248);   // ruko @iruzz BKT-MAWAR-002 (Bengkel Kaca): di sebelah timur Toko Kamera Republik Nusawara, menghadap +z seperti podium, di tepi jalan
 }
 Object.assign(DESAIN, {modern: makeModern, kaca: makeKaca, foto: makeFoto, merah: makeMerah, bengkel_kaca: makeBengkelKaca});
 function makeHouse(h){ if (h.status === 'tanah') return makePlot(h); return (DESAIN[h.desain] || makeRuko)(h); }
@@ -992,7 +993,7 @@ function kotaUpdate(instant){
   RINGS.forEach((L,i)=>{ const vis = i <= show; if (vis && !L.G.visible && !instant){ L.G.scale.y = .01; pops.push({g:L.G, t:0, flat:true}); } L.G.visible = vis;
     L.tgt = vis ? KSTEP*(show - i) + KBASE : KBASE; if (instant) L.cur = L.tgt; });
   PYT = show <= 0 ? 0 : RINGS[0].tgt + KSTEP - .26; if (instant) PY = PYT;
-  KSLOTS.forEach(s=>{ s.ghost.visible = s.li <= show && !houseGroups[s.id]; const g = houseGroups[s.id];
+  KSLOTS.forEach(s=>{ s.ghost.visible = s.li <= show && !houseGroups[s.id] && !s.kav; const g = houseGroups[s.id];
     if (g && !g.userData.fixed && g.parent !== RINGS[s.li].T){ if (g.parent) g.parent.remove(g); g.position.set(s.x - KX, 0, s.z - KZ); RINGS[s.li].T.add(g); } });
   kotaApply();
 }
@@ -2498,7 +2499,7 @@ function placeHouse(rec, animate){
   if (g && (g.userData.data.status !== status || (g.userData.data.desain||'') !== desain)){ removeHouse(s.id); g = null; animate = true; }
   if (!g){
     const h = Object.assign({}, s, {owner, niwn: rec.niwn ? String(rec.niwn) : '', since: rec.since ? String(rec.since) : '', status, desain});
-    houses.push(h); makeHouse(h); g = houseGroups[s.id]; COLL.push(desain === 'bengkel_kaca' ? [g.position.x, g.position.z, 7.2, 5.2] : [h.x, h.z-.05, 3.3, 2.3]);
+    houses.push(h); makeHouse(h); g = houseGroups[s.id]; COLL.push(desain === 'bengkel_kaca' ? [g.position.x, g.position.z, 15.8, 9.2] : [h.x, h.z-.05, 3.3, 2.3]);
     if (BB[s.id]) applyBoard(s.id);
     kotaUpdate(!animate);
     if (animate){ g.scale.setScalar(.01); pops.push({g, t:0}); }
@@ -4589,9 +4590,11 @@ function bangunanSiap(desain, g, nama){
   }
 }
 const kavMesh = {};
+const KAV_CINCIN = {'BLK-A-16':'MLT-MAWAR-003'};   // tanah @varezhaaa dipindah ke kavling barat rumah @aadamaalto
 function kavGambar(id){
   const k = KAV[id]; if (!k) return; const [W,D] = UKUR[k.tipe] || [8,10];
-  let g = kavMesh[id]; if (!g){ g = new THREE.Group(); g.position.set(k.x, 0, k.z); scene.add(g); kavMesh[id] = g; g.userData = {type:'eko', data:{id}}; pickables.push(g); }
+  let g = kavMesh[id]; if (!g){ g = new THREE.Group(); const sl = KAV_CINCIN[id] && slotOf(KAV_CINCIN[id]);
+    if (sl){ g.position.set(sl.x - KX, 0, sl.z - KZ); g.scale.setScalar(.75); RINGS[sl.li].T.add(g); sl.kav = id; sl.ghost.visible = false; } else { g.position.set(k.x, 0, k.z); scene.add(g); } kavMesh[id] = g; g.userData = {type:'eko', data:{id}}; pickables.push(g); }
   if (g.userData.sig === k.status + k.username + k.desain) return; g.userData.sig = k.status + k.username + k.desain;
   while (g.children.length) g.remove(g.children[0]);
   const saya = AKUN.u && k.username === AKUN.u;
@@ -6032,9 +6035,9 @@ function loop(){
     if (typeof COLL !== 'undefined'){ COLL.push([MX,MZ,35,23]); COLL.push([MX,MZ+26,10.5,3.5]); } }
   // ===== TOKO KAMERA REPUBLIK NUSAWARA — saran warga @kindomcream; 2 lantai, mengikuti gambar =====
   try { const TX = 262, TZ = -250;
-    jalan(212,296,-233);
+    jalan(212,326,-233);
     box(50,.06,34,0xe9e2d3,TX,.04,TZ+6); box(50,.07,5,0xcfc8b8,TX,.06,TZ+12.5);
-    box(20,.06,26,0xe9e2d3,289,.04,-238); box(20,.07,4,0xcfc8b8,289,.06,-236);   // lahan Bengkel Kaca @iruzz, sebaris di sebelah timur Toko Kamera
+    box(38,.06,30,0xe9e2d3,306,.04,-242); box(38,.07,4,0xcfc8b8,306,.06,-236);   // lahan Bengkel Kaca @iruzz, sebaris di sebelah timur Toko Kamera
     const g = new THREE.Group(); g.position.set(TX,0,TZ); scene.add(g);
     const b = (w,h,d,c,x,y,z)=>box(w,h,d,c,x,y,z,g);
     const RED = 0xc8102e, DKB = 0x1a1f2b, WOOD = 0x6b4a2e, GOLD = 0xf2b134, BLK = 0x15181d;
