@@ -2519,7 +2519,9 @@ const AVA_OPT = {
 function hashStr(s){ let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
 const isHex = v => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v);
 const pick = (v, list, d) => list.some(o=>o[0]===v) ? v : d;
-function avatarSpec(w){
+var PEJABAT = new Set();   // pemegang jabatan: berbaju batik dinas
+function avatarSpec(w){ const sp = avatarSpec0(w), u = String((w && w.username) || '').toLowerCase(); if (PEJABAT.has(u)){ sp.bajuModel = 'batik'; sp.baju = '#1f2a6b'; } return sp; }
+function avatarSpec0(w){
   const u = String((w && w.username) || '').toLowerCase(), h = hashStr(u), a = (w && w.avatar && typeof w.avatar === 'object') ? w.avatar : {};
   const kac = a.kacamata === true ? 'hitam' : a.kacamata === false ? 'tidak' : a.kacamata;
   const top = isHex(a.topi) ? 'cap' : a.topi;
@@ -2673,6 +2675,20 @@ function makeAvatar(sp){
     v.box(0,1.16,0,.66,.06,.44, D);
   }
   if (sp.bajuModel === 'kemeja'){ [-.07,.07].forEach(x=>v.box(x,1.84,Zf+.02,.12,.06,.04, tone(B,1.1))); for (let i=0;i<4;i++) v.box(0,1.74 - i*.16,Zf+.012,.04,.04,.02, 0xeeeeee); v.box(.18,1.66,Zf+.012,.12,.1,.02, D); }
+  if (sp.bajuModel === 'batik'){                                                  // batik dinas Republik Nusawara: navy, emas, krem, garuda di dada
+    const GD = 0xe3b03a, CR = 0xf3e6c8, GD2 = 0xc98f1e;
+    [-.05,.05].forEach(x=>v.box(x,1.5,Zf+.012,.016,.72,.02, GD));                                   // garis plakat emas
+    for (let i=0;i<4;i++) v.box(0,1.74 - i*.17,Zf+.02,.04,.04,.025, GD);                              // kancing emas
+    [-.13,.13].forEach(x=>v.box(x,1.88,Zf+.02,.12,.05,.04, GD));                                      // kerah emas
+    v.box(0,1.54,Zf+.022,.1,.18,.03, GD); v.box(0,1.66,Zf+.03,.07,.06,.03, GD2);                      // garuda: badan & kepala
+    [-1,1].forEach(sd=>{ v.box(sd*.15,1.57,Zf+.022,.15,.07,.025, GD); v.box(sd*.2,1.5,Zf+.022,.1,.06,.025, GD2); v.box(sd*.13,1.4,Zf+.022,.12,.04,.025, GD); });   // sayap
+    v.rbox(0,1.52,Zf+.045,.075,.09,.02, 0x1f2a6b,.02); v.box(0,1.52,Zf+.058,.035,.035,.012, 0xffffff);   // perisai rumah
+    v.box(-.17,1.71,Zf+.022,.2,.065,.025, 0x101018); v.box(-.17,1.71,Zf+.036,.14,.012,.012, 0xffffff);   // papan nama
+    v.rbox(.17,1.7,Zf+.025,.095,.105,.02, GD,.02); v.box(.17,1.7,Zf+.038,.04,.04,.012, 0xffffff);        // lencana perisai
+    [-.24,.24].forEach(x=>{ v.box(x,1.78,Zf+.015,.16,.09,.02, GD); v.box(x,1.62,Zf+.012,.04,.3,.02, GD2); });   // ornamen bahu & sisi
+    v.box(0,1.2,Zf+.02,.62,.12,.02, CR); for (let i=0;i<8;i++) v.box(-.27 + i*.077,1.2,Zf+.034,.03,.03,.012, i%2 ? GD : GD2);   // pita batik krem di bawah
+    [-.2,.2].forEach(x=>v.box(x,1.3,Zf+.02,.18,.06,.02, GD));
+  }
   if (sp.bajuModel === 'jas'){ v.box(0,1.58,Zf+.008,.18,.54,.02, 0xf4f1ea); v.box(0,1.55,Zf+.016,.06,.42,.02, 0xb03030); v.box(0,1.78,Zf+.02,.08,.06,.02, 0xb03030);
     [-.13,.13].forEach(x=>v.box(x,1.68,Zf+.014,.08,.34,.03, D)); }
   v.box(0,1.92,0,.2,.1,.2, sp.kulit);                                            // leher
@@ -2686,6 +2702,7 @@ function makeAvatar(sp){
     if (sp.bajuModel === 'kaos'){ w.box(0,-.1,0,.2,.22,.24, B); w.box(0,-.2,0,.21,.04,.25, 0xf2f2ee); w.box(0,-.43,0,.17,.44,.2, sp.kulit); }
     else if (sp.bajuModel === 'sporty'){ w.rbox(0,-.12,0,.23,.28,.27, tone(B,.82),.06); w.rbox(0,-.42,0,.18,.36,.21, sp.kulit,.05); }
     else { w.rbox(0,-.27,0,.21,.6,.25, B,.06); w.rbox(0,-.58,0,.22,.07,.26, D,.03); }
+    if (sp.bajuModel === 'batik'){ w.rbox(0,-.22,0,.218,.26,.258, 0xe8cf8f,.05); w.rbox(0,-.22,.0,.222,.1,.262, 0xe3b03a,.03); w.rbox(0,-.58,0,.225,.07,.265, 0xe3b03a,.03); w.rbox(0,-.07,0,.222,.08,.262, 0xe3b03a,.03); }
     w.rbox(0,-.71,.0,.19,.2,.22, sp.kulit,.06); w.mesh(a); });
 
   // ---------- kepala kubus ----------
@@ -2923,6 +2940,8 @@ function pejabatDaftar(){
 function barisSlot(k){
   const keys = Object.keys(WALKERS), pj = pejabatDaftar(), sig = keys.length + ':' + keys.join(',') + '|' + [...pj].sort().join(',');
   if (sig !== BARIS.sig){ BARIS.sig = sig; BARIS.slot = {};
+    const ubah = [...pj].filter(u=>!PEJABAT.has(u)).concat([...PEJABAT].filter(u=>!pj.has(u))); PEJABAT = new Set(pj);
+    if (ubah.length) setTimeout(()=>ubah.forEach(u=>{ try { if (WALKERS[u] && WINFO[u]) syncWalkers({[u]: WINFO[u]}); } catch(_) {} }), 0);
     keys.sort((a,b)=>String((WINFO[a]||{}).niwn || a).localeCompare(String((WINFO[b]||{}).niwn || b)));
     const off = c => c === 0 ? 0 : (c % 2 ? Math.ceil(c/2) : -c/2) * BARIS.DX;
     const aktif = keys.filter(u=>pj.has(u)), warga = keys.filter(u=>!pj.has(u));
@@ -5713,6 +5732,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 01:10</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 01:25</div>
 </body>
 </html>
