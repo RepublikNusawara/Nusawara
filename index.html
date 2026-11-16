@@ -2524,6 +2524,8 @@ const AVA_OPT = {
 function hashStr(s){ let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
 const isHex = v => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v);
 const pick = (v, list, d) => list.some(o=>o[0]===v) ? v : d;
+function bajuOpsi(u){ let off = false; try { off = PEJABAT.has(u) || (typeof WPR !== 'undefined' && WPR.u === u); } catch(_) {}
+  return off ? AVA_OPT.bajuModel.concat([['batik','Batik Dinas']]) : AVA_OPT.bajuModel; }   // baju dinas hanya ada di pilihan pemegang jabatan; jabatan dicopot = pilihan hilang
 var PEJABAT = new Set();   // pemegang jabatan: berbaju batik dinas
 function avatarSpec(w){ const sp = avatarSpec0(w), u = String((w && w.username) || '').toLowerCase();
   if (typeof WPR !== 'undefined' && WPR.u === u && !(w && w._jas)){ sp.bajuModel = 'batik'; sp.baju = '#1f2a6b'; }   // dimainkan: batik dinas
@@ -2539,7 +2541,7 @@ function avatarSpec0(w){
     rambut: isHex(a.rambut) ? a.rambut : AVA_HAIR[(h>>3)%5],
     rambutModel: pick(a.rambutModel, AVA_OPT.rambutModel, ['pendek','spike','undercut','ikal'][(h>>5)%4]),
     baju: isHex(a.baju) ? a.baju : AVA_TOP[(h>>7)%12],
-    bajuModel: pick(a.bajuModel, AVA_OPT.bajuModel, a.tudung ? 'hoodie' : ['sweater','kaos','hoodie','sweater'][(h>>9)%4]),
+    bajuModel: pick(a.bajuModel, bajuOpsi(u), a.tudung ? 'hoodie' : ['sweater','kaos','hoodie','sweater'][(h>>9)%4]),
     celana: isHex(a.celana) ? a.celana : AVA_BOT[(h>>11)%6],
     celanaModel: pick(a.celanaModel, AVA_OPT.celanaModel, 'panjang'),
     sepatu: isHex(a.sepatu) ? a.sepatu : AVA_SHOE[(h>>13)%6],
@@ -3229,13 +3231,13 @@ function stOptions(){
   document.getElementById('stO').innerHTML =
     grp('EKSPRESI', chip('ekspresi', EKSPRESI)) +
     grp('RAMBUT PRIA', chip('rambutModel', HAIR_PRIA)) + grp('RAMBUT WANITA', chip('rambutModel', HAIR_WANITA)) + grp('WARNA RAMBUT', sw('rambut')) +
-    grp('MODEL BAJU', chip('bajuModel', AVA_OPT.bajuModel)) + grp('WARNA BAJU', sw('baju')) +
+    grp('MODEL BAJU', chip('bajuModel', bajuOpsi(String(st.key).toLowerCase()))) + grp('WARNA BAJU', sw('baju')) +
     grp('MODEL CELANA', chip('celanaModel', AVA_OPT.celanaModel)) + grp('WARNA CELANA', sw('celana')) +
     grp('SEPATU', sw('sepatu')) + grp('WARNA KULIT', sw('kulit')) +
     grp('KACAMATA', chip('kacamata', AVA_OPT.kacamata)) + grp('TOPI', chip('topi', AVA_OPT.topi)) + (sp.topi !== 'tidak' ? grp('WARNA TOPI', sw('topiWarna')) : '') +
     grp('AKSESORIS', chip('kopi', AVA_OPT.kopi));
 }
-document.getElementById('stO').addEventListener('click', e=>{ const b = e.target.closest('[data-k]'); if (!b || !st) return; st.spec[b.dataset.k] = b.dataset.v; stBuild(); stOptions(); stResize(); });
+document.getElementById('stO').addEventListener('click', e=>{ const b = e.target.closest('[data-k]'); if (!b || !st) return; st.spec[b.dataset.k] = b.dataset.v; if (b.dataset.k === 'bajuModel' && b.dataset.v === 'batik') st.spec.baju = '#1f2a6b'; stBuild(); stOptions(); stResize(); });
 document.getElementById('stR').onclick = ()=>{ if (!st) return; const r = l => l[Math.floor(Math.random()*l.length)];
   Object.assign(st.spec, { ekspresi: r(EKSPRESI)[0], rambutModel: r(AVA_OPT.rambutModel)[0], bajuModel: r(AVA_OPT.bajuModel)[0], celanaModel: r(AVA_OPT.celanaModel)[0], rambut: r(AVA_HAIR), baju: r(AVA_TOP), celana: r(AVA_BOT), sepatu: r(AVA_SHOE), kacamata: r(AVA_OPT.kacamata)[0], topi: r(AVA_OPT.topi)[0], topiWarna: r(AVA_TOP) });
   stBuild(); stOptions(); };
@@ -5764,6 +5766,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 02:30</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 02:45</div>
 </body>
 </html>
