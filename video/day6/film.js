@@ -101,6 +101,35 @@ function orbit(I, ang, distK, hK, tY){ const r = Math.max(I.s.x, I.s.z)*distK + 
 const D6 = {hook:0, uang:2.3, pab:6.39, jab:10.58, gar:13.44, n300:19.85, tap:23.87, kerja:30.53, login:36.49, bolos:40.26, don:41.54, und:45.31, cnt:48.2, spin:49.7, win:53.33, kav:54.97, cta:57.31, bye:60.83, end:62.43};
 const SPIN = ["kalilaaa_12","ramatemeh","_12k1la","manzzkidz","iruzz","Roro","rafi__malo_178","82_syaa","shiatokojiro","zuhana","pahriprtama","Fajri","ardhiaadia","AndyniePutri","bangrajab84","Khanza","rafadityarizkyi","dina_destria109","Nazwa","keyypretty","4bidz4r","Indahhhcuyyy","fenndii","ilham","Martin","aadamaalto","rehanalfarizi","younkbayu","laila_ii"];
 const WIN = '@fadil';
+// undian memakai kolom undian ASLI di panggung + tombol merah di samping podium (sama seperti undian sungguhan)
+try { kasFront.map = kasTex(19805); kasFront.needsUpdate = true; } catch(e){}   // Kas Negara diambil dari database saat video dibuat (17 Nov)
+const U_NO = 3, U_WIN = 'fadil - 000090', U_PRESS = 47.3, U_SPIN0 = 47.9;
+const U_SEQ = (()=>{ const a = []; for (let i=0;i<34;i++){ const n = SPIN[(i*7)%SPIN.length]; a.push(n + ' - ' + String(100 + ((i*37)%180)).padStart(6,'0')); } a.push(U_WIN); return a; })();
+const U_ALAMAT = (()=>{ try { const k = slotOf('PLG-MAWAR-004'); return k ? `Tanah ${k.street} No. ${k.no}` : 'Tanah Jalan Mawar No. 4'; } catch(e){ return 'Tanah Jalan Mawar No. 4'; } })();
+const U_STAND = V3(BTN_W.x, PRES0.y, BTN_W.z - 1.0);
+let uLastState = '';
+function undianAt(t){
+  const pr = t >= U_PRESS && t < U_PRESS + .7;
+  // Presiden berjalan ke tombol lalu menekan
+  if (t >= D6.und && t < D6.cta){
+    const k = sm(45.8, U_PRESS - .05, t); pres.position.set(lerp(PRES0.x, U_STAND.x, k), PRES0.y, lerp(PRES0.z, U_STAND.z, k));
+    const walking = t > 45.8 && t < U_PRESS - .1; const dx = U_STAND.x - PRES0.x, dz = U_STAND.z - PRES0.z;
+    pres.rotation.y = walking ? Math.atan2(dx, dz) : 0;
+    const sw = walking ? Math.sin(t*12)*.55 : 0; legL.rotation.x = sw; legR.rotation.x = -sw; armL.rotation.x = -sw*.8;
+    const kp = cl((t - U_PRESS)/.35, 0, 1), back = cl((t - U_PRESS - .45)/.5, 0, 1);
+    armR.rotation.z = (t > D6.win && t < D6.win + 2.5) ? -2.6 + Math.sin(t*11)*.25 : 0; armR.rotation.x = t >= U_PRESS ? -1.25*kp*(1-back) : armL.rotation.x*-1;
+    btnCap.position.y = .77 - (kp >= 1 && back < .6 ? .1 : 0);
+    capMat.emissive.setHex(t >= U_PRESS && t < D6.win ? (Math.sin(t*20) > 0 ? 0xff2222 : 0x880000) : 0x550000);
+  } else { legL.rotation.x = legR.rotation.x = armL.rotation.x = armR.rotation.x = 0; armR.rotation.z = 0; btnCap.position.y = .77; capMat.emissive.setHex(0x550000); }
+  // kolom undian
+  let st, key;
+  if (t < D6.und || t >= D6.cta){ key = 'idle'; st = {idle:true}; }
+  else if (t < U_SPIN0){ key = t < U_PRESS ? 'jalan' : 'tekan'; st = {text: t < U_PRESS ? '🥁 Bapak Presiden menuju tombol…' : '🔴 Tombol ditekan!', no: U_NO}; }
+  else if (t < D6.win){ const u = cl((t - U_SPIN0)/(D6.win - U_SPIN0), 0, 1), N = U_SEQ.length - 1, pos = N*(1 - Math.pow(1-u, 3.2)), i = Math.min(N, Math.floor(pos)), f = i >= N ? 0 : pos - i;
+    key = 's' + i + '_' + Math.round(f*20); st = {spin:[U_SEQ[i], U_SEQ[Math.min(N,i+1)]], f, no: U_NO}; }
+  else { key = 'win'; st = {win: U_WIN, alamat: U_ALAMAT, no: U_NO}; }
+  if (key !== uLastState){ uLastState = key; try { drawPanel(st); } catch(e){} }
+}
 const KAV = (()=>{ try { const s = slotOf('PLG-MAWAR-004'); if (s){ const w = V3(); (s.ghost || s).updateMatrixWorld && (s.ghost||s).updateMatrixWorld(true); if (s.ghost){ s.ghost.getWorldPosition(w); return w; } return V3(s.x, 1, s.z); } } catch(e){} return V3(37, 1, 20); })();
 const KSL = (()=>{ try { return slotOf('PLG-MAWAR-004'); } catch(e){ return null; } })();
 const KAVG = new THREE.Group(); scene.add(KAVG); KAVG.position.copy(KAV); KAVG.visible = false;
@@ -121,8 +150,10 @@ window.FILM = { info: Object.fromEntries(Object.keys(INFO).map(k=>[k,{c:INFO[k].
   Object.keys(INFO).forEach(k=>progress(k,1));
   try { const pa = flagGeo.attributes.position.array; for (let i=0;i<pa.length;i+=3){ const x = flagBase[i] + 2.25; pa[i+2] = Math.sin(x*1.6 - t*4)*.18*(x/4.5); } flagGeo.attributes.position.needsUpdate = true; } catch(e){}
   pres.position.copy(PRES0); pres.rotation.y = PRESR; chick.position.copy(CH0); chick.rotation.y = CHR;
+  undianAt(t);
   const hop = (t > D6.bolos && t < D6.don) || (t > D6.win && t < D6.win+1.6) || t > D6.cta; chick.position.y = CH0.y + (hop ? Math.abs(Math.sin(t*7))*.15 : 0);
   if (t > D6.bolos && t < D6.don) pres.rotation.y = PRESR + Math.sin(t*9)*.18;
+  if (t >= D6.und && t < D6.kav){ chick.position.set(U_STAND.x - 1.4, CH0.y, U_STAND.z + .6); }
   setCount(300);
   KAVG.visible = t >= D6.kav && t < D6.cta; if (KSL && KSL.ghost) KSL.ghost.visible = !(t >= D6.kav && t < D6.cta);
   // ---- kamera ----
@@ -138,8 +169,8 @@ window.FILM = { info: Object.fromEntries(Object.keys(INFO).map(k=>[k,{c:INFO[k].
   else if (t < D6.login){ const L = (D6.login-D6.kerja)/3, i = cl(Math.floor((t-D6.kerja)/L),0,2), k = ['kopi','rs','mall'][i], I = INFO[k], u = (t-D6.kerja-i*L)/L; flashCut = D6.kerja + i*L; [C,T] = I ? orbit(I, .5 - u*.5, k==='mall'?.75:1.1, .7, .4) : presCam(20,8); }
   else if (t < D6.don){ const k = sm(D6.login,D6.don,t); [C,T] = presCam(lerp(14,7.5,k), lerp(5,2.8,k), lerp(-3,1,k)); }
   else if (t < D6.und){ const u = (t-D6.don)/(D6.und-D6.don); [C,T] = DN ? orbit(DN, -.3 + u*.6, 1.4, 1.0, .5) : presCam(20,8); }
-  else if (t < D6.win){ const k = sm(D6.und,D6.win,t); [C,T] = presCam(lerp(18,9,k), lerp(6,3.2,k), lerp(-4,0,k)); }
-  else if (t < D6.kav){ [C,T] = presCam(8.5, 3, 0); }
+  else if (t < D6.kav){ const tg = V3(18.6, 5.2 + PY, -6), k = sm(D6.und, U_PRESS, t), z = sm(U_SPIN0, U_SPIN0 + 1.2, t), w = sm(D6.win, D6.win + .6, t);
+    const d = lerp(lerp(20, 13, k), 15.5, z) - w*2.5; C = V3(tg.x + .3 + lerp(3,0,k), tg.y + lerp(1.5, .8, z) + d*.12, tg.z + d); T = V3(tg.x + lerp(1.2, 0, z), tg.y + lerp(-1.6, 1.4, z), tg.z); }
   else if (t < D6.cta){ const k = sm(D6.kav,D6.cta,t); C = V3(KAV.x + lerp(14,8,k), lerp(18,12,k), KAV.z + lerp(22,14,k)); T = V3(KAV.x, 1, KAV.z); }
   else { const k = sm(D6.cta,D6.end,t); [C,T] = presCam(lerp(14,8.5,k), lerp(3.4,2.6,k), lerp(-1.5,1.5,k)); }
   shot(C,T);
@@ -204,14 +235,12 @@ window.FILM = { info: Object.fromEntries(Object.keys(INFO).map(k=>[k,{c:INFO[k].
       txt(m+' '+n, 210, y, 42, '#13233b', 'left', pa, 800); txt(j, 870, y, 40, i===0?'#c8102e':'#1c3f7a', 'right', pa, 900); });
     pill('📅 Diangkat setiap hari SENIN', 1580, '#ffd21f', '#13233b', sm(43.6,43.9,t)*(1-sm(D6.und-.25,D6.und,t)), 50); if (t > 42.6) confetti(42.6,t,100,.8); }
   else if (t < D6.win){ const a = inout(D6.und,D6.win);
-    headline([['🎰 UNDIAN','#ffd21f',120],['TANAH & RUMAH!','#ffffff',100]], 330, a, pop(D6.und)); if (t < 45.6) flash(D6.und,t);
-    if (t > D6.cnt){ const n = Math.round(lerp(0,300, sm(D6.cnt, D6.spin-.2, t))); pill(`👥 ${n} warga ikut`, 640, '#ffffff', '#13233b', a, 56); }
-    if (t > D6.spin){ dim(.35*sm(D6.spin,D6.spin+.5,t)); const pa = sm(D6.spin,D6.spin+.25,t); panel(140,900,800,560,'Nama berputar…',pa,'#1c3f7a');
-      const sp = Math.max(0, 18 - (t-D6.spin)*4.2), off = (t-D6.spin)*sp + (t-D6.spin)*1.5; for (let j=-2;j<=2;j++){ const idx = ((Math.floor(off)+j)%SPIN.length+SPIN.length)%SPIN.length, f = off - Math.floor(off), y = 1180 + (j - f)*92;
-        txt('@'+SPIN[idx], 540, y, j===0?64:48, j===0?'#13233b':'#9aa5b1', 'center', pa*(1-Math.abs(j-f)/3), j===0?900:700); }
-      cx.save(); cx.globalAlpha=pa; cx.strokeStyle='#c8102e'; cx.lineWidth=8; rr(170,1130,740,100,20); cx.stroke(); cx.restore();
+    headline([['🎰 UNDIAN','#ffd21f',120],['TANAH & RUMAH!','#ffffff',100]], 330, a*(1-sm(U_SPIN0+.6,U_SPIN0+.9,t)), pop(D6.und)); if (t < 45.6) flash(D6.und,t);
+    if (t > U_PRESS - .1 && t < U_SPIN0 + .6) pill('🔴 Presiden menekan tombol UNDI!', 1560, '#c8102e', '#ffffff', sm(U_PRESS-.1,U_PRESS+.1,t)*(1-sm(U_SPIN0+.3,U_SPIN0+.6,t)), 50);
+    if (t > D6.cnt){ const n = Math.round(lerp(0,300, sm(D6.cnt, D6.spin-.2, t))); pill(`👥 ${n} warga ikut`, 1440, '#ffffff', '#13233b', a, 56); }
+    if (t > D6.spin){
       if (t > 52.14) pill('Pemenangnya adalah…', 1560, '#ffd21f', '#13233b', sm(52.14,52.4,t), 54); } }
-  else if (t < D6.kav){ dim(.25); headline([['🎉 '+WIN.toUpperCase()+'!','#ffd21f',130],['SELAMAT!','#ffffff',120]], 420, sm(D6.win,D6.win+.15,t), pop(D6.win));
+  else if (t < D6.kav){ headline([['🎉 '+WIN.toUpperCase()+'!','#ffd21f',130],['SELAMAT!','#ffffff',120]], 330, sm(D6.win,D6.win+.15,t), pop(D6.win));
     firework(D6.win,t,250,700,'#ffd21f'); firework(D6.win+.25,t,830,620,'#ff6fa8'); firework(D6.win+.5,t,540,520,'#7ed957'); confetti(D6.win,t,260,1.15); flash(D6.win,t);
     pill('🏆 Pemenang Undian Tanah & Rumah', 1580, '#c8102e', '#ffffff', 1, 50); }
   else if (t < D6.cta){ const a = inout(D6.kav,D6.cta);
