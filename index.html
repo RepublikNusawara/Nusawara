@@ -3963,6 +3963,8 @@ function tapuKol(tot){ let k = 0; for (let i=1;i<5;i++) if (tot >= TAPK.buka[i])
 function tapuSim(){ let tot = TAPU.total || 0, hj = TAPU.hari || 0, hk = TAPU.hk == null ? tapuKol(tot) : TAPU.hk, ks = 0, kas = 0;
   for (let i=0;i<TAPU.pending;i++){ const k = tapuKol(tot); if (k !== hk){ hk = k; hj = 0; } if (hj < TAPK.batas[k]) ks += TAPK.nilai[k]; else kas += TAPK.nilai[k]; hj++; tot++; }
   const k = tapuKol(tot); return {k, hj: k === hk ? hj : 0, ks, kas, tot}; }
+function tapuPapan(n){ try { let e = PAPAN.find(x=>x.username === AKUN.u); if (!e){ e = {username: AKUN.u, nama: (AKUN.data && AKUN.data.nama) || AKUN.u, poin: 0, nsa: 0, bahan: 0}; PAPAN.push(e); }
+  e.poin = Number(e.poin) + n; PAPAN.sort((a, b)=>b.poin - a.poin); donGambar(); if (sheet.classList.contains('open') && sheetFn && sheetFn.eko && sheetBody.querySelector('#dnCari')) sheetBody.innerHTML = sheetFn(); } catch(_) {} }
 function tapuLive(){ const me = AKUN.u; let top = TAPU.top.map(r=>({...r}));
   if (!me || TAPU.total == null) return top; const mine = TAPU.total + TAPU.pending;
   const ada = top.find(r=>r.u === me); if (ada) ada.total = Math.max(ada.total, mine); else if (top.length && mine > top[top.length - 1].total) top.push({u: me, total: mine});
@@ -3990,7 +3992,7 @@ async function tapuPeringkat(){ try { const r = await SB.rpc('tap_peringkat', {p
 async function tapuKirim(){ if (TAPU.sibuk || !TAPU.pending || !AKUN.u) return; TAPU.sibuk = true; const n = Math.min(TAPU.pending, 40);
   try { const r = await SB.rpc('tap_uang', {p_user: AKUN.u, p_sandi: AKUN.s, p_jumlah: n}); TAPU.pending -= n;
     if (r && r.ok){ TAPU.hari = r.hari_ini; TAPU.hk = (r.kolom || 1) - 1; const tolak = n - r.diterima; if (tolak > 0){ TAPU.sesi = Math.max(0, TAPU.sesi - tolak * TAPK.nilai[TAPU.hk]); const m = TAPU.ov && TAPU.ov.querySelector('.msg'); if (m) m.textContent = '⚠️ Terlalu cepat! Tunggu sebentar lalu tap lagi.'; }
-      TAPU.total = r.total; TAPU.rank = r.rank; if (AKUN.data) AKUN.data.saldo = r.saldo; if (r.ke_kas > 0){ KAS += r.ke_kas; try { kasFront.map = kasTex(KAS); kasFront.needsUpdate = true; } catch(_) {} } }
+      TAPU.total = r.total; TAPU.rank = r.rank; if (AKUN.data) AKUN.data.saldo = r.saldo; if (r.poin > 0) tapuPapan(r.poin); if (r.ke_kas > 0){ KAS += r.ke_kas; try { kasFront.map = kasTex(KAS); kasFront.needsUpdate = true; } catch(_) {} } }
     else { TAPU.sesi = 0; const m = TAPU.ov && TAPU.ov.querySelector('.msg'); if (m) m.textContent = r && r.alasan === 'warga' ? '❌ Hanya untuk Warga Republik Nusawara.' : '❌ Sesi masuk berakhir. Masuk lagi.'; }
   } catch(_) { TAPU.pending -= n; TAPU.sesi = Math.max(0, TAPU.sesi - n * TAPK.nilai[tapuSim().k]); const m = TAPU.ov && TAPU.ov.querySelector('.msg'); if (m) m.textContent = '❌ Gagal tersambung. Coba lagi.'; }
   TAPU.sibuk = false; tapuRender(); if (TAPU.pending) setTimeout(tapuKirim, 250); }
@@ -4003,7 +4005,7 @@ function tapuAturan(){ const o = TAPU.ov; if (!o) return; let f = o.querySelecto
   const li = [
     ['🪙','Ada 5 kolom cetak: <b>N$1</b> (total tap 1–1.000), <b>N$5</b> (mulai tap ke-1.001), <b>N$10</b> (ke-5.001), <b>N$50</b> (ke-20.001), <b>N$100</b> (ke-50.001). Setiap tap bernilai sesuai kolom yang terbuka, dan kolom sebelumnya tidak bisa dipakai lagi.'],
     ['💰','Batas tap per hari yang masuk ke saldo-mu: N$1 <b>200x</b>, N$5 <b>150x</b>, N$10 <b>100x</b>, N$50 <b>75x</b>, N$100 <b>50x</b>. Direset setiap hari pukul <b>00.00 WIB</b>.'],
-    ['🤝','Lewat batas harian, uangnya otomatis masuk ke <b>Kas Negara</b>. Yang tercatat di Papan Donasi atas namamu adalah <b>jumlah tap</b>-nya.']];
+    ['🤝','Lewat batas harian, uangnya otomatis masuk ke <b>Kas Negara</b>. Setiap tap juga langsung menambah <b>+1 poin donasi</b> atas namamu di Papan Donasi.']];
   f.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><b style="flex:1;font-size:18px;color:#f7d774">📜 Peraturan Pabrik Uang</b><button class="lnk" style="width:auto;padding:6px 12px;margin:0" data-tutup-full>✕ Tutup</button></div>
     ${li.map(([i,t],k)=>`<div style="display:flex;gap:10px;align-items:flex-start;background:#ffffff12;border-radius:12px;padding:9px 10px;margin-bottom:7px;font-size:13px;line-height:1.45"><span style="font-size:20px;line-height:1.2">${i}</span><span><b style="color:#f7d774">${k+1}.</b> ${t}</span></div>`).join('')}`; }
 function tapuTutup(){ if (!TAPU.ov) return; tapuKirim(); clearInterval(TAPU.timer); clearInterval(TAPU.rkTimer); TAPU.ov.remove(); TAPU.ov = null; if (sheetFn === akunHTML) sheetBody.innerHTML = akunHTML(); }
@@ -5260,13 +5262,9 @@ function kavHTML(id){
 function wapresCard(){ const w = wapresNow();
   return `<div class="card"><h3>👑 Wakil Presiden & Penasihat minggu ini</h3>${w ? `<div class="jrow"><span class="ji">👑</span><span class="jt"><b>${esc(namaW(w.username))}</b><small>Wakil Presiden · donatur terbanyak · 💼 ${N$(GAJI_WAPRES)}/hari</small></span></div>` + (w.penasihat || []).map(u=>`<div class="jrow"><span class="ji">🧑‍⚖️</span><span class="jt"><b>${esc(namaW(u))}</b><small>Penasihat Negara · 💼 ${N$(GAJI_PENASIHAT)}/hari</small></span></div>`).join('') : '<p class="note">Belum terisi. Diumumkan hari Senin berikutnya, dari donatur terbanyak.</p>'}</div>`; }
 function donasiHTML(){
-  let h = `<div class="kicker">Membangun Republik Bersama</div><h2>🤝 Papan Donasi</h2>${saldoBar()}
-    <div class="card"><h3>📜 Syarat poin</h3><p class="note">Setiap bahan yang didonasikan ke Negara dihitung poin sesuai jenisnya, dan <b>N$1 = 1 poin</b>. Bahan masuk stok PRN, uang masuk Kas Negara.<br>
-    ${BARANG.map(b=>`${b.ikon} ${esc(b.nama)} = ${b.poin} poin`).join(' · ')}</p></div>`;
+  let h = `<div class="kicker">Membangun Republik Bersama</div><h2>🤝 Papan Donasi</h2>${saldoBar()}`;
   if (AKUN.data){
-    h += `<div class="card"><h3>🎁 Donasi bahan</h3>${BARANG.filter(b=>punya(b.kode)).map(b=>`<div class="jrow"><span class="ji">${b.ikon}</span><span class="jt"><b>${esc(b.nama)}</b><small>di tas ${punya(b.kode)} · ${b.poin} poin/buah</small></span>
-      <input type="number" min="1" value="1" id="dn-${b.kode}" style="font:inherit;width:56px;padding:7px;border:1px solid var(--line);border-radius:10px"><button class="btn" data-donasi="${b.kode}">Donasi</button></div>`).join('') || '<p class="note">Tasmu masih kosong.</p>'}</div>
-      <div class="card"><h3>💰 Donasi N$</h3><div class="prow"><input type="number" min="1" value="100" id="dn-uang" style="font:inherit;font-size:17px;padding:10px;border:1px solid var(--line);border-radius:12px;width:120px;margin-top:14px"><button class="btn" data-donasi="uang">Donasi N$</button></div></div>`;
+    h += `<div class="card"><h3>💰 Donasi N$</h3><div class="prow"><input type="number" min="1" value="100" id="dn-uang" style="font:inherit;font-size:17px;padding:10px;border:1px solid var(--line);border-radius:12px;width:120px;margin-top:14px"><button class="btn" data-donasi="uang">Donasi N$</button></div></div>`;
   } else h += perluMasuk();
   h += `<div class="card"><h3>🔎 Cari peringkatmu</h3><input id="dnCari" placeholder="Ketik nama/username" autocapitalize="none" style="font:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box"><div id="dnHasil"></div></div>
     <div class="card"><h3>🏆 Peringkat donasi (1–20)</h3>${PAPAN.length ? PAPAN.slice(0,20).map((r,i)=>rowPeringkat(r,i)).join('') : '<p class="note">Belum ada donasi.</p>'}
@@ -6724,6 +6722,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 07:20</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 07:30</div>
 </body>
 </html>
