@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-1630">
+<meta name="nusawara-build" content="20261116-1650">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -5197,7 +5197,8 @@ function loop(){
       if (Math.abs(x-TX) < 3 || Math.abs(z-TZ) < 3) continue; if (Math.abs(x-TX) > 44 || Math.abs(z-TZ) > 24) continue; pohonE(x,z); }
     [[-14,-3],[14,-3],[-14,3],[14,3]].forEach(([dx,dz])=>box(3,.5,.8,0x7a4a24,TX+dx,.4,TZ+dz*1.2));
     lb('🌳 TAMAN & HUTAN KOTA', TX, TZ + 12); }
-  // ===== STADIUM BOLA REPUBLIK NUSAWARA (timur Kota Timur), mengikuti gambar acuan =====
+  // ===== STADIUM BOLA REPUBLIK NUSAWARA (belakang B14 & B15), mengikuti gambar acuan =====
+  const _n0 = scene.children.length;
   { const SX = 300, SZ = -72, PK2 = 0x4b5059;
     jalan(216,364,-18); jalanZ(236,-114,-18); jalanZ(364,-114,-18); jalan(236,364,-114);
     box(124,.08,90,0x7fc15a,SX,.05,-65.5);                                   // halaman kompleks
@@ -5246,13 +5247,14 @@ function loop(){
     bld(252,-84,'🍴 FOOD COURT',0xc23b3b); bld(252,-62,'🛒 MERCHANDISE OFFICIAL',0x1c3f7a); bld(348,-84,'➕ KLINIK MEDIS',0xd8212f); bld(348,-62,'👥 RUANG VIP / VVIP',0x1c3f7a);
     for (let x=244;x<=358;x+=9) pohonE(x,-109); [-100,-90,-50,-40,-30,-26].forEach(z=>{ pohonE(242,z); pohonE(358,z); });
     lb('⚽ STADIUM BOLA REPUBLIK NUSAWARA', SX, -22);
-    if (typeof COLL !== 'undefined') [[SX,SZ,34,27],[252,-84,7.4,5.9],[252,-62,7.4,5.9],[348,-84,7.4,5.9],[348,-62,7.4,5.9],[SX,-45.6,17.5,2]].forEach(c=>COLL.push(c)); }
+    if (typeof COLL !== 'undefined') [[SX,SZ,34,27],[252,-84,7.4,5.9],[252,-62,7.4,5.9],[348,-84,7.4,5.9],[348,-62,7.4,5.9],[SX,-45.6,17.5,2]].forEach(c=>COLL.push([c[0]-152, c[1]-86, c[2], c[3]])); }
+  { const _G = new THREE.Group(); scene.children.slice(_n0).forEach(o=>_G.add(o)); _G.position.set(-152, 0, -86); scene.add(_G); }   // pindah: tepat di belakang B14 & B15
 
 })();
 loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 16:30</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 16:50</div>
 </body>
 </html>
