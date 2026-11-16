@@ -799,6 +799,7 @@ function makeBengkelKaca(h){
   [[-6.4,zf+1.0],[-3.4,zf+1.0],[-1.7,zf+1.2],[2.6,zf+1.0],[6.4,zf+1.0]].forEach(([x,z])=>{ box(.8,.7,.8,0x8d949b,x,.65,z,g); const b = new THREE.Mesh(new THREE.SphereGeometry(.65,8,6), M(0x3f9d3a)); b.position.set(x,1.4,z); g.add(b); });
   papanT(h.id || 'BKT-MAWAR-002', 2.0, .42, '#1f2227', '#ffffff', 6.0, .6, zf+1.6, g);
   finishHouse(h, g);
+  g.userData.fixed = true;   // jangan dipindah ke cincin kavling oleh kotaUpdate
   g.position.set(289, 0, -246);   // ruko @iruzz BKT-MAWAR-002 (Bengkel Kaca): di sebelah timur Toko Kamera Republik Nusawara, menghadap +z seperti podium, di tepi jalan
 }
 Object.assign(DESAIN, {modern: makeModern, kaca: makeKaca, foto: makeFoto, merah: makeMerah, bengkel_kaca: makeBengkelKaca});
@@ -987,7 +988,7 @@ function kotaUpdate(instant){
     L.tgt = vis ? KSTEP*(show - i) + KBASE : KBASE; if (instant) L.cur = L.tgt; });
   PYT = show <= 0 ? 0 : RINGS[0].tgt + KSTEP - .26; if (instant) PY = PYT;
   KSLOTS.forEach(s=>{ s.ghost.visible = s.li <= show && !houseGroups[s.id]; const g = houseGroups[s.id];
-    if (g && g.parent !== RINGS[s.li].T){ if (g.parent) g.parent.remove(g); g.position.set(s.x - KX, 0, s.z - KZ); RINGS[s.li].T.add(g); } });
+    if (g && !g.userData.fixed && g.parent !== RINGS[s.li].T){ if (g.parent) g.parent.remove(g); g.position.set(s.x - KX, 0, s.z - KZ); RINGS[s.li].T.add(g); } });
   kotaApply();
 }
 function kotaApply(){
