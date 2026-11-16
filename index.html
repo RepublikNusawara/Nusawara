@@ -79,7 +79,7 @@ if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.s
 
   .sheet{position:fixed;left:50%;top:50%;bottom:auto;right:auto;z-index:8;width:min(520px,calc(100vw - 20px));margin:0;
     background:var(--paper);border-radius:22px;box-shadow:0 18px 50px rgba(31,58,95,.38);
-    padding:18px 18px 20px;max-height:76vh;overflow:auto;
+    padding:18px 18px 20px;max-height:76vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;
     transform:translate(-50%,-46%) scale(.94);opacity:0;visibility:hidden;pointer-events:none;transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .2s,visibility 0s .25s}
   .sheet.open{transform:translate(-50%,-50%);opacity:1;visibility:visible;pointer-events:auto;transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .2s}
   body.sheet-open #tuto{display:none!important}
@@ -6771,6 +6771,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 08:20</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 08:25</div>
 </body>
 </html>
