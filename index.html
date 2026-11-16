@@ -2911,10 +2911,37 @@ function stepPost(W, ps, dt, time){
   const ty = ins ? (ps.y||0) : 0; g.position.y += (ty - g.position.y) * Math.min(1, dt*5);
   W.tag.position.set(g.position.x, g.position.y + 3.3, g.position.z);
 }
+/* ---------- BARISAN WARGA: semua karakter diam & berbaris di depan podium (5 baris ke belakang, sisanya menyamping) ---------- */
+const BARIS = {sig:'', slot:{}, X:18, Z0:3, DZ:2.1, DX:1.9, N:5};
+function barisSlot(k){
+  const keys = Object.keys(WALKERS), sig = keys.length + ':' + keys.join(',');
+  if (sig !== BARIS.sig){ BARIS.sig = sig; BARIS.slot = {};
+    keys.sort((a,b)=>String((WINFO[a]||{}).niwn || a).localeCompare(String((WINFO[b]||{}).niwn || b)));
+    keys.forEach((u,i)=>{ const c = Math.floor(i / BARIS.N), r = i % BARIS.N, off = c === 0 ? 0 : (c % 2 ? Math.ceil(c/2) : -c/2) * BARIS.DX;
+      BARIS.slot[u] = {x: BARIS.X + off, z: BARIS.Z0 + r*BARIS.DZ}; }); }
+  return BARIS.slot[k] || null;
+}
+function stepBaris(W, F, dt){
+  const g = W.av.g, dx = F.x - g.position.x, dz = F.z - g.position.z, d = Math.hypot(dx, dz);
+  if (d > 40){ g.position.x = F.x; g.position.z = F.z; }
+  else if (d > .12){
+    const st = Math.min(d, W.speed*1.4*dt); g.position.x += dx/d*st; g.position.z += dz/d*st;
+    let r = Math.atan2(dx, dz) - g.rotation.y; r = Math.atan2(Math.sin(r), Math.cos(r)); g.rotation.y += r*Math.min(1, dt*8);
+    W.phase += dt*9; const sw = Math.sin(W.phase)*.6;
+    W.av.legL.rotation.x = sw; W.av.legR.rotation.x = -sw; W.av.armR.rotation.x = sw*.7; W.av.armL.rotation.x = -sw*.7;
+    W.av.body.position.y = Math.abs(Math.sin(W.phase))*.06;
+  } else {
+    let r = Math.PI - g.rotation.y; r = Math.atan2(Math.sin(r), Math.cos(r)); g.rotation.y += r*Math.min(1, dt*6);   // berdiri menghadap podium
+    W.av.legL.rotation.x *= .85; W.av.legR.rotation.x *= .85; W.av.armR.rotation.x *= .85; W.av.armL.rotation.x = W.av.cup ? -1.1 : W.av.armL.rotation.x*.85; W.av.body.position.y *= .85;
+  }
+  g.position.y += (0 - g.position.y) * Math.min(1, dt*8);
+  W.tag.position.set(g.position.x, g.position.y + 3.3, g.position.z);
+}
 function updateWalkers(dt, time){
   for (const k in WALKERS){
     if (k === ctl.key) continue;
     const W = WALKERS[k], g = W.av.g;
+    const FB = barisSlot(k); if (FB){ stepBaris(W, FB, dt); continue; }
     if (!W.path && W.zone === 'kota' && bolehMasuk(k)){ const ps = postWorker(k); if (ps){ stepPost(W, ps, dt, time); continue; } }
     // aturan pelabuhan: belum follow = tunggu di dalam pagar; sudah follow = keluar lewat gerbang ke kota
     if (!W.path){ const ok = bolehMasuk(k);
@@ -5676,6 +5703,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 00:45</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 01:00</div>
 </body>
 </html>
