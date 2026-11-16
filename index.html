@@ -4101,6 +4101,23 @@ function kerjaSaya(){ const u = AKUN.u; if (!u) return [];
   const rows = (window.KERJA_ALL || []).filter(r=>String(r.username || '').toLowerCase() === u).map(r=>r.fasilitas);
   if (!rows.length && KERJA[u]) rows.push(KERJA[u].fasilitas);
   return [...new Set(rows)].filter(id=>FAS[id]); }
+/* pop-up sambutan setiap kali warga berhasil masuk (username + sandi) */
+function sambutPop(){
+  const old = document.getElementById('sambutPop'); if (old) old.remove();
+  const ov = document.createElement('div'); ov.id = 'sambutPop';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99988;background:rgba(8,14,28,.6);display:flex;align-items:center;justify-content:center;padding:18px;font-family:inherit';
+  const nm = AKUN.u ? (typeof namaW === 'function' ? namaW(AKUN.u) : '@' + AKUN.u) : '';
+  ov.innerHTML = `<div style="width:100%;max-width:340px;background:linear-gradient(180deg,#1f3a5f,#16263d);border:3px solid #f2c14e;border-radius:22px;padding:20px 16px 16px;color:#fff;text-align:center;box-shadow:0 14px 40px rgba(0,0,0,.5)">
+    <div style="font-size:46px;line-height:1">🇮🇩🏛️</div>
+    <div style="font-size:13px;opacity:.85;margin-top:8px">Selamat datang, ${esc(nm)}!</div>
+    <b style="display:block;font-size:21px;margin-top:2px">Selamat Datang di<br>Republik Nusawara</b>
+    <button data-sp-uang style="display:block;width:100%;margin-top:16px;border:3px solid #fff;border-radius:16px;padding:13px;cursor:pointer;font:inherit;font-weight:900;font-size:17px;color:#5a3b00;background:radial-gradient(circle at 35% 30%,#fff3b0,#f7c948 55%,#d99a1c);box-shadow:0 5px 0 rgba(0,0,0,.25)">💰 Kumpulkan Uang (N$)</button>
+    <button data-sp-x style="display:block;width:100%;margin-top:10px;border:2px solid #f2c14e;border-radius:16px;padding:11px;cursor:pointer;font:inherit;font-weight:800;font-size:15px;color:#fff;background:transparent">Keluar</button></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e=>{
+    if (e.target.closest('[data-sp-uang]')){ ov.remove(); if (typeof select === 'function') select(null); if (typeof hideHint === 'function') hideHint(); tapPilihBuka(); return; }
+    if (e.target.closest('[data-sp-x]') || e.target === ov) ov.remove(); });
+}
 function tapPilihBuka(){
   const old = document.getElementById('tapPilih'); if (old) old.remove();
   const ov = document.createElement('div'); ov.id = 'tapPilih';
@@ -4216,7 +4233,7 @@ sheetBody.addEventListener('submit', async e=>{
     if (!r || !r.ok){ m.textContent = '❌ Username atau kata sandi salah.'; return; }
     Object.assign(AKUN, {u, s: pw, data: r}); UNLOCK[u] = pw; if (r.baru) setTimeout(()=>{ const f = ()=>sambutanHTML(); f.eko = 1; openSheet(f); }, 300);
     try { localStorage.setItem('nusawara_akun', JSON.stringify({u, s: pw})); } catch(_) {}
-    akunTombol(); sheetBody.innerHTML = akunHTML(); toast('✓ Selamat datang, @' + u + '!');
+    akunTombol(); sheetBody.innerHTML = akunHTML(); toast('✓ Selamat datang, @' + u + '!'); setTimeout(sambutPop, r.baru ? 900 : 200);
   } catch(_) { btn.disabled = false; m.textContent = 'Jaringan bermasalah. Coba lagi.'; }
 });
 /* ---------- STADIUM: daftar jadi pelatih / pemain tim sepak bola ---------- */
@@ -4304,7 +4321,7 @@ sheetBody.addEventListener('click', async e=>{
     try { const r = await SB.rpc('akun_saya', {p_user: u, p_sandi: pw}); b.disabled = false; m.style.color = '#c62828';
       if (!r || !r.ok){ m.textContent = '❌ Username atau kata sandi salah.'; return; }
       Object.assign(AKUN, {u, s: pw, data: r}); UNLOCK[u] = pw; try { localStorage.setItem('nusawara_akun', JSON.stringify({u, s: pw})); } catch(_) {}
-      akunTombol(); tutup(); toast('✓ Selamat datang, @' + u + '!'); main(u); GJ.sudah = 1; try { gajiCek(); } catch(_) {}
+      akunTombol(); tutup(); toast('✓ Selamat datang, @' + u + '!'); setTimeout(sambutPop, 200); main(u); GJ.sudah = 1; try { gajiCek(); } catch(_) {}
     } catch(_) { b.disabled = false; m.style.color = '#c62828'; m.textContent = 'Jaringan bermasalah. Coba lagi.'; }
   });
   document.getElementById('tallyClose').addEventListener('click', ()=>{ if (!AKUN.u && !TAMU.u) tampil('masuk'); });
@@ -5330,6 +5347,7 @@ async function gLoginSelesai(u, pw, baru){
   Object.assign(AKUN, {u, s: pw, data: r}); UNLOCK[u] = pw; try { localStorage.setItem('nusawara_akun', JSON.stringify({u, s: pw})); } catch(_) {}
   akunTombol(); if (r.bonus_stamina_baru) setTimeout(()=>popHadiah('⚡ +20 stamina harian'), 900);
   if (baru || r.baru){ const f = ()=>sambutanHTML(); f.eko = 1; openSheet(f); } else { openSheet(akunHTML); toast('✓ Selamat datang, ' + namaW(u) + '!'); }
+  setTimeout(sambutPop, (baru || r.baru) ? 900 : 200);
 }
 sheetBody.addEventListener('submit', async e=>{
   const f = e.target; if (f.id !== 'gF' && f.id !== 'gF2') return; e.preventDefault();
@@ -6674,6 +6692,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 06:20</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 06:25</div>
 </body>
 </html>
