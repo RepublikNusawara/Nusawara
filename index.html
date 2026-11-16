@@ -4081,9 +4081,11 @@ function ktRender(){ const o = KTP.ov, I = KTP.info; if (!o) return; const F = F
   const rows = top.map(r=>`<tr class="${r.u === me ? 'me' : ''}"><td>${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : r.rank}</td><td>${esc(namaW(r.u))}</td><td style="text-align:right"${r.u === me ? ' id="ktMyRow"' : ''}>${Number(r.jumlah + (r.u === me ? KTP.pending : 0)).toLocaleString('id-ID')}</td><td class="bn">${r.rank <= 3 ? bonus[r.rank-1] : ''}</td></tr>`).join('');
   const lalu = ((I && I.juara_lalu) || []).map(r=>`${['🥇','🥈','🥉'][r.rank-1]} ${esc(namaW(r.u))}${r.bonus ? ' (+' + N$(r.bonus) + ')' : ''}`).join(' · ');
   const bisa = !!(sy.pekerja && AKUN.s), penuh = hari >= 1000;
+  const ktRow = me ? ((window.KERJA_ALL || []).find(r=>String(r.username || '').toLowerCase() === me && r.fasilitas === KTP.id) || (KERJA[me] && KERJA[me].fasilitas === KTP.id ? KERJA[me] : null)) : null;
+  const ktPos = ktRow ? ktRow.posisi : '', ktGj = ktRow && BIZ.gaji[KTP.id + '|' + ktPos] != null ? BIZ.gaji[KTP.id + '|' + ktPos] : null;
   o.querySelector('.isi').innerHTML = `
     <h2>${F.ikon} ${esc(F.nama)}</h2><p class="sub">Ruang Kerja · setiap tap = <b>+N$10</b> ke kas gedung untuk membayar gaji karyawan</p>
-    <div class="row"><div class="box"><small>💰 Kas gedung</small><b id="ktKas">${kas == null ? '…' : N$(kas)}</b></div><div class="box"><small>💵 Total gaji / hari</small><b>${I ? N$(gt) : '…'}</b></div></div>
+    <div class="row"><div class="box"><small>💰 Kas gedung</small><b id="ktKas">${kas == null ? '…' : N$(kas)}</b></div><div class="box"><small>💵 Gaji / hari${ktPos ? ' · ' + esc(ktPos) : ''}</small><b>${ktGj != null ? `<span style="display:inline-block;background:#f2c14e;color:#3b2600;font-weight:800;font-size:15px;border-radius:10px;padding:3px 10px">${N$(ktGj)}/hari</span>` : '–'}</b></div></div>
     ${status}
     <button class="tap" id="ktTap" ${bisa && !penuh ? '' : 'disabled'}><span class="a">👆</span><span class="b">TAP</span><span class="c">+N$10 kas</span></button>
     <div class="msg" id="ktMsg">${!me ? '🔑 Masuk sebagai warga dulu.' : !sy.pekerja ? 'Hanya karyawan gedung ini yang bisa tap di sini.' : penuh ? '✅ Batas 1.000 tap toko ini hari ini tercapai. Lanjut besok!' : ''}</div>
@@ -6736,6 +6738,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 07:40</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 07:45</div>
 </body>
 </html>
