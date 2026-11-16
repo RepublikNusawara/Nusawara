@@ -798,7 +798,7 @@ function makeBengkelKaca(h){
   [[-6.4,zf+1.0],[-3.4,zf+1.0],[-1.7,zf+1.2],[2.6,zf+1.0],[6.4,zf+1.0]].forEach(([x,z])=>{ box(.8,.7,.8,0x8d949b,x,.65,z,g); const b = new THREE.Mesh(new THREE.SphereGeometry(.65,8,6), M(0x3f9d3a)); b.position.set(x,1.4,z); g.add(b); });
   papanT(h.id || 'BKT-MAWAR-002', 2.0, .42, '#1f2227', '#ffffff', 6.0, .6, zf+1.6, g);
   finishHouse(h, g);
-  g.position.set(129, 0, -9.5);   // ruko = toko bisnis: ditaruh di Area Bisnis (baris toko 2, menghadap selatan, parkir di depan)
+  g.position.set(36, 0, 42);   // ruko @iruzz BKT-MAWAR-002: di selatan podium (kawasan Rumah & Toko Undian), menghadap selatan, parkir di depan
 }
 Object.assign(DESAIN, {modern: makeModern, kaca: makeKaca, foto: makeFoto, merah: makeMerah, bengkel_kaca: makeBengkelKaca});
 function makeHouse(h){ if (h.status === 'tanah') return makePlot(h); return (DESAIN[h.desain] || makeRuko)(h); }
@@ -5086,8 +5086,6 @@ loop();
   [[90,16],[110,16],[130,16]].forEach(([cx,w])=>parkir(cx,w,-63));                         // baris 2: Bengkel Kaca + 3 toko modern
   [70,82,94,106,118].forEach(cx=>parkir(cx,8,-88));                                                // baris 3: 5 toko kecil
 
-  // ruko @iruzz di depan Gym (seberang jalan raya): parkir + jalan aspal menyatu, tersambung ke jalan raya timur
-  parkir(129,20,-2); jalan(105,159.5,2.5); jalanZ(157,-15.5,5);
   // jalan aspal untuk pabrik & kebun di utara: jalan induk barat/timur + jalan depan tiap tempat (menyatu dengan parkir)
   jalanZ(-36.5,-525,-104.5);
   [['pabrik_susu',-62],['pabrik_kopi',-62],['pabrik_tepung',-62],['pabrik_farmasi',-62],['peternakan',-62],['kebun_buah',-62],['kebun_teh',-62]].forEach(([k,x])=>{ const e = TEMPAT[k]; if (!e) return;
@@ -5097,9 +5095,27 @@ loop();
   box(.3,.12,RW,0xf2b134,148,.1,-23);                  // pembatas antar-kawasan
   // Kawasan Rumah & Toko Undian (selatan podium): jalan + sambungan dari lingkaran podium
   jalan(-10,46,28); jalanZ(18,17,28);
+  jalan(-10,46,54); jalanZ(48,28,54); parkir(36,20,49);   // jalan depan ruko @iruzz (BKT-MAWAR-002)
   lb('🏘️ RUMAH & TOKO UNDIAN', 18, 40);
+  // ===== KOTA TIMUR (seperti gambar acuan): bundaran, Rumah Sakit + Sekolah, petak calon bisnis =====
+  jalan(148,216,-58); jalan(148,216,-83); jalanZ(145,-104,-68); jalanZ(145,-48,-18);
+  { const cb = new THREE.Mesh(new THREE.CylinderGeometry(9,9,.1,36), M(RD)); cb.position.set(145,.08,-58); scene.add(cb);
+    const ci = new THREE.Mesh(new THREE.CylinderGeometry(4.6,4.6,.2,32), M(0xd8cfb8)); ci.position.set(145,.12,-58); scene.add(ci);
+    const cg = new THREE.Mesh(new THREE.CylinderGeometry(3.8,3.8,.24,32), M(0x6fb84a)); cg.position.set(145,.14,-58); scene.add(cg);
+    cyl2(.3,2.2,0x7a4a24,145,1.2,-58,scene,6); const tr = new THREE.Mesh(new THREE.SphereGeometry(2.2,10,8), M(0x62b83b)); tr.position.set(145,3.6,-58); scene.add(tr); }
+  const pohonE = (x,z)=>{ cyl2(.25,1.5,0x7a4a24,x,.75,z,scene,6); const t = new THREE.Mesh(new THREE.SphereGeometry(1.4,10,8), M(0x62b83b)); t.position.set(x,2.5,z); scene.add(t); };
+  const petak = (cx,zc,w,d,nama,tinggi)=>{ box(w-2,.13,d,0xcfd6c4,cx,.12,zc);
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>cyl2(.18,1,0x6b4a2e,cx+a*(w/2-1.4),.5,zc+b*(d/2-1),scene,6));
+    pohonE(cx-w/2+2.2,zc-d/2+2.5); pohonE(cx+w/2-2.2,zc-d/2+2.5);
+    const t = label(nama, {h:1.2, size:26, bg:'rgba(242,177,52,.96)', fg:'#3a2600'}); t.position.set(cx,tinggi||4.2,zc+d/2-3); scene.add(t);
+    const t2 = label('Tersedia', {h:.8, size:22, bg:'rgba(31,58,95,.9)', fg:'#fff'}); t2.position.set(cx,(tinggi||4.2)-1.5,zc+d/2-3); scene.add(t2); };
+  // baris 1 (depan jalan raya): 3 petak di kiri bundaran (RS dan Sekolah tetap di kanan)
+  [[74,'☕ KAFE'],[99,'🍞 TOKO ROTI'],[124,'🏤 KANTOR POS']].forEach(([x,n])=>{ parkir(x,24,-23); petak(x,-38.5,24,26,n); });
+  // baris 2 (jalan z=-58) dan baris 3 (jalan z=-83): petak kecil
+  [[90,'🚌 TERMINAL'],[110,'🎭 TEATER'],[130,'🔧 GARASI'],[160,'🏦 BANK'],[180,'🏨 HOTEL'],[200,'🏪 MINIMARKET']].forEach(([x,n])=>{ if (x > 140) parkir(x,16,-63); petak(x,-73,16,15,n); });
+  [[70,'🍎 TOKO SAYUR'],[82,'💈 PANGKAS'],[94,'📚 TOKO BUKU'],[106,'👕 BUTIK'],[118,'🧁 KUE'],[160,'🍽️ RESTORAN'],[180,'💊 APOTEK'],[200,'🛒 PASAR']].forEach(([x,n])=>{ if (x > 140) parkir(x,10,-88); petak(x,-96,11,11,n,3.6); });
 })();
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 12:50</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 13:10</div>
 </body>
 </html>
