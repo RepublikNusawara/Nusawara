@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-0555">
+<meta name="nusawara-build" content="20261117-0605">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3976,11 +3976,7 @@ function tapuAturan(){ const o = TAPU.ov; if (!o) return; let f = o.querySelecto
   const li = [
     ['🪙','Setiap 1 kali tap = <b>N$1</b>, dicetak baru oleh Pabrik Uang Nusawara.'],
     ['💰','<b>200 tap pertama setiap hari</b> masuk ke saldo-mu. Hitungan direset setiap hari pukul <b>00.00 WIB</b>.'],
-    ['🤝','Tap ke-201 dan seterusnya otomatis masuk ke <b>Kas Negara sebagai donasi</b> atas namamu dan tercatat di Papan Donasi.'],
-    ['⏱️','Jeda <b>0,4 detik</b> antar tap. Tap yang terlalu cepat tidak dihitung.'],
-    ['🪪','Hanya <b>Warga Republik Nusawara</b> yang sudah masuk dengan Kata Sandi Warga yang bisa mencetak uang.'],
-    ['🏆','<b>Total tap dan rank tidak pernah direset</b> selama kamu terdaftar. Ranking Tap diurutkan dari total tap terbanyak; Tabel Pemenang Tap menampilkan 100 besar.'],
-    ['🚫','Dilarang memakai bot, auto-clicker, atau akun palsu. Pelanggaran dapat dikenai sanksi sesuai Undang-Undang Nusawara (UUN), termasuk penghapusan hasil tap.']];
+    ['🤝','Tap ke-201 dan seterusnya otomatis masuk ke <b>Kas Negara sebagai donasi</b> atas namamu dan tercatat di Papan Donasi.']];
   f.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><b style="flex:1;font-size:18px;color:#f7d774">📜 Peraturan Pabrik Uang</b><button class="lnk" style="width:auto;padding:6px 12px;margin:0" data-tutup-full>✕ Tutup</button></div>
     ${li.map(([i,t],k)=>`<div style="display:flex;gap:10px;align-items:flex-start;background:#ffffff12;border-radius:12px;padding:9px 10px;margin-bottom:7px;font-size:13px;line-height:1.45"><span style="font-size:20px;line-height:1.2">${i}</span><span><b style="color:#f7d774">${k+1}.</b> ${t}</span></div>`).join('')}`; }
 function tapuTutup(){ if (!TAPU.ov) return; tapuKirim(); clearInterval(TAPU.timer); clearInterval(TAPU.rkTimer); TAPU.ov.remove(); TAPU.ov = null; if (sheetFn === akunHTML) sheetBody.innerHTML = akunHTML(); }
@@ -6678,6 +6674,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 06:15</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 06:05</div>
 </body>
 </html>
