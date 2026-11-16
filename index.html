@@ -3845,7 +3845,7 @@ async function ekoAksi(btn, fn, args, sukses){
 sheetBody.addEventListener('click', e=>{
   const t = e.target.closest('button'); if (!t) return;
   if (t.hasAttribute('data-eko-masuk')) { openSheet(akunHTML); return; }
-  if (t.dataset.pergi){ const e2 = t.dataset.pergi === 'kebun' ? {x:18, z:-220} : t.dataset.pergi === 'kavling' ? {x:18, z:-160} : t.dataset.pergi === 'donasi' ? {x:7, z:-6} : t.dataset.pergi === 'prn' ? EKO['EKO-PRN'] : t.dataset.pergi === 'tambang' ? {x:-59, z:150} : {x:-62, z:-100}; closeSheet();
+  if (t.dataset.pergi){ const e2 = t.dataset.pergi === 'kebun' ? {x:-62, z:-445} : t.dataset.pergi === 'kavling' ? {x:18, z:-160} : t.dataset.pergi === 'donasi' ? {x:7, z:-6} : t.dataset.pergi === 'prn' ? EKO['EKO-PRN'] : t.dataset.pergi === 'tambang' ? {x:-59, z:150} : {x:-62, z:-100}; closeSheet();
     flyTo(new THREE.Vector3(e2.x, 2, e2.z), (t.dataset.pergi === 'tambang' || t.dataset.pergi === 'kebun') ? new THREE.Vector3(e2.x + 70, 80, e2.z + 40) : new THREE.Vector3(e2.x + 10, 30, e2.z + 38)); return; }
   if (t.dataset.tambang) ekoAksi(t, 'menambang', {p_tambang: t.dataset.tambang}, r=>{ const b = brg(r.barang);
     popHadiah('+' + r.jumlah + ' ' + b.ikon); sfx(220, .12, 'square', .07, 0, 140); toast(`${b.ikon} +${r.jumlah} ${b.nama} masuk tas · 🔵 +1 EXP Warga`); });
@@ -3896,7 +3896,7 @@ const cyl2 = (r,h,c,x,y,z,g,seg=12) => { const m = new THREE.Mesh(new THREE.Cyli
 
 // ----- jalan, label kawasan, air mancur (denah sesuai gambar) -----
 (()=>{
-  [['🏬 KAWASAN BISNIS WARGA (USULAN WARGA)',18,-100],['🏘️ RUMAH & TOKO UNDIAN (SELATAN PODIUM)',18,30],['🛍️ KAVLING TOKO',91,-2],['🏭 KAVLING PABRIK',-61,-134]].forEach(([t,x,z])=>{ const l = label(t, LBL); l.position.set(x, 10, z); scene.add(l); });
+  [['🏬 KAWASAN BISNIS WARGA (USULAN WARGA)',18,-100],['🏘️ RUMAH & TOKO UNDIAN (SELATAN PODIUM)',18,30],['🏭 KAVLING PABRIK',-61,-134]].forEach(([t,x,z])=>{ const l = label(t, LBL); l.position.set(x, 10, z); scene.add(l); });
   box(36,.1,36,0xd6d0c2,-61,.05,-154);                                        // lantai kavling pabrik
 })();
 
@@ -4265,9 +4265,9 @@ const TEMPAT = {
   pabrik_susu:  {nama:'Pabrik Susu', ikon:'🥛', x:-62, z:-205},
   pabrik_kopi:  {nama:'Pabrik Kopi', ikon:'☕', x:-62, z:-253},
   pabrik_tepung:{nama:'Pabrik Tepung', ikon:'🥐', x:-62, z:-301},
-  peternakan:   {nama:'Peternakan Ayam', ikon:'🐔', x:96, z:-140},
-  kebun_buah:   {nama:'Kebun Buah', ikon:'🍓', x:96, z:-188},
-  kebun_teh:    {nama:'Kebun Teh', ikon:'🌿', x:96, z:-236},
+  peternakan:   {nama:'Peternakan Ayam', ikon:'🐔', x:-62, z:-397},
+  kebun_buah:   {nama:'Kebun Buah', ikon:'🍓', x:-62, z:-445},
+  kebun_teh:    {nama:'Kebun Teh', ikon:'🌿', x:-62, z:-493},
   pabrik_farmasi:{nama:'Pabrik Farmasi Nusawara', ikon:'💊', x:-62, z:-349},
   gym:          {nama:'Gym Nusawara', ikon:'🏋️', x:-14, z:-121.25}
 };
@@ -5089,18 +5089,17 @@ loop();
   // ruko @iruzz di depan Gym (seberang jalan raya): parkir + jalan aspal menyatu, tersambung ke jalan raya timur
   parkir(129,20,-2); jalan(105,159.5,2.5); jalanZ(157,-15.5,5);
   // jalan aspal untuk pabrik & kebun di utara: jalan induk barat/timur + jalan depan tiap tempat (menyatu dengan parkir)
-  jalanZ(-36.5,-358,-104.5); jalanZ(126,-250,-85.5);
-  [['pabrik_susu',-62],['pabrik_kopi',-62],['pabrik_tepung',-62],['pabrik_farmasi',-62]].forEach(([k,x])=>{ const e = TEMPAT[k]; if (!e) return;
+  jalanZ(-36.5,-525,-104.5);
+  [['pabrik_susu',-62],['pabrik_kopi',-62],['pabrik_tepung',-62],['pabrik_farmasi',-62],['peternakan',-62],['kebun_buah',-62],['kebun_teh',-62]].forEach(([k,x])=>{ const e = TEMPAT[k]; if (!e) return;
     parkir(-60.25, 47.5, e.z+24); box(24,.1,RW,RD,e.x,.36,e.z+6); box(RW,.1,15,RD,e.x,.36,e.z+16); });
-  [['peternakan',96],['kebun_buah',96],['kebun_teh',96]].forEach(([k,x])=>{ const e = TEMPAT[k]; if (!e) return; parkir(100, 52, e.z+24); });
   const lb = (t,x,z)=>{ const l = label(t, {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); l.position.set(x, 16, z); scene.add(l); };
-  lb('🛍️ KAWASAN BISNIS NUSAWARA', 98, -53); lb('🏛️ KAWASAN FASILITAS NEGARA', 178, -53); lb('🏬 KAVLING TOKO', 100, -103);
+  lb('🛍️ KAWASAN BISNIS NUSAWARA', 98, -53); lb('🏛️ KAWASAN FASILITAS NEGARA', 178, -53);
   box(.3,.12,RW,0xf2b134,148,.1,-23);                  // pembatas antar-kawasan
   // Kawasan Rumah & Toko Undian (selatan podium): jalan + sambungan dari lingkaran podium
   jalan(-10,46,28); jalanZ(18,17,28);
   lb('🏘️ RUMAH & TOKO UNDIAN', 18, 40);
 })();
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 12:30</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 12:50</div>
 </body>
 </html>
