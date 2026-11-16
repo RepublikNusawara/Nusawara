@@ -3964,7 +3964,7 @@ sheetBody.addEventListener('click', async e=>{
     G.style.display = 'flex';
   }
   function tutup(){ G.style.display = 'none'; G.innerHTML = ''; }
-  function main(key){ window.FORCE_WALK = window.FORCE_WALK || {}; FORCE_WALK[key] = 1; const w = wInfo(key); if (w) syncWalkers({[key]: w}); setTimeout(()=>startCtl(key), 400); }
+  function main(key){ window.FORCE_WALK = window.FORCE_WALK || {}; FORCE_WALK[key] = 1; const w = wInfo(key); if (w) syncWalkers({[key]: w}); setTimeout(()=>{ closeSheet(); flyTo(HOME_T, HOME_C); }, 400); }
   G.addEventListener('click', e=>{
     const id = e.target.id;
     if (id === 'gmDaftar') tampil('daftar'); else if (id === 'gmTamu') tampil('tamu'); else if (id === 'gdBack') tampil('masuk');
