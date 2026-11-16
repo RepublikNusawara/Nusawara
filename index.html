@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-2100">
+<meta name="nusawara-build" content="20261116-2125">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3492,7 +3492,7 @@ function akunHTML(){
   ${misiPemulaCard()}
   <div class="card"><h3>📅 Absen harian · hari ke-${st || 0}</h3>
     <div class="streak">${hari}</div>
-    <p class="note">Hari 1–2: N$50 · Hari 3–5: N$75 · Hari 6 dst: N$100 per hari. Lewat sehari (reset 00.00 WIB) = bolos, ulang dari hari 1.</p>
+    <p class="note">Hari 1–2: N$10 · Hari 3–5: N$25 · Hari 6 dst: N$50 per hari. Lewat sehari (reset 00.00 WIB) = bolos, ulang dari hari 1.</p>
     ${d.sudah_absen ? `<button class="btn ghost" disabled>✓ Sudah absen hari ini · besok ${N$(HADIAH_HARI(next))}</button>`
       : `<button class="btn" id="akAbsen">Klaim absen · +${N$(HADIAH_HARI(next))}</button>`}</div>
   ${tanahCard()}
@@ -3638,7 +3638,7 @@ function misiDaftar(){
     {id:'olah', ikon:'🏭', judul:'Combine / Olah hasil tambangmu', isi:'Setelah menambang, <b>combine bahan mentahmu di pabrik</b> (utara Pelabuhan, bayar biaya olah) jadi <b>bahan olahan</b> atau <b>bahan material</b> untuk membangun.' + (cth ? `<br>Contoh: ${cth}` : '') + (bisa.length ? `<br>✅ <b>Di tasmu sekarang bisa diolah jadi:</b> ${bisa.join(', ')}` : ''), pergi:'industri'},
     {id:'jual', ikon:'🦅', judul:'Jual 1 barang di PRN', isi:'Tekan gedung Garuda di Distrik Pusat, jual bahan atau hasil olahanmu ke Negara untuk dapat Nusa.', pergi:'prn'},
     {id:'tanah', ikon:'🏞️', judul:'Beli kavling pertamamu', isi:'Pilih tanah kosong di Kawasan Kavling lalu beli (rumah kecil N$1.000). Setor material hasil olahanmu untuk membangun.', pergi:'kavling'},
-    {id:'donasi', ikon:'🤝', judul:'Donasi untuk Negara', isi:'Donasikan bahan atau N$ di Papan Donasi (sebelah barat podium). Setiap bahan dihitung poin, N$1 = 1 poin. <b>Donasi terbanyak tiap bulan jadi 🏆 Warga Terbaik dan dapat tanah + rumah/toko modern gratis!</b> Juara 2 dan 3 juga dapat tanah.', pergi:'donasi'}
+    {id:'donasi', ikon:'🤝', judul:'Donasi untuk Negara', isi:'Donasikan bahan atau N$ di Papan Donasi (sebelah barat podium). Setiap bahan dihitung poin, N$1 = 1 poin. <b>Juara 1–3 donasi tiap minggu jadi calon Wakil Presiden</b>, diundi dan diumumkan tiap Senin.', pergi:'donasi'}
   ].map(m=>Object.assign(m, {ok: dn[m.id]}));
 }
 function misiPemulaCard(){ if (!AKUN.data) return '';
@@ -3714,7 +3714,7 @@ const TUTO_LANGKAH = [
   {ikon:'🏭', judul:'Combine hasil tambang', isi:'Bawa bahan mentahmu ke pabrik, lalu <b>Olah</b> jadi <b>bahan olahan</b> atau <b>bahan material</b> (untuk membangun rumah). Cukup bayar biaya olah.', pergi:'industri', tombol:'🏭 Lihat pabrik'},
   {ikon:'🦅', judul:'Jual di PRN', isi:'Tekan gedung Garuda di Distrik Pusat. Jual bahan atau hasil olahanmu ke Negara untuk dapat Nusa, atau beli bahan yang kamu butuh.', pergi:'prn', tombol:'🦅 Lihat PRN'},
   {ikon:'🏞️', judul:'Beli tanah & bangun', isi:'Menangkan Undian: rumah/toko hasil undian dibangun di selatan podium. Kawasan bisnis di belakang Distrik Pusat dibangun dari usulan warga. Itu rumah & billboard milikmu sendiri!', pergi:'kavling', tombol:'🏞️ Lihat kavling'},
-  {ikon:'🤝', judul:'Donasi & jadi Warga Terbaik', isi:'Donasikan bahan atau N$ di Papan Donasi. Yang donasinya <b>paling banyak</b> tiap bulan jadi <b>🏆 Warga Terbaik</b> dan mendapat <b>tanah + rumah/toko modern</b> gratis. Juara 2 dan 3 juga dapat tanah.', pergi:'donasi', tombol:'🤝 Lihat Papan Donasi'}
+  {ikon:'🤝', judul:'Donasi & jadi calon Wakil Presiden', isi:'Donasikan bahan atau N$ di Papan Donasi. <b>Juara 1–3 donasi tiap minggu</b> masuk daftar calon <b>Wakil Presiden</b>, lalu diundi dan diumumkan tiap hari Senin.', pergi:'donasi', tombol:'🤝 Lihat Papan Donasi'}
 ];
 function tutoTampil(){ if (!TUTO){ tutoEl.style.display = 'none'; return; } const i = TUTO.i, L = TUTO_LANGKAH[i], akhir = i === TUTO_LANGKAH.length - 1;
   tutoEl.style.display = 'block';
@@ -3908,7 +3908,7 @@ function jabatanHTML(){
   if (!AKUN.data) h += perluMasuk();
   h += `<div class="card"><h3>👑 Pimpinan Negara</h3>
     <div class="jrow"><div class="ji">👑</div><div class="jt"><b>Presiden</b><small>Mr. Bung</small></div>${jabHarga('Menjabat')}</div>
-    <div class="jrow"><div class="ji">👑</div><div class="jt"><b>Wakil Presiden</b><small>Belum terisi · ditentukan lewat Voting</small></div>${jabHarga('Voting')}</div></div>`;
+    <div class="jrow"><div class="ji">👑</div><div class="jt"><b>Wakil Presiden</b><small>${wapresNow() ? esc(namaW(wapresNow().username)) + ' · menjabat minggu ini' : 'Belum terisi · hasil undian donatur terbanyak, diumumkan tiap Senin'}</small></div>${jabHarga(wapresNow() ? 'Menjabat' : 'Voting')}</div></div>`;
   if (!JAB.kat.length) return h + '<p class="note">Memuat jabatan…</p>';
   const dp = JAB.kat.find(k=>k.kode === 'DEWAN-PENASIHAT');
   if (dp) h += `<div class="card"><h3>🧑‍⚖️ Dewan Penasihat Negara · ${(JAB.pem[dp.kode] || []).length}/${dp.kuota}</h3>${jabRow(dp)}<p class="note">${dp.kuota} kursi penasihat untuk Presiden, bisa dibeli warga.</p></div>`;
@@ -4016,7 +4016,9 @@ setInterval(()=>{ document.querySelectorAll('[data-cd]').forEach(el=>{ const s =
   if (sheet.classList.contains('open') && sheetFn && sheetFn.eko) sheetBody.innerHTML = sheetFn(); })();
 
 /* ---------- KAVLING, BANGUN, KAS NEGARA, PAPAN DONASI (Bagian A & B) ---------- */
-const KAV = {}, SETOR = {}, TIPE = {}; let PAPAN = [], JUARA = [];
+const KAV = {}, SETOR = {}, TIPE = {}; let PAPAN = [], JUARA = [], WAPRES = null;
+function mingguKini(){ const d = new Date(Date.now() + 7*3600e3); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); return d.toISOString().slice(0,10); }
+function wapresNow(){ return WAPRES && WAPRES.minggu === mingguKini() ? WAPRES : null; }
 const LBL = {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'};
 const UKUR = {rumah_kecil:[8,10], rumah_modern:[16,10], toko_kecil:[8,10], toko_modern:[16,10], pabrik:[16,15]};
 const DSN = {rumah_kecil:['🏠','Rumah Kecil 1 Lantai','BHR-001'], rumah_modern:['🏡','Rumah Modern 2 Lantai','BHR-002'],
@@ -4151,26 +4153,26 @@ async function negaraMuat(){ try { const r = await SB.get('negara?select=kas,sha
 const DON = new THREE.Group(); DON.position.set(-11, 0, -3); stage.add(DON); DON.userData = {type:'eko', data:{id:'EKO-DONASI'}}; pickables.push(DON);   // barat podium, di dalam lingkaran plaza
 [-3.1,3.1].forEach(x=>box(.25,8.4,.25,0xf2b134,x,4.2,-.2,DON)); box(6.2,3.2,.3,0x1f3a5f,0,4,-.1,DON); box(6.2,1.7,.3,0x7a1f2b,0,6.9,-.1,DON);
 const terbaikMat = new THREE.MeshBasicMaterial({}); { const m = new THREE.Mesh(new THREE.PlaneGeometry(6,1.55), terbaikMat); m.position.set(0,6.9,.06); DON.add(m); }
-function terbaikGambar(){ const j = JUARA.find(x=>x.peringkat === 1), bl = j ? BULAN[(parseInt(String(j.bulan).slice(5,7)) || 1) - 1] : '';
+function terbaikGambar(){ const w = wapresNow();
   terbaikMat.map = canvasTex(1024, 264, (c,W,H)=>{ c.fillStyle = '#7a1f2b'; c.fillRect(0,0,W,H); c.strokeStyle = '#f2b134'; c.lineWidth = 10; c.strokeRect(8,8,W-16,H-16);
     c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#ffffff'; c.font = `800 46px ${FONT}`;
-    c.fillText(j ? `🏆 WARGA TERBAIK BULAN ${bl.toUpperCase()}` : '🏆 WARGA TERBAIK BULAN INI', W/2, 78);
-    c.fillStyle = '#f2b134'; c.font = `800 ${j ? 76 : 40}px ${FONT}`; c.fillText(j ? namaW(j.username) : 'Diumumkan tanggal 1 bulan depan', W/2, 180); });
+    c.fillText('👑 WAKIL PRESIDEN MINGGU INI', W/2, 78);
+    c.fillStyle = '#f2b134'; c.font = `800 ${w ? 76 : 40}px ${FONT}`; c.fillText(w ? namaW(w.username) : 'Belum terisi · diumumkan hari Senin', W/2, 180); });
   terbaikMat.needsUpdate = true; }
 const donMat = new THREE.MeshBasicMaterial({}); { const m = new THREE.Mesh(new THREE.PlaneGeometry(6,3), donMat); m.position.set(0,4,.06); DON.add(m); }
 { const l = label('🤝 PAPAN DONASI', LBL); l.position.set(0, 9.4, 0); DON.add(l); }
 function donGambar(){
   donMat.map = canvasTex(1024, 512, (c,W,H)=>{ c.fillStyle = '#1f3a5f'; c.fillRect(0,0,W,H); c.fillStyle = '#f2b134'; c.fillRect(0,0,W,70);
-    c.fillStyle = '#1f3a5f'; c.font = `800 40px ${FONT}`; c.textAlign = 'center'; c.fillText('KONTRIBUSI UNTUK NEGARA · BULAN INI', W/2, 48);
+    c.fillStyle = '#1f3a5f'; c.font = `800 40px ${FONT}`; c.textAlign = 'center'; c.fillText('KONTRIBUSI UNTUK NEGARA · MINGGU INI', W/2, 48);
     c.font = `700 24px ${FONT}`; c.fillStyle = '#9fb3c8'; c.textAlign = 'left'; c.fillText('WARGA', 40, 104); c.textAlign = 'right'; c.fillText('POIN', 760, 104); c.fillText('N$ DONASI', W-40, 104);
     c.font = `700 34px ${FONT}`;
-    if (!PAPAN.length){ c.fillStyle = '#fff'; c.textAlign = 'center'; c.fillText('Belum ada donasi bulan ini. Jadilah yang pertama!', W/2, 260); }
+    if (!PAPAN.length){ c.fillStyle = '#fff'; c.textAlign = 'center'; c.fillText('Belum ada donasi minggu ini. Jadilah yang pertama!', W/2, 260); }
     PAPAN.slice(0,5).forEach((r,i)=>{ const y = 152 + i*54; c.fillStyle = i < 3 ? '#f2b134' : '#ffffff';
       c.textAlign = 'left'; c.fillText(`${['🥇','🥈','🥉','4.','5.'][i]} @${String(r.nama || r.username).replace(/^@+/,'').slice(0,18)}`, 40, y);
       c.textAlign = 'right'; c.fillText(Number(r.poin).toLocaleString('id-ID'), 760, y); c.fillText(N$(r.nsa), W-40, y); });
     c.fillStyle = '#f2b134'; c.fillRect(0,H-78,W,78); c.fillStyle = '#1f3a5f'; c.font = `700 24px ${FONT}`; c.textAlign = 'center';
     c.fillText('Syarat: setiap bahan dihitung poin sesuai jenisnya · N$1 = 1 poin', W/2, H-48);
-    c.fillText('Juara diumumkan setiap tanggal 1 · Juara 1–20 dapat hadiah', W/2, H-18); });
+    c.fillText('Juara 1–3 jadi calon Wapres · diundi & diumumkan tiap Senin', W/2, H-18); });
   donMat.needsUpdate = true;
 }
 donGambar();
@@ -4179,15 +4181,15 @@ async function kavMuat(){
   try { (await SB.get('tipe_bangunan?select=*&order=urut')).forEach(t=>{ TIPE[t.kode] = t; }); } catch(_) {}
   try { (await SB.get('kavling?select=id,tipe,x,z,blok,username,status,desain,gratis_bangun&order=id')).forEach(k=>{ KAV[k.id] = k; }); } catch(_) {}
   try { for (const k in SETOR) delete SETOR[k]; (await SB.get('bangun_setor?select=kavling,barang,terkumpul')).forEach(r=>{ (SETOR[r.kavling] = SETOR[r.kavling] || {})[r.barang] = r.terkumpul; }); } catch(_) {}
-  try { PAPAN = await SB.rpc('papan_kontribusi', {}) || []; } catch(_) {}
-  try { JUARA = await SB.get('juara?select=bulan,peringkat,username,poin,hadiah&order=bulan.desc,peringkat&limit=20') || []; } catch(_) {}
+  try { PAPAN = await SB.rpc('papan_minggu', {}) || []; } catch(_) {}
+  try { WAPRES = (await SB.get('wapres?select=*&order=minggu.desc&limit=1') || [])[0] || null; } catch(_) {}
   Object.keys(KAV).forEach(kavGambar); donGambar(); terbaikGambar();
   if (sheet.classList.contains('open') && sheetFn && (sheetFn === akunHTML || sheetFn.eko)) sheetBody.innerHTML = sheetFn();
 }
 async function tahap3Muat(){ await Promise.all([kavMuat(), negaraMuat()]); }
 tahap3Muat(); setInterval(tahap3Muat, 30000);
 
-const HADIAH = i => i === 1 ? '🏡 Tanah + Rumah/Toko Modern 2 Lantai' : i === 2 ? '🏠 Tanah + Rumah/Toko Kecil 1 Lantai' : i === 3 ? '🏞️ Tanah Rumah/Toko Kecil' : i <= 10 ? '💰 N$500' : i <= 20 ? '💰 N$100' : '–';
+const HADIAH = i => i <= 3 ? '🗳️ Calon Wakil Presiden' : '–';
 const KUPON = {modern:'Tanah + Rumah/Toko Modern 2 Lantai (pilih kavling modern)', tanah_rumah:'Tanah + Rumah/Toko Modern 2 Lantai (pilih kavling modern)', kecil:'Tanah + Rumah/Toko Kecil 1 Lantai (pilih kavling kecil)', tanah:'Tanah gratis (kavling rumah/toko kecil)'};
 const HARGA_KUPON = {modern:4500, tanah_rumah:4500, kecil:2000, tanah:800};
 const kupCocok = k => ((AKUN.data && AKUN.data.kupon) || []).find(j => (j === 'tanah' && /kecil/.test(k.tipe)) || ((j === 'modern' || j === 'tanah_rumah') && /modern/.test(k.tipe)) || (j === 'kecil' && /kecil/.test(k.tipe)));
@@ -4228,6 +4230,8 @@ function kavHTML(id){
   } else if (k.status === 'proyek') h += `<div class="card"><h3>🏗️ Proyek pembangunan</h3><p>Desainmu sudah dikirim. Presiden akan memeriksa dan membangunnya di tanah ini.</p></div>`;
   return h;
 }
+function wapresCard(){ const w = wapresNow();
+  return `<div class="card"><h3>👑 Wakil Presiden minggu ini</h3>${w ? `<div class="jrow"><span class="ji">👑</span><span class="jt"><b>${esc(namaW(w.username))}</b><small>Terpilih lewat undian dari calon: ${(w.calon || []).map(c=>esc(namaW(c.username))).join(', ')}</small></span></div>` : '<p class="note">Belum terisi. Diumumkan hari Senin, dari undian 3 donatur terbanyak minggu lalu.</p>'}</div>`; }
 function donasiHTML(){
   let h = `<div class="kicker">Membangun Republik Bersama</div><h2>🤝 Papan Donasi</h2>${saldoBar()}
     <div class="card"><h3>📜 Syarat poin</h3><p class="note">Setiap bahan yang didonasikan ke Negara dihitung poin sesuai jenisnya, dan <b>N$1 = 1 poin</b>. Bahan masuk stok PRN, uang masuk Kas Negara.<br>
@@ -4238,10 +4242,10 @@ function donasiHTML(){
       <div class="card"><h3>💰 Donasi N$</h3><div class="prow"><input type="number" min="1" value="100" id="dn-uang" style="font:inherit;font-size:17px;padding:10px;border:1px solid var(--line);border-radius:12px;width:120px;margin-top:14px"><button class="btn" data-donasi="uang">Donasi N$</button></div></div>`;
   } else h += perluMasuk();
   h += `<div class="card"><h3>🔎 Cari peringkatmu</h3><input id="dnCari" placeholder="Ketik nama/username" autocapitalize="none" style="font:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:12px;width:100%;box-sizing:border-box"><div id="dnHasil"></div></div>
-    <div class="card"><h3>🏆 Peringkat & hadiah bulan ini (1–20)</h3>${PAPAN.length ? PAPAN.slice(0,20).map((r,i)=>rowPeringkat(r,i)).join('') : '<p class="note">Belum ada donasi bulan ini.</p>'}
-    <p class="note">Juara diumumkan setiap tanggal 1. Semua hadiah diambil dari Kas Negara. Juara 1–3 bebas memilih kavling yang sesuai kuponnya.</p></div>
-    <div class="card"><h3>🎁 Daftar hadiah</h3><p class="note">🥇 Juara 1: Tanah + Rumah/Toko Modern 2 Lantai<br>🥈 Juara 2: Tanah + Rumah/Toko Kecil 1 Lantai<br>🥉 Juara 3: Tanah Rumah/Toko Kecil<br>🎟️ Kupon juara bisa dijual ke Negara: Juara 1 N$4.500 · Juara 2 N$2.000 · Juara 3 N$800<br>Juara 4–10: N$500 · Juara 11–20: N$100</p></div>`;
-  if (JUARA.length) h += `<div class="card"><h3>👑 Juara bulan ${esc(JUARA[0].bulan)}</h3>${JUARA.filter(j=>j.bulan === JUARA[0].bulan).map(j=>`<div class="jrow"><span class="ji">${j.peringkat}</span><span class="jt"><b>${esc(namaW(j.username))}</b><small>${esc(j.hadiah)}</small></span></div>`).join('')}</div>`;
+    <div class="card"><h3>🏆 Peringkat donasi minggu ini (1–20)</h3>${PAPAN.length ? PAPAN.slice(0,20).map((r,i)=>rowPeringkat(r,i)).join('') : '<p class="note">Belum ada donasi minggu ini.</p>'}
+    <p class="note">Peringkat dihitung Senin–Minggu dan dimulai ulang tiap Senin 00.00 WIB.</p></div>
+    ${wapresCard()}
+    <div class="card"><h3>🗳️ Pemilihan Wakil Presiden</h3><p class="note">Donatur terbanyak tiap minggu: <b>Juara 1–3 masuk daftar calon Wakil Presiden</b>. Satu dari tiga calon dipilih lewat <b>Undian</b> dan diumumkan setiap <b>hari Senin</b>. Wakil Presiden menjabat satu minggu, lalu diganti pemenang undian minggu berikutnya.<br>Uang donasi langsung masuk <b>Kas Negara</b>.</p></div>`;
   return h;
 }
 function rowPeringkat(r,i){ const gl = gelar(lvOf(r.username)); return `<div class="jrow"><span class="ji">${i < 3 ? ['🥇','🥈','🥉'][i] : i+1}</span><span class="jt"><b>@${esc(String(r.nama || r.username).replace(/^@+/,''))}</b><small>${gl.ikon} ${gl.nama} · Lv ${gl.lv} · ${Number(r.poin).toLocaleString('id-ID')} poin · ${r.bahan} bahan · ${N$(r.nsa)} · 🎁 ${HADIAH(i+1)}</small></span></div>`; }
@@ -4254,13 +4258,13 @@ function sambutanHTML(){ return `<div class="kicker">Selamat datang!</div><h2>�
   <button class="btn" data-cara>📖 Baca cara main di Republik Nusawara</button>`; }
 function caraMainHTML(){ return `<div class="kicker">Panduan Warga</div><h2>📖 Cara Main di Republik Nusawara</h2>
   <div class="card"><h3>1. Masuk & dapat modal</h3><p>Tekan <b>🔑 Masuk</b> di kanan atas. Warga baru langsung dapat <b>N$300</b>. Uang Nusawara disebut <b>Nusa (N$)</b>.</p></div>
-  <div class="card"><h3>2. Absen setiap hari</h3><p>Klaim absen di akunmu: hari 1–2 dapat N$50, hari 3–5 N$75, hari 6 dan seterusnya N$100. Lupa sehari? Ulang dari hari 1.</p></div>
+  <div class="card"><h3>2. Absen setiap hari</h3><p>Klaim absen di akunmu: hari 1–2 dapat N$10, hari 3–5 N$25, hari 6 dan seterusnya N$50. Lupa sehari? Ulang dari hari 1.</p></div>
   <div class="card"><h3>3. Menambang</h3><p>Pergi ke Kawasan Tambang (selatan Pelabuhan). Sekali klik dapat 5 bahan. Tiap tambang maksimal 10× sehari.</p></div>
   <div class="card"><h3>4. Mengolah di pabrik</h3><p>Ubah bahan mentah jadi bahan olahan di Kawasan Industri (utara Pelabuhan). Tidak ada batas harian, cukup bayar biaya olah.</p></div>
   <div class="card"><h3>5. Jual-beli di PRN</h3><p>Tekan gedung Garuda di Distrik Pusat. Beli bahan selama stok Negara ada, jual bahan selama Kas Negara cukup.</p></div>
   <div class="card"><h3>6. Beli tanah & bangun</h3><p>Pilih tanah sesuai bangunanmu: rumah kecil (N$1.000) atau rumah modern (N$1.800) di Kawasan Residensial, toko kecil/modern di Kavling Toko, pabrik (N$2.500) di Kavling Pabrik. Boleh punya lebih dari satu.<br>
     Lalu tekan <b>Bangun</b>: setor bahan atau bayar ke Negara. Setelah lunas, pilih desain siap pakai (langsung berdiri) atau kirim desainmu sendiri.</p></div>
-  <div class="card"><h3>7. Donasi untuk Negara</h3><p>Donasikan bahan atau N$ di Papan Donasi (sebelah barat podium). Setiap bahan dihitung poin, N$1 = 1 poin. Juara diumumkan tiap tanggal 1:<br>🥇 Tanah + Rumah/Toko Modern · 🥈 Tanah + Rumah/Toko Kecil · 🥉 Tanah Rumah/Toko Kecil · Juara 4–10 N$500 · Juara 11–20 N$100.</p></div>
+  <div class="card"><h3>7. Donasi untuk Negara</h3><p>Donasikan bahan atau N$ di Papan Donasi (sebelah barat podium). Setiap bahan dihitung poin, N$1 = 1 poin. Juara 1–3 tiap minggu jadi calon Wakil Presiden, diundi dan diumumkan tiap hari Senin. Uang donasi masuk Kas Negara.</p></div>
   <div class="card"><h3>8. Aturan penting</h3><p>Satu orang satu akun. Jangan berikan Kata Sandi Warga ke siapa pun. Semua uang, tanah, dan bangunan di Nusawara bersifat virtual.</p></div>
   <button class="btn" data-klaim>📅 Sekarang klaim N$ harianmu!</button>
   <button class="btn ghost" data-tuto>🎓 Ulangi tutorial langkah demi langkah</button>`; }
@@ -5558,6 +5562,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 21:00</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 21:25</div>
 </body>
 </html>
