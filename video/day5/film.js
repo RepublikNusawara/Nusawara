@@ -148,6 +148,7 @@ window.FILM = { info: Object.fromEntries(Object.keys(INFO).map(k=>[k,{c:INFO[k].
     progress(k, p); });
   // kapal (waktu diregangkan)
   const fk = 1 - Math.pow(1 - cl(u0/5.6,0,1), 2.4); const fx = lerp(FERRY_X0, FERRY_X1, fk);
+  try { FERRY.visible = FERRY2.visible = t >= E_HARI; } catch(e){}   // ferry yang terparkir disembunyikan saat kapal datang membawa warga
   ferry.position.set(fx, Math.sin(t*1.3)*.12, FZ); ferry.rotation.z = Math.sin(t*1.1)*.01; ferry.visible = t < E_HARI; ramp.visible = u0 > 5.6 && t < E_HARI;
   crowdHide(t < E_HARI); if (t < E_HARI) crowdAt(u0, fx);
   // presiden & ayam
