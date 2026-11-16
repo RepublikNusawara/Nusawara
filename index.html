@@ -3462,9 +3462,29 @@ function popHadiah(t){ const el = document.createElement('div'); el.className = 
 var GJ = {buka:false, sudah:0};
 function gajiBunyiMasuk(){ try { sfx(523, .14, 'sine', .1, 0); sfx(659, .14, 'sine', .1, .13); sfx(784, .28, 'sine', .12, .26); } catch(_) {} }
 function gajiBunyiUang(){ try { sfx(988, .09, 'square', .05, 0); sfx(1319, .3, 'square', .05, .09); sfx(1760, .25, 'sine', .06, .2); } catch(_) {} }
+function sambutWapres(){
+  return new Promise(res=>{
+    const h = (new Date(Date.now() + 7*3600e3)).getUTCHours(), w = h >= 4 && h < 11 ? 'pagi' : h < 15 ? 'siang' : h < 18 ? 'sore' : 'malam';
+    const isi = ['Selamat datang kembali di Republik Nusawara. Rakyat menantikan kepemimpinan Anda hari ini.',
+      'Kehadiran Anda kembali menyemangati seluruh warga Nusawara. Selamat bertugas.',
+      'Nusawara menyambut Anda dengan hormat. Semoga hari ini membawa kemajuan bagi negeri kita.',
+      'Terima kasih sudah kembali mengabdi. Seluruh warga bangga memiliki Anda sebagai Wakil Presiden.'][Math.floor(Math.random() * 4)];
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,20,40,.68);display:flex;align-items:center;justify-content:center;padding:18px';
+    ov.innerHTML = `<div style="background:#fffaf0;border:4px solid #c9a227;border-radius:22px;max-width:340px;width:100%;padding:24px 20px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5);font-family:inherit">
+      <div style="font-size:50px;line-height:1">🇮🇩</div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:1px;color:#8a6d0b;margin-top:10px">PENYAMBUTAN WAKIL PRESIDEN</div>
+      <div style="font-size:20px;font-weight:800;color:#3b2600;margin-top:6px">Selamat ${w}, Wakil Presiden @${esc(AKUN.u)}!</div>
+      <div style="font-size:14px;line-height:1.5;color:#4a3b1c;margin:12px 0 18px">${isi} 🙏</div>
+      <button class="btn" id="wpOk" style="width:100%;font-size:16px;padding:12px">Terima kasih</button></div>`;
+    document.body.appendChild(ov); try { gajiBunyiMasuk(); } catch(_) {}
+    ov.querySelector('#wpOk').addEventListener('click', ()=>{ ov.remove(); res(); });
+  });
+}
 async function gajiCek(){
   if (GJ.buka || !AKUN.u || document.hidden) return;
   GJ.buka = true;
+  try { const wp = await SB.get('wapres?select=username,minggu&order=minggu.desc&limit=1'); if (wp && wp[0] && wp[0].minggu === mingguKini() && wp[0].username === AKUN.u) await sambutWapres(); } catch(_) {}
   try {
     const r = await SB.rpc('gaji_tunggu_saya', {p_user: AKUN.u, p_sandi: AKUN.s});
     if (!r || !r.ok){ GJ.buka = false; return; }
@@ -3481,7 +3501,6 @@ function gajiTampil(d){
   ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,20,40,.62);display:flex;align-items:center;justify-content:center;padding:18px';
   ov.innerHTML = `<div style="background:#fffaf0;border:4px solid #f2c14e;border-radius:22px;max-width:340px;width:100%;padding:22px 20px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.45);font-family:inherit">
     <div style="font-size:46px;line-height:1">${wp ? '🇮🇩' : '💼'}</div>
-    ${wp ? `<div style="background:#fff1c9;border:2px solid #f2c14e;border-radius:14px;padding:10px 12px;margin-top:10px;font-size:13px;line-height:1.45;color:#3b2600"><b>Yang Terhormat Wakil Presiden Republik Nusawara, @${esc(AKUN.u)}</b><br>Selamat pagi dan selamat bertugas. Terima kasih sudah mengabdi untuk Nusawara. Semoga setiap keputusan Anda membawa kemajuan bagi seluruh warga. 🙏</div>` : ''}
     <div style="font-size:19px;font-weight:800;color:#3b2600;margin-top:8px">Gaji - ${esc(nama)}</div>
     ${rinci}<div style="font-size:40px;font-weight:900;color:#2e7d32;margin:${rinci ? '2px' : '14px'} 0 18px">${N$(total)}</div>
     <button class="btn" id="gjOk" style="width:100%;font-size:17px;padding:12px">Terima Gaji</button>
@@ -5639,6 +5658,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 00:20</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 00:30</div>
 </body>
 </html>
