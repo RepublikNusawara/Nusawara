@@ -5262,7 +5262,7 @@ function bisnisHTML(id){
   }
   if (id === 'MATCHA-NUSAWARA'){
     const daun = (BARANG.find(b=>b.kode === 'daun_teh') || {}).stok || 0, mh = (BIZ.kerja && BIZ.kerja.matcha) || 0;
-    h += `<div class="card" style="background:#eef7e6"><h3>🍵 Toko Matcha</h3><p class="note">Sistem sama dengan semua toko: pekerja beli 🌿 daun teh di PRN → <b>Jual</b> ke toko (untung 5%) → <b>Combine ×1</b> (1 🌿 daun teh milik toko → 1 🍵 matcha powder masuk inventory toko). Misi harian & gaji mengikuti aturan toko.</p>
+    h += `<div class="card" style="background:#eef7e6"><h3>🍵 Toko Matcha</h3><p class="note">Sistem sama dengan semua toko: pekerja beli 🌿 daun teh di PRN → <b>Jual</b> ke toko (untung 5%) → <b>Combine ×1</b> (1 🌿 daun teh milik toko → 1 🍵 matcha powder masuk inventory toko). Gaji penuh tanpa tugas.</p>
       <p class="note">Stok daun teh Negara: <b>${daun}</b> · bisa diracik: <b>${Math.floor(daun/10)}</b> · stok matcha toko: <b>${(lap && lap.stok_matcha) ?? '–'}</b></p>`;
     const hm = ((BARANG.find(b=>b.kode === 'matcha') || {}).harga_beli || 18);
     if (AKUN.data) h += `<div class="card" style="background:#fff"><h3>🛒 Beli matcha dari toko · ${N$(hm - 1)}/pack</h3><p class="note">Lebih murah N$1 dari PRN (${N$(hm)}). Matcha masuk ke tasmu, misalnya untuk dijual ke Kopi Nusawara. Stok toko: <b>${(lap && lap.stok_matcha) ?? (BIZ.misi[id] && BIZ.misi[id].item && BIZ.misi[id].item.matcha_bubuk ? BIZ.misi[id].item.matcha_bubuk.stok_toko : '–')}</b></p>
@@ -5274,33 +5274,33 @@ function bisnisHTML(id){
   if (sayaKerja && menu.length){
     const ms = BIZ.misi[id] || {}, it = ms.item || {}, gj = BIZ.gaji[id + '|' + kj.posisi] || 0, nM = menu.length;
     const tj = (ms.bahan || []).reduce((a,x)=>a + (x.jual||0), 0), tc = Object.values(it).reduce((a,x)=>a + (x.combine||0), 0), ps = ms.persen || 0;
-    h += `<div class="card" style="border:2px solid #5a3a22"><h3>🎯 Misi harian pekerja · <span style="color:${ps >= 100 ? '#2f7d1a' : '#c0392b'}">${ps}%</span></h3>${bar(ps, 100)}
+    h += `<div class="card" style="border:2px solid #5a3a22"><h3>🧰 Aktivitas toko (opsional)</h3>
       <p class="note">1️⃣ <b>Beli bahan di PRN</b> (gedung Garuda) · 2️⃣ <b>Jual bahan ke toko</b> ini, kamu untung <b>5%</b> · 3️⃣ <b>Combine ×1</b> bahan milik toko (1 + 1) jadi 1 pack di inventory toko. Setiap 1 bahan terjual & setiap Combine = misi +1 & <b>+1 EXP</b>.</p>
       <div class="prow"><button class="btn ghost" data-pergi="prn">🏪 Ke PRN beli bahan</button></div>
-      <p class="note" style="margin-top:10px">💰 <b>Jual ${Math.min(tj,50)}/50 pack (50%)</b> · minimal 5 per bahan, sisanya bebas${bar(Math.min(tj,50), 50)}</p>
+      <p class="note" style="margin-top:10px">💰 <b>Jual bahan ke toko</b> · terjual hari ini: ${tj} pack</p>
       ${(ms.bahan || []).map(x=>`<div class="jrow" style="border-top:1px solid #eee;padding-top:6px"><span style="font-size:26px;flex:none">${x.ikon}</span><span class="jt"><b>${esc(x.nama)}</b>
-          <small>Di tas <b>${x.punya}</b> · stok toko ${x.toko} · dibayar ${N$(Math.ceil(x.harga*1.05))}/pack · jual ${Math.min(x.jual,5)}/5${x.jual >= 5 ? ' ✓' : ''}</small></span></div>
+          <small>Di tas <b>${x.punya}</b> · stok toko ${x.toko} · dibayar ${N$(Math.ceil(x.harga*1.05))}/pack</small></span></div>
           <div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;margin:4px 0 6px"><button class="btn ghost" style="padding:6px 10px" data-step="${x.kode}|-1" ${x.punya ? '' : 'disabled'}>−</button>
           <input type="number" min="1" max="${x.punya}" value="${Math.min(Math.max(1, x.punya), x.punya || 1)}" id="jb-${x.kode}" style="font:inherit;width:52px;padding:7px;border:1px solid var(--line);border-radius:10px;text-align:center" ${x.punya ? '' : 'disabled'}>
           <button class="btn ghost" style="padding:6px 10px" data-step="${x.kode}|1" ${x.punya ? '' : 'disabled'}>+</button><button class="btn" data-jualbahan="${x.kode}" ${x.punya ? '' : 'disabled'}>💰 Jual</button></div>`).join('') || '<p class="note">Memuat bahan…</p>'}
-      <p class="note" style="margin-top:12px">🍳 <b>Combine ${Math.min(tc,20)}/20 (50%)</b> · minimal 2 per menu, sisanya bebas${bar(Math.min(tc,20), 20)}</p>
+      <p class="note" style="margin-top:12px">🍳 <b>Combine</b> · hari ini: ${tc}×</p>
       ${menu.map(m=>{ const x = it[m.kode] || {}, c = x.combine || 0, bs = x.bisa || 0, stk = x.stok_toko ?? m.stok ?? 0;
         const bahan = (x.resep || []).map(r=>`${r.ikon} ${esc(r.nama)} <b>${r.toko}</b>`).join(' + ');
         return `<div class="jrow" style="border-top:1px solid #eee;padding-top:6px"><span style="font-size:28px;flex:none">${m.ikon}</span><span class="jt"><b>${esc(m.nama)}</b>
-          <small>Bahan toko: ${bahan}<br>Inventory toko: <b>${stk}</b> · combine ${Math.min(c,2)}/2${c >= 2 ? ' ✓' : ''}</small></span>
+          <small>Bahan toko: ${bahan}<br>Inventory toko: <b>${stk}</b></small></span>
           <button class="btn" data-combine="${m.kode}|1" ${bs >= 1 ? '' : 'disabled'}>🍳 Combine ×1</button></div>`; }).join('')}
-      <p class="note">Gajimu sebagai ${esc(kj.posisi)}: <b>${N$(gj)}/hari</b>, dihitung otomatis setelah 00.00 WIB sesuai persen misi dan diterima lewat pop-up <b>Terima Gaji</b> saat login pertama (tidak login sehari = gaji hari itu hangus): 100% → gaji penuh <b>+ bonus 10%</b> · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji. Streak 7 hari +N$30 · 30 hari +N$100 (streak ${BIZ.kerja.streak || 0} hari).</p>
-      ${rk ? `<p class="note">Kemarin: ${rk.persen}% · gaji ${N$(rk.gaji)}${rk.bonus ? ' + bonus ' + N$(rk.bonus) : ''}</p>` : ''}</div>`;
+      <p class="note">Gajimu sebagai ${esc(kj.posisi)}: <b>${N$(gj)}/hari</b>. Tanpa tugas apa pun: cukup login, lalu pop-up <b>Terima Gaji</b> muncul (tidak login sehari = gaji hari itu hangus). Jual bahan & Combine di atas hanya aktivitas opsional untuk mengisi stok toko.</p>
+      </div>`;
   }
   // daftar gaji harian semua jabatan toko (dari tabel gaji_posisi)
   if (menu.length && FAS[id]){
     const gl = FAS[id].pos.map(([p,,ic])=>[p, ic, BIZ.gaji[id + '|' + p]]).filter(x=>x[2] != null);
     if (gl.length) h += `<div class="card"><h3>💵 Daftar gaji harian</h3>
       ${gl.map(([p, ic, g])=>`<div class="jrow" style="${kj && kj.posisi === p ? 'background:#fff4d6;border-radius:10px;' : ''}padding:5px 6px"><span style="font-size:22px;flex:none">${ic}</span><span class="jt"><b>${esc(p)}${kj && kj.posisi === p ? ' (kamu)' : ''}</b></span>${pill(N$(g) + ' / hari', '#f2c14e', '#3b2600')}</div>`).join('')}
-      <p class="note">Semua jabatan memakai aturan misi yang sama: 100% → gaji penuh + bonus 10% · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji. Gaji diterima lewat pop-up Terima Gaji saat login pertama tiap hari (±30 hari = gaji harian × 30).</p></div>`;
+      <p class="note">Semua gaji penuh tanpa tugas: cukup login, lalu terima lewat pop-up Terima Gaji (±30 hari = gaji harian × 30).</p></div>`;
   }
   // tabel kinerja mingguan semua karyawan
-  if (menu.length && BIZ.kinerja[id]){
+  if (false && menu.length && BIZ.kinerja[id]){
     const kn = BIZ.kinerja[id], hr = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'], semua = (kn.pekerja || []).length && kn.pekerja.every(p=>p.minggu >= 100);
     h += `<div class="card"><h3>📈 Kinerja karyawan minggu ini</h3>
       <p class="note">Persen naik setiap kali karyawan menyelesaikan misi. Jika <b>semua</b> karyawan 100% setiap hari Senin–Minggu, setiap karyawan dapat <b>Bonus mingguan N$500</b> dari toko.</p>
@@ -5867,6 +5867,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 04:00</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 04:20</div>
 </body>
 </html>
