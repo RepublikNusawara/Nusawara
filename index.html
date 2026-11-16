@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-1500">
+<meta name="nusawara-build" content="20261116-1520">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3993,8 +3993,7 @@ const cyl2 = (r,h,c,x,y,z,g,seg=12) => { const m = new THREE.Mesh(new THREE.Cyli
   const slot = (cx,r,nama)=>{ const z0 = HZ[r]-RW/2-BD/2; box(BW-3,.13,BD-3,0xcfd6c4,cx,.12,z0); parkirU(cx,BW-3,HZ[r]-RW);
     [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>{ cyl2(.2,1.1,0x6b4a2e,cx+a*(BW/2-2),.55,z0+b*(BD/2-2),scene,6); });
     pohon(cx-BW/2+3,z0-BD/2+4); pohon(cx+BW/2-3,z0-BD/2+4);
-    const t = label(nama, {h:1.4, size:30, bg:'rgba(242,177,52,.96)', fg:'#3a2600'}); t.position.set(cx,5,z0+BD/2-6); scene.add(t);
-    const t2 = label('Tersedia · usulan warga', {h:.9, size:26, bg:'rgba(31,58,95,.9)', fg:'#fff'}); t2.position.set(cx,3.4,z0+BD/2-6); scene.add(t2); };
+    const t = label('A' + (slot.n = (slot.n||0) + 1), {h:2, size:44, bg:'rgba(242,177,52,.96)', fg:'#3a2600'}); t.position.set(cx,4,z0+BD/2-6); scene.add(t); };
   slot(-14,1,'🛍️ MALL'); slot(50,1,'🍽️ RESTORAN');
   slot(-14,2,'💈 BARBERSHOP'); slot(50,2,'🏦 BANK');
   slot(-14,3,'🏨 HOTEL'); slot(18,3,'🏪 MINIMARKET'); slot(50,3,'💇 SALON');
@@ -5174,11 +5173,11 @@ function loop(){
   [[145,-48],[145,-68]].forEach(([x,z])=>{ for (let i=-2;i<=2;i++) box(.9,.03,2.6,0xffffff,x+i*1.1,.15,z); });
   [[135.5,-58],[154.5,-58]].forEach(([x,z])=>{ for (let i=-2;i<=2;i++) box(2.6,.03,.9,0xffffff,x,.15,z+i*1.1); });
   const pohonE = (x,z)=>{ cyl2(.25,1.5,0x7a4a24,x,.75,z,scene,6); const t = new THREE.Mesh(new THREE.SphereGeometry(1.4,10,8), M(0x62b83b)); t.position.set(x,2.5,z); scene.add(t); };
+  let PH = 'B'; const PN = {};
   const petak = (cx,zc,w,d,nama,tinggi)=>{ box(w,.1,d+1.5,0xdcd6c8,cx,.055,zc); box(w-2,.13,d,0xcfd6c4,cx,.12,zc);
     [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>cyl2(.18,1,0x6b4a2e,cx+a*(w/2-1.4),.5,zc+b*(d/2-1),scene,6));
     pohonE(cx-w/2+2.2,zc-d/2+2.5); pohonE(cx+w/2-2.2,zc-d/2+2.5);
-    const t = label(nama, {h:1.2, size:26, bg:'rgba(242,177,52,.96)', fg:'#3a2600'}); t.position.set(cx,tinggi||4.2,zc+d/2-3); scene.add(t);
-    const t2 = label('Tersedia', {h:.8, size:22, bg:'rgba(31,58,95,.9)', fg:'#fff'}); t2.position.set(cx,(tinggi||4.2)-1.5,zc+d/2-3); scene.add(t2); };
+    PN[PH] = (PN[PH]||0) + 1; const t = label(PH + PN[PH], {h:1.6, size:38, bg:'rgba(242,177,52,.96)', fg:'#3a2600'}); t.position.set(cx,3.2,zc+d/2-3); scene.add(t); };
   // baris 1 (depan jalan raya): 3 petak di kiri bundaran (RS dan Sekolah tetap di kanan)
   [[74,'☕ KAFE'],[99,'🍞 TOKO ROTI'],[124,'🏤 KANTOR POS']].forEach(([x,n])=>{ parkir(x,24,-23); petak(x,-38.5,24,26,n); });
   // baris 2 (jalan z=-58) dan baris 3 (jalan z=-83): petak kecil
@@ -5186,7 +5185,7 @@ function loop(){
   [[70,'🍎 TOKO SAYUR'],[82,'💈 PANGKAS'],[94,'📚 TOKO BUKU'],[106,'👕 BUTIK'],[118,'🧁 KUE'],[160,'🍽️ RESTORAN'],[180,'💊 APOTEK'],[200,'🛒 PASAR']].forEach(([x,n])=>{ parkir(x,10,-88); petak(x,-96,11,11,n,3.6); });
 
   // ===== KAWASAN FASILITAS BARU (selatan Kota Timur): petak calon Pemadam, Polisi (nanti), Balai Warga =====
-  lb('🚒 KAWASAN FASILITAS BARU', 188, -12);
+  lb('🚒 KAWASAN FASILITAS BARU', 188, -12); PH = 'C';
   [[162,'🚒 PEMADAM'],[188,'🚓 KANTOR POLISI'],[214,'🏛️ BALAI WARGA']].forEach(([x,n])=>petak(x,-4,22,17,n));
   // ===== TAMAN & HUTAN KOTA (tepi selatan) =====
   { const TX = 145, TZ = 78;
@@ -5203,6 +5202,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 15:00</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 15:20</div>
 </body>
 </html>
