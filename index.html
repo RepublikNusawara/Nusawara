@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-0300">
+<meta name="nusawara-build" content="20261117-0330">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -4567,7 +4567,7 @@ const cyl2 = (r,h,c,x,y,z,g,seg=12) => { const m = new THREE.Mesh(new THREE.Cyli
   // ===== LAHAN =====
   b(120,.1,160,0xd8d2c4,0,.05,-80);
   [-1,1].forEach(s=>{ b(3,.3,156,0x5aa83e,s*58.5,.2,-80); for (let z=-6;z>-156;z-=10){ pohon(s*58.6,z,.8); if (z % 20 === -6) lampu(s*56.4,z-5); } });
-  b(114,.3,3,0x5aa83e,0,.2,-158.5); for (let x=-50;x<=50;x+=10) pohon(x,-158.6,.8);
+  [-1,1].forEach(q=>{ b(48,.3,2.4,0x5aa83e,q*35,.2,-161.4); for (let x=14;x<=56;x+=7) pohon(q*x,-161.6,.7); });   // taman di luar pagar belakang
 
   // ---------- PLAZA DEPAN (z 0..-45) ----------
   b(52,.06,46,0xece6da,0,.11,-22.5);                                        // pelataran tengah (paving)
@@ -4743,15 +4743,73 @@ const cyl2 = (r,h,c,x,y,z,g,seg=12) => { const m = new THREE.Mesh(new THREE.Cyli
   surya(14,15,48,YR+.6,-91,G); surya(8,6,34,YR+.6,-80,G);                     // kanan
   g(4,1.2,3,0xb9c0c8,52,YR+1.2,-70); g(3,2.4,3,0xcfd4da,-30,YR+1.8,-112);     // peralatan atap kecil
 
-  // ---------- AREA BELAKANG (z -125..-160): logistik & utilitas ----------
-  b(110,.08,30,0x5a5f68,0,.12,-141);
-  for (let x=-44;x<=44;x+=8) b(.18,.03,9,0xffffff,x,.18,-150);
-  b(30,10,12,0xb9c0c8,-36,5,-136); b(31,.8,13,0x3a3f46,-36,10.4,-136); [-44,-36,-28].forEach(x=>{ b(6,6,.3,0x6b7178,x,3.4,-129.9); });
-  { const gt = canvasTex(512,96,(c,w,h)=>{ c.fillStyle='#1f3a5f'; c.fillRect(0,0,w,h); c.fillStyle='#fff'; c.font=`800 46px ${FONT}`; c.textAlign='center'; c.fillText('GUDANG LOGISTIK',w/2,64); }); plane(13,2.4,gt,-36,8.4,-129.8); }
-  [[6,-135],[17,-135]].forEach(([x,z])=>{ cy(4,4,9,SILV,x,4.8,z,24); cy(4.2,4.2,.5,GOLD,x,9.4,z,24); });
-  [[34,-133],[45,-133]].forEach(([x,z])=>{ b(8,4.4,5,0x5f7f6a,x,2.3,z); b(8.4,.4,5.4,0x3a3f46,x,4.7,z); });
-  [[-10,-150,Math.PI/2],[22,-150,-Math.PI/2],[40,-150,-Math.PI/2]].forEach(([x,z,r])=>truk(x,z,r));
-  for (let i=0;i<6;i++) b(2.2,1.8,2.2,0xc9a46a,-50+i*2.6,1,-150);
+  // ---------- SISI BELAKANG GEDUNG + AREA BELAKANG (z -125..-160), mengikuti gambar acuan tampak belakang ----------
+  // (dilihat dari belakang: kiri gambar = timur/+x, kanan gambar = barat/-x)
+  { const BK = -126, ZB = BK - .25;                                         // muka belakang sayap
+    const planeB = (w,h,tex,x,y,z)=>plane(w,h,tex,x,y,z,Math.PI);           // menghadap ke belakang (-z)
+    const papanGelap = (t,w)=>canvasTex(512,80,(c,W,H)=>{ c.fillStyle='#2b2d33'; c.fillRect(0,0,W,H); c.strokeStyle='#f2c14e'; c.lineWidth=4; c.strokeRect(3,3,W-6,H-6); c.fillStyle='#fff'; c.font=`800 40px ${FONT}`; c.textAlign='center'; c.textBaseline='middle'; c.fillText(t,W/2,H/2+2); });
+    const garis = canvasTex(256,32,(c,w,h)=>{ for (let i=-2;i<16;i++){ c.fillStyle = i%2 ? '#1b1b1b' : '#f2c400'; c.beginPath(); c.moveTo(i*20,h); c.lineTo(i*20+16,0); c.lineTo(i*20+36,0); c.lineTo(i*20+20,h); c.fill(); } });
+    const rak = canvasTex(512,256,(c,w,h)=>{ const g = c.createLinearGradient(0,0,0,h); g.addColorStop(0,'#ffe6a0'); g.addColorStop(1,'#c99a3a'); c.fillStyle=g; c.fillRect(0,0,w,h);
+      for (let s=0;s<4;s++){ const x = 20 + s*124; c.fillStyle='#6b5a44'; c.fillRect(x,30,6,h-40); c.fillRect(x+100,30,6,h-40); for (let r=0;r<3;r++){ c.fillRect(x,90+r*60,106,5); for (let k=0;k<3;k++){ c.fillStyle = (s+r+k)%2 ? '#c9934a' : '#b07a35'; c.fillRect(x+8+k*32,62+r*60,28,28); c.fillStyle='#6b5a44'; } } } });
+    const produksi = canvasTex(512,256,(c,w,h)=>{ const g = c.createLinearGradient(0,0,0,h); g.addColorStop(0,'#fff0b8'); g.addColorStop(1,'#d9a640'); c.fillStyle=g; c.fillRect(0,0,w,h);
+      c.fillStyle='#8a8f96'; c.fillRect(0,170,w,22); c.fillStyle='#3a3f46'; c.fillRect(0,192,w,8);
+      for (let i=0;i<14;i++){ c.fillStyle='#f2c14e'; c.beginPath(); c.ellipse(18+i*36,166,15,7,0,0,7); c.fill(); c.strokeStyle='#9a6b00'; c.lineWidth=2; c.stroke(); }
+      [[120,60],[392,60]].forEach(([x,y])=>{ c.fillStyle='#f2c400'; c.fillRect(x-8,y+60,16,60); c.save(); c.translate(x,y+60); c.rotate(-.6); c.fillRect(-6,-70,12,70); c.restore(); });
+      c.fillStyle='#c9cfd6'; c.fillRect(220,30,72,130); c.fillStyle='#f2c14e'; c.fillRect(214,60,84,8); c.fillRect(214,110,84,8);
+      for (let k=0;k<5;k++){ c.fillStyle='#e8b93a'; c.fillRect(30,230-k*10,60,8); c.fillRect(w-90,230-k*10,60,8); } });
+    // pita merah + jendela lantai 2 bercahaya di sayap kiri & kanan
+    [-1,1].forEach(s=>{ const cx = s*42;
+      g(36.4,2,.5,RED,cx,19.2,ZB); g(36.6,.4,.6,GOLD,cx,20.4,ZB);
+      [-12,-1.5,9].forEach(dx=>{ g(8.6,4.6,.3,GLOW,cx+s*dx,15,ZB); g(9.2,.4,.4,GOLD,cx+s*dx,17.5,ZB-.05); }); });
+    // blok tengah: papan merah PABRIK UANG NUSAWARA + koin
+    { const st = canvasTex(1024,420,(c,w,h)=>{ c.clearRect(0,0,w,h); c.beginPath(); c.moveTo(8,h-8); c.lineTo(8,h*.3); c.quadraticCurveTo(w/2,-h*.18,w-8,h*.3); c.lineTo(w-8,h-8); c.closePath();
+        const gr = c.createLinearGradient(0,0,0,h); gr.addColorStop(0,'#e0162f'); gr.addColorStop(1,'#a50d22'); c.fillStyle=gr; c.fill(); c.strokeStyle='#f2c14e'; c.lineWidth=12; c.stroke();
+        c.fillStyle='#f2c14e'; c.textAlign='center'; c.font=`900 96px ${FONT}`; c.fillText('PABRIK UANG',w/2,196); c.fillText('NUSAWARA',w/2,292);
+        c.fillStyle='#f6f2ea'; c.fillRect(w/2-250,322,500,72); c.fillStyle='#2b2d33'; c.font=`800 46px ${FONT}`; c.fillText('REPUBLIK NUSAWARA',w/2,374); });
+      g(34,11,.6,RED,0,22.4,-124.4); planeB(36,14.8,st,0,24.2,-124.9);
+      [[-5,0],[0,.6],[5,0]].forEach(([x,dy])=>{ for (let k=0;k<3;k++) koin(1.8,.5,x,32.6+dy+k*.52,-123.4,G,false); }); koin(2.8,.7,0,36.6,-123.4,G); { const bt = canvasTex(256,256,(c,w,h)=>{ c.drawImage(coinTex.image,0,0,w,h); }); const d = new THREE.Mesh(new THREE.CircleGeometry(2.8,32), new THREE.MeshPhongMaterial({map:bt, emissive:0x3a2a00})); d.position.set(0,36.6,-123.78); d.rotation.y = Math.PI; G.add(d); }
+      [-11,0,11].forEach(x=>{ g(9.4,4,.3,GLOW,x,14,-124.3); }); g(48.4,.5,.6,GOLD,0,16.4,-124.4); }
+    // lantai dasar: kanopi + papan nama + bukaan dok (isi gudang / mesin terlihat)
+    g(118,.6,5,0x8d949b,0,10.2,BK-2.4); g(118,.25,.3,new THREE.MeshBasicMaterial({color:0xffe9a8}),0,9.85,BK-4.8);
+    for (let x=-56;x<=56;x+=8) cy(.2,.2,9,0x6b7178,x,5.4,BK-4.6,6,G);
+    const seksi = [['GUDANG PRODUKSI',-42,rak],['AREA PRODUKSI',0,produksi],['GUDANG BAHAN BAKU',42,rak]];
+    seksi.forEach(([nama,cx,tex])=>{ const W = nama === 'AREA PRODUKSI' ? 34 : 18, z = cx === 0 ? -124 : BK;
+      planeB(W*.62,2.2,papanGelap(nama),cx,11.9,z-.35); planeB(W*.62,.7,garis,cx,10.75,z-.36);
+      const n = cx === 0 ? 3 : 1, bw = (W - (n-1)*1.4)/n;
+      for (let i=0;i<n;i++){ const x = cx - W/2 + bw/2 + i*(bw+1.4); planeB(bw,7.6,tex,x,5.2,z-.32); g(bw+.6,.5,.5,0x2f3338,x,9.2,z-.3); [-1,1].forEach(q=>g(.6,8,.6,0x2f3338,x+q*(bw/2+.1),5.2,z-.3)); } });
+    // pintu dok gulung (abu-abu) di kiri-kanan setiap gudang + garis kuning-hitam
+    [-56,-28,28,56].forEach(x=>{ const xx = x - Math.sign(x)*-0; g(7,7.4,.3,0x9aa1a8,xx,5,ZB-.1); for (let k=0;k<8;k++) g(7,.08,.35,0x7d848b,xx,1.6+k*.9,ZB-.15); [-1,1].forEach(q=>{ g(.5,8,.5,0xf2c400,xx+q*3.8,5,ZB-.3); }); });
+    // pelataran muat: aspal, arsiran kuning, garis parkir truk
+    b(116,.08,32,0x4b5059,0,.13,-142);
+    const kuning = (w,d,x,z)=>{ b(w,.03,.25,0xf2c400,x,.2,z-d/2); b(w,.03,.25,0xf2c400,x,.2,z+d/2); b(.25,.03,d,0xf2c400,x-w/2,.2,z); b(.25,.03,d,0xf2c400,x+w/2,.2,z); };
+    const arsir = (w,d,x,z)=>{ kuning(w,d,x,z); for (let i=0;i<w/1.6;i++){ const m = b(.25,.03,d*1.15,0xf2c400,x-w/2+.8+i*1.6,.21,z); m.rotation.y = .6; } };
+    [-8,0,8].forEach(x=>kuning(5.6,16,x,-136.5)); arsir(4.4,10,-14.5,-133); arsir(4.4,10,14.5,-133);
+    [-56,-28,28,56].forEach(x=>kuning(5.6,12,x,-134.5)); arsir(6,4,-42,-129.5); arsir(6,4,42,-129.5);
+    for (let z=-150;z<=-140;z+=5){ const p = b(.4,.03,2.6,0xffffff,0,.2,z); }   // panah jalur
+    // truk: 3 di Area Produksi (mundur ke dok), 2 di tiap gudang
+    [-8,0,8].forEach(x=>truk(x,-136.5,Math.PI)); [-56,-28,28,56].forEach(x=>truk(x,-134,Math.PI));
+    // utilitas timur (kiri di gambar): Tangki Air, Genset, IPAL — berpagar
+    const pagarKecil = (x0,x1,z0,z1)=>{ const c = 0xdfe3e7; b(x1-x0,1.6,.15,c,(x0+x1)/2,.9,z1); b(.15,1.6,z1-z0,c,x0,.9,(z0+z1)/2); b(.15,1.6,z1-z0,c,x1,.9,(z0+z1)/2);
+      for (let x=x0;x<=x1;x+=1.2) b(.08,1.6,.08,c,x,.9,z0); b(x1-x0,.12,.12,c,(x0+x1)/2,1.6,z0); };
+    const tulis = (t,w,h,x,y,z,ry=Math.PI)=>{ const tx = canvasTex(256,96,(c,W,H)=>{ c.fillStyle='rgba(0,0,0,0)'; c.clearRect(0,0,W,H); c.fillStyle='#2b2d33'; c.font=`900 38px ${FONT}`; c.textAlign='center'; c.textBaseline='middle'; t.split('\n').forEach((s,i,a)=>c.fillText(s,W/2,H/2+(i-(a.length-1)/2)*40)); }); return plane(w,h,tx,x,y,z,ry); };
+    b(28,.1,13,0xbfc4c9,43,.14,-152.5); pagarKecil(29,57,-159,-146);
+    cy(3.4,3.4,8,SILV,52,4.2,-153,24); cy(3.5,1.2,1.6,SILV,52,9,-153,24); tulis('TANGKI\nAIR',4.6,2.4,52,4.6,-156.45);
+    b(7,3.4,4.4,0xeceef0,42,1.9,-152.5); b(7.2,.3,4.6,0x8d949b,42,3.75,-152.5); cy(.5,.5,2,0x8d949b,40,4.6,-152,10); tulis('GENSET',4.6,1.4,42,2.4,-154.75);
+    cy(2,2,4,SILV,33.5,2.2,-152.5,20); cy(2.1,2.1,.3,GOLD,33.5,4.3,-152.5,20); tulis('IPAL',3,1.2,33.5,2.4,-154.55);
+    [[46,-149.5],[38,-149.5]].forEach(([x,z])=>{ const p = new THREE.Mesh(new THREE.CylinderGeometry(.25,.25,8,8), GOLD); p.rotation.z = Math.PI/2; p.position.set(x,1,z); PU.add(p); });
+    // utilitas barat (kanan di gambar): Pengelolaan Limbah + kontainer daur ulang
+    b(28,.1,13,0xbfc4c9,-43,.14,-152.5); pagarKecil(-57,-29,-159,-146);
+    b(12,4,5,0xdfe3e7,-50,2.2,-153); b(4,3,4,0xc9cfd6,-45,5.6,-153); cy(.7,.7,6,0xb9c0c8,-55,4.5,-153,12); [-54,-46].forEach(x=>{ const w = new THREE.Mesh(new THREE.CylinderGeometry(.8,.8,5.2,12), M(0x222222)); w.rotation.x = Math.PI/2; w.position.set(x,.8,-153); PU.add(w); });
+    { const lt = canvasTex(512,160,(c,W,H)=>{ c.fillStyle='#ffffff'; c.fillRect(0,0,W,H); c.fillStyle='#2e9e48'; c.font=`900 90px ${FONT}`; c.textAlign='center'; c.textBaseline='middle'; c.fillText('♻',80,H/2+6); c.fillStyle='#2b2d33'; c.font=`900 42px ${FONT}`; c.fillText('PENGELOLAAN',300,58); c.fillText('LIMBAH',300,112); }); plane(10,3.1,lt,-50,2.4,-155.55,Math.PI); }
+    [[-38,0x2f6fd0],[-35,0x2f6fd0],[-32,0x2e9e48]].forEach(([x,c])=>{ b(2.6,2,2.6,c,x,1.15,-152); for (let k=0;k<3;k++){ const s = new THREE.Mesh(new THREE.SphereGeometry(.35,6,5), M([0xc9a46a,0x5aa83e,0xf2c14e][k])); s.position.set(x-.6+k*.6,2.3,-152); PU.add(s); } });
+    // pagar belakang + gerbang geser di tengah, lampu & pohon di luar pagar
+    const PG = 0xeef0f2;
+    [[-34,-60,-8],[34,8,60]].forEach(([cx,x0,x1])=>{ b(x1-x0,.8,.4,0xd9d2c3,cx,.5,-160); for (let x=x0;x<=x1;x+=1) b(.1,2.2,.1,PG,x,1.9,-160); b(x1-x0,.15,.15,PG,cx,3,-160); b(x1-x0,.15,.15,PG,cx,1.2,-160); });
+    b(16,3,.3,0x2b2d33,0,1.8,-160.2); for (let x=-7.5;x<=7.5;x+=.9) b(.1,3,.32,0x5a5f66,x,1.8,-160.25);
+    [-8.4,8.4].forEach(x=>{ b(1,4,1,0x2b2d33,x,2,-160); plane(1,3.6,garis,x,2,-160.55,0); });
+    b(18,.04,1.2,0xf2c400,0,.2,-158.6);
+    for (let x=-56;x<=56;x+=8){ if (Math.abs(x) < 12) continue; lampu(x,-158.8,3.4); }
+  }
 
   const l = label('🏦 PABRIK UANG NUSAWARA', {h:1.8, size:36, bg:'rgba(200,16,46,.96)', fg:'#fff'}); l.position.set(23.25, 72, -170); scene.add(l);
 })();
@@ -6366,6 +6424,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 03:10</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 03:30</div>
 </body>
 </html>
