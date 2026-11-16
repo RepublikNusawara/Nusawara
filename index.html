@@ -4744,8 +4744,6 @@ const FAS = {
     ['Kepala Sekolah',1,'🎓'],['Wakil Kepala Sekolah',1,'🧑‍💼'],['Guru',8,'👩‍🏫'],['Guru BK',1,'🫶'],['Pustakawan',1,'📚'],['Staf Tata Usaha',2,'🗂️'],
     ['Penjaga Kantin',2,'🍱'],['Satpam',2,'👮'],['Petugas Kebersihan',2,'🧹']]}
 };
-FAS['POLISI-NUSAWARA'] = {nama:'Kantor Polisi Nusawara', ikon:'🚓', usul:'', hari:'November 2026', pos:[
-    ['Kepala Polisi',1,'🎖️'],['Wakil Kepala Polisi',1,'🧑‍✈️'],['Polisi Lalu Lintas',3,'🚦'],['Polisi Patroli',4,'🚓'],['Detektif',2,'🕵️'],['Petugas Piket',2,'📋'],['Satpam',2,'👮'],['Petugas Kebersihan',1,'🧹']]};
 FAS['MATCHA-NUSAWARA'] = {nama:'Toko Matcha Nusawara', ikon:'🍵', usul:'julianto_jul', hari:'November 2026', pos:[['Owner',1,'👑'],['Tea Specialist',4,'🍵']]};
 window.KERJA = {};
 function facTop(id){ const F = FAS[id]; if (!F) return ''; const top = F.pos[0][0]; let u = Object.keys(KERJA).find(u=>KERJA[u].fasilitas === id && KERJA[u].posisi === top) || '';
@@ -5061,20 +5059,11 @@ loop();
   const lb = (t,x,z)=>{ const l = label(t, {h:1.6, size:34, bg:'rgba(31,58,95,.95)', fg:'#fff'}); l.position.set(x, 16, z); scene.add(l); };
   lb('🛍️ KAWASAN BISNIS NUSAWARA', 98, -53); lb('🏛️ KAWASAN FASILITAS NEGARA', 178, -53); lb('🏬 KAVLING TOKO', 100, -103);
   box(.3,.12,RW,0xf2b134,148,.1,-23);                  // pembatas antar-kawasan
-  // Kantor Polisi (area fasilitas negara, sebelah timur Sekolah)
-  jalan(216,244,-18); parkir(228,26,-23);
-  { const P = new THREE.Group(); P.position.set(228,0,-34.1); scene.add(P); const pb = (w,h,d,c,X,Y,Z)=>box(w,h,d,c,X,Y,Z,P);
-    pb(22,.3,9,0xd9d2c3,0,.15,0); pb(20,6.4,8,0xe8ecf2,0,3.5,-.5); pb(20.6,.6,8.6,0x1f3a5f,0,6.9,-.5); pb(8,1.2,.4,0x1f3a5f,0,5.6,3.6);
-    [-6,6].forEach(X=>pb(3.6,2.2,.2,0x8fc7dc,X,2.6,3.6)); [-6,6].forEach(X=>pb(3.6,2.2,.2,0x8fc7dc,X,5,3.6)); pb(2.4,3,.2,0x2a2f38,0,1.7,3.6);
-    papanT('KANTOR POLISI', 8, 1.1, '#1f3a5f', '#ffffff', 0, 5.6, 3.85, P);
-    P.userData = {type:'fasilitas', data:{id:'POLISI-NUSAWARA'}}; pickables.push(P);
-    COLL.push([228, -35, 10.4, 4.4]);
-    facBoard('POLISI-NUSAWARA', 'KANTOR POLISI NUSAWARA', 'Melindungi dan melayani warga', '#1f3a5f', '#ffffff', 6, 3.2, -14.5, 5.6, 0, P); }
   // Kawasan Rumah & Toko Undian (selatan podium): jalan + sambungan dari lingkaran podium
   jalan(-10,46,28); jalanZ(18,17,28);
   lb('🏘️ RUMAH & TOKO UNDIAN', 18, 40);
 })();
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 11:20</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 11:30</div>
 </body>
 </html>
