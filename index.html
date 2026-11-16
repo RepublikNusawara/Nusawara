@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-2306">
+<meta name="nusawara-build" content="20261117-0010">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -1126,6 +1126,25 @@ const PT = (function(){
     [-2.6,2.6].forEach(dx=>b(.25,4.4,.25,0x333333,x+dx,3.45,-12)); b(6.4,2.4,.4,0x111111,x,5.6,-12); const gp = pl(6,2.1,gt,x,5.6,-12.25,Math.PI,true); gp.material.side = THREE.DoubleSide;
     const gp2 = pl(6,2.1,gt,x,5.6,-11.75,0,true);
     for (let k=0;k<3;k++){ const ch = b(2.6,.03,.5,0xf2c400,x,1.3,-17+k*1.4); } });
+  // ===== FASAD BELAKANG (sisi laut, lokal -z) mengikuti gambar acuan: kaca terang 2 lantai, papan merah besar, lajur kendaraan di tiap gate =====
+  { const BZ = -8.02, RY = Math.PI;
+    [-1,1].forEach(s=>{ pl(28,3.4,kacaT,s*19.5,3.0,BZ,RY,true); pl(28,3.4,kacaT,s*19.5,7.6,BZ,RY,true);
+      b(28.4,.35,.5,WH,s*19.5,5.3,-8.1); b(28.4,.4,.6,GLD,s*19.5,9.6,-8.15); b(28.4,.5,.7,RD2,s*19.5,.75,-8.15);
+      for (let x=6;x<=33;x+=3.4) b(.18,9,.18,0xffffff,s*x,4.9,-8.15); });
+    pl(18,3.2,kacaT,0,3.0,BZ-.01,RY,true); pl(18,3.0,kacaT,0,6.4,BZ-.01,RY,true);
+    b(19,8.2,.4,RD2,0,10.3,-8.2); pl(17,7.2,signT,0,10.6,-8.45,RY,true);                                 // papan merah besar PELABUHAN REPUBLIK NUSAWARA
+    b(19.6,.4,.6,GLD,0,14.5,-8.25); b(19.6,.4,.6,GLD,0,6.15,-8.25);
+    // kanopi kaca tipis di atas pintu gate + lampu
+    [30,-4,-38].forEach(x=>{ b(10,.25,3,0xe8eef3,x,4.6,-9.6); const l = new THREE.Mesh(new THREE.BoxGeometry(9,.08,2.6), LITM); l.position.set(x,4.45,-9.6); T.add(l); });
+    // lajur kendaraan: aspal gelap, kotak kuning bersilang, panah putih, mobil/van menunggu
+    const lajurT = canvasTex(512,320,(c,w,h)=>{ c.fillStyle='#2c3036'; c.fillRect(0,0,w,h); c.strokeStyle='#f2c400'; c.lineWidth=10;
+      [[60,170],[290,170]].forEach(([x,y])=>{ c.strokeRect(x,y,160,120); c.beginPath(); c.moveTo(x,y); c.lineTo(x+160,y+120); c.moveTo(x+160,y); c.lineTo(x,y+120); c.stroke(); });
+      c.fillStyle='#ffffff'; [[140,40],[370,40]].forEach(([x,y])=>{ c.beginPath(); c.moveTo(x,y); c.lineTo(x+34,y+50); c.lineTo(x+12,y+50); c.lineTo(x+12,y+110); c.lineTo(x-12,y+110); c.lineTo(x-12,y+50); c.lineTo(x-34,y+50); c.closePath(); c.fill(); });
+      c.fillStyle='#f2c400'; c.fillRect(0,0,w,8); c.fillRect(0,0,8,h); c.fillRect(w-8,0,8,h); });
+    [[30,0xd8262b,-1],[-4,0xffffff,1],[-38,0xf2c400,1]].forEach(([x,col,o])=>{ const m = new THREE.Mesh(new THREE.PlaneGeometry(12,7.5), new THREE.MeshLambertMaterial({map:lajurT})); m.rotation.x = -Math.PI/2; m.rotation.z = Math.PI; m.position.set(x+o*7.5,1.33,-13.5); T.add(m);
+      const v = new THREE.Group(); v.position.set(x+o*5,1.3,-11.6); T.add(v); kbox(2.2,1.8,3.6,col,0,1.25,0,v); kbox(2.1,.8,1.2,0x23303f,0,1.6,1.25,v); [-1,1].forEach(a=>[-1.2,1.2].forEach(z=>kbox(.3,.6,.6,0x222222,a*1.1,.35,z,v)));
+      [-1,1].forEach(a=>{ b(.24,5,.24,0x9aa3ad,x+o*7.5+a*6.3,3.8,-17.3); const lp = new THREE.Mesh(new THREE.BoxGeometry(.9,.3,.9), LITM); lp.position.set(x+o*7.5+a*6.3,6.35,-17.3); T.add(lp); }); });
+  }
   T.userData = {type:'fasilitas', data:{id:'PELABUHAN-NUSAWARA'}}; pickables.push(T);
   const lbl = label('⚓ PELABUHAN REPUBLIK NUSAWARA', {h:2.4, size:34, bg:'rgba(31,58,95,.97)', fg:'#fff'}); lbl.position.set(0,24,0); T.add(lbl);
   return T;
@@ -6190,6 +6209,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 23:06</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 00:10</div>
 </body>
 </html>
