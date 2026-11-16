@@ -3943,23 +3943,22 @@ function akunHTML(){
   return `<div class="kicker">Akun Warga · ${esc(w.niwn || '')}</div><h2>@${esc(String(w.username || AKUN.u).replace(/^@+/,''))}</h2>
   <div class="card"><h3>👤 Nama di atas kepala</h3><p class="note">Nama panggilan bisa diganti <b>sebulan sekali</b>. Username & NIWN tetap sama.${AKUN.namaLagi ? '<br>⏳ Bisa diganti lagi mulai <b>' + new Date(AKUN.namaLagi).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + '</b>.' : ''}${GINFO && GINFO.email ? '<br>Gmail terdaftar: <b>' + esc(GINFO.email) + '</b> (hanya terlihat olehmu)' : ''}</p>
     <div class="prow"><input id="nmBaru" value="${esc((wInfo(AKUN.u) || {}).nama || '')}" maxlength="24" ${AKUN.namaLagi ? 'disabled' : ''} style="font:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:12px;flex:1;margin-top:14px"><button class="btn" data-gantinama ${AKUN.namaLagi ? 'disabled' : ''}>Simpan</button></div></div>
-  <div class="card"><h3>⚡ Stamina & Darah</h3>${hudHTML(d).replace(/font-size:11px/g,'')}
+  ${SEMBUNYI_GAME ? '' : `  <div class="card"><h3>⚡ Stamina & Darah</h3>${hudHTML(d).replace(/font-size:11px/g,'')}
     <p class="note">Stamina pulih +5 setiap jam sampai kapasitas, dan dapat bonus +20 setiap hari saat masuk (bisa melebihi kapasitas, tertulis 100+20). Menambang menguras stamina.<br>
     Naikkan level di bar hijau dengan bekerja di pabrik & kebun Negara: Lv1 100 poin (+10 kapasitas), Lv2 200 (+10), Lv3 300 (+10), Lv4 500 (+20). Level bersifat permanen.${d.regen_detik != null ? '<br>⏳ +5 stamina berikutnya dalam ' + Math.ceil(d.regen_detik/60) + ' menit.' : ''}</p></div>
   <div class="card"><h3>❤️ Kesehatan</h3><p class="note">Status: <b>${d.pingsan ? '😵 Pingsan / dirawat' : (d.darah ?? 100) >= 70 ? '🟢 Sehat' : (d.darah ?? 100) >= 40 ? '🟡 Luka ringan' : '🔴 Kritis'}</b> · ${d.darah ?? 100}/100 HP${d.utang_medis ? ` · Utang medis <b>${N$(d.utang_medis)}</b>` : ''}</p>
     <div class="prow"><button class="btn ghost" data-kesehatan>📋 Riwayat kesehatan</button>${d.utang_medis ? `<button class="btn" data-bayarmedis>💳 Bayar utang medis</button>` : ''}</div>
-    <p class="note">Darah hanya berkurang karena kecelakaan saat menambang, menebang, atau mengambil material. Pulih: Nusa Vita di Apotek RS, istirahat di rumah (+5 HP / 30 menit, khusus pemilik rumah), atau dirawat RS setelah pingsan (ambulans N$50).</p></div>
+    <p class="note">Darah hanya berkurang karena kecelakaan saat menambang, menebang, atau mengambil material. Pulih: Nusa Vita di Apotek RS, istirahat di rumah (+5 HP / 30 menit, khusus pemilik rumah), atau dirawat RS setelah pingsan (ambulans N$50).</p></div>`}
   <div class="card"><h3>💰 Saldo</h3><div class="saldo">${N$(d.saldo)}</div><p class="note">Mata uang Republik Nusawara: Nusa (NSA).</p></div>
-  ${misiPemulaCard()}
+  ${SEMBUNYI_GAME ? '' : misiPemulaCard()}
   <div class="card"><h3>📅 Absen harian · hari ke-${st || 0}</h3>
     <div class="streak">${hari}</div>
     <p class="note">Hari 1–2: N$10 · Hari 3–5: N$25 · Hari 6 dst: N$50 per hari. Lewat sehari (reset 00.00 WIB) = bolos, ulang dari hari 1.</p>
     ${d.sudah_absen ? `<button class="btn ghost" disabled>✓ Sudah absen hari ini · besok ${N$(HADIAH_HARI(next))}</button>`
       : `<button class="btn" id="akAbsen">Klaim absen · +${N$(HADIAH_HARI(next))}</button>`}</div>
-  ${tanahCard()}
-  <div class="card"><h3>🎒 Tas</h3><div class="tasg">${tas || '<p class="note">Memuat…</p>'}</div></div>
-  <div class="prow" style="margin-top:8px"><button class="btn ghost" data-pergi="kavling">🏞️ Kavling</button><button class="btn ghost" data-pergi="donasi">🤝 Donasi</button></div><div class="prow"><button class="btn ghost" data-pergi="tambang">⛏️ Tambang</button><button class="btn ghost" data-pergi="kebun">🌾 Kebun & Pabrik</button><button class="btn ghost" data-pergi="industri">🏭 Pabrik</button><button class="btn ghost" data-pergi="prn">🏪 Pasar (PRN)</button></div>
-  <div class="prow" style="margin-top:8px"><button class="btn ghost" data-cara>📖 Cara Main</button></div>
+  ${SEMBUNYI_GAME ? '' : tanahCard() + `<div class="card"><h3>🎒 Tas</h3><div class="tasg">${tas || '<p class="note">Memuat…</p>'}</div></div>`}
+  <div class="prow" style="margin-top:8px">${SEMBUNYI_GAME ? '' : '<button class="btn ghost" data-pergi="kavling">🏞️ Kavling</button>'}<button class="btn ghost" data-pergi="donasi">🤝 Donasi</button>${SEMBUNYI_GAME ? '' : '<button class="btn ghost" data-pergi="tambang">⛏️ Tambang</button><button class="btn ghost" data-pergi="kebun">🌾 Kebun & Pabrik</button><button class="btn ghost" data-pergi="industri">🏭 Pabrik</button>'}<button class="btn ghost" data-pergi="prn">🏛️ Distrik Pusat</button></div>
+  ${SEMBUNYI_GAME ? '' : '<div class="prow" style="margin-top:8px"><button class="btn ghost" data-cara>📖 Cara Main</button></div>'}
   <div class="prow" style="margin-top:8px"><button class="btn ghost" id="akProfil">🪪 Kartu Warga</button><button class="btn ghost" id="akOut">🚪 Keluar</button></div>`;
 }
 akunBtn.addEventListener('click', async ()=>{ openSheet(akunHTML); if (AKUN.u){ SB.rpc('nama_bisa_lagi', {p_user: AKUN.u, p_sandi: AKUN.s}).then(r=>{ if (r && r.ok){ AKUN.namaLagi = r.bisa_lagi; if (sheetFn === akunHTML) sheetBody.innerHTML = akunHTML(); } }).catch(()=>{}); await akunMuat(); } });
@@ -6424,6 +6423,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 03:45</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 04:00</div>
 </body>
 </html>
