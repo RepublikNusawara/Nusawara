@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-1315">
+<meta name="nusawara-build" content="20261116-1345">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -2846,7 +2846,7 @@ function syncWalkers(list){
     const sig = JSON.stringify(avatarSpec(WINFO[key]));
     const ex = WALKERS[key];
     if (ex && ex.sig === sig) return;
-    if (!ex && !(window.FORCE_WALK && FORCE_WALK[key])){ const zk = isFollow(WINFO[key].follow) ? 'kota' : 'pelabuhan';
+    if (!ex && !(window.FORCE_WALK && FORCE_WALK[key]) && !(window.KERJA_ALL||[]).some(r=>String(r.username||'').toLowerCase()===key)){ const zk = isFollow(WINFO[key].follow) ? 'kota' : 'pelabuhan';
       if (Object.values(WALKERS).filter(x=>(isFollow((WINFO[x.key]||{}).follow) ? 'kota' : 'pelabuhan') === zk).length >= MAX_WALKERS) return; }
     if (ex){ scene.remove(ex.av.g); [ex.av.g, ex.tag].forEach(o=>{ const pi = pickables.indexOf(o); if (pi >= 0) pickables.splice(pi,1); }); }
     const av = makeAvatar(avatarSpec(WINFO[key]));
@@ -2871,7 +2871,7 @@ function postWorker(k){
   const sig = L.length + ':' + EN.length;
   if (sig !== POSTSIG){ POSTSIG = sig; POSTMAP = {}; const first = {}, cnt = {};
     L.forEach(r=>{ const u = String(r.username||'').toLowerCase(); if (u && !first[u]) first[u] = r.fasilitas; });
-    Object.keys(first).forEach(u=>{ const e = EN.find(x=>x.fas === first[u]); if (!e) return; const i = cnt[e.fas] = (cnt[e.fas]||0) + 1; const st = e.pos[(i-1) % e.pos.length]; POSTMAP[u] = {e, x:st[0], z:st[1]}; }); }
+    Object.keys(first).forEach(u=>{ const e = EN.find(x=>x.fas === first[u]); if (!e) return; const i = cnt[e.fas] = (cnt[e.fas]||0) + 1; const st = e.pos[(i-1) % e.pos.length]; POSTMAP[u] = {e, x:st[0], z:st[1], y:st[2]||0}; }); }
   return POSTMAP[k] || null;
 }
 function stepPost(W, ps, dt, time){
@@ -2890,7 +2890,8 @@ function stepPost(W, ps, dt, time){
     let r = -g.rotation.y; r = Math.atan2(Math.sin(r), Math.cos(r)); g.rotation.y += r*Math.min(1, dt*6);   // berdiri menghadap pelanggan (+z)
     W.av.legL.rotation.x *= .85; W.av.legR.rotation.x *= .85; W.av.armR.rotation.x *= .85; W.av.armL.rotation.x *= .85; W.av.body.position.y *= .85;
   }
-  W.tag.position.set(g.position.x, 3.3, g.position.z);
+  const ty = ins ? (ps.y||0) : 0; g.position.y += (ty - g.position.y) * Math.min(1, dt*5);
+  W.tag.position.set(g.position.x, g.position.y + 3.3, g.position.z);
 }
 function updateWalkers(dt, time){
   for (const k in WALKERS){
@@ -4664,7 +4665,7 @@ sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-main]
   document.getElementById('tallyClose').addEventListener('click', ()=>w.classList.remove('open'));
 })();
 // ---------- RUMAH SAKIT NUSAWARA (usulan warga @ma____rtunis1961, dibangun DAY 2) ----------
-(()=>{ const HX = 163, HZ = -38.5, HS = new THREE.Group(); HS.position.set(HX, 0, HZ); scene.add(HS);
+(()=>{ const HX = 163, HZ = -38.5, HS = new THREE.Group(); HS.position.set(HX, 0, HZ); scene.add(HS); window.RS_G = HS;
   const hb = (w,h,d,c,x,y,z,par) => box(w,h,d,c,x,y,z,par||HS);
   hb(30,.12,24,0x7fb55a,0,.06,1); hb(12,.14,9,0xd9d2c3,0,.08,10.5);
   [[-11,9],[11,9],[-13,-6],[13,-6],[-13,3],[13,3]].forEach(([x,z])=>{ hb(.5,1.6,.5,0x6b4a2e,x,.8,z); hb(2.2,2.2,2.2,0x3f8d40,x,2.6,z); });
@@ -4835,6 +4836,19 @@ const FAS = {
     ['Penjaga Kantin',2,'🍱'],['Satpam',2,'👮'],['Petugas Kebersihan',2,'🧹']]}
 };
 FAS['MATCHA-NUSAWARA'] = {nama:'Toko Matcha Nusawara', ikon:'🍵', usul:'julianto_jul', hari:'November 2026', pos:[['Owner',1,'👑'],['Tea Specialist',4,'🍵']]};
+/* gedung RS & Akademi: dinding memudar saat ada orang di dalam, pekerja berdiri di lantai gedung */
+function jadikanMasuk(G, fas, cx, hw, z0, z1, pos){
+  const shell = [], bb = new THREE.Box3(); G.updateMatrixWorld(true);
+  G.traverse(o=>{ if (!o.isMesh || !o.material || Array.isArray(o.material)) return; bb.setFromObject(o);
+    if (bb.max.y < 1.2) return;
+    if (bb.max.x < cx-hw-.6 || bb.min.x > cx+hw+.6 || bb.max.z < z0-1 || bb.min.z > z1+1.5) return;
+    shell.push(shellMesh(o)); });
+  daftarMasuk({x:cx, hw, z0, z1, shell, roof:[], fas, pos});
+}
+(()=>{ if (window.RS_G){ const P = []; [1.1,4.1,7.1,10.1].forEach(y=>{ [-8.2,-4.9,-1.6,1.6,4.9,8.2].forEach((dx,i)=>P.push([163+dx, i%2 ? -36 : -42.5, y])); });
+    jadikanMasuk(window.RS_G, 'RS-NUSAWARA', 163, 10.9, -46.6, -32.5, P); }
+  const P2 = []; [.2,3.8].forEach(y=>{ [-9.4,-7.6,-5.8,-2,0,2,5.8,7.6,9.4].forEach((dx,i)=>P2.push([194+dx, -36.6 + (i%2 ? 1.2 : -.6), y])); });
+  jadikanMasuk(SEKOLAH, 'SEKOLAH-NUSAWARA', 194, 10.9, -40.4, -32.3, P2); })();
 window.KERJA = {};
 function facTop(id){ const F = FAS[id]; if (!F) return ''; const top = F.pos[0][0]; let u = Object.keys(KERJA).find(u=>KERJA[u].fasilitas === id && KERJA[u].posisi === top) || '';
   if (!u && Array.isArray(window.KERJA_ALL)){ const r = window.KERJA_ALL.find(k=>k.fasilitas === id && k.posisi === top); if (r) u = String(r.username || '').toLowerCase(); } return u; }
@@ -5173,6 +5187,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 13:15</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 13:45</div>
 </body>
 </html>
