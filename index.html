@@ -5830,13 +5830,25 @@ function loop(){
       tx(4.6,4.6,184,184,(c,w,h)=>{ c.fillStyle='#111'; rr(c,2,2,w-4,h-4,34); c.fill(); c.fillStyle=col; rr(c,12,12,w-24,h-24,28); c.fill(); c.font='72px sans-serif'; c.textAlign='center'; c.textBaseline='middle'; c.fillStyle='#fff'; c.fillText(em,w/2,76);
         c.font='800 '+(t.length>9?19:23)+'px sans-serif'; c.fillText(t,w/2,142); },x,3.2,23.3,true));
     [-1,1].forEach(s=>tx(24,2.0,1024,86,(c,w,h)=>{ c.fillStyle='#2b3340'; c.fillRect(0,0,w,h); for (let i=0;i<6;i++){ c.fillStyle=['#ffe9a8','#e9a05a','#a8d8f0','#f2b3c4','#cfe9b0','#ffd27a'][(i+(s>0?2:0))%6]; c.fillRect(i*170+8,8,154,h-14); c.fillStyle='rgba(30,30,40,.55)'; for (let k=0;k<3;k++) c.fillRect(i*170+24+k*44,h-52,14,44); } },s*22,1.0,23.12));
-    // atap: dek abu + bibir kuning + menara kaca + AC + kubah kaca + skylight
+    // atap (tampak atas sesuai gambar): dek abu berubin + bibir kuning, skylight oval besar bercincin lampu, 2 skylight persegi, 4 AC, 2 kisi ventilasi, 4 menara servis
     b(69,.3,45,0xaeb2b8,0,12.5,0); b(70.8,.9,.8,YEL,0,12.3,23.2); b(70.8,.9,.8,YEL,0,12.3,-23.2); [-1,1].forEach(s=>b(.8,.9,46.8,YEL,s*35.2,12.3,0));
-    [-1,1].forEach(s=>{ b(14,4.5,10,STONE,s*24,14.95,6); const m = new THREE.Mesh(new THREE.PlaneGeometry(12.5,3), GLS); m.position.set(s*24,15,11.06); g.add(m); b(14.8,.6,10.8,YEL,s*24,17.4,6);
-      b(7,3.5,7,0xd6d6d6,s*17,14.5,-16); b(7.6,.4,7.6,0xf0f0f0,s*17,16.4,-16); b(7,.3,12,0x5aa9e6,s*17,12.8,-4); b(8,.2,13,0xf0f0f0,s*17,12.7,-4);
-      [[-27,-8],[-27,-14],[27,-8],[27,-14]].slice(s>0?2:0,s>0?4:2).forEach(([x,z])=>{ b(2.4,1,1.4,0xc9ccd1,x,13.2,z); const f = new THREE.Mesh(new THREE.CylinderGeometry(.45,.45,.1,12), M(0x555a63)); f.position.set(x,13.75,z); g.add(f); }); });
-    { const dm = new THREE.Mesh(new THREE.SphereGeometry(9,24,10,0,Math.PI*2,0,Math.PI/2), GLB); dm.scale.set(1,.28,1.1); dm.position.set(0,12.7,-6); g.add(dm);
-      const rg = new THREE.Mesh(new THREE.TorusGeometry(9,.3,6,32), M(YEL)); rg.rotation.x = Math.PI/2; rg.scale.set(1,1.1,1); rg.position.set(0,12.75,-6); g.add(rg); }
+    for (let x=-32;x<=32;x+=4) b(.06,.02,44,0x9aa0a8,x,12.67,0); for (let z=-20;z<=20;z+=4) b(68,.02,.06,0x9aa0a8,0,12.67,z);
+    [-1,1].forEach(s=>{ const r = new THREE.Mesh(new THREE.CylinderGeometry(2.4,2.4,.9,16,1,false,0,Math.PI/2), M(YEL)); r.position.set(s*32.8,12.3,20.8); r.rotation.y = s>0 ? 0 : -Math.PI/2; });
+    { const T = canvasTex(512,640,(c,w,h)=>{ const gr = c.createRadialGradient(w/2,h/2,40,w/2,h/2,w*.6); gr.addColorStop(0,'#7fd2f5'); gr.addColorStop(1,'#1f7fc7'); c.fillStyle=gr; c.fillRect(0,0,w,h);
+        c.strokeStyle='rgba(255,255,255,.75)'; c.lineWidth=5; for (let x=0;x<=w;x+=64){ c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); } for (let y=0;y<=h;y+=64){ c.beginPath(); c.moveTo(0,y); c.lineTo(w,y); c.stroke(); }
+        c.fillStyle='rgba(80,170,80,.75)'; for (let i=0;i<10;i++){ const a = i/10*Math.PI*2; c.beginPath(); c.arc(w/2+Math.cos(a)*w*.42, h/2+Math.sin(a)*h*.42, 22, 0, 7); c.fill(); }
+        c.strokeStyle='#ffe37a'; c.lineWidth=16; c.shadowColor='#fff3b0'; c.shadowBlur=24; c.beginPath(); c.ellipse(w/2,h/2,w*.22,h*.13,0,0,7); c.stroke(); });
+      const oval = (r,y,mat)=>{ const m = new THREE.Mesh(new THREE.CircleGeometry(r,48), mat); m.rotation.x = -Math.PI/2; m.scale.set(1,1.3,1); m.position.set(0,y,-2); g.add(m); return m; };
+      const rim = new THREE.Mesh(new THREE.CylinderGeometry(10.4,10.4,1.0,48,1,true), M(YEL)); rim.scale.set(1,1,1.3); rim.position.set(0,13.1,-2); g.add(rim);
+      const rimW = new THREE.Mesh(new THREE.CylinderGeometry(9.7,9.7,1.4,48,1,true), M(0xffffff)); rimW.scale.set(1,1,1.3); rimW.position.set(0,13.3,-2); g.add(rimW);
+      oval(9.7,13.95,new THREE.MeshBasicMaterial({map:T})); const dm = new THREE.Mesh(new THREE.SphereGeometry(9.7,32,10,0,Math.PI*2,0,Math.PI/2), GLB); dm.scale.set(1,.16,1.3); dm.position.set(0,13.95,-2); g.add(dm); }
+    const kaca = canvasTex(256,384,(c,w,h)=>{ c.fillStyle='#2f95dc'; c.fillRect(0,0,w,h); c.fillStyle='#6cc6f2'; for (let i=0;i<3;i++) for (let k=0;k<4;k++) c.fillRect(10+i*58,10+k*92,50,84); c.fillStyle='#eef1f5'; c.fillRect(186,0,70,h); c.fillStyle='#c9ced6'; for (let y=8;y<h;y+=14) c.fillRect(190,y,62,5); });
+    [-1,1].forEach(s=>{ b(10.2,.8,15,0xffffff,s*21,12.95,-2); const p = new THREE.Mesh(new THREE.PlaneGeometry(9,13.6), new THREE.MeshLambertMaterial({map:kaca})); p.rotation.x = -Math.PI/2; if (s<0) p.rotation.z = Math.PI; p.position.set(s*21,13.37,-2); g.add(p);
+      [[s*21,-16.5],[s*20,11.5]].forEach(([x,z])=>{ b(5.6,1.5,2.8,0xe9ecef,x,13.4,z); [-1,1].forEach(d=>{ const f = new THREE.Mesh(new THREE.CylinderGeometry(.95,.95,.12,16), M(0x3a3f47)); f.position.set(x+d*1.35,14.2,z); g.add(f); b(1.6,.06,.2,0x8a9099,x+d*1.35,14.27,z); }); });
+      b(4.2,.6,2,0xe9ecef,s*12.5,13,-12.5); for (let i=0;i<4;i++) b(3.6,.06,.18,0x4a4f58,s*12.5,13.32,-13.1+i*.4);
+      b(7,3.5,7,0xf0f0f0,s*17,14.5,-19.5); b(7.6,.4,7.6,0xffffff,s*17,16.4,-19.5); b(5,1.2,.12,0x2f7fd6,s*17,15,-15.96);   // menara servis belakang
+      b(6,3,5.5,0xf0f0f0,s*12.5,14.1,19); b(6.6,.4,6.1,0xffffff,s*12.5,15.8,19); b(4,1,.12,0x2f7fd6,s*12.5,14.3,21.8);   // menara mengapit papan depan
+    });
     // atrium kaca melengkung di depan + kanopi kuning
     { const gl = new THREE.Mesh(new THREE.CylinderGeometry(10,10,11.6,32,1,true,-Math.PI/2,Math.PI), GLB); gl.scale.set(1,1,.6); gl.position.set(0,5.8,23); g.add(gl);
       for (let k=-5;k<=5;k++){ const a = k*Math.PI/10; b(.14,11.6,.14,DK,10*Math.sin(a),5.8,23+6*Math.cos(a)); }
@@ -5979,6 +5991,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 06:20</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 06:40</div>
 </body>
 </html>
