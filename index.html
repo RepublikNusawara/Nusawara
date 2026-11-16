@@ -119,6 +119,15 @@ if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.s
   @media (max-width:520px){ .brand.me{padding:3px 8px 3px 3px;gap:6px} .brand.me img{width:30px;height:30px} .brand.me b{max-width:84px;font-size:11.5px} .brand.me span{font-size:9.5px} }
   @media (max-width:520px){ .top{gap:6px} .brand{padding:5px 8px 5px 6px} .brand svg{width:24px;height:28px} .brand b{font-size:12px} .brand span{display:none}
     .stats{padding:3px 2px} .stats div{padding:1px 6px} .stats b{font-size:13px} .stats span{font-size:9px} .akunbtn{padding:8px 9px;font-size:12px} .hud{width:160px} }
+  /* tabel calon Wakil Presiden minggu depan (kiri atas, di bawah kolom cari) */
+  #cawapres{position:fixed;left:10px;z-index:5;width:240px;max-width:calc(100vw - 20px);box-sizing:border-box;background:linear-gradient(180deg,#1f3a5f,#16263d);color:#fff;border:2px solid #f2c14e;border-radius:14px;padding:8px 9px;box-shadow:0 6px 18px rgba(0,0,0,.25);font-family:inherit;cursor:pointer;display:none}
+  #cawapres h4{margin:0 0 6px;font-size:12px;font-weight:900;color:#ffe066;text-align:center;line-height:1.2}
+  #cawapres .cr{display:flex;align-items:center;gap:6px;background:#ffffff14;border-radius:9px;padding:4px 7px;margin-top:4px;font-size:12px}
+  #cawapres .cr.w{background:#f2c14e;color:#3b2600}#cawapres .cr .n{width:22px;text-align:center;font-size:15px;flex:none}
+  #cawapres .cr .u{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800}#cawapres .cr .u small{display:block;font-size:9.5px;font-weight:700;opacity:.85}
+  #cawapres .cr .p{font-weight:900;font-size:11.5px;white-space:nowrap}
+  #cawapres .ft{font-size:9.5px;opacity:.75;text-align:center;margin-top:5px}
+  body.sheet-open #cawapres{display:none!important}
   /* panduan pemula */
   #misiChip{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 118px);z-index:5;width:68px;height:68px;border-radius:50%;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0;cursor:pointer;
     font:inherit;font-weight:900;font-size:11px;line-height:1;color:#5a3b00;background:radial-gradient(circle at 35% 30%,#fff3b0,#f7c948 55%,#d99a1c);border:3px solid #fff;box-shadow:0 5px 14px rgba(0,0,0,.25);animation:tapNaik 1.4s ease-in-out infinite;touch-action:manipulation}
@@ -213,6 +222,7 @@ if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.s
   body.shot .shotbar{display:flex}
   body.shot.shot-clean .shotbar{display:none}
   body.shot .daftarbar,
+  body.shot #cawapres,
   body.shot .top, body.shot .search, body.shot .actions, body.shot .play-ui, body.shot .near,
   body.shot .hint, body.shot .sheet, body.shot .toast, body.shot .bubble{display:none}
   .shotbar button{font:inherit;font-size:13px;font-weight:700;border-radius:10px;padding:9px 11px;cursor:pointer;
@@ -5204,7 +5214,18 @@ function terbaikGambar(){ const w = wapresNow();
   terbaikMat.needsUpdate = true; }
 const donMat = new THREE.MeshBasicMaterial({}); { const m = new THREE.Mesh(new THREE.PlaneGeometry(6,3), donMat); m.position.set(0,4,.06); DON.add(m); }
 { const l = label('🤝 PAPAN DONASI', LBL); l.position.set(0, 9.4, 0); DON.add(l); }
-function donGambar(){
+function cawapresGambar(){ let el = document.getElementById('cawapres');
+  if (!el){ el = document.createElement('div'); el.id = 'cawapres'; document.body.appendChild(el); el.addEventListener('click', ()=>{ try { focusObj(DON); } catch(_) {} }); }
+  const top = (PAPAN || []).filter(r=>Number(r.poin) > 0).slice(0, 5);
+  const per = ['👑','🧑‍⚖️','🧑‍⚖️'], ket = ['Calon Wakil Presiden','Calon Penasihat Negara','Calon Penasihat Negara'];
+  el.innerHTML = `<h4>🗳️ Calon Wakil Presiden<br>Minggu Depan</h4>${top.length ? top.map((r, i)=>`<div class="cr${i === 0 ? ' w' : ''}"><span class="n">${i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}</span><span class="u">${esc(namaW(r.username))}<small>${i < 3 ? per[i] + ' ' + ket[i] : 'Peringkat donasi'}</small></span><span class="p">${Number(r.poin).toLocaleString('id-ID')} poin</span></div>`).join('') : '<div class="ft" style="font-size:11px">Belum ada donasi. Ayo jadi yang pertama!</div>'}
+    <div class="ft">Rank donasi · ditetapkan setiap Senin · ketuk untuk Papan Donasi</div>`;
+  cawapresPosisi(); el.style.display = 'block'; }
+function cawapresPosisi(){ const el = document.getElementById('cawapres'), q = document.getElementById('search'), b = document.querySelector('.top .brand'); if (!el || !q) return;
+  const r = q.getBoundingClientRect(); el.style.top = Math.round(r.bottom + 8) + 'px';
+  if (b && b.offsetWidth) el.style.width = Math.min(innerWidth - 20, Math.max(220, b.offsetWidth * 2)) + 'px'; }
+addEventListener('resize', ()=>{ try { cawapresPosisi(); } catch(_) {} }); setInterval(()=>{ try { cawapresPosisi(); } catch(_) {} }, 2000);
+function donGambar(){ try { cawapresGambar(); } catch(_) {}
   donMat.map = canvasTex(1024, 512, (c,W,H)=>{ c.fillStyle = '#1f3a5f'; c.fillRect(0,0,W,H); c.fillStyle = '#f2b134'; c.fillRect(0,0,W,70);
     c.fillStyle = '#1f3a5f'; c.font = `800 40px ${FONT}`; c.textAlign = 'center'; c.fillText('KONTRIBUSI UNTUK NEGARA · PERINGKAT DONASI', W/2, 48);
     c.font = `700 24px ${FONT}`; c.fillStyle = '#9fb3c8'; c.textAlign = 'left'; c.fillText('WARGA', 40, 104); c.textAlign = 'right'; c.fillText('POIN', 760, 104); c.fillText('N$ DONASI', W-40, 104);
@@ -6738,6 +6759,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 07:50</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 07:55</div>
 </body>
 </html>
