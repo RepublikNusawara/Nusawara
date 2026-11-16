@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-2340">
+<meta name="nusawara-build" content="20261116-2359">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3458,6 +3458,46 @@ function ambulansMulai(){ AMB.visible = true; }
 function akunTombol(){ hudTampil(); akunBtn.textContent = AKUN.data ? '💰 ' + N$(AKUN.data.saldo) : TAMU.u ? '🌍 ' + TAMU.u : '🔑 Masuk'; akunBtn.classList.toggle('in', !!AKUN.data); }
 function popHadiah(t){ const el = document.createElement('div'); el.className = 'pop'; el.textContent = t; document.body.appendChild(el);
   requestAnimationFrame(()=>el.classList.add('show')); setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 400); }, 1500); }
+/* ---------- POP-UP GAJI HARIAN (setelah 00.00 WIB, login pertama) ---------- */
+var GJ = {buka:false};
+function gajiBunyiMasuk(){ try { sfx(523, .14, 'sine', .1, 0); sfx(659, .14, 'sine', .1, .13); sfx(784, .28, 'sine', .12, .26); } catch(_) {} }
+function gajiBunyiUang(){ try { sfx(988, .09, 'square', .05, 0); sfx(1319, .3, 'square', .05, .09); sfx(1760, .25, 'sine', .06, .2); } catch(_) {} }
+async function gajiCek(){
+  if (GJ.buka || !AKUN.u || document.hidden) return;
+  GJ.buka = true;
+  try {
+    const r = await SB.rpc('gaji_tunggu_saya', {p_user: AKUN.u, p_sandi: AKUN.s});
+    if (!r || !r.ok){ GJ.buka = false; return; }
+    const q = (r.item || []).map(i=>({fas: i.fasilitas, pos: i.posisi, jumlah: i.jumlah, nama: i.posisi, tempat: (typeof FAS !== 'undefined' && FAS[i.fasilitas]) ? FAS[i.fasilitas].nama : i.fasilitas}));
+    if (r.jabatan) q.push({jab: 1, jumlah: r.jabatan.gaji, nama: r.jabatan.nama, tempat: 'Kas Negara'});
+    if (!q.length){ GJ.buka = false; return; }
+    gajiTampil(q, 0);
+  } catch(_) { GJ.buka = false; }
+}
+function gajiTampil(q, i){
+  if (i >= q.length){ GJ.buka = false; return; }
+  const it = q[i], ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,20,40,.62);display:flex;align-items:center;justify-content:center;padding:18px';
+  ov.innerHTML = `<div style="background:#fffaf0;border:4px solid #f2c14e;border-radius:22px;max-width:340px;width:100%;padding:22px 20px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.45);font-family:inherit">
+    <div style="font-size:46px;line-height:1">💼</div>
+    <div style="font-size:19px;font-weight:800;color:#3b2600;margin-top:8px">Gaji - ${esc(it.nama)}</div>
+    <div style="font-size:12px;color:#7a6a4a;margin-top:2px">${esc(it.tempat)}${q.length > 1 ? ' · ' + (i + 1) + '/' + q.length : ''}</div>
+    <div style="font-size:40px;font-weight:900;color:#2e7d32;margin:14px 0 18px">${N$(it.jumlah)}</div>
+    <button class="btn" id="gjOk" style="width:100%;font-size:17px;padding:12px">Terima Gaji</button></div>`;
+  document.body.appendChild(ov); gajiBunyiMasuk();
+  const b = ov.querySelector('#gjOk');
+  b.addEventListener('click', async ()=>{
+    b.disabled = true; let ok = false, pesan = '';
+    try {
+      const r = it.jab ? await SB.rpc('klaim_gaji_jabatan', {p_user: AKUN.u, p_sandi: AKUN.s}) : await SB.rpc('terima_gaji', {p_user: AKUN.u, p_sandi: AKUN.s, p_fasilitas: it.fas, p_posisi: it.pos});
+      if (r && r.ok){ ok = true; gajiBunyiUang(); popHadiah('+' + N$(r.gaji) + ' 💰'); }
+      else pesan = r && r.alasan === 'kas_kurang' ? 'Kas Negara sedang kurang. Coba lagi nanti.' : r && r.alasan === 'sudah' ? 'Gaji ini sudah diterima.' : 'Gagal. Coba lagi.';
+    } catch(_) { pesan = 'Jaringan bermasalah. Coba lagi.'; }
+    if (!ok && pesan && !/diterima/.test(pesan)){ toast('❌ ' + pesan); b.disabled = false; return; }
+    ov.remove(); try { await akunMuat(); if (typeof jabMuat === 'function') jabMuat(); } catch(_) {}
+    setTimeout(()=>gajiTampil(q, i + 1), ok ? 900 : 0);
+  });
+}
 async function akunMuat(){
   if (!AKUN.u) return false;
   if (window.GREADY) await window.GREADY;
@@ -3465,7 +3505,7 @@ async function akunMuat(){
     if (r && (r.alasan === 'perlu_google' || r.alasan === 'masuk_google')){ akunKeluar(true); toast('🔐 Masuk dengan Gmail dulu, lalu Kata Sandi Warga.'); return false; }
     if (!r || !r.ok){ akunKeluar(true); toast('❌ Kata sandi sudah berubah. Silakan masuk lagi.'); return false; }
     if (r.bonus_stamina_baru && AKUN.data !== undefined) setTimeout(()=>{ popHadiah('⚡ +20 stamina harian'); }, 600);
-    const pLama = AKUN.data && AKUN.data.pingsan; AKUN.data = r; akunTombol(); AKUN.at = Date.now(); darahCek(pLama); if (sheet.classList.contains('open') && sheetFn && (sheetFn === akunHTML || sheetFn.eko)) sheetBody.innerHTML = sheetFn(); return true;
+    const pLama = AKUN.data && AKUN.data.pingsan; AKUN.data = r; akunTombol(); AKUN.at = Date.now(); darahCek(pLama); try { gajiCek(); } catch(_) {} if (sheet.classList.contains('open') && sheetFn && (sheetFn === akunHTML || sheetFn.eko)) sheetBody.innerHTML = sheetFn(); return true;
   } catch(_) { return false; }
 }
 function akunKeluar(diam){ AKUN.u = AKUN.s = AKUN.data = null; TAMU.u = TAMU.s = null; try { localStorage.removeItem('nusawara_akun'); } catch(_) {} akunTombol();
@@ -3930,7 +3970,7 @@ function jabatanHTML(){
   let h = `<div class="kicker" data-jabatan="1">Distrik Pusat · Pemerintahan</div><h2>🏛️ Daftar Jabatan Kenegaraan</h2>${saldoBar()}${jabTabs('jabatan')}
     <p class="note">Beli jabatan dengan Nusa (N$). Hasil penjualan masuk <b>Kas Negara</b> (sekarang ${N$(KAS)}). Satu warga satu jabatan. Pemegang jabatan tetap boleh bekerja di toko, <b>kecuali Wakil Presiden dan Penasihat Negara</b> yang tidak boleh punya pekerjaan lain.</p>`;
   if (!AKUN.data) h += perluMasuk();
-  if (JAB.gaji && JAB.gaji.ok && JAB.gaji.gaji > 0) h += `<div class="card"><h3>💼 Gaji jabatanmu</h3><p class="note">Gaji harian pemegang jabatan dibayar dari Kas Negara. Klaim sekali sehari (reset 00.00 WIB).</p>${JAB.gaji.sudah ? '<button class="btn ghost" disabled>✓ Gaji hari ini sudah diambil</button>' : `<button class="btn" data-jab-gaji="1">Klaim gaji · +${N$(JAB.gaji.gaji)}</button>`}</div>`;
+  if (JAB.gaji && JAB.gaji.ok && JAB.gaji.gaji > 0) h += `<div class="card"><h3>💼 Gaji jabatanmu</h3><p class="note">Gaji harian pemegang jabatan dibayar dari Kas Negara. Muncul sebagai pop-up Terima Gaji saat login pertama tiap hari (reset 00.00 WIB); bisa juga diklaim dari sini.</p>${JAB.gaji.sudah ? '<button class="btn ghost" disabled>✓ Gaji hari ini sudah diambil</button>' : `<button class="btn" data-jab-gaji="1">Klaim gaji · +${N$(JAB.gaji.gaji)}</button>`}</div>`;
   h += `<div class="card"><h3>👑 Pimpinan Negara</h3>
     <div class="jrow"><div class="ji">👑</div><div class="jt"><b>Presiden</b><small>Mr. Bung</small></div>${jabHarga('Menjabat')}</div>
     <div class="jrow"><div class="ji">👑</div><div class="jt"><b>Wakil Presiden</b><small>${wapresNow() ? esc(namaW(wapresNow().username)) + ' · menjabat minggu ini · 💼 ' + N$(GAJI_WAPRES) + '/hari' : 'Belum terisi · donatur terbanyak, diumumkan tiap Senin'}</small></div>${jabHarga(wapresNow() ? 'Menjabat' : 'Donasi')}</div></div>`;
@@ -5100,7 +5140,7 @@ function bisnisHTML(id){
         return `<div class="jrow" style="border-top:1px solid #eee;padding-top:6px"><span style="font-size:28px;flex:none">${m.ikon}</span><span class="jt"><b>${esc(m.nama)}</b>
           <small>Bahan toko: ${bahan}<br>Inventory toko: <b>${stk}</b> · combine ${Math.min(c,2)}/2${c >= 2 ? ' ✓' : ''}</small></span>
           <button class="btn" data-combine="${m.kode}|1" ${bs >= 1 ? '' : 'disabled'}>🍳 Combine ×1</button></div>`; }).join('')}
-      <p class="note">Gajimu sebagai ${esc(kj.posisi)}: <b>${N$(gj)}/hari</b>, dibayar otomatis 00.00 WIB sesuai persen misi: 100% → gaji penuh <b>+ bonus 10%</b> · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji. Streak 7 hari +N$30 · 30 hari +N$100 (streak ${BIZ.kerja.streak || 0} hari).</p>
+      <p class="note">Gajimu sebagai ${esc(kj.posisi)}: <b>${N$(gj)}/hari</b>, dihitung otomatis setelah 00.00 WIB sesuai persen misi dan diterima lewat pop-up <b>Terima Gaji</b> saat login pertama: 100% → gaji penuh <b>+ bonus 10%</b> · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji. Streak 7 hari +N$30 · 30 hari +N$100 (streak ${BIZ.kerja.streak || 0} hari).</p>
       ${rk ? `<p class="note">Kemarin: ${rk.persen}% · gaji ${N$(rk.gaji)}${rk.bonus ? ' + bonus ' + N$(rk.bonus) : ''}</p>` : ''}</div>`;
   }
   // daftar gaji harian semua jabatan toko (dari tabel gaji_posisi)
@@ -5108,7 +5148,7 @@ function bisnisHTML(id){
     const gl = FAS[id].pos.map(([p,,ic])=>[p, ic, BIZ.gaji[id + '|' + p]]).filter(x=>x[2] != null);
     if (gl.length) h += `<div class="card"><h3>💵 Daftar gaji harian</h3>
       ${gl.map(([p, ic, g])=>`<div class="jrow" style="${kj && kj.posisi === p ? 'background:#fff4d6;border-radius:10px;' : ''}padding:5px 6px"><span style="font-size:22px;flex:none">${ic}</span><span class="jt"><b>${esc(p)}${kj && kj.posisi === p ? ' (kamu)' : ''}</b></span>${pill(N$(g) + ' / hari', '#f2c14e', '#3b2600')}</div>`).join('')}
-      <p class="note">Semua jabatan memakai aturan misi yang sama: 100% → gaji penuh + bonus 10% · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji. Gaji dibayar per hari kerja (±30 hari = gaji harian × 30).</p></div>`;
+      <p class="note">Semua jabatan memakai aturan misi yang sama: 100% → gaji penuh + bonus 10% · 80–99% → 90% · 60–79% → 75% · 40–59% → 50% · 1–39% → 25% · 0% → tidak digaji. Gaji diterima lewat pop-up Terima Gaji saat login pertama tiap hari (±30 hari = gaji harian × 30).</p></div>`;
   }
   // tabel kinerja mingguan semua karyawan
   if (menu.length && BIZ.kinerja[id]){
@@ -5598,6 +5638,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 23:40</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 23:59</div>
 </body>
 </html>
