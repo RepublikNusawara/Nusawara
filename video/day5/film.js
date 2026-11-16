@@ -55,17 +55,22 @@ const NAMES = ['ayu','bima','citra','dimas','eka','fajar','gita','hadi','intan',
 const crowd = NAMES.map((n,i)=>{ const av = makeAvatar(avatarSpec0({username:'warga_'+n})), a = av.g; scene.add(a); return {a, av, i, col:i%4, row:Math.floor(i/4)}; });
 { const hb = new THREE.Box3().setFromObject(crowd[0].a); const h = hb.getSize(V3()).y; const pb = new THREE.Box3().setFromObject(pres).getSize(V3()).y; const s = (pb*.82)/Math.max(.01,h); crowd.forEach(c=>c.a.scale.multiplyScalar(s)); }
 const PRES0 = pres.position.clone(), PRESR = pres.rotation.y, CH0 = chick.position.clone(), CHR = chick.rotation.y;
-function crowdAt(t, fx){
-  crowd.forEach(c=>{ const a = c.a; const deckX = fx + 8 + (c.row-2)*-3.2, deckZ = FZ - 2.4 + c.col*1.6;
+// FERRY asli (lokal KG (-142,0,-42), dunia x -124, haluan ke selatan) dipakai untuk adegan kapal datang
+const RF_X = -124, RF_Z = -42, RF_LZ0 = -42 - 170, DECK_Y = 7.1, EXIT_Z = -30.8, PIER_END = -90.5, PX = -82.5, PZ = -31.5;   // jalur turun: tangga -> dermaga jari (z -30.8) -> apron Gate 2 tempat Presiden menyambut
+const gang = new THREE.Group(); scene.add(gang); { const L = Math.hypot(6.6, DECK_Y-1.3), m = box(L,.3,2.4,0x8a8f98,0,0,0,gang); m.rotation.z = -Math.atan2(DECK_Y-1.3, 6.6); [-1,1].forEach(s=>{ const r = box(L,.08,.08,0xdde3ea,0,1,s*1.15,gang); r.rotation.z = m.rotation.z; }); gang.position.set(RF_X+6+3.3, (DECK_Y+1.3)/2, EXIT_Z); gang.visible = false; }
+function crowdAt(t, fz){
+  crowd.forEach(c=>{ const a = c.a; const deckX = RF_X + 1.6 - c.col*1.4, deckZ = fz + 4 + c.row*2.4;
     const leave = 6.0 + c.i*.16;                                   // mulai turun
-    if (t < leave){ a.position.set(deckX, 3.45, deckZ); a.rotation.y = Math.PI/2; return; }
-    const path = [V3(deckX,3.45,deckZ), V3(BOW_END+1,3.4,FZ-.6+(c.col-1.5)*.7), V3(-107.5,1.3,FZ-.6+(c.col-1.5)*.7), V3(-103.5 + (c.row%2)*-1.5 - c.row*1.4, 1.3, FZ - 4.5 + c.col*3)];
-    const L = [0]; for (let i=1;i<path.length;i++) L.push(L[i-1] + path[i].distanceTo(path[i-1]));
-    let d = (t-leave)*7.5; if (d >= L[3]){ a.position.copy(path[3]); a.rotation.y = Math.PI/2; return; }
+    if (t < leave){ a.position.set(deckX, DECK_Y, deckZ); a.rotation.y = Math.PI/2; return; }
+    const lz = EXIT_Z+(c.col-1.5)*.4;
+    const path = [V3(deckX,DECK_Y,deckZ), V3(RF_X+5.4,DECK_Y,lz), V3(RF_X+12.9,1.3,lz), V3(PIER_END,1.3,lz), V3(PX - 4.5 - c.row*1.4, 1.3, PZ - 2.4 + c.col*1.6)];
+    const L = [0]; for (let i=1;i<path.length;i++) L.push(L[i-1] + path[i].distanceTo(path[i-1])); const N = path.length-1;
+    let d = (t-leave)*10.5; if (d >= L[N]){ a.position.copy(path[N]); a.rotation.y = Math.PI/2; return; }
     let k = 1; while (L[k] < d) k++; const f = (d-L[k-1])/(L[k]-L[k-1]); a.position.copy(lv(path[k-1],path[k],f)); a.position.y += Math.abs(Math.sin(d*2.2))*.18;
     const dir = V3().subVectors(path[k],path[k-1]); a.rotation.y = Math.atan2(dir.x,dir.z);
     const sw = Math.sin(d*2.2)*.6; if (c.av.legL) c.av.legL.rotation.x = sw; if (c.av.legR) c.av.legR.rotation.x = -sw; if (c.av.armL) c.av.armL.rotation.x = -sw; if (c.av.armR) c.av.armR.rotation.x = sw; });
 }
+window.FILM_CROWD = ()=>crowd.map(c=>c.a.position.toArray().map(v=>+v.toFixed(1)));
 function crowdHide(v){ crowd.forEach(c=>c.a.visible = v); }
 
 // ---------- papan penduduk ----------
@@ -147,20 +152,22 @@ window.FILM = { info: Object.fromEntries(Object.keys(INFO).map(k=>[k,{c:INFO[k].
     else { const S = SEG.find(s=>s[0]===k); p = t < E_4B ? 0 : t < E_SEG ? 1 : t < S[2] ? 0 : t < S[3] ? sm(S[2],S[3],t) : 1; }
     progress(k, p); });
   // kapal (waktu diregangkan)
-  const fk = 1 - Math.pow(1 - cl(u0/5.6,0,1), 2.4); const fx = lerp(FERRY_X0, FERRY_X1, fk);
-  try { FERRY.visible = FERRY2.visible = t >= E_HARI; } catch(e){}   // ferry yang terparkir disembunyikan saat kapal datang membawa warga
-  ferry.position.set(fx, Math.sin(t*1.3)*.12, FZ); ferry.rotation.z = Math.sin(t*1.1)*.01; ferry.visible = t < E_HARI; ramp.visible = u0 > 5.6 && t < E_HARI;
-  crowdHide(t < E_HARI); if (t < E_HARI) crowdAt(u0, fx);
+  // kapal: FERRY asli datang dari utara ke dermaganya (waktu diregangkan); ferry lama film tidak dipakai
+  const fk = 1 - Math.pow(1 - cl(u0/5.6,0,1), 2.4), fzL = t < E_HARI ? lerp(RF_LZ0, RF_Z, fk) : RF_Z, fz = fzL;
+  ferry.visible = false; ramp.visible = false;
+  try { FERRY.visible = true; FERRY.position.z = fzL; FERRY.position.y = t < E_HARI ? Math.sin(t*1.3)*.1 : FERRY.position.y; FERRY2.visible = t >= E_HARI; } catch(e){}
+  gang.visible = u0 > 5.6 && t < E_HARI;
+  crowdHide(t < E_HARI); if (t < E_HARI) crowdAt(u0, fz);
   // presiden & ayam
-  if (t < E_HARI){ pres.position.set(-100.5, 1.3, FZ+1.2); pres.rotation.y = -Math.PI/2; chick.position.set(-100.8, 1.3, FZ+3.4); chick.rotation.y = -Math.PI/2 + Math.sin(t*3)*.3; chick.position.y = 1.3 + Math.abs(Math.sin(t*7))*.15*(t>10.9&&t<12.8?1:0); }
+  if (t < E_HARI){ pres.position.set(PX, 1.3, PZ); pres.rotation.y = -Math.PI/2; chick.position.set(PX - .3, 1.3, PZ + 2.2); chick.rotation.y = -Math.PI/2 + Math.sin(t*3)*.3; chick.position.y = 1.3 + Math.abs(Math.sin(t*7))*.15*(t>10.9&&t<12.8?1:0); }
   else { pres.position.copy(PRES0); pres.rotation.y = PRESR; chick.position.copy(CH0); chick.rotation.y = CHR; chick.position.y = CH0.y + (t > E_CTA ? Math.abs(Math.sin(t*6))*.12 : 0); }
   // penduduk
   const nWarga = t < 14.4 ? 278 : Math.round(lerp(278,300, sm(14.4,15.95,t)));
   setCount(nWarga);
   // ---- kamera per adegan ----
   let C, T;
-  if (t < E_SAMBUT){ const k = sm(0,E_SAMBUT,t); C = V3(lerp(fx-36, -165, k), lerp(9,13,k), lerp(42, 30, k)); T = V3(fx + 14, 5, FZ); }
-  else if (t < E_HARI){ const k = sm(E_SAMBUT,E_HARI,t); C = V3(lerp(-88,-91,k), lerp(7.5,9,k), lerp(6,4,k)); T = V3(lerp(-114,-108,k), 3.2, FZ); }
+  if (t < E_SAMBUT){ const k = sm(0,E_SAMBUT,t); C = V3(lerp(-150,-156,k), lerp(13,15,k), lerp(-4,8,k)); T = V3(lerp(RF_X,RF_X+8,k), 6, lerp(fz+20, fz, k)); }
+  else if (t < E_HARI){ const k = sm(E_SAMBUT,E_HARI,t); const ctr = V3(); crowd.forEach(c=>ctr.add(c.a.position)); ctr.multiplyScalar(1/crowd.length); const tx = Math.max(-114, Math.min(-83, lerp(ctr.x, -83, sm(12.0,12.9,t)))); C = V3(tx + 5, lerp(8,7,k), -18.5); T = V3(tx - 1, 2.2, -31.2); }
   else if (t < E_4B){ const k = sm(E_HARI,E_4B,t); C = V3(cntW.x + lerp(5,1.5,k), cntW.y + lerp(-2.5,-1,k), cntW.z + lerp(30,15,k)); T = V3(cntW.x, cntW.y - lerp(3.5,1.6,k), cntW.z); }
   else if (t < E_SEG){ const keys = ['mall','stad','kam','bkl','pel'], L = (E_SEG-E_4B)/5, i = cl(Math.floor((t-E_4B)/L),0,4), I = INFO[keys[i]], k = (t-E_4B-i*L)/L; [C,T] = orbit(I, ANG[keys[i]] + .25 - k*.5, keys[i]==='pel' ? .75 : 1.15, .7); }
   else if (t < E_PEL){ const S = SEG.find(s=>t>=s[1] && t<s[4]) || SEG[3], k = S[0], I = INFO[k], u = (t - S[1])/(S[4]-S[1]);

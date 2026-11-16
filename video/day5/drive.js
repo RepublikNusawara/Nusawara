@@ -16,7 +16,8 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   await ev("new Promise(r=>{const ims=[...document.images]; setTimeout(r,800);})");
   const shot=async()=>Buffer.from((await send('Page.captureScreenshot',{format:'jpeg',quality:92})).result.data,'base64');
   console.log('ERRBOX', await ev("(document.getElementById('errBox')||{}).textContent"), await ev('typeof FILM_INIT'));
-  if(mode==='look'){ let k=0; for(const v of a.split(';')){ await ev(`FILM.look(${v})`); fs.writeFileSync(`/tmp/film/look_${k++}.jpg`,await shot()); } }
+  if(mode==='eval'){ console.log('EVAL', await ev(a)); fs.writeFileSync('/tmp/film/eval.jpg', await shot()); }
+  else if(mode==='look'){ let k=0; for(const v of a.split(';')){ await ev(`FILM.look(${v})`); fs.writeFileSync(`/tmp/film/look_${k++}.jpg`,await shot()); } }
   else if(mode==='still'){ for(const t of a.split(',')){ await ev(`FILM.frame(${t})`); fs.writeFileSync(`/tmp/film/still_${t}.jpg`,await shot()); } }
   else { const f0=+a,f1=+b; const ff=spawn('ffmpeg',['-y','-loglevel','error','-f','image2pipe','-framerate','30','-c:v','mjpeg','-i','-','-c:v','libx264','-preset','veryfast','-crf','20','-pix_fmt','yuv420p','-r','30',`/tmp/film/part_${f0}.tmp.mp4`]);
     const T0=Date.now(); for(let f=f0;f<f1;f++){ await ev(`FILM.frame(${(f/30).toFixed(4)})`); const buf=await shot(); if(!ff.stdin.write(buf)) await new Promise(r=>ff.stdin.once('drain',r)); if(f%60==0) console.log('f',f,((Date.now()-T0)/1000).toFixed(0)+'s'); }
