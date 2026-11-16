@@ -2066,17 +2066,22 @@ scene.add(chick); pickables.push(chick);
 let chPhase = 0, chAmp = 0;
 const chTarget = new THREE.Vector3();
 /* ---------- WAKIL PRESIDEN: berdiri di sebelah Presiden saat orangnya tidak login (jas sama seperti Presiden) ---------- */
-const wpChar = pres.clone(true); wpChar.userData = {type:'wapres'}; wpChar.visible = false; scene.add(wpChar);
+var wpChar = new THREE.Group(); wpChar.visible = false; scene.add(wpChar);
 const wpTag = label('Wakil Presiden', {h:1.2, size:30, bg:'rgba(122,90,10,.94)', fg:'#fff', onTop:true}); wpTag.visible = false; scene.add(wpTag);
-const WPR = {u:null, t:-1e9};
+var WPR = {u:null, t:-1e9, sig:'', sync:null};
 function updateWapresChar(dt, time){
   try {
     if (time - WPR.t > 60 || WPR.t < 0){ WPR.t = time; SB.get('wapres?select=username,minggu&order=minggu.desc&limit=1').then(r=>{ WPR.u = (r && r[0] && r[0].minggu === mingguKini()) ? r[0].username : null; }).catch(()=>{}); }
+    if (WPR.sync !== WPR.u){ const lama = WPR.sync; WPR.sync = WPR.u; [lama, WPR.u].forEach(u=>{ if (u && WALKERS[u] && WINFO[u]) syncWalkers({[u]: WINFO[u]}); }); WPR.sig = ''; }   // gaya dinas dipasang/dilepas di karakter jalannya
+    if (WPR.u){ const w = WINFO[WPR.u] || (typeof wInfo === 'function' ? wInfo(WPR.u) : null);
+      if (w){ const sp = avatarSpec(w), sg = JSON.stringify(sp);
+        if (sg !== WPR.sig){ WPR.sig = sg; const op = wpChar.position.clone(); scene.remove(wpChar); wpChar = makeAvatar(sp).g; wpChar.position.copy(op); wpChar.scale.setScalar(1.15); wpChar.userData = {type:'warga', data:{username: WPR.u}}; scene.add(wpChar); } } }
     const tampil = !!WPR.u && !(typeof ctl !== 'undefined' && ctl.key === WPR.u);
     wpChar.visible = wpTag.visible = tampil;
     if (WPR.u && typeof WALKERS !== 'undefined' && WALKERS[WPR.u]){ const W = WALKERS[WPR.u]; W.av.g.visible = !tampil; if (W.tag) W.tag.visible = !tampil; }
     if (!tampil) return;
     const ry = pres.rotation.y, tx = pres.position.x - Math.cos(ry)*2.1, tz = pres.position.z + Math.sin(ry)*2.1;
+    if (Math.hypot(tx - wpChar.position.x, tz - wpChar.position.z) > 30){ wpChar.position.x = tx; wpChar.position.z = tz; }
     wpChar.position.x += (tx - wpChar.position.x)*Math.min(1, dt*6); wpChar.position.z += (tz - wpChar.position.z)*Math.min(1, dt*6);
     wpChar.position.y += (groundY(wpChar.position.x, wpChar.position.z) - wpChar.position.y)*Math.min(1, dt*12);
     wpChar.rotation.y = ry; wpTag.position.set(wpChar.position.x, wpChar.position.y + 4.2, wpChar.position.z);
@@ -2520,7 +2525,10 @@ function hashStr(s){ let h = 2166136261; for (const c of String(s)) { h ^= c.cha
 const isHex = v => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v);
 const pick = (v, list, d) => list.some(o=>o[0]===v) ? v : d;
 var PEJABAT = new Set();   // pemegang jabatan: berbaju batik dinas
-function avatarSpec(w){ const sp = avatarSpec0(w), u = String((w && w.username) || '').toLowerCase(); if (PEJABAT.has(u)){ sp.bajuModel = 'batik'; sp.baju = '#1f2a6b'; } return sp; }
+function avatarSpec(w){ const sp = avatarSpec0(w), u = String((w && w.username) || '').toLowerCase();
+  if (typeof WPR !== 'undefined' && WPR.u === u){ sp.bajuModel = 'jasnav'; sp.baju = '#253760'; sp.celana = '#1c2847'; sp.sepatu = '#171717'; sp.celanaModel = 'panjang'; }   // jas dinas Wakil Presiden (sama seperti Presiden)
+  else if (PEJABAT.has(u)){ sp.bajuModel = 'batik'; sp.baju = '#1f2a6b'; }
+  return sp; }
 function avatarSpec0(w){
   const u = String((w && w.username) || '').toLowerCase(), h = hashStr(u), a = (w && w.avatar && typeof w.avatar === 'object') ? w.avatar : {};
   const kac = a.kacamata === true ? 'hitam' : a.kacamata === false ? 'tidak' : a.kacamata;
@@ -2688,6 +2696,11 @@ function makeAvatar(sp){
     [-.24,.24].forEach(x=>{ v.box(x,1.78,Zf+.015,.16,.09,.02, GD); v.box(x,1.62,Zf+.012,.04,.3,.02, GD2); });   // ornamen bahu & sisi
     v.box(0,1.2,Zf+.02,.62,.12,.02, CR); for (let i=0;i<8;i++) v.box(-.27 + i*.077,1.2,Zf+.034,.03,.03,.012, i%2 ? GD : GD2);   // pita batik krem di bawah
     [-.2,.2].forEach(x=>v.box(x,1.3,Zf+.02,.18,.06,.02, GD));
+  }
+  if (sp.bajuModel === 'jasnav'){                                                 // jas dinas: kemeja putih, dasi navy, lencana emas, kerah jas lebih terang
+    v.box(0,1.58,Zf+.008,.18,.54,.02, 0xf7f7f4); v.box(0,1.62,Zf+.016,.065,.38,.02, 0x1a2a52); v.box(0,1.82,Zf+.02,.1,.06,.02, 0x1a2a52);
+    [-.13,.13].forEach(x=>v.box(x,1.68,Zf+.014,.08,.34,.03, 0x344c7a));
+    v.rbox(.18,1.66,Zf+.03,.1,.11,.02, 0xe3b03a,.02); v.box(.18,1.66,Zf+.044,.045,.045,.012, 0xffffff); v.box(0,1.26,Zf+.02,.05,.05,.025, 0xe3b03a);
   }
   if (sp.bajuModel === 'jas'){ v.box(0,1.58,Zf+.008,.18,.54,.02, 0xf4f1ea); v.box(0,1.55,Zf+.016,.06,.42,.02, 0xb03030); v.box(0,1.78,Zf+.02,.08,.06,.02, 0xb03030);
     [-.13,.13].forEach(x=>v.box(x,1.68,Zf+.014,.08,.34,.03, D)); }
@@ -3227,7 +3240,7 @@ document.getElementById('stR').onclick = ()=>{ if (!st) return; const r = l => l
   stBuild(); stOptions(); };
 function openStyle(key){
   const w = wInfo(key); if (!w) return;
-  stRig(); st = { key, spec: avatarSpec(w), w }; stRot = -.3;
+  stRig(); st = { key, spec: avatarSpec0(w), w }; stRot = -.3;
   document.getElementById('stT').textContent = '🎨 Gaya @' + String(w.username||key).replace(/^@+/,'');
   document.getElementById('stM').textContent = 'Geser karakter untuk memutar. Pilih gaya, lalu Simpan.';
   stEl.classList.add('open'); stBuild(); stOptions(); stResize(); requestAnimationFrame(()=>{ stResize(); stLoop(performance.now()); });
@@ -5750,6 +5763,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 02:05</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 02:20</div>
 </body>
 </html>
