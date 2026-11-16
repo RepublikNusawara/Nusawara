@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261116-2215">
+<meta name="nusawara-build" content="20261116-2240">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3905,7 +3905,7 @@ function jabRow(k){
 function jabatanHTML(){
   if (JAB.muat === 0){ JAB.muat = 1; jabMuat(); }
   let h = `<div class="kicker" data-jabatan="1">Distrik Pusat · Pemerintahan</div><h2>🏛️ Daftar Jabatan Kenegaraan</h2>${saldoBar()}${jabTabs('jabatan')}
-    <p class="note">Beli jabatan dengan Nusa (N$). Hasil penjualan masuk <b>Kas Negara</b> (sekarang ${N$(KAS)}). Satu warga satu jabatan.</p>`;
+    <p class="note">Beli jabatan dengan Nusa (N$). Hasil penjualan masuk <b>Kas Negara</b> (sekarang ${N$(KAS)}). Satu warga satu jabatan. Pemegang jabatan tetap boleh bekerja di toko, <b>kecuali Wakil Presiden dan Penasihat Negara</b> yang tidak boleh punya pekerjaan lain.</p>`;
   if (!AKUN.data) h += perluMasuk();
   if (JAB.gaji && JAB.gaji.ok && JAB.gaji.gaji > 0) h += `<div class="card"><h3>💼 Gaji jabatanmu</h3><p class="note">Gaji harian pemegang jabatan dibayar dari Kas Negara. Klaim sekali sehari (reset 00.00 WIB).</p>${JAB.gaji.sudah ? '<button class="btn ghost" disabled>✓ Gaji hari ini sudah diambil</button>' : `<button class="btn" data-jab-gaji="1">Klaim gaji · +${N$(JAB.gaji.gaji)}</button>`}</div>`;
   h += `<div class="card"><h3>👑 Pimpinan Negara</h3>
@@ -3919,7 +3919,7 @@ function jabatanHTML(){
     h += `<div class="card"><h3>${esc(ks[0].kelompok_nama)}</h3>${ks.map(jabRow).join('')}</div>`; });
   return h;
 }
-const JABMSG = {bukan_pejabat:'Kamu belum memegang jabatan.', sudah:'Gaji hari ini sudah kamu ambil.', kas_kurang:'Kas Negara sedang tidak cukup. Coba lagi nanti.', sandi:'❌ Kata sandi salah. Masuk ulang.', sudah_punya:'🏛️ Kamu sudah memegang satu jabatan. Satu warga satu jabatan.', penuh:'Kursi jabatan ini sudah penuh.', saldo_kurang:'❌ Saldo N$ tidak cukup.', tidak_ada:'Jabatan tidak ditemukan.'};
+const JABMSG = {punya_kerja:'🏛️ Dewan Penasihat Negara tidak boleh punya pekerjaan lain. Keluar dulu dari pekerjaanmu.', bukan_pejabat:'Kamu belum memegang jabatan.', sudah:'Gaji hari ini sudah kamu ambil.', kas_kurang:'Kas Negara sedang tidak cukup. Coba lagi nanti.', sandi:'❌ Kata sandi salah. Masuk ulang.', sudah_punya:'🏛️ Kamu sudah memegang satu jabatan. Satu warga satu jabatan.', penuh:'Kursi jabatan ini sudah penuh.', saldo_kurang:'❌ Saldo N$ tidak cukup.', tidak_ada:'Jabatan tidak ditemukan.'};
 async function jabGaji(btn){
   if (!AKUN.u) return; btn.disabled = true;
   try { const r = await SB.rpc('klaim_gaji_jabatan', {p_user: AKUN.u, p_sandi: AKUN.s});
@@ -5166,7 +5166,7 @@ sheetBody.addEventListener('click', async e=>{
     if (!/^[A-Z0-9]{4,20}$/.test(pw)) { m.textContent = 'Masukkan Kata Sandi Warga.'; return; }
     e.target.disabled = true; m.textContent = 'Mengirim…';
     try { const r = await SB.rpc('daftar_kerja', {p_user:u, p_sandi:pw, p_fasilitas:jSel.id, p_posisi:jSel.p}); e.target.disabled = false;
-      const msg = {ok:'', sandi:'❌ Kata sandi salah.', penuh:'Posisi ini sudah penuh. Pilih posisi lain.', sudah:'Kamu sudah punya pekerjaan. Keluar dulu dari profilmu kalau mau pindah.', sudah_posisi:'Kamu sudah bekerja di posisi ini.', warga:'Username belum terdaftar sebagai warga.', tunjuk:'Jabatan ini ditunjuk langsung oleh Presiden.'}[r] ;
+      const msg = {ok:'', jabatan_tinggi:'🏛️ Wakil Presiden dan Penasihat Negara tidak boleh punya pekerjaan lain.', sandi:'❌ Kata sandi salah.', penuh:'Posisi ini sudah penuh. Pilih posisi lain.', sudah:'Kamu sudah punya pekerjaan. Keluar dulu dari profilmu kalau mau pindah.', sudah_posisi:'Kamu sudah bekerja di posisi ini.', warga:'Username belum terdaftar sebagai warga.', tunjuk:'Jabatan ini ditunjuk langsung oleh Presiden.'}[r] ;
       if (r === 'ok'){ if (!KERJA[u]) KERJA[u] = {fasilitas:jSel.id, posisi:jSel.p}; if (window.KERJA_ALL) KERJA_ALL.push({username:u, fasilitas:jSel.id, posisi:jSel.p}); UNLOCK[u] = pw; toast(`🎉 Selamat! @${u} sekarang ${jSel.p} di ${FAS[jSel.id].nama}`); if (sheetFn) sheetBody.innerHTML = sheetFn(); }
       else m.textContent = msg || 'Gagal mendaftar. Coba lagi.'; }
     catch(_){ e.target.disabled = false; m.textContent = 'Gagal tersambung. Periksa internet lalu coba lagi.'; }
@@ -5574,6 +5574,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 22:15</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 16 Nov 22:40</div>
 </body>
 </html>
