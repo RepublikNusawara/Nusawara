@@ -3925,55 +3925,82 @@ async function gajiCek(){
 const TAPU = {ov:null, pending:0, sesi:0, total:null, rank:null, top:[], sibuk:false, timer:null, rkTimer:null, tolak:0};
 (()=>{ const st = document.createElement('style'); st.textContent = `
   #tapU{position:fixed;inset:0;z-index:99990;background:rgba(8,14,28,.72);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(10px,env(safe-area-inset-top)) 8px 16px;font-family:inherit;-webkit-user-select:none;user-select:none}
-  #tapU .tu{width:100%;max-width:440px;border-radius:22px;padding:12px 12px 14px;background:linear-gradient(180deg,#cfe6f5 0%,#9fb4c4 38%,#6f7f8c 100%);box-shadow:0 14px 40px rgba(0,0,0,.5);border:3px solid #f2c14e;position:relative}
-  #tapU .rbtn{position:absolute;top:10px;width:40px;height:40px;border-radius:50%;border:3px solid #f2c14e;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.3)}
-  #tapU .hdr{margin:4px auto 10px;max-width:300px;text-align:center;background:linear-gradient(180deg,#e0162f,#a50d22);border:4px solid #f2c14e;border-radius:60px 60px 18px 18px;padding:12px 10px 8px;color:#f7d774;box-shadow:0 4px 0 #7a0a18}
-  #tapU .hdr b{display:block;font-size:24px;line-height:1.05;font-weight:900;letter-spacing:.5px;text-shadow:0 2px 0 #6b0614}
-  #tapU .hdr span{display:block;width:92%;box-sizing:border-box;margin:6px auto 0;background:#f6f2ea;color:#2b2d33;font-weight:800;font-size:13px;border-radius:10px;padding:5px 10px;text-align:center;white-space:nowrap}
-  #tapU .bar{display:flex;gap:8px;margin-bottom:10px}
-  #tapU .chip{flex:1;display:flex;align-items:center;gap:8px;background:#1f2328e6;color:#fff;border:2px solid #f2c14e;border-radius:16px;padding:6px 10px;min-width:0}
-  #tapU .chip i{font-style:normal;font-size:22px}#tapU .chip small{display:block;font-size:10px;opacity:.8}#tapU .chip b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #tapU .tu{width:100%;max-width:440px;border-radius:22px;padding:12px 12px 14px;position:relative;overflow:hidden;border:3px solid #f2c14e;box-shadow:0 14px 40px rgba(0,0,0,.5);
+    background:radial-gradient(ellipse at 15% 6%,#fff 0 16px,transparent 17px),radial-gradient(ellipse at 22% 5%,#fff 0 12px,transparent 13px),radial-gradient(ellipse at 88% 9%,#fff 0 14px,transparent 15px),
+      linear-gradient(180deg,#79c3ef 0%,#bfe3f8 22%,#eef3f7 30%,#dfe8f1 46%,#8fb6dd 62%,#5d8fc4 100%)}
+  #tapU .tu>*{position:relative;z-index:1}
+  #tapU .dek{position:absolute;z-index:0;pointer-events:none}
+  #tapU .pilar{top:150px;width:34px;height:150px;background:linear-gradient(90deg,#d8dde3,#fff 40%,#cfd6de);border-radius:4px 4px 0 0;box-shadow:inset 0 6px 0 #f2c14e}
+  #tapU .pilar::before{content:"";position:absolute;top:-22px;left:50%;margin-left:-12px;width:24px;height:24px;border-radius:50% 50% 0 0;background:radial-gradient(circle at 50% 70%,#ffe48a,#d9a521);box-shadow:0 -8px 0 -6px #d9a521}
+  #tapU .panji{top:170px;width:34px;height:120px;background:linear-gradient(180deg,#1c3f8f,#122c6b);border:2px solid #f2c14e;clip-path:polygon(0 0,100% 0,100% 82%,50% 100%,0 82%);display:flex;align-items:flex-start;justify-content:center;padding-top:28px;box-sizing:border-box;font-size:14px}
+  #tapU .tanaman{top:300px;font-size:34px}
+  #tapU .rbtn{position:absolute;top:10px;z-index:3;width:42px;height:42px;border-radius:50%;border:3px solid #3b2600;font-size:22px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 3px 0 #0005,inset 0 -4px 0 #0002}
+  #tapU .hdr{margin:6px auto 10px;max-width:330px;text-align:center;background:radial-gradient(ellipse at 50% 0%,#ff3348,#c8102e 55%,#8f0a1d);border:5px solid #f2c14e;outline:3px solid #8f0a1d;border-radius:90px 90px 26px 26px;padding:18px 34px 10px;color:#ffd84a;box-shadow:0 6px 0 #6b0614,0 10px 18px #0004;position:relative}
+  #tapU .hdr .koin3{position:absolute;top:-16px;left:50%;transform:translateX(-50%);display:flex;gap:3px}
+  #tapU .hdr .koin3 i{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#b9c2cc 55%,#6b7480);border:2px solid #4b525b;box-shadow:0 2px 0 #0004}
+  #tapU .hdr .gir{font-style:normal;position:absolute;top:44px;font-size:28px;filter:sepia(1) saturate(6) hue-rotate(5deg) brightness(1.15);animation:tuGir 6s linear infinite}
+  @keyframes tuGir{to{transform:rotate(360deg)}}
+  #tapU .hdr .daun{font-style:normal;position:absolute;bottom:6px;font-size:22px;filter:sepia(1) saturate(5) hue-rotate(5deg) brightness(1.1)}
+  #tapU .hdr b{display:block;font-size:27px;line-height:1.02;font-weight:900;letter-spacing:.5px;color:#ffd84a;-webkit-text-stroke:1px #7a0a18;text-shadow:0 3px 0 #6b0614}
+  #tapU .hdr span{display:block;box-sizing:border-box;margin:8px auto 0;background:linear-gradient(#fffdf6,#f1e9d6);color:#2b2d33;font-weight:800;font-size:13px;border:3px solid #f2c14e;border-radius:12px;padding:4px 10px 5px;text-align:center;line-height:1.2}
+  #tapU .hdr span #tuKas{display:block;font-size:26px;font-weight:900;color:#1d1f24;-webkit-text-stroke:0;text-shadow:none;letter-spacing:0}
+  #tapU .bar{display:flex;gap:8px;margin:0 6px 10px}
+  #tapU .chip{flex:1;display:flex;align-items:center;gap:8px;background:linear-gradient(180deg,#1d2f52,#13213c);color:#fff;border:3px solid #f2c14e;border-radius:16px;padding:6px 10px;min-width:0;box-shadow:0 3px 0 #0005}
+  #tapU .chip i{font-style:normal;width:30px;height:30px;flex:none;border-radius:50%;background:linear-gradient(#e6f2ff,#9cc3ec);display:flex;align-items:center;justify-content:center;font-size:18px}
+  #tapU .chip small{display:block;font-size:10px;opacity:.85}#tapU .chip b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #tapU .coin{width:30px;height:30px;flex:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff1a8,#f2c14e 60%,#b8860b);border:2px solid #9a6b00;color:#6b4300;font-weight:900;font-size:10px;display:flex;align-items:center;justify-content:center}
-  #tapU .mesin{position:relative;height:190px;margin:0 6px 10px;border-radius:18px 18px 8px 8px;background:linear-gradient(180deg,#d7dde3,#9aa3ab);border:3px solid #6b7178;overflow:hidden}
-  #tapU .plat{position:absolute;left:50%;top:8px;transform:translateX(-50%);background:linear-gradient(#f4f4f4,#c9cfd6);border:2px solid #f2c14e;border-radius:8px;padding:3px 10px;font-weight:900;font-size:11px;color:#2b2d33;text-align:center;line-height:1.15;white-space:nowrap}
-  #tapU .mesin .bigc{position:absolute;left:50%;top:52px;transform:translateX(-50%);width:46px;height:46px;font-size:14px;box-shadow:0 0 18px #ffd84a}
-  #tapU .lampu{position:absolute;top:56px;width:10px;height:44px;border-radius:5px;background:#ffd84a;box-shadow:0 0 12px #ffd84a}
-  #tapU .robot{position:absolute;bottom:28px;font-size:40px;filter:drop-shadow(0 2px 2px #0006)}
-  #tapU .stack{position:absolute;bottom:6px;font-size:26px}
-  #tapU .belt{position:absolute;left:22%;right:22%;bottom:0;height:78px;background:repeating-linear-gradient(180deg,#3a3f46 0 6px,#2b2f36 6px 12px);border-left:4px solid #c9cfd6;border-right:4px solid #c9cfd6;animation:tuBelt .6s linear infinite}
+  #tapU .mesin{position:relative;height:210px;margin:0 2px 10px;border-radius:70px 70px 10px 10px;background:linear-gradient(180deg,#e8f1fb,#b9cde2);border:5px solid #f2c14e;box-shadow:inset 0 0 0 4px #1d2f52,0 4px 0 #0004;overflow:hidden}
+  #tapU .mesin .kap{position:absolute;left:23%;right:23%;top:58px;height:62px;border-radius:14px 14px 0 0;background:linear-gradient(180deg,#3a5a8c,#1d2f52);border:3px solid #f2c14e;border-bottom:0}
+  #tapU .plat{position:absolute;left:50%;top:6px;z-index:3;transform:translateX(-50%);background:linear-gradient(#fffdf6,#f1e9d6);border:3px solid #f2c14e;border-radius:8px;padding:3px 10px;font-weight:900;font-size:11px;color:#1d1f24;text-align:center;line-height:1.12;white-space:nowrap;box-shadow:0 3px 0 #0003}
+  #tapU .mesin .bigc{position:absolute;left:50%;top:64px;z-index:2;transform:translateX(-50%);width:42px;height:42px;font-size:13px;box-shadow:0 0 18px #ffd84a}
+  #tapU .lampu{position:absolute;top:0;z-index:2;width:4px;height:26px;background:#2b2f36}
+  #tapU .lampu::after{content:"";position:absolute;top:24px;left:-15px;width:34px;height:16px;border-radius:17px 17px 3px 3px;background:#2b2f36;box-shadow:0 10px 22px 8px #ffe48a99}
+  #tapU .tiang{position:absolute;top:76px;z-index:2;width:12px;height:30px;border-radius:5px;background:linear-gradient(#ffe48a,#d9a521);border:2px solid #9a6b00}
+  #tapU .robot{position:absolute;bottom:34px;z-index:2;font-size:44px;filter:drop-shadow(0 2px 2px #0006) sepia(.6) saturate(3) hue-rotate(5deg)}
+  #tapU .stack{position:absolute;bottom:26px;z-index:2;font-size:24px;letter-spacing:-12px}
+  #tapU .belt{position:absolute;left:18%;right:18%;bottom:20px;height:70px;z-index:1;background:repeating-linear-gradient(180deg,#3a3f46 0 6px,#2b2f36 6px 12px);border-left:6px solid #1d2f52;border-right:6px solid #1d2f52;animation:tuBelt .6s linear infinite}
+  #tapU .bahaya{position:absolute;left:0;right:0;bottom:0;height:20px;z-index:2;background:repeating-linear-gradient(135deg,#f2c14e 0 12px,#1f2328 12px 24px);border-top:3px solid #1d2f52}
   @keyframes tuBelt{to{background-position:0 12px}}
-  #tapU .note{position:absolute;left:50%;width:146px;height:42px;margin-left:-73px;border-radius:4px;background:url(assets/uang-n1.jpg?v=1118) center/cover no-repeat;box-shadow:0 3px 6px #0006}
+  #tapU .note{position:absolute;z-index:3;left:50%;width:160px;height:46px;margin-left:-80px;border-radius:4px;border:2px solid #fff;background:url(assets/uang-n1.jpg?v=1118) center/cover no-repeat;box-shadow:0 3px 8px #0007}
   #tapU .note.fly{animation:tuNote .9s ease-in forwards}
-  @keyframes tuNote{0%{bottom:70px;opacity:0;transform:scale(.6)}20%{opacity:1;transform:scale(1)}100%{bottom:-50px;opacity:.2;transform:scale(1.15)}}
-  #tapU .bawah{display:grid;grid-template-columns:1fr 120px 1.2fr;gap:7px;align-items:stretch}
-  #tapU .pan{background:#1f2328ee;border:2px solid #f2c14e;border-radius:16px;color:#fff;padding:8px;min-width:0}
-  #tapU .pan h4{margin:0 0 4px;font-size:11px;font-weight:800;text-align:center}
-  #tapU .val{display:flex;align-items:center;gap:6px;background:#00000055;border-radius:10px;padding:5px 6px;margin-bottom:6px}
-  #tapU .val b{font-size:15px;color:#f7d774;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  #tapU .tbtn{width:120px;height:120px;border-radius:50%;border:6px solid #c9cfd6;background:radial-gradient(circle at 40% 30%,#ff6a7c,#e0162f 45%,#8f0a1d);color:#fff;font-weight:900;cursor:pointer;box-shadow:0 8px 0 #6b0614,0 0 24px #ffd84a99;align-self:center;touch-action:manipulation;position:relative;-webkit-tap-highlight-color:transparent}
-  #tapU .tbtn:active,#tapU .tbtn.on{transform:translateY(5px);box-shadow:0 3px 0 #6b0614,0 0 30px #ffd84a}
-  #tapU .tbtn .t1{display:block;font-size:30px;line-height:1;font-style:italic}#tapU .tbtn .t2{display:block;font-size:11px;margin-top:2px}#tapU .tbtn .t3{display:block;font-size:24px;color:#ffe066;font-style:italic;text-shadow:0 2px 0 #7a0a18}
+  @keyframes tuNote{0%{bottom:90px;opacity:0;transform:scale(.6)}20%{opacity:1;transform:scale(1)}100%{bottom:-50px;opacity:.2;transform:scale(1.15)}}
+  #tapU .bawah{display:grid;grid-template-columns:1fr 118px 1.1fr;gap:6px;align-items:stretch}
+  #tapU .pan{background:linear-gradient(180deg,#1d2f52,#13213c);border:3px solid #f2c14e;border-radius:18px;color:#fff;padding:7px 6px;min-width:0;box-shadow:0 3px 0 #0005}
+  #tapU .pan h4{margin:0 0 5px;font-size:12px;font-weight:800;text-align:center}
+  #tapU .val{display:flex;align-items:center;gap:6px;border-bottom:1px solid #f2c14e88;padding:2px 2px 6px;margin-bottom:6px}
+  #tapU .val b{font-size:15px;color:#ffd84a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #tapU .tot{background:#0b1426;border-radius:12px;padding:6px 4px 8px;text-align:center;line-height:1.1}
+  #tapU .tot .lr{display:flex;align-items:center;justify-content:center;gap:2px}
+  #tapU .tot .lr i{font-style:normal;font-size:18px;filter:sepia(1) saturate(5) hue-rotate(5deg) brightness(1.1)}
+  #tapU .tot #tuTot{display:block;font-size:20px;color:#ffd84a;font-weight:900}
+  #tapU .tbtn{width:118px;height:118px;border-radius:50%;border:7px solid #f2c14e;background:radial-gradient(circle at 40% 28%,#ff6a7c,#e0162f 45%,#8f0a1d);color:#fff;font-weight:900;cursor:pointer;box-shadow:0 0 0 3px #9a6b00,0 8px 0 #6b0614,0 0 34px #ffd84acc;align-self:center;touch-action:manipulation;position:relative;-webkit-tap-highlight-color:transparent}
+  #tapU .tbtn::before{content:"";position:absolute;inset:-26px;border-radius:50%;z-index:-1;pointer-events:none;background:repeating-conic-gradient(#ffd84a 0 4deg,transparent 4deg 30deg);-webkit-mask:radial-gradient(circle,transparent 62%,#000 63%,#000 72%,transparent 73%);mask:radial-gradient(circle,transparent 62%,#000 63%,#000 72%,transparent 73%);animation:tuSinar 8s linear infinite}
+  @keyframes tuSinar{to{transform:rotate(360deg)}}
+  #tapU .tbtn:active,#tapU .tbtn.on{transform:translateY(5px);box-shadow:0 0 0 3px #9a6b00,0 3px 0 #6b0614,0 0 40px #ffd84a}
+  #tapU .tbtn .t1{display:block;font-size:31px;line-height:1;font-style:italic;text-shadow:0 3px 0 #7a0a18}#tapU .tbtn .t2{display:block;font-size:11px;margin-top:2px;font-style:italic}#tapU .tbtn .t3{display:block;font-size:25px;color:#ffe066;font-style:italic;text-shadow:0 3px 0 #7a0a18}
   #tapU .plus{position:absolute;left:50%;top:10px;color:#ffe066;font-weight:900;font-size:22px;text-shadow:0 2px 0 #7a0a18;pointer-events:none;animation:tuPlus .8s ease-out forwards}
   @keyframes tuPlus{to{transform:translate(-50%,-70px);opacity:0}}
-  #tapU .rk{list-style:none;margin:0;padding:0;max-height:156px;overflow:auto;font-size:11px}
-  #tapU .rk li{display:flex;gap:5px;align-items:center;padding:3px 4px;border-radius:7px;line-height:1.15}
-  #tapU .rk li.me{background:#f2c14e;color:#3b2600;font-weight:800}
-  #tapU .rk li .n{flex:none;width:18px;text-align:center;font-weight:800}#tapU .rk li .u{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}#tapU .rk li .u small{display:block;font-size:10px;font-weight:800;color:#f7d774}#tapU .rk li.me .u small{color:#3b2600}
-  #tapU .lnk{display:block;width:100%;margin-top:4px;background:none;border:1px solid #f2c14e;color:#f7d774;border-radius:8px;font:inherit;font-size:10px;font-weight:800;padding:4px;cursor:pointer}
-  #tapU .foot{margin:12px auto 0;max-width:300px;text-align:center;background:#1f2328;color:#fff;border:2px solid #f2c14e;border-radius:12px;padding:7px;font-weight:800;font-size:15px}
-  #tapU .foot b{color:#ffe066;font-style:italic}
+  #tapU .rk{list-style:none;margin:0;padding:0;max-height:172px;overflow:auto;font-size:11px}
+  #tapU .rk li{display:flex;gap:5px;align-items:center;padding:4px 4px;border-bottom:1px solid #ffffff22;line-height:1.15}
+  #tapU .rk li.me{background:#f2c14e;color:#3b2600;font-weight:800;border-radius:8px;border-bottom:0}
+  #tapU .rk li .n{flex:none;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px}
+  #tapU .rk li .n.m1{background:radial-gradient(circle at 35% 30%,#fff1a8,#f2c14e 60%,#b8860b);color:#5a3a00}#tapU .rk li .n.m2{background:radial-gradient(circle at 35% 30%,#fff,#c3cad3 60%,#7d8691);color:#2b2f36}#tapU .rk li .n.m3{background:radial-gradient(circle at 35% 30%,#ffd2a6,#cd7f32 60%,#7a4511);color:#3b1f00}
+  #tapU .rk li .u{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}#tapU .rk li .u small{display:block;font-size:11px;font-weight:800;color:#ffd84a}#tapU .rk li.me .u small{color:#3b2600}
+  #tapU .lnk{display:block;width:100%;margin-top:6px;background:#0b1426;border:2px solid #f2c14e;color:#fff;border-radius:12px;font:inherit;font-size:11px;font-weight:800;padding:5px;cursor:pointer}
+  #tapU .foot{display:flex;align-items:center;gap:8px;margin:12px 4px 0;text-align:center;background:linear-gradient(180deg,#1d2f52,#13213c);color:#fff;border:3px solid #f2c14e;border-radius:16px;padding:7px 10px;font-weight:700;font-size:11px;box-shadow:0 3px 0 #0005}
+  #tapU .foot .ii{flex:none;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff1a8,#f2c14e 60%,#b8860b);color:#1d1f24;font-weight:900;font-style:italic;font-family:Georgia,serif;display:flex;align-items:center;justify-content:center}
   #tapU .kols{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:12px 0 0}
-  #tapU .kol{background:#1f2328;color:#fff;border:2px solid #555b63;border-radius:12px;padding:6px 2px;text-align:center;line-height:1.15}
-  #tapU .kol b{display:block;font-size:15px;font-weight:900;color:#ffe066;font-style:italic}
-  #tapU .kol small{display:block;font-size:9px;font-weight:700;margin-top:2px;opacity:.9}
-  #tapU .kol.on{border-color:#f2c14e;background:linear-gradient(180deg,#e0162f,#8f0a1d);box-shadow:0 0 0 2px #f2c14e66;animation:misiGlow 1.6s ease-in-out infinite}
-  #tapU .kol.lock{opacity:.55;filter:grayscale(.7)}
-  #tapU .kol.done{opacity:.6}#tapU .kol.done b{color:#9aa3ad}
+  #tapU .kol{background:linear-gradient(180deg,#5a6470,#3e4650);color:#fff;border:3px solid #8a939d;border-radius:14px;padding:6px 2px;text-align:center;line-height:1.15;box-shadow:0 3px 0 #0005}
+  #tapU .kol b{display:block;font-size:16px;font-weight:900;color:#fff;font-style:italic}
+  #tapU .kol small{display:block;font-size:9.5px;font-weight:700;margin-top:2px;opacity:.95}
+  #tapU .kol.on{border-color:#f2c14e;background:linear-gradient(180deg,#e0162f,#8f0a1d);box-shadow:0 0 0 2px #f2c14e66,0 3px 0 #0005;animation:misiGlow 1.6s ease-in-out infinite}#tapU .kol.on b{color:#ffe066}
+  #tapU .kol.lock{opacity:.8}
+  #tapU .kol.done{opacity:.75}
   #tapU .msg{text-align:center;color:#fff;font-size:11px;min-height:15px;margin-top:6px;text-shadow:0 1px 2px #000}
-  #tapU .full{position:absolute;inset:0;background:#141820f5;border-radius:19px;padding:14px;color:#fff;overflow:auto}
+  #tapU .full{position:absolute;inset:0;z-index:5;background:#141820f5;border-radius:19px;padding:14px;color:#fff;overflow:auto}
   #tapU .full table{width:100%;border-collapse:collapse;font-size:13px}#tapU .full th{color:#f7d774;text-align:left;border-bottom:2px solid #f2c14e;padding:6px 4px}#tapU .full td{padding:6px 4px;border-bottom:1px solid #ffffff22}
   #tapU .full tr.me td{background:#f2c14e;color:#3b2600;font-weight:800}
-  @media (max-width:380px){ #tapU .bawah{grid-template-columns:1fr 112px 1fr} #tapU .tbtn{width:112px;height:112px} #tapU .tbtn .t1{font-size:25px} #tapU .tbtn .t3{font-size:20px} #tapU .hdr b{font-size:20px} }`; document.head.appendChild(st); })();
+  @media (max-width:390px){ #tapU .bawah{grid-template-columns:1fr 104px 1.05fr;gap:5px} #tapU .tbtn{width:104px;height:104px;border-width:6px} #tapU .tbtn .t1{font-size:26px} #tapU .tbtn .t2{font-size:9.5px} #tapU .tbtn .t3{font-size:21px} #tapU .rk{font-size:10px} #tapU .hdr b{font-size:22px} #tapU .hdr{padding:16px 26px 8px} #tapU .hdr span #tuKas{font-size:22px} #tapU .kol b{font-size:13px} #tapU .kol small{font-size:8.5px} }`; document.head.appendChild(st); })();
 function tapuSuara(){ try { const A = TAPU.ac || (TAPU.ac = new (window.AudioContext || window.webkitAudioContext)()); if (A.state === 'suspended') A.resume(); const t = A.currentTime;
     const o = A.createOscillator(), g = A.createGain(); o.type = 'square'; o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(55, t + .09);   // hentakan mesin cetak
     g.gain.setValueAtTime(.22, t); g.gain.exponentialRampToValueAtTime(.001, t + .11); o.connect(g).connect(A.destination); o.start(t); o.stop(t + .12);
@@ -4004,12 +4031,12 @@ function tapuRender(){ const o = TAPU.ov; if (!o) return; const q = s=>o.querySe
   const sm = tapuSim(), K = sm.k, bt = TAPK.batas[K];
   if (q('#tuKas')) q('#tuKas').textContent = N$(KAS + sm.kas);
   if (q('#tuSaldo')) q('#tuSaldo').textContent = N$((AKUN.data && AKUN.data.saldo || 0) + sm.ks);
-  const hh = sm.hj; if (q('#tuHari')) q('#tuHari').innerHTML = hh >= bt ? `Hari ini ${hh.toLocaleString('id-ID')} tap · <b style="color:#7ee08a;font-size:11px">${hh - bt} tap ke Kas Negara</b>` : `Hari ini ${hh}/${bt} ke saldo`;
+  const hh = sm.hj; if (q('#tuHari')) q('#tuHari').innerHTML = hh >= bt ? `Hari ini ${hh.toLocaleString('id-ID')} tap: <b style="color:#7ee08a">${(hh - bt).toLocaleString('id-ID')} tap ke Kas Negara</b>` : `Hari ini ${hh}/${bt} ke saldo`;
   if (q('#tuTap .t3')) q('#tuTap .t3').textContent = 'N$' + TAPK.nilai[K];
   if (q('.mesin .note:not(.fly)')) q('.mesin .note:not(.fly)').style.backgroundImage = `url(assets/${TAPK.img[K]})`;
   if (q('#tuKol')) q('#tuKol').innerHTML = TAPK.nilai.map((v, i)=>{ const st = i === K ? 'on' : i < K ? 'done' : 'lock';
     return `<div class="kol ${st}"><b>N$${v}</b><small>${st === 'lock' ? '🔒 ' + (TAPK.buka[i] + 1).toLocaleString('id-ID') + ' tap' : st === 'done' ? '✓ selesai' : hh + '/' + TAPK.batas[i]}</small><small>${TAPK.batas[i]}x/hari</small></div>`; }).join('');
-  const me = AKUN.u, li = live.slice(0, 10).map(r=>`<li class="${r.u === me ? 'me' : ''}"><span class="n">${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : r.rank}</span><span class="u">${esc(namaW(r.u))}<small>${Number(r.total).toLocaleString('id-ID')} tap</small></span></li>`);
+  const me = AKUN.u, li = live.slice(0, 10).map(r=>`<li class="${r.u === me ? 'me' : ''}"><span class="n${r.rank <= 3 ? ' m' + r.rank : ''}">${r.rank}</span><span class="u">${esc(namaW(r.u))}<small>${Number(r.total).toLocaleString('id-ID')} tap</small></span></li>`);
   if (me && TAPU.rank > 10 && TAPU.total != null) li.push(`<li class="me"><span class="n">${TAPU.rank}</span><span class="u">${esc(namaW(me))}<small>${Number(TAPU.total + TAPU.pending).toLocaleString('id-ID')} tap</small></span></li>`);
   if (q('#tuRk')) q('#tuRk').innerHTML = li.join('') || '<li><span class="u" style="opacity:.75">Belum ada yang tap. Jadilah yang pertama!</span></li>'; }
 async function tapuPeringkat(){ try { const r = await SB.rpc('tap_peringkat', {p_user: AKUN.u || null, p_limit: 100}); if (!r) return;
@@ -4041,21 +4068,22 @@ function pabrikUangBuka(){
   const masuk = !!(AKUN.u && AKUN.s);
   ov.innerHTML = `<div class="tu">
     <button class="rbtn" data-tu-help style="left:10px;background:#f7d774;color:#3b2600">?</button><button class="rbtn" data-tu-x style="right:10px;background:#e0162f;color:#fff">✕</button>
-    <div class="hdr"><div style="font-size:14px">🪙🪙🪙</div><b>PABRIK UANG<br>NUSAWARA</b><span>🏛️ Saldo Kas Negara: <b id="tuKas">${N$(KAS)}</b></span></div>
+    <span class="dek pilar" style="left:-6px"></span><span class="dek pilar" style="right:-6px"></span><span class="dek panji" style="left:14px">🏛️</span><span class="dek panji" style="right:14px">🏛️</span><span class="dek tanaman" style="left:-4px">🪴</span><span class="dek tanaman" style="right:-4px">🪴</span>
+    <div class="hdr"><div class="koin3"><i></i><i></i><i></i></div><em class="gir" style="left:4px">⚙️</em><em class="gir" style="right:4px">⚙️</em><em class="daun" style="left:6px">🌿</em><em class="daun" style="right:6px;transform:scaleX(-1)">🌿</em><b>PABRIK UANG<br>NUSAWARA</b><span>🏛️ Saldo Kas Negara:<b id="tuKas">${N$(KAS)}</b></span></div>
     <div class="bar"><div class="chip"><i>👤</i><div style="min-width:0"><small>Warga Nusawara</small><b>${masuk ? esc(namaW(AKUN.u)) : 'Belum masuk'}</b></div></div>
       <div class="chip"><span class="coin">N$</span><div style="min-width:0"><small>Saldo Kamu</small><b id="tuSaldo">${masuk ? N$(AKUN.data && AKUN.data.saldo) : '–'}</b></div></div></div>
-    <div class="mesin"><div class="plat">MESIN<br>PENCETAK UANG<br>NUSAWARA</div><span class="coin bigc">N$</span>
-      <span class="lampu" style="left:30%"></span><span class="lampu" style="right:30%"></span>
-      <span class="robot" style="left:4px">🦾</span><span class="robot" style="right:4px;transform:scaleX(-1)">🦾</span>
-      <span class="stack" style="left:8px">💴💴</span><span class="stack" style="right:8px">💴💴</span><div class="belt"></div><div class="note" style="bottom:14px;transform:scale(1.05)"></div></div>
+    <div class="mesin"><span class="lampu" style="left:20%"></span><span class="lampu" style="right:20%"></span><div class="plat">MESIN<br>PENCETAK UANG<br>NUSAWARA</div>
+      <div class="kap"></div><span class="tiang" style="left:34%"></span><span class="tiang" style="right:34%"></span><span class="coin bigc">N$</span>
+      <span class="robot" style="left:2px">🦾</span><span class="robot" style="right:2px;transform:scaleX(-1)">🦾</span>
+      <span class="stack" style="left:6px">💵💵💵</span><span class="stack" style="right:6px">💵💵💵</span><div class="belt"></div><div class="note" style="bottom:30px"></div><div class="bahaya"></div></div>
     <div class="bawah">
-      <div class="pan"><div class="val"><span class="coin" style="width:20px;height:20px;font-size:7px;border-width:1.5px">N$</span><b id="tuSesi" style="font-size:12px">N$0</b></div><small id="tuHari" style="display:block;text-align:center;font-size:10px;margin:-2px 0 6px;opacity:.9"></small>
-        <h4>Total Tap · Rank</h4><div class="val" style="flex-direction:column;align-items:stretch;gap:2px"><b id="tuTot" style="text-align:center">…</b><span style="text-align:center;font-size:12px">Rank <b id="tuRank" style="font-size:14px">–</b></span></div></div>
+      <div class="pan"><div class="val"><span class="coin" style="width:26px;height:26px;font-size:8px">N$</span><b id="tuSesi">N$0</b></div><small id="tuHari" style="display:block;text-align:center;font-size:11px;font-weight:700;margin:0 0 8px;line-height:1.3"></small>
+        <div class="tot"><h4>Total Tap · Rank</h4><div class="lr"><i>🌿</i><div><b id="tuTot">…</b><span style="font-size:13px;font-weight:800">Rank <b id="tuRank" style="font-size:16px;color:#ffd84a">–</b></span></div><i style="transform:scaleX(-1)">🌿</i></div></div></div>
       <button class="tbtn" id="tuTap" ${masuk ? '' : 'disabled style="filter:grayscale(.6)"'}><span class="t1">TAP</span><span class="t2">CETAK UANG</span><span class="t3">N$1</span></button>
       <div class="pan"><h4>🏆 Ranking Tap</h4><ul class="rk" id="tuRk"><li><span class="u" style="opacity:.7">Memuat…</span></li></ul><button class="lnk" data-tu-full>Lihat semua</button></div>
     </div>
     <div class="msg">${masuk ? '' : '🔑 Masuk sebagai warga dulu untuk mencetak uang. <button class="lnk" style="display:inline;width:auto;margin:0 0 0 4px" data-tu-masuk>Masuk</button>'}</div>
-    <div class="kols" id="tuKol"></div><div class="foot" style="font-size:11px;font-weight:600;padding:5px 7px">Kolom baru terbuka sesuai total tap · lewat batas harian, uang masuk Kas Negara</div></div>`;
+    <div class="kols" id="tuKol"></div><div class="foot"><span class="ii">i</span><span style="flex:1">Kolom baru terbuka sesuai total tap · lewat batas harian, uang masuk Kas Negara</span></div></div>`;
   document.body.appendChild(ov);
   const btn = ov.querySelector('#tuTap');
   btn.addEventListener('pointerdown', e=>{ e.preventDefault(); if (!masuk) return; const kini = performance.now(); if (kini - (TAPU.last || 0) < 400) return; TAPU.last = kini; tapuSuara(); btn.classList.add('on'); const sm0 = tapuSim(), nv = TAPK.nilai[sm0.k], don = sm0.hj >= TAPK.batas[sm0.k]; setTimeout(()=>btn.classList.remove('on'), 90);
@@ -7045,6 +7073,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 01:40</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 01:55</div>
 </body>
 </html>
