@@ -4560,7 +4560,7 @@ sheetBody.addEventListener('click', e=>{ const t = e.target.closest('button'); i
   if (t.dataset.misipergi){ pergiKe(t.dataset.misipergi); return; }
   if (t.hasAttribute('data-tuto')){ closeSheet(); setTimeout(tutoMulai, 250); } });
 document.getElementById('caraBtn').addEventListener('click', ()=>{ const f = ()=>caraMainHTML(); f.eko = 1; openSheet(f); });
-setInterval(()=>{ try { if (AKUN.u && AKUN.data && !TUTO && !sheet.classList.contains('open') && !localStorage.getItem('nusawara_tuto_' + AKUN.u)) tutoMulai(); } catch(_) {} }, 2500);
+// tutorial pemula dihapus (18 Nov 2026): tidak lagi muncul otomatis saat login
 
 /* ---------- KAWASAN INDUSTRI: tambang, pabrik, Pasar Republik Nusawara (PRN) ---------- */
 // Letak: utara Pelabuhan Nusawara (sisi barat). Semua papan nama menghadap +z, searah podium.
@@ -5441,7 +5441,7 @@ function caraMainHTML(){ return `<div class="kicker">Panduan Warga</div><h2>📖
   <div class="card"><h3>7. Donasi untuk Negara</h3><p>Donasikan bahan atau N$ di Papan Donasi (sebelah barat podium). Setiap bahan dihitung poin, N$1 = 1 poin. Donatur terbanyak diangkat jadi Wakil Presiden, juara 2 dan 3 jadi Penasihat Negara, dicek tiap hari Senin. Uang donasi masuk Kas Negara.</p></div>
   <div class="card"><h3>8. Aturan penting</h3><p>Satu orang satu akun. Jangan berikan Kata Sandi Warga ke siapa pun. Semua uang, tanah, dan bangunan di Nusawara bersifat virtual.</p></div>
   <button class="btn" data-klaim>📅 Sekarang klaim N$ harianmu!</button>
-  <button class="btn ghost" data-tuto>🎓 Ulangi tutorial langkah demi langkah</button>`; }
+`; }
 let KES = null;
 function kesehatanHTML(){ const k = KES; let h = `<div class="kicker">Profil Kesehatan</div><h2>❤️ Kesehatan</h2>${AKUN.data ? `<div class="card">${hudHTML(AKUN.data).split('<div class="r"><span>⚡')[0]}</div>` : ''}`;
   if (!k) return h + '<p class="note">Memuat…</p>';
