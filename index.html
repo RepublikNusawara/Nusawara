@@ -131,6 +131,16 @@ if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.s
   #cawapres.mini{width:auto!important;padding:5px 44px 5px 12px;border-radius:22px}#cawapres.mini h4{margin:0;font-size:14px;white-space:nowrap}#cawapres.mini h4 br{display:none}
   #cawapres.mini .cr,#cawapres.mini .ft{display:none}#cawapres.mini .cwx{top:50%;transform:translateY(-50%);right:5px}
   body.sheet-open #cawapres{display:none!important}
+  #onl{position:fixed;left:10px;z-index:5;width:240px;max-width:calc(100vw - 20px);box-sizing:border-box;background:linear-gradient(180deg,#1f5f3a,#163d26);color:#fff;border:2px solid #f2c14e;border-radius:14px;padding:8px 9px;box-shadow:0 6px 16px rgba(0,0,0,.3);display:none}
+  #onl h4{margin:0 0 6px;font-size:18px;font-weight:900;color:#ffe066;text-align:center;line-height:1.2}
+  #onl .ol{max-height:132px;overflow:auto}
+  #onl .cr{display:flex;align-items:center;gap:6px;background:#ffffff14;border-radius:9px;padding:4px 7px;margin-top:4px;font-size:12px;cursor:pointer}
+  #onl .cr.me{background:#f2c14e;color:#3b2600}#onl .cr .n{width:12px;height:12px;border-radius:50%;background:#3ee06b;box-shadow:0 0 6px #3ee06b;flex:none}
+  #onl .cr .u{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800}#onl .cr .u small{display:block;font-size:9.5px;font-weight:700;opacity:.85}
+  #onl .ft{font-size:9.5px;opacity:.75;text-align:center;margin-top:5px}
+  #onl .cwx{position:absolute;top:6px;right:7px;width:30px;height:30px;border-radius:50%;border:0;background:#ffffff26;color:#ffe066;font:900 18px/1 system-ui,sans-serif;cursor:pointer;padding:0}
+  #onl.mini{width:auto!important;padding:5px 44px 5px 12px;border-radius:22px}#onl.mini h4{margin:0;font-size:14px;white-space:nowrap}#onl.mini .ol,#onl.mini .ft{display:none}#onl.mini .cwx{top:50%;transform:translateY(-50%);right:5px}
+  body.sheet-open #onl{display:none!important}
   /* panduan pemula */
   #misiChip{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 118px);z-index:5;width:68px;height:68px;border-radius:50%;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0;cursor:pointer;
     font:inherit;font-weight:900;font-size:11px;line-height:1;color:#5a3b00;background:radial-gradient(circle at 35% 30%,#fff3b0,#f7c948 55%,#d99a1c);border:3px solid #fff;box-shadow:0 5px 14px rgba(0,0,0,.25);animation:tapNaik 1.4s ease-in-out infinite;touch-action:manipulation}
@@ -225,7 +235,7 @@ if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.s
   body.shot .shotbar{display:flex}
   body.shot.shot-clean .shotbar{display:none}
   body.shot .daftarbar,
-  body.shot #cawapres,
+  body.shot #cawapres, body.shot #onl,
   body.shot .top, body.shot .search, body.shot .actions, body.shot .play-ui, body.shot .near,
   body.shot .hint, body.shot .sheet, body.shot .toast, body.shot .bubble{display:none}
   .shotbar button{font:inherit;font-size:13px;font-weight:700;border-radius:10px;padding:9px 11px;cursor:pointer;
@@ -3776,7 +3786,7 @@ window.nusawaraChatKirim = async ({k, u, t}) => {
   // realtime (langsung muncul di semua HP)
   const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
   s.onload = ()=>{ try {
-    const cli = window.supabase.createClient(SB_URL, SB_KEY);
+    const cli = window.supabase.createClient(SB_URL, SB_KEY); window.SBCLI = cli; setTimeout(onlMulai, 500);
     cli.channel('nusawara').on('postgres_changes', {event:'INSERT', schema:'public', table:'obrolan'}, p=>sbTerimaObrolan(p.new))
       .on('postgres_changes', {event:'*', schema:'public', table:'gaya'}, p=>sbApplyGaya([p.new]))
       .on('postgres_changes', {event:'INSERT', schema:'public', table:'warga'}, p=>sbApplyWarga([p.new]))
@@ -5268,12 +5278,37 @@ function cawapresGambar(){ let el = document.getElementById('cawapres');
   el.innerHTML = `<button class="cwx" aria-label="${mini ? 'Buka' : 'Perkecil'}">${mini ? '＋' : '—'}</button><h4>🗳️ Calon Wakil Presiden<br>Minggu Depan</h4>${top.length ? top.map((r, i)=>`<div class="cr${i === 0 ? ' w' : ''}"><span class="n">${i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}</span><span class="u">${esc(namaW(r.username))}<small>${i < 3 ? per[i] + ' ' + ket[i] : 'Peringkat donasi'}</small></span><span class="p">${Number(r.poin).toLocaleString('id-ID')} poin</span></div>`).join('') : '<div class="ft" style="font-size:11px">Belum ada donasi. Ayo jadi yang pertama!</div>'}
     <div class="ft">Rank donasi · ditetapkan setiap Senin · ketuk untuk Papan Donasi</div>`;
   const bt = el.querySelector('.cwx'); if (bt) bt.addEventListener('click', ev=>{ ev.stopPropagation(); let m = false; try { m = localStorage.getItem('nusawara.cawapres.min') === '1'; localStorage.setItem('nusawara.cawapres.min', m ? '0' : '1'); } catch(_) { m = el.classList.contains('mini'); }
-    el.classList.toggle('mini', !m); bt.textContent = m ? '—' : '＋'; bt.setAttribute('aria-label', m ? 'Perkecil' : 'Buka'); cawapresPosisi(); });
+    el.classList.toggle('mini', !m); bt.textContent = m ? '—' : '＋'; bt.setAttribute('aria-label', m ? 'Perkecil' : 'Buka'); cawapresPosisi(); try { onlPosisi(); } catch(_) {} });
   cawapresPosisi(); el.style.display = 'block'; }
+/* ---------- WARGA ONLINE: siapa yang sedang aktif di peta (Supabase Realtime Presence) ---------- */
+const ONL = {ch:null, key:null, list:[], tamu:0};
+function onlKey(){ let id = ''; try { id = sessionStorage.getItem('nusawara.onl') || ''; if (!id){ id = 'tamu-' + Math.random().toString(36).slice(2, 10); sessionStorage.setItem('nusawara.onl', id); } } catch(_) { id = 'tamu-' + Math.random().toString(36).slice(2, 10); } return id; }
+function onlMulai(){ if (!window.SBCLI) return; const k = (AKUN && AKUN.u) ? AKUN.u : onlKey(); if (ONL.ch && ONL.key === k) return;
+  try { if (ONL.ch) window.SBCLI.removeChannel(ONL.ch); } catch(_) {}
+  ONL.key = k; const ch = window.SBCLI.channel('nusawara-online', {config:{presence:{key: k}}}); ONL.ch = ch;
+  ch.on('presence', {event:'sync'}, ()=>{ const st = ch.presenceState(), w = [], seen = {}; let tamu = 0;
+      Object.keys(st).forEach(x=>{ if (/^tamu-/.test(x)) tamu++; else if (!seen[x]){ seen[x] = 1; w.push(x); } });
+      ONL.list = w; ONL.tamu = tamu; onlGambar(); })
+    .subscribe(s=>{ if (s === 'SUBSCRIBED') ch.track({at: Date.now()}); }); }
+setInterval(()=>{ try { onlMulai(); } catch(_) {} }, 5000);
+function onlGambar(){ let el = document.getElementById('onl');
+  if (!el){ el = document.createElement('div'); el.id = 'onl'; document.body.appendChild(el);
+    el.addEventListener('click', ev=>{ const bt = ev.target.closest('.cwx'); if (bt){ ev.stopPropagation(); const m = !el.classList.contains('mini'); try { localStorage.setItem('nusawara.onl.min', m ? '1' : '0'); } catch(_) {} onlGambar(); return; }
+      const r = ev.target.closest('[data-onl]'); if (r){ try { startFollow(r.getAttribute('data-onl')); } catch(_) {} } }); }
+  let mini = false; try { mini = localStorage.getItem('nusawara.onl.min') === '1'; } catch(_) {}
+  el.classList.toggle('mini', mini);
+  const me = AKUN && AKUN.u, L = ONL.list.slice().sort((a, b)=>(b === me) - (a === me) || String(namaW(a)).localeCompare(String(namaW(b)))), n = L.length;
+  el.innerHTML = `<button class="cwx" aria-label="${mini ? 'Buka' : 'Perkecil'}">${mini ? '＋' : '—'}</button><h4>🟢 Warga Online · ${n}</h4>
+    <div class="ol">${n ? L.map(u=>`<div class="cr${u === me ? ' me' : ''}" data-onl="${esc(u)}"><span class="n"></span><span class="u">${esc(namaW(u))}${u === me ? ' (kamu)' : ''}<small>${esc(pjTeks(u))}</small></span></div>`).join('') : '<div class="cr" style="cursor:default"><span class="u" style="opacity:.8">Belum ada warga yang masuk.</span></div>'}</div>
+    <div class="ft">${ONL.tamu ? ONL.tamu + ' pengunjung tanpa akun · ' : ''}ketuk nama untuk melihat karakternya</div>`;
+  onlPosisi(); el.style.display = 'block'; }
+function onlPosisi(){ const el = document.getElementById('onl'); if (!el) return; const c = document.getElementById('cawapres');
+  if (c && c.style.display !== 'none' && c.offsetHeight){ const r = c.getBoundingClientRect(); el.style.top = Math.round(r.bottom + 8) + 'px'; if (!el.classList.contains('mini')) el.style.width = c.classList.contains('mini') ? '' : c.style.width; else el.style.width = ''; }
+  else { const q = document.getElementById('search'); if (q) el.style.top = Math.round(q.getBoundingClientRect().bottom + 8) + 'px'; } }
 function cawapresPosisi(){ const el = document.getElementById('cawapres'), q = document.getElementById('search'), b = document.querySelector('.top .brand'); if (!el || !q) return;
   const r = q.getBoundingClientRect(); el.style.top = Math.round(r.bottom + 8) + 'px';
   if (el.classList.contains('mini')) el.style.width = ''; else if (b && b.offsetWidth) el.style.width = Math.min(innerWidth - 20, Math.max(220, b.offsetWidth * 2)) + 'px'; }
-addEventListener('resize', ()=>{ try { cawapresPosisi(); } catch(_) {} }); setInterval(()=>{ try { cawapresPosisi(); } catch(_) {} }, 2000);
+addEventListener('resize', ()=>{ try { cawapresPosisi(); onlPosisi(); } catch(_) {} }); setInterval(()=>{ try { cawapresPosisi(); onlPosisi(); } catch(_) {} }, 2000);
 function donGambar(){ try { cawapresGambar(); } catch(_) {}
   donMat.map = canvasTex(1024, 512, (c,W,H)=>{ c.fillStyle = '#1f3a5f'; c.fillRect(0,0,W,H); c.fillStyle = '#f2b134'; c.fillRect(0,0,W,70);
     c.fillStyle = '#1f3a5f'; c.font = `800 40px ${FONT}`; c.textAlign = 'center'; c.fillText('KONTRIBUSI UNTUK NEGARA · PERINGKAT DONASI', W/2, 48);
@@ -5987,7 +6022,7 @@ const istCss = document.createElement('style'); istCss.textContent = `
   #istBar button{border:2px solid #f2c14e;border-radius:14px;padding:10px 14px;font:inherit;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3)}
   #istJelajah{background:linear-gradient(180deg,#e0162f,#8f0a1d);color:#ffe066}#istKeluar{background:rgba(255,253,248,.95);color:#1f3a5f}
   body.istana #istBar{display:flex}body.istana.ctl #istJelajah{display:none}
-  body.istana .top,body.istana .search,body.istana #cawapres,body.istana #misiChip,body.istana .actions,body.istana .hud,body.istana #expbar,body.istana .near{display:none!important}
+  body.istana .top,body.istana .search,body.istana #cawapres,body.istana #onl,body.istana #misiChip,body.istana .actions,body.istana .hud,body.istana #expbar,body.istana .near{display:none!important}
   body.istana .gtop{top:calc(env(safe-area-inset-top,0px) + 112px)}`;
 document.head.appendChild(istCss);
 function istanaLabelWapres(){
@@ -7073,6 +7108,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 01:55</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 02:10</div>
 </body>
 </html>
