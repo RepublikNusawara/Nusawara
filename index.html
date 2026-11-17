@@ -131,15 +131,17 @@ if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.s
   #cawapres.mini{width:auto!important;padding:5px 44px 5px 12px;border-radius:22px}#cawapres.mini h4{margin:0;font-size:14px;white-space:nowrap}#cawapres.mini h4 br{display:none}
   #cawapres.mini .cr,#cawapres.mini .ft{display:none}#cawapres.mini .cwx{top:50%;transform:translateY(-50%);right:5px}
   body.sheet-open #cawapres{display:none!important}
-  #onl{position:fixed;left:10px;z-index:5;width:240px;max-width:calc(100vw - 20px);box-sizing:border-box;background:linear-gradient(180deg,#1f3a5f,#16263d);color:#fff;border:2px solid #f2c14e;border-radius:14px;padding:8px 9px;box-shadow:0 6px 18px rgba(0,0,0,.25);display:none}
+  #onl{display:none;position:fixed;left:10px;z-index:5;width:240px;max-width:calc(100vw - 20px);box-sizing:border-box;background:linear-gradient(180deg,#1f3a5f,#16263d);color:#fff;border:2px solid #f2c14e;border-radius:14px;padding:8px 9px;box-shadow:0 6px 18px rgba(0,0,0,.25);font-family:inherit;cursor:pointer;display:none;transform:scale(.75);transform-origin:top left}
   #onl h4{margin:0 0 6px;font-size:18px;font-weight:900;color:#ffe066;text-align:center;line-height:1.2}
-  #onl .ol{max-height:132px;overflow:auto}
-  #onl .cr{display:flex;align-items:center;gap:6px;background:#ffffff14;border-radius:9px;padding:4px 7px;margin-top:4px;font-size:12px;cursor:pointer}#onl .cr .p{font-weight:900;font-size:11.5px;white-space:nowrap}
-  #onl .cr.me{background:#f2c14e;color:#3b2600}#onl .cr .n{width:12px;height:12px;border-radius:50%;background:#3ee06b;box-shadow:0 0 6px #3ee06b;flex:none}
+  #onl .cr{display:flex;align-items:center;gap:6px;background:#ffffff14;border-radius:9px;padding:4px 7px;margin-top:4px;font-size:12px}
+  #onl .cr.w{background:#f2c14e;color:#3b2600}#onl .cr .n{width:22px;text-align:center;font-size:15px;flex:none}
   #onl .cr .u{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800}#onl .cr .u small{display:block;font-size:9.5px;font-weight:700;opacity:.85}
+  #onl .cr .p{font-weight:900;font-size:11.5px;white-space:nowrap}
   #onl .ft{font-size:9.5px;opacity:.75;text-align:center;margin-top:5px}
-  #onl .cwx{position:absolute;top:6px;right:7px;width:30px;height:30px;border-radius:50%;border:0;background:#ffffff26;color:#ffe066;font:900 18px/1 system-ui,sans-serif;cursor:pointer;padding:0}
-  #onl.mini{width:auto!important;padding:5px 44px 5px 12px;border-radius:22px}#onl.mini h4{margin:0;font-size:14px;white-space:nowrap}#onl.mini h4 br{display:none}#onl.mini .ol,#onl.mini .ft{display:none}#onl.mini .cwx{top:50%;transform:translateY(-50%);right:5px}
+  #onl{position:fixed}#onl .cwx{position:absolute;top:6px;right:7px;width:30px;height:30px;border-radius:50%;border:0;background:#ffffff26;color:#ffe066;font:900 18px/1 system-ui,sans-serif;cursor:pointer;padding:0}
+  #onl.mini{width:auto!important;padding:5px 44px 5px 12px;border-radius:22px}#onl.mini h4{margin:0;font-size:14px;white-space:nowrap}#onl.mini h4 br{display:none}
+  #onl.mini .cr,#onl.mini .ft{display:none}#onl.mini .cwx{top:50%;transform:translateY(-50%);right:5px}
+  #onl .cr{cursor:pointer}#onl .ol{max-height:171px;overflow:auto}#onl.mini .ol{display:none}#onl .cr .dot{width:10px;height:10px;border-radius:50%;background:#3ee06b;box-shadow:0 0 6px #3ee06b;display:inline-block}
   body.sheet-open #onl{display:none!important}
   /* panduan pemula */
   #misiChip{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 118px);z-index:5;width:68px;height:68px;border-radius:50%;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0;cursor:pointer;
@@ -5310,12 +5312,12 @@ function onlGambar(){ let el = document.getElementById('onl');
   let mini = false; try { mini = localStorage.getItem('nusawara.onl.min') === '1'; } catch(_) {}
   el.classList.toggle('mini', mini);
   const me = AKUN && AKUN.u, L = ONL.list.slice().sort((a, b)=>(b === me) - (a === me) || String(namaW(a)).localeCompare(String(namaW(b)))), n = L.length;
-  el.innerHTML = `<button class="cwx" aria-label="${mini ? 'Buka' : 'Perkecil'}">${mini ? '＋' : '—'}</button><h4>🟢 Warga Online<br>Sedang di Peta · ${n}</h4>
-    <div class="ol">${n ? L.map(u=>`<div class="cr${u === me ? ' me' : ''}" data-onl="${esc(u)}"><span class="n"></span><span class="u">${esc(namaW(u))}${u === me ? ' (kamu)' : ''}<small>${esc(pjTeks(u))}</small></span></div>`).join('') : '<div class="cr" style="cursor:default"><span class="u" style="opacity:.8">Belum ada warga yang masuk.</span></div>'}</div>
-    <div class="ft">${ONL.tamu ? ONL.tamu + ' pengunjung tanpa akun · ' : ''}ketuk nama untuk melihat Kartu Warga</div>`;
+  el.innerHTML = `<button class="cwx" aria-label="${mini ? 'Buka' : 'Perkecil'}">${mini ? '＋' : '—'}</button><h4>Warga Online</h4>
+    <div class="ol">${n ? L.map(u=>`<div class="cr${u === me ? ' w' : ''}" data-onl="${esc(u)}"><span class="n"><span class="dot"></span></span><span class="u">${esc(namaW(u))}${u === me ? ' (kamu)' : ''}<small>${esc(pjTeks(u))}</small></span></div>`).join('') : '<div class="cr" style="cursor:default"><span class="u" style="opacity:.8">Belum ada warga yang masuk.</span></div>'}</div>
+    <div class="ft">${n} warga online${ONL.tamu ? ' · ' + ONL.tamu + ' pengunjung' : ''} · ketuk nama untuk Kartu Warga</div>`;
   onlPosisi(); el.style.display = 'block'; }
 function onlPosisi(){ const el = document.getElementById('onl'); if (!el) return; const c = document.getElementById('cawapres');
-  if (c && c.style.display !== 'none' && c.offsetHeight){ const r = c.getBoundingClientRect(); el.style.top = Math.round(r.bottom + 8) + 'px'; if (!el.classList.contains('mini')) el.style.width = c.classList.contains('mini') ? '' : c.style.width; else el.style.width = ''; }
+  if (c && c.style.display !== 'none' && c.offsetHeight){ const r = c.getBoundingClientRect(); el.style.top = Math.round(r.bottom + 8) + 'px'; const b = document.querySelector('.top .brand'); if (el.classList.contains('mini')) el.style.width = ''; else el.style.width = Math.min(innerWidth - 20, Math.max(220, b && b.offsetWidth ? b.offsetWidth * 2 : 240)) + 'px'; }
   else { const q = document.getElementById('search'); if (q) el.style.top = Math.round(q.getBoundingClientRect().bottom + 8) + 'px'; } }
 function cawapresPosisi(){ const el = document.getElementById('cawapres'), q = document.getElementById('search'), b = document.querySelector('.top .brand'); if (!el || !q) return;
   const r = q.getBoundingClientRect(); el.style.top = Math.round(r.bottom + 8) + 'px';
@@ -7120,6 +7122,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 02:25</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 02:30</div>
 </body>
 </html>
