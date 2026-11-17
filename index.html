@@ -1729,7 +1729,7 @@ function blocked(x,z,bebas){
   return COLL.some(c => Math.abs(x-c[0]) < c[2]+R && Math.abs(z-c[1]) < c[3]+R);
 }
 function groundY(x,z){
-  const IS = window.ISTANA_ST; if (IS && Math.abs(x - IS.x) < IS.w + 2 && z > IS.z0 - 1 && z < IS.sz1){ if (z < IS.z1 && Math.abs(x - IS.x) < IS.w) return IS.y; if (z >= IS.z1) return IS.sy; }
+  const IS = window.ISTANA_ST; if (IS && Math.abs(x - IS.x) < IS.w + 2 && z > IS.z0 - 1 && z < IS.sz1){ return z < IS.z1 && Math.abs(x - IS.x) < IS.w ? IS.y : IS.sy; }
   if (Math.abs(x-18) < 5.5 && Math.abs(z+6) < 3.25) return 1.5 + PY;
   if (Math.hypot(x-18,z) < 15.4) return .26 + PY;
   const k = kotaGround(x, z); if (k !== null) return k;
@@ -5829,29 +5829,63 @@ const ISTG = new THREE.Group(); ISTG.position.set(IST.x, 0, IST.z); scene.add(IS
     m4.makeTranslation(x, 2.35, z + .9); bk.setMatrixAt(i, m4); m4.makeTranslation(x, .6, z); kk.setMatrixAt(i, m4); });
   [dud, snd, bk, kk].forEach(o=>ISTG.add(o));
   // tanaman pot
-  const pot = (x, z, s)=>{ const gp = new THREE.Group(); gp.position.set(x, 0, z); gp.scale.setScalar(s || 1); ISTG.add(gp);
+  const pot = (x, z, s, y)=>{ const gp = new THREE.Group(); gp.position.set(x, y || 0, z); gp.scale.setScalar(s || 1); ISTG.add(gp);
     const pt = new THREE.Mesh(new THREE.CylinderGeometry(.9, .7, 1.4, 14), WHITE); pt.position.y = .7; gp.add(pt); ib(1.9, .18, 1.9, GOLD, 0, 1.4, 0, gp);
     const dm = mat(0x3f9a3a); for (let i=0;i<9;i++){ const a = i/9*Math.PI*2, d = new THREE.Mesh(new THREE.ConeGeometry(.35, 2.6, 5), dm); d.position.set(Math.cos(a)*.6, 2.6, Math.sin(a)*.6); d.rotation.set(Math.sin(a)*.7, 0, -Math.cos(a)*.7); gp.add(d); } };
-  pot(-24, S - 4, 1.2); pot(24, S - 4, 1.2); pot(-14, N + 13, 1); pot(14, N + 13, 1); pot(-24, N + 18); pot(24, N + 18);
-  // panggung: undakan merah, meja, singgasana, latar, tirai, bendera
-  const st = window.ISTANA_ST;
-  ib(st.w*2 + 4, .6, 2, RED2, 0, .3, st.z1 - IST.z + 1); ib(st.w*2 + 4, .12, .15, GOLD, 0, .62, st.z1 - IST.z + 1.95);
-  ib(st.w*2, 1.2, 14, RED, 0, .6, N + 7); ib(st.w*2, .14, .2, GOLD, 0, 1.22, N + 13.95);
-  ib(7.5, .62, 2.2, RED, 0, .31, st.z1 - IST.z + 1);
-  const meja = new THREE.Group(); meja.position.set(0, 1.2, N + 9.5); ISTG.add(meja);
-  ib(15, .35, 3, mat(0x7a3b1c), 0, 2.2, 0, meja); ib(14.4, 2, 2.6, mat(0x5a2a12), 0, 1, 0, meja);
-  for (const x of [-6.8, -2.2, 2.2, 6.8]) ib(.6, 2, .2, GOLD, x, 1, 1.32, meja);
-  const ml = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 2.4), new THREE.MeshLambertMaterial({map:lk, transparent:true})); ml.position.set(0, 1.1, 1.33); meja.add(ml);
-  const papan = t => canvasTex(512, 96, (g,w,h)=>{ g.fillStyle = '#1d2f6b'; g.fillRect(0,0,w,h); g.strokeStyle = '#f2c94c'; g.lineWidth = 8; g.strokeRect(4,4,w-8,h-8); g.fillStyle = '#fff'; g.font = '900 46px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(t, w/2, h/2 + 2); });
-  [['PRESIDEN', -4.5], ['WAKIL PRESIDEN', 4.5]].forEach(([t, x])=>{ const p = new THREE.Mesh(new THREE.BoxGeometry(4.2, .8, .3), [GOLD, GOLD, GOLD, GOLD, new THREE.MeshBasicMaterial({map:papan(t)}), GOLD]); p.position.set(x, 2.8, .6); p.rotation.x = -.25; meja.add(p);
-    const mk = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, 1.4, 6), mat(0x333333)); mk.position.set(x + 1.6, 3.0, .2); mk.rotation.x = -.5; meja.add(mk); });
-  const tahta = x => { const t = new THREE.Group(); t.position.set(x, 1.2, N + 5.2); ISTG.add(t);
-    ib(3.6, .9, 3, RED, 0, 1.4, 0, t); ib(3.9, .5, 3.2, GOLD, 0, .75, 0, t); ib(3.4, 4.6, .6, RED, 0, 3.9, -1.3, t); ib(3.9, 5, .3, GOLD, 0, 3.9, -1.65, t);
-    for (const s of [-1, 1]){ ib(.6, 1.2, 3, GOLD, s*1.95, 2.3, 0, t); ib(.5, .5, .5, GOLD, s*1.95, .25, 1.2, t); ib(.5, .5, .5, GOLD, s*1.95, .25, -1.2, t); }
-    const mh = new THREE.Mesh(new THREE.ConeGeometry(1.1, 1.3, 6), GOLD2); mh.position.set(0, 7, -1.6); t.add(mh);
-    const lb = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), new THREE.MeshLambertMaterial({map:lk, transparent:true})); lb.position.set(0, 6.1, -1.25); t.add(lb);
-    const lbB = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshLambertMaterial({map:lk, transparent:true})); lbB.rotation.y = Math.PI; lbB.position.set(0, 4.8, -1.82); t.add(lbB);
-    const pB = new THREE.Mesh(new THREE.PlaneGeometry(3, .6), new THREE.MeshBasicMaterial({map:papan(x < 0 ? 'PRESIDEN' : 'WAKIL PRESIDEN')})); pB.rotation.y = Math.PI; pB.position.set(0, 3.2, -1.82); t.add(pB); };
+  pot(-24, S - 4, 1.2); pot(24, S - 4, 1.2); pot(-24, N + 18); pot(24, N + 18);
+  // panggung (dibuat mengikuti gambar referensi): undakan merah bertingkat bergaris emas, meja kayu berpilar emas, singgasana berumbai, latar biru berlengkung emas, tirai, bendera, tanaman
+  const st = window.ISTANA_ST, zf = st.z1 - IST.z;                        // zf = tepi depan panggung atas (lokal)
+  ib(st.w*2, 1.2, 14, RED, 0, .6, N + 7);                                   // panggung atas
+  ib(st.w*2 + .3, .18, .3, GOLD2, 0, 1.2, zf); for (const s of [-1, 1]) ib(.3, .18, 14, GOLD2, s*st.w, 1.2, N + 7);
+  ib(st.w*2 + 4, .6, 2.2, RED, 0, .3, zf + 1.1);                            // undakan bawah
+  ib(st.w*2 + 4.3, .14, .3, GOLD2, 0, .62, zf + 2.2); ib(st.w*2 + 4.3, .14, .3, GOLD2, 0, .05, zf + 2.25);
+  for (const s of [-1, 1]){ ib(2, .6, 15, RED, s*(st.w + 1), .3, N + 7.5); ib(.3, .14, 15, GOLD2, s*(st.w + 2), .62, N + 7.5); }
+  const tg = canvasTex(256, 64, (g,w,h)=>{ g.fillStyle = '#d0172e'; g.fillRect(0,0,w,h); g.fillStyle = '#f2b51c'; for (const x of [18, 30, w - 36, w - 24]) g.fillRect(x, 0, 6, h); g.fillStyle = '#f2c94c'; g.fillRect(0, 0, w, 5); });
+  const tgM = new THREE.MeshLambertMaterial({map:tg});
+  for (const [y, z, d] of [[.62, zf + 1.1, 2.2], [1.22, zf - .8, 1.6]]){ const r = new THREE.Mesh(new THREE.BoxGeometry(7.5, .04, d), tgM); r.position.set(0, y, z); ISTG.add(r);
+    const fr = new THREE.Mesh(new THREE.PlaneGeometry(7.5, y < 1 ? .6 : .6), tgM); fr.position.set(0, y - .3, z + d/2 + .01); ISTG.add(fr); }
+  // meja kayu: pilar emas, panel berbingkai emas, lambang berdaun salam di tengah
+  const mejaD = canvasTex(1024, 192, (g,w,h)=>{ const gr = g.createLinearGradient(0,0,0,h); gr.addColorStop(0,'#7a3a17'); gr.addColorStop(1,'#4e220c'); g.fillStyle = gr; g.fillRect(0,0,w,h);
+    g.strokeStyle = '#e8b923'; g.lineWidth = 9; g.strokeRect(150, 34, 230, 124); g.strokeRect(w - 380, 34, 230, 124);
+    g.fillStyle = '#5a280f'; g.fillRect(156, 40, 218, 112); g.fillRect(w - 374, 40, 218, 112);
+    g.fillStyle = '#d9a514'; g.fillRect(0, 0, w, 10); g.fillRect(0, h - 12, w, 12); });
+  const meja = new THREE.Group(); meja.position.set(0, 1.2, N + 9.6); ISTG.add(meja);
+  const KAYU = mat(0x6b3214);
+  ib(16.4, .4, 3.4, mat(0x8a4a22), 0, 2.45, 0, meja); ib(16.6, .12, 3.6, GOLD2, 0, 2.22, 0, meja);
+  const mb = new THREE.Mesh(new THREE.BoxGeometry(15.2, 2.2, 2.8), [KAYU, KAYU, KAYU, KAYU, new THREE.MeshLambertMaterial({map:mejaD}), KAYU]); mb.position.y = 1.1; meja.add(mb);
+  for (const x of [-7.3, -4.1, 4.1, 7.3]){ const c = new THREE.Mesh(new THREE.CylinderGeometry(.32, .32, 1.9, 12), GOLD2); c.position.set(x, 1.1, 1.45); meja.add(c);
+    ib(.9, .22, .9, GOLD, x, .11, 1.45, meja); ib(.9, .22, .9, GOLD, x, 2.1, 1.45, meja); }
+  ib(16, .25, 3.2, mat(0x3d1a08), 0, .12, 0, meja);
+  const salam = canvasTex(512, 384, (g,w,h)=>{ lambang(g, w/2, h/2 + 10, 2.3); });
+  const ml = new THREE.Mesh(new THREE.PlaneGeometry(4, 3), new THREE.MeshLambertMaterial({map:salam, transparent:true})); ml.position.set(0, 1.15, 1.42); meja.add(ml);
+  const papan = t => canvasTex(512, 112, (g,w,h)=>{ g.fillStyle = '#e8b923'; g.fillRect(0,0,w,h); g.fillStyle = '#1b2b63'; g.fillRect(9,9,w-18,h-18); g.strokeStyle = '#f2c94c'; g.lineWidth = 3; g.strokeRect(16,16,w-32,h-32);
+    g.fillStyle = '#d9a514'; for (const s of [-1, 1]) for (let i=0;i<4;i++){ g.beginPath(); g.ellipse(w/2 + s*(w/2 - 44), 30 + i*16, 9, 5, s*.6, 0, 7); g.fill(); }
+    g.fillStyle = '#fff'; g.font = `900 ${t.length > 9 ? 44 : 52}px system-ui,sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(t, w/2, h/2 + 3); });
+  [['PRESIDEN', -4.5], ['WAKIL PRESIDEN', 4.5]].forEach(([t, x])=>{ const p = new THREE.Mesh(new THREE.BoxGeometry(5, 1.1, .35), [GOLD, GOLD, GOLD, GOLD, new THREE.MeshBasicMaterial({map:papan(t)}), GOLD]); p.position.set(x, 3.05, 1.05); p.rotation.x = -.32; meja.add(p);
+    ib(5.2, .2, .7, GOLD, x, 2.72, 1.05, meja);
+    const hm = mat(0x2a2a2a); ib(.7, .12, .5, hm, x + (x < 0 ? 1.2 : -1.2), 2.71, .2, meja);
+    const ln = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, 2, 8), hm); ln.position.set(x + (x < 0 ? 1.45 : -1.45), 3.55, .35); ln.rotation.set(-.35, 0, x < 0 ? -.3 : .3); meja.add(ln);
+    const kp = new THREE.Mesh(new THREE.SphereGeometry(.16, 10, 8), hm); kp.position.set(x + (x < 0 ? 1.75 : -1.75), 4.45, .6); meja.add(kp); });
+  // singgasana: sandaran merah berumbai berbingkai emas, mahkota lambang, sandaran tangan bulat bergulung emas
+  const umbai = canvasTex(256, 320, (g,w,h)=>{ const gr = g.createRadialGradient(w/2, h*.45, 20, w/2, h/2, w*.8); gr.addColorStop(0,'#e3263c'); gr.addColorStop(1,'#a50f22'); g.fillStyle = gr; g.fillRect(0,0,w,h);
+    const st = 46; g.strokeStyle = 'rgba(110,0,15,.55)'; g.lineWidth = 4;
+    for (let k = -h; k < w + h; k += st){ g.beginPath(); g.moveTo(k, 0); g.lineTo(k + h, h); g.stroke(); g.beginPath(); g.moveTo(k, h); g.lineTo(k + h, 0); g.stroke(); }
+    g.fillStyle = '#f7cf4a'; for (let y = 0; y <= h; y += st/2) for (let x = ((y/(st/2)) % 2 ? st/2 : 0); x <= w; x += st){ g.beginPath(); g.arc(x, y, 4.5, 0, 7); g.fill(); } });
+  const UMB = new THREE.MeshLambertMaterial({map:umbai});
+  const tahta = x => { const t = new THREE.Group(); t.position.set(x, 1.2, N + 6.6); ISTG.add(t);
+    ib(3.8, .7, 3.2, GOLD, 0, .55, 0, t); ib(3.5, .9, 3, RED, 0, 1.35, .1, t);              // kaki emas & dudukan merah
+    const sd = new THREE.Mesh(new THREE.BoxGeometry(3.4, 5.2, .6), [RED, RED, RED, RED, UMB, RED]); sd.position.set(0, 4.3, -1.25); t.add(sd);
+    for (const s of [-1, 1]){ ib(.42, 5.8, .8, GOLD2, s*1.9, 4.2, -1.25, t);
+      const ar = new THREE.Mesh(new THREE.CylinderGeometry(.5, .5, 3, 14), RED); ar.rotation.x = Math.PI/2; ar.position.set(s*2.05, 2.35, .1); t.add(ar);
+      const gl = new THREE.Mesh(new THREE.TorusGeometry(.45, .14, 8, 16), GOLD2); gl.position.set(s*2.05, 2.35, 1.62); t.add(gl);
+      ib(.35, 1.3, .35, GOLD, s*2.05, 1.55, 1.3, t); }
+    const ats = new THREE.Mesh(new THREE.TorusGeometry(1.9, .25, 8, 24, Math.PI), GOLD2); ats.position.set(0, 6.9, -1.25); t.add(ats);
+    for (const s of [-1, 1]){ const sk = new THREE.Mesh(new THREE.TorusGeometry(.5, .14, 8, 14, Math.PI*1.5), GOLD2); sk.position.set(s*1.4, 7.55, -1.2); sk.rotation.z = s > 0 ? 0 : Math.PI/2; t.add(sk); }
+    const pr = new THREE.Mesh(new THREE.CircleGeometry(1.15, 24), GOLD2); pr.position.set(0, 8.1, -.94); t.add(pr);
+    const lb = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.9), new THREE.MeshLambertMaterial({map:lk, transparent:true})); lb.position.set(0, 8.05, -.92); t.add(lb);
+    const mh = new THREE.Mesh(new THREE.ConeGeometry(.45, .8, 8), GOLD2); mh.position.set(0, 9.4, -1.0); t.add(mh);
+    const lbB = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshLambertMaterial({map:lk, transparent:true})); lbB.rotation.y = Math.PI; lbB.position.set(0, 5, -1.57); t.add(lbB);
+    const pB = new THREE.Mesh(new THREE.PlaneGeometry(3, .7), new THREE.MeshBasicMaterial({map:papan(x < 0 ? 'PRESIDEN' : 'WAKIL PRESIDEN')})); pB.rotation.y = Math.PI; pB.position.set(0, 3.2, -1.57); t.add(pB); };
   tahta(-4.5); tahta(4.5);
   // dinding belakang (sisi pintu masuk): lengkung biru REPUBLIK NUSAWARA, pintu kayu ganda, panji, lukisan, lampu dinding, tanaman
   const latarB = canvasTex(512, 640, (g,w,h)=>{ g.fillStyle = '#2b3550'; g.fillRect(0,0,w,h); lambang(g, w/2, 120, 1.05);
@@ -5876,24 +5910,43 @@ const ISTG = new THREE.Group(); ISTG.position.set(IST.x, 0, IST.z); scene.add(IS
     ib(9, 11, .15, mat(0xf3ead6), sx*17, 9, S - .05); ib(9.4, .25, .25, GOLD, sx*17, 14.6, S - .15); ib(9.4, .25, .25, GOLD, sx*17, 3.4, S - .15);
     for (const x of [sx*12.6, sx*21.4]){ ib(.25, 11.2, .25, GOLD, x, 9, S - .15); const sc = new THREE.Mesh(new THREE.SphereGeometry(.35, 10, 8), new THREE.MeshBasicMaterial({color:0xfff0c0})); sc.position.set(x, 11.2, S - .7); ISTG.add(sc); ib(.2, .9, .5, GOLD, x, 10.6, S - .35); }
     pot(sx*12, S - 2.5, .9); }
-  const latar = canvasTex(1024, 768, (g,w,h)=>{ g.fillStyle = '#1b2b63'; g.fillRect(0,0,w,h);
-    lambang(g, w/2, 150, 1.5); g.fillStyle = '#f2c94c'; g.strokeStyle = '#7a4f00'; g.lineWidth = 8; g.font = '900 104px system-ui,sans-serif'; g.textAlign = 'center';
-    g.strokeText('REPUBLIK', w/2, 345); g.fillText('REPUBLIK', w/2, 345); g.strokeText('NUSAWARA', w/2, 455); g.fillText('NUSAWARA', w/2, 455);
-    g.fillStyle = '#d9a514'; g.fillRect(w*.28, 560, w*.44, 8); for (let i=0;i<9;i++){ const x = w*.3 + i*w*.05; g.fillRect(x, 500 + (i%3)*12, 26, 60 - (i%3)*12); }
-    g.beginPath(); g.arc(w/2, 500, 34, Math.PI, 0); g.fill(); });
+  const latar = canvasTex(1024, 768, (g,w,h)=>{ const gr = g.createRadialGradient(w/2, h*.4, 60, w/2, h/2, w*.75); gr.addColorStop(0,'#24418f'); gr.addColorStop(1,'#14245a'); g.fillStyle = gr; g.fillRect(0,0,w,h);
+    lambang(g, w/2, 150, 1.55);
+    g.textAlign = 'center'; g.font = '900 112px system-ui,sans-serif'; g.lineJoin = 'round';
+    for (const [t, y] of [['REPUBLIK', 352], ['NUSAWARA', 470]]){ g.lineWidth = 16; g.strokeStyle = '#4a2c00'; g.strokeText(t, w/2, y);
+      const tg = g.createLinearGradient(0, y - 90, 0, y); tg.addColorStop(0,'#fff2a8'); tg.addColorStop(.5,'#f6c933'); tg.addColorStop(1,'#c98a0c'); g.fillStyle = tg; g.fillText(t, w/2, y); }
+    g.fillStyle = '#d9a514'; const by = 640; g.fillRect(w*.26, by, w*.48, 10);                     // siluet istana emas
+    for (let i=0;i<14;i++){ const x = w*.28 + i*w*.033; g.fillRect(x, by - 46, 10, 46); } g.fillRect(w*.27, by - 54, w*.46, 10);
+    for (const [x, r] of [[w/2, 38], [w*.36, 22], [w*.64, 22], [w*.3, 15], [w*.7, 15]]){ g.fillRect(x - r, by - 54 - r*.8, r*2, r*.8); g.beginPath(); g.arc(x, by - 54 - r*.8, r, Math.PI, 0); g.fill(); g.fillRect(x - 2, by - 54 - r*1.8 - 18, 4, 18); }
+  });
   const lt = new THREE.Mesh(new THREE.PlaneGeometry(20, 15), new THREE.MeshBasicMaterial({map:latar})); lt.position.set(0, 9.2, N + .05); ISTG.add(lt);
-  const ark = new THREE.Mesh(new THREE.TorusGeometry(10, .55, 8, 30, Math.PI), GOLD2); ark.position.set(0, 16.2, N + .3); ISTG.add(ark);
-  ib(.9, 15, .9, GOLD2, -10.5, 8.7, N + .4); ib(.9, 15, .9, GOLD2, 10.5, 8.7, N + .4); ib(22, .8, .9, GOLD2, 0, 1.6, N + .4);
-  for (const s of [-1, 1]){ ib(4.5, 17, .5, RED, s*13.8, 9.7, N + .6); ib(3, 15, .4, RED2, s*16.5, 9.2, N + .55); ib(10, 1.6, .7, GOLD2, s*14.5, 18.4, N + .7);
-    const tb = new THREE.Group(); tb.position.set(s*12.5, 1.2, N + 5.5); ISTG.add(tb);
-    ib(.18, 9, .18, GOLD, 0, 4.5, 0, tb); const bd = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 5), pm); bd.position.set(0, 6.2, 0); bd.rotation.y = -s*.35; tb.add(bd);
-    const pk = new THREE.Mesh(new THREE.SphereGeometry(.35, 10, 8), GOLD2); pk.position.y = 9.2; tb.add(pk); ib(1.2, .3, 1.2, GOLD, 0, .15, 0, tb); }
+  const ark = new THREE.Mesh(new THREE.TorusGeometry(10, .7, 10, 36, Math.PI), GOLD2); ark.position.set(0, 16.2, N + .4); ISTG.add(ark);
+  const ark2 = new THREE.Mesh(new THREE.TorusGeometry(10.9, .25, 8, 36, Math.PI), GOLD); ark2.position.set(0, 16.2, N + .35); ISTG.add(ark2);
+  ib(1.2, 15, 1.2, GOLD2, -10.6, 8.7, N + .5); ib(1.2, 15, 1.2, GOLD2, 10.6, 8.7, N + .5); ib(22.4, 1, 1.2, GOLD2, 0, 1.7, N + .5);
+  for (const s of [-1, 1]){
+    ib(5, 18, .5, RED, s*13.9, 10.2, N + .7); ib(3.2, 16, .45, RED2, s*16.9, 9.6, N + .6); ib(11, 1.8, .8, GOLD2, s*14.4, 19.3, N + .8);   // tirai merah & lis emas
+    const sw = new THREE.Mesh(new THREE.TorusGeometry(3.2, .5, 8, 18, Math.PI), RED); sw.rotation.z = Math.PI; sw.position.set(s*13.6, 18.4, N + 1.1); ISTG.add(sw);
+    const tl = new THREE.Mesh(new THREE.CylinderGeometry(.18, .32, 1.4, 8), GOLD2); tl.position.set(s*11.8, 13, N + 1.1); ISTG.add(tl);
+    const pil = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.2, 17, 16), WHITE); pil.position.set(s*20, 9.7, N + 1.6); ISTG.add(pil);
+    ib(3, 1.2, 3, GOLD, s*20, 1.8, N + 1.6); ib(3, 1.2, 3, GOLD, s*20, 18.2, N + 1.6); ib(3.4, .5, 3.4, GOLD2, s*20, 19, N + 1.6);
+    pot(s*14.8, N + 3.2, 1.2, 1.2); }
+  // bendera Republik Nusawara: atas biru berlambang, bawah putih bertulisan, berbingkai emas, di tiang emas
+  const bendera = canvasTex(256, 400, (g,w,h)=>{ g.fillStyle = '#ffffff'; g.fillRect(0,0,w,h); g.fillStyle = '#1d2f6b'; g.beginPath(); g.moveTo(0,0); g.lineTo(w,0); g.lineTo(w, h*.36); g.lineTo(0, h*.56); g.closePath(); g.fill();
+    lambang(g, w/2, 92, .95); g.fillStyle = '#1d2f6b'; g.font = '900 38px system-ui,sans-serif'; g.textAlign = 'center';
+    g.save(); g.translate(w/2, h*.75); g.rotate(-.2); g.fillText('REPUBLIK', 0, -8); g.fillText('NUSAWARA', 0, 34); g.restore();
+    g.strokeStyle = '#e8b923'; g.lineWidth = 12; g.strokeRect(6,6,w-12,h-12); });
+  const bM = new THREE.MeshLambertMaterial({map:bendera, side:THREE.DoubleSide});
+  for (const s of [-1, 1]){ const tb = new THREE.Group(); tb.position.set(s*12.8, 1.2, N + 6); ISTG.add(tb);
+    const tiang = new THREE.Mesh(new THREE.CylinderGeometry(.13, .13, 10.5, 10), GOLD2); tiang.position.y = 5.25; tb.add(tiang);
+    const bd = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 5.6), bM); bd.position.set(-s*1.7, 7.2, .1); bd.rotation.set(0, -s*.25, s*.12); tb.add(bd);
+    const pk = new THREE.Mesh(new THREE.SphereGeometry(.42, 12, 10), GOLD2); pk.position.y = 10.7; tb.add(pk); const uj = new THREE.Mesh(new THREE.ConeGeometry(.25, .8, 10), GOLD2); uj.position.y = 11.4; tb.add(uj);
+    const ds = new THREE.Mesh(new THREE.CylinderGeometry(.9, 1.1, .4, 14), GOLD); ds.position.y = .2; tb.add(ds); }
   // tabrakan (koordinat dunia): dinding, blok kursi, pilar, meja, singgasana, tiang bendera
   const X = IST.x, Z = IST.z;
   [[X - WX - .6, Z, .6, S + 1], [X + WX + .6, Z, .6, S + 1], [X, Z + N - .6, WX + 1, .6], [X, Z + S + .6, WX + 1, .6],
    [X - 13.7, Z - 18 + 11*3.6/2 + .3, 8.6, 11*3.6/2 + 1.1], [X + 13.7, Z - 18 + 11*3.6/2 + .3, 8.6, 11*3.6/2 + 1.1],
-   [X, Z + N + 9.5, 7.5, 1.5], [X - 4.5, Z + N + 5.2, 2, 1.8], [X + 4.5, Z + N + 5.2, 2, 1.8], [X - 12.5, Z + N + 5.5, .6, .6], [X + 12.5, Z + N + 5.5, .6, .6],
-   [X - 14, Z + N + 13, 1, 1], [X + 14, Z + N + 13, 1, 1], [X - 24, Z + S - 4, 1.2, 1.2], [X + 24, Z + S - 4, 1.2, 1.2], [X - 12, Z + S - 2.5, .9, .9], [X + 12, Z + S - 2.5, .9, .9], [X - 24, Z + N + 18, 1, 1], [X + 24, Z + N + 18, 1, 1]]
+   [X, Z + N + 9.6, 8.3, 1.8], [X - 4.5, Z + N + 6.6, 2.4, 1.9], [X + 4.5, Z + N + 6.6, 2.4, 1.9], [X - 12.8, Z + N + 6, .9, .9], [X + 12.8, Z + N + 6, .9, .9],
+   [X - 14.8, Z + N + 3.2, 1.2, 1.2], [X + 14.8, Z + N + 3.2, 1.2, 1.2], [X - 20, Z + N + 1.6, 1.6, 1.6], [X + 20, Z + N + 1.6, 1.6, 1.6], [X - 24, Z + S - 4, 1.2, 1.2], [X + 24, Z + S - 4, 1.2, 1.2], [X - 12, Z + S - 2.5, .9, .9], [X + 12, Z + S - 2.5, .9, .9], [X - 24, Z + N + 18, 1, 1], [X + 24, Z + N + 18, 1, 1]]
     .concat(zs.flatMap(z=>[[X - WX + 1.2, Z + z, 1.1, 1.1], [X + WX - 1.2, Z + z, 1.1, 1.1]])).forEach(c=>COLL.push(c));
 })();
 const istBar = document.createElement('div'); istBar.id = 'istBar';
@@ -6992,6 +7045,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 01:20</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 01:25</div>
 </body>
 </html>
