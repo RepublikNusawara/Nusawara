@@ -6408,8 +6408,8 @@ sheetBody.addEventListener('click', e=>{ const b = e.target.closest('[data-main]
 })();
 // ---------- RUMAH SAKIT NUSAWARA (usulan warga @ma____rtunis1961, dibangun DAY 2) ----------
 /* tata letak Kawasan Fasilitas Negara: RS, Akademi, Kantor Polisi sama besar & sebaris menghadap jalan timur */
-const FASL = {k:2.3, rs:{x:178, z:-29 - 6.5*2.3, ox:163, oz:-38.5}, sk:{x:238, z:-29 - 3.2*2.3, ox:194, oz:-34.1}};
-FASL.tx = (o, x) => o.x + (x - o.ox)*FASL.k; FASL.tz = (o, z) => o.z + (z - o.oz)*FASL.k;
+const FASL = {k:2.3, rs:{k:1.725, x:182, z:-29 - 6.5*1.725, ox:163, oz:-38.5}, sk:{k:2.3, x:238, z:-29 - 3.2*2.3, ox:194, oz:-34.1}};   // RS = 75% dari ukuran Akademi/Kantor Polisi
+FASL.tx = (o, x) => o.x + (x - o.ox)*o.k; FASL.tz = (o, z) => o.z + (z - o.oz)*o.k;
 (()=>{ const HX = 163, HZ = -38.5, HS = new THREE.Group(); HS.position.set(HX, 0, HZ); scene.add(HS); window.RS_G = HS;
   const hb = (w,h,d,c,x,y,z,par) => box(w,h,d,c,x,y,z,par||HS);
   hb(30,.12,24,0x7fb55a,0,.06,1); hb(12,.14,9,0xd9d2c3,0,.08,10.5);
@@ -6435,8 +6435,8 @@ FASL.tx = (o, x) => o.x + (x - o.ox)*FASL.k; FASL.tz = (o, z) => o.z + (z - o.oz
   hb(2.2,1.9,4.2,0xffffff,0,1.25,0,amb); hb(2.25,.35,4.25,0xd8262b,0,1.15,0,amb); hb(2,.8,1.2,0x7fc4dc,0,1.6,2.2,amb); hb(.6,.25,.6,0x2f7bff,0,2.3,.8,amb);
   [[-1,-1.3],[1,-1.3],[-1,1.3],[1,1.3]].forEach(([x,z])=>hb(.3,.7,.7,0x222222,x,.35,z,amb));
   HS.userData = {type:'fasilitas', data:{id:'RS-NUSAWARA'}}; pickables.push(HS);
-  HS.position.set(FASL.rs.x, 0, FASL.rs.z); HS.scale.setScalar(FASL.k);
-  if (typeof COLL !== 'undefined') COLL.push([FASL.rs.x, FASL.tz(FASL.rs, HZ-1), 11.5*FASL.k, 7.5*FASL.k]);
+  HS.position.set(FASL.rs.x, 0, FASL.rs.z); HS.scale.setScalar(FASL.rs.k);
+  if (typeof COLL !== 'undefined') COLL.push([FASL.rs.x, FASL.tz(FASL.rs, HZ-1), 11.5*FASL.rs.k, 7.5*FASL.rs.k]);
 })();
 // ---------- KOPI NUSAWARA (usulan warga @nrllzizaa__, dibangun DAY 3.5) ----------
 function buildKopi(par, x, z, sc = 2){
@@ -6564,7 +6564,7 @@ function buildSekolah(par, x, z){
   [[-12.4,3],[12.4,3],[-12.4,-6],[12.4,-6]].forEach(([X,Z])=>{ sb(.5,1.8,.5,0x7a4a24,X,.9,Z); const t = new THREE.Mesh(new THREE.SphereGeometry(1.5,12,10), M(0x62b83b)); t.position.set(X,2.8,Z); t.castShadow = true; G.add(t); });
   return G;
 }
-const SEKOLAH = buildSekolah(scene, FASL.sk.x, FASL.sk.z); SEKOLAH.scale.setScalar(FASL.k);
+const SEKOLAH = buildSekolah(scene, FASL.sk.x, FASL.sk.z); SEKOLAH.scale.setScalar(FASL.sk.k);
 
 /* ---------- KANTOR POLISI REPUBLIK NUSAWARA (Kawasan Fasilitas Negara, timur Akademi Nusawara), mengikuti gambar acuan ----------
    Gedung putih beratap biru, kubah kaca emas berlambang bintang, papan nama, 2 paviliun berpanji POLISI, serambi berpilar emas,
@@ -6682,7 +6682,7 @@ function polisiHTML(){
     <p class="note">Menjaga keamanan dan ketertiban warga Republik Nusawara.</p>`;
 }
 SEKOLAH.userData = {type:'fasilitas', data:{id:'SEKOLAH-NUSAWARA'}}; pickables.push(SEKOLAH);
-if (typeof COLL !== 'undefined') COLL.push([FASL.sk.x, FASL.tz(FASL.sk, -35.6), 11.4*FASL.k, 4.6*FASL.k]);
+if (typeof COLL !== 'undefined') COLL.push([FASL.sk.x, FASL.tz(FASL.sk, -35.6), 11.4*FASL.sk.k, 4.6*FASL.sk.k]);
 
 // ---------- LOWONGAN KERJA DI FASILITAS ----------
 const FAS = {
@@ -6711,10 +6711,10 @@ function jadikanMasuk(G, fas, cx, hw, z0, z1, pos){
     shell.push(shellMesh(o)); });
   daftarMasuk({x:cx, hw, z0, z1, shell, roof:[], fas, pos});
 }
-(()=>{ const R = FASL.rs, S = FASL.sk, k = FASL.k;
+(()=>{ const R = FASL.rs, S = FASL.sk; let k = R.k;
   if (window.RS_G){ const P = []; [1.1,4.1,7.1,10.1].forEach(y=>{ [-8.2,-4.9,-1.6,1.6,4.9,8.2].forEach((dx,i)=>P.push([R.x + dx*k, FASL.tz(R, i%2 ? -36 : -42.5), y*k])); });
     jadikanMasuk(window.RS_G, 'RS-NUSAWARA', R.x, 10.9*k, FASL.tz(R, -46.6), FASL.tz(R, -32.5), P); }
-  const P2 = []; [.2,3.8].forEach(y=>{ [-9.4,-7.6,-5.8,-2,0,2,5.8,7.6,9.4].forEach((dx,i)=>P2.push([S.x + dx*k, FASL.tz(S, -36.6 + (i%2 ? 1.2 : -.6)), y*k])); });
+  k = S.k; const P2 = []; [.2,3.8].forEach(y=>{ [-9.4,-7.6,-5.8,-2,0,2,5.8,7.6,9.4].forEach((dx,i)=>P2.push([S.x + dx*k, FASL.tz(S, -36.6 + (i%2 ? 1.2 : -.6)), y*k])); });
   jadikanMasuk(SEKOLAH, 'SEKOLAH-NUSAWARA', S.x, 10.9*k, FASL.tz(S, -40.4), FASL.tz(S, -32.3), P2); })();
 window.KERJA = {};
 function facTop(id){ const F = FAS[id]; if (!F) return ''; const top = F.pos[0][0]; let u = Object.keys(KERJA).find(u=>KERJA[u].fasilitas === id && KERJA[u].posisi === top) || '';
@@ -6922,7 +6922,7 @@ sheetBody.addEventListener('click', async e=>{
     catch(_){ toast('Gagal tersambung.'); } }
 });
 // saat warga memainkan karakternya: ketuk gedung, atau tekan tombol yang muncul saat berada di dekat gedung
-const FAS_POS = {'RS-NUSAWARA':[FASL.rs.x,FASL.rs.z,22*FASL.k], 'KOPI-NUSAWARA':[98,-28,12], 'SEKOLAH-NUSAWARA':[FASL.sk.x,FASL.sk.z,20*FASL.k]};
+const FAS_POS = {'RS-NUSAWARA':[FASL.rs.x,FASL.rs.z,22*FASL.rs.k], 'KOPI-NUSAWARA':[98,-28,12], 'SEKOLAH-NUSAWARA':[FASL.sk.x,FASL.sk.z,20*FASL.sk.k]};
 function openFasPlay(id){ if (typeof ctl !== 'undefined' && ctl.key){ Object.keys(ctl.d).forEach(k=>ctl.d[k] = 0); ctl.run = false; document.body.classList.add('fas-open'); } openSheet(()=>fasHTML(id)); }
 function fasTap(e){
   ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr, camera);
@@ -6993,7 +6993,7 @@ function loop(){
   jalan(61,216,-18); jalan(216,334,-18);   // jalan timur sampai Kantor Polisi                                   // jalan timur diperpanjang (tersambung ke jalan timur lama & lingkaran podium)
   jalanZ(58,-104,-18);                                 // jalan penghubung utara-selatan -> baris toko -> blok kavling umum (menyambung ke jalan antar blok z=-104)
   const parkir = (cx,w,zc)=>{ box(w,.1,RW,PK,cx,.085,zc); const n = Math.max(2, Math.floor(w/3.2)); for (let i=0;i<=n;i++) box(.14,.03,RW-.6,0xffffff,cx-w/2+.1+i*((w-.2)/n),.15,zc); };
-  [[98,30],[FASL.rs.x,44],[FASL.sk.x,44]].forEach(([cx,w])=>parkir(cx,w,-23));   // parkir depan Kopi | RS | Sekolah                 // baris 1: Kopi, Matcha, Gym | RS, Sekolah
+  [[98,30],[FASL.rs.x,36],[FASL.sk.x,44]].forEach(([cx,w])=>parkir(cx,w,-23));   // parkir depan Kopi | RS | Sekolah                 // baris 1: Kopi, Matcha, Gym | RS, Sekolah
 
   // jalan aspal untuk pabrik & kebun di utara: jalan induk barat/timur + jalan depan tiap tempat (menyatu dengan parkir)
   jalanZ(-36.5,-525,-104.5);
@@ -7507,6 +7507,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 18 Nov 03:05</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 18 Nov 03:10</div>
 </body>
 </html>
