@@ -4014,12 +4014,13 @@ const TAPU = {ov:null, pending:0, sesi:0, total:null, rank:null, top:[], sibuk:f
   #tapU .full tr.me td{background:#f2c14e;color:#3b2600;font-weight:800}
   @media (max-width:390px){ #tapU .bawah{grid-template-columns:1fr 104px 1.05fr;gap:5px} #tapU .tbtn{width:104px;height:104px;border-width:6px} #tapU .tbtn .t1{font-size:26px} #tapU .tbtn .t2{font-size:9.5px} #tapU .tbtn .t3{font-size:21px} #tapU .rk{font-size:10px} #tapU .hdr b{font-size:22px} #tapU .hdr{padding:16px 26px 8px} #tapU .hdr span #tuKas{font-size:22px} #tapU .kol b{font-size:13px} #tapU .kol small{font-size:8.5px} }`; document.head.appendChild(st); })();
 function tapuSuara(){ try { const A = TAPU.ac || (TAPU.ac = new (window.AudioContext || window.webkitAudioContext)()); if (A.state === 'suspended') A.resume(); const t = A.currentTime;
-    const o = A.createOscillator(), g = A.createGain(); o.type = 'square'; o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(55, t + .09);   // hentakan mesin cetak
-    g.gain.setValueAtTime(.22, t); g.gain.exponentialRampToValueAtTime(.001, t + .11); o.connect(g).connect(A.destination); o.start(t); o.stop(t + .12);
-    const len = Math.floor(A.sampleRate * .16), buf = A.createBuffer(1, len, A.sampleRate), d = buf.getChannelData(0); for (let i=0;i<len;i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 2);
-    const nz = A.createBufferSource(); nz.buffer = buf; const f = A.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 3200; f.Q.value = .8; const g2 = A.createGain(); g2.gain.value = .35;   // desir kertas uang
-    nz.connect(f).connect(g2).connect(A.destination); nz.start(t + .05);
-    const c = A.createOscillator(), g3 = A.createGain(); c.type = 'triangle'; c.frequency.value = 2400; g3.gain.setValueAtTime(.08, t + .13); g3.gain.exponentialRampToValueAtTime(.001, t + .19); c.connect(g3).connect(A.destination); c.start(t + .13); c.stop(t + .2);   // klik keluar
+    // bunyi uang masuk "cring-ching": dua dentang koin logam + gemerincing halus
+    const dentang = (at, f, v)=>{ [1, 2.76, 5.4].forEach((m, j)=>{ const o = A.createOscillator(), g = A.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(f * m, at);
+        g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(v / (j + 1), at + .004); g.gain.exponentialRampToValueAtTime(.0008, at + .32 - j * .07); o.connect(g).connect(A.destination); o.start(at); o.stop(at + .34); }); };
+    dentang(t, 1568, .16); dentang(t + .08, 2093, .18);
+    const len = Math.floor(A.sampleRate * .12), buf = A.createBuffer(1, len, A.sampleRate), d = buf.getChannelData(0); for (let i=0;i<len;i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 3);
+    const nz = A.createBufferSource(); nz.buffer = buf; const f = A.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 6000; const g2 = A.createGain(); g2.gain.value = .12;
+    nz.connect(f).connect(g2).connect(A.destination); nz.start(t + .08);
   } catch(_) {} }
 function tapuNote(){ const m = TAPU.ov && TAPU.ov.querySelector('.mesin'); if (!m) return; const n = document.createElement('div'); n.className = 'note fly'; n.style.backgroundImage = `url(assets/${TAPK.img[tapuSim().k]})`; m.appendChild(n); setTimeout(()=>n.remove(), 950); }
 // kolom cetak bertingkat: dibuka berdasarkan total tap (tidak direset); batas tap/hari per kolom, selebihnya masuk Kas Negara
@@ -7122,6 +7123,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 02:30</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 02:35</div>
 </body>
 </html>
