@@ -5291,10 +5291,22 @@ function onlMulai(){ if (!window.SBCLI) return; const k = (AKUN && AKUN.u) ? AKU
       ONL.list = w; ONL.tamu = tamu; onlGambar(); })
     .subscribe(s=>{ if (s === 'SUBSCRIBED') ch.track({at: Date.now()}); }); }
 setInterval(()=>{ try { onlMulai(); } catch(_) {} }, 5000);
+/* kartu warga mengambang (tanpa memindah kamera) */
+function kartuPop(key){ const w = wInfo(key); if (!w) return; let el = document.getElementById('kartuPop'); if (el) el.remove();
+  const u = String(w.username || key).replace(/^@+/,''); let img = ''; try { img = portraitOf(w); } catch(_) {}
+  el = document.createElement('div'); el.id = 'kartuPop';
+  el.style.cssText = 'position:fixed;inset:0;z-index:99980;background:rgba(8,14,28,.55);display:flex;align-items:center;justify-content:center;padding:16px';
+  el.innerHTML = `<div style="width:100%;max-width:360px;position:relative"><button aria-label="Tutup" data-kpx style="position:absolute;top:-14px;right:-6px;z-index:2;width:34px;height:34px;border-radius:50%;border:2px solid #f2b134;background:#1f3a5f;color:#fff;font:900 16px/1 system-ui,sans-serif;cursor:pointer">✕</button>
+    <div class="idcard" style="margin:0"><div class="ih">🛡️ REPUBLIK NUSAWARA · KARTU WARGA</div>
+      <div class="ib"><div class="ip" style="cursor:default">${img ? `<img src="${img}" alt="">` : ''}</div>
+        <div class="if"><b>${esc(u)}</b><div>NIWN</div><p class="mono">${esc(w.niwn || '-')}</p><div>STATUS</div><p>Warga (WRN)</p><div>PEKERJAAN & JABATAN</div><p>${esc(pjTeks(key))}</p><div>TERDAFTAR</div><p>${esc(w.terdaftar || '-')}</p></div></div>
+      <div class="ifoot"><span>${esc(w.niwn || '')}</span><span>🟢 Online</span></div></div></div>`;
+  el.addEventListener('click', ev=>{ if (ev.target === el || ev.target.closest('[data-kpx]')) el.remove(); });
+  document.body.appendChild(el); }
 function onlGambar(){ let el = document.getElementById('onl');
   if (!el){ el = document.createElement('div'); el.id = 'onl'; document.body.appendChild(el);
     el.addEventListener('click', ev=>{ const bt = ev.target.closest('.cwx'); if (bt){ ev.stopPropagation(); const m = !el.classList.contains('mini'); try { localStorage.setItem('nusawara.onl.min', m ? '1' : '0'); } catch(_) {} onlGambar(); return; }
-      const r = ev.target.closest('[data-onl]'); if (r){ try { showProfile(r.getAttribute('data-onl')); } catch(_) {} } }); }
+      const r = ev.target.closest('[data-onl]'); if (r){ try { kartuPop(r.getAttribute('data-onl')); } catch(_) {} } }); }
   let mini = false; try { mini = localStorage.getItem('nusawara.onl.min') === '1'; } catch(_) {}
   el.classList.toggle('mini', mini);
   const me = AKUN && AKUN.u, L = ONL.list.slice().sort((a, b)=>(b === me) - (a === me) || String(namaW(a)).localeCompare(String(namaW(b)))), n = L.length;
@@ -7108,6 +7120,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 02:20</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 02:25</div>
 </body>
 </html>
