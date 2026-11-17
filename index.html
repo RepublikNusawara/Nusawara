@@ -3984,7 +3984,7 @@ function tapuSuara(){ try { const A = TAPU.ac || (TAPU.ac = new (window.AudioCon
   } catch(_) {} }
 function tapuNote(){ const m = TAPU.ov && TAPU.ov.querySelector('.mesin'); if (!m) return; const n = document.createElement('div'); n.className = 'note fly'; n.style.backgroundImage = `url(assets/${TAPK.img[tapuSim().k]})`; m.appendChild(n); setTimeout(()=>n.remove(), 950); }
 // kolom cetak bertingkat: dibuka berdasarkan total tap (tidak direset); batas tap/hari per kolom, selebihnya masuk Kas Negara
-const TAPK = {nilai:[1,5,10,50,100], batas:[200,150,100,75,50], buka:[0,1000,5000,20000,50000], img:['uang-n1.jpg?v=1118','uang-n5.jpg?v=1118','uang-n5.jpg?v=1118','uang-n5.jpg?v=1118','uang-n5.jpg?v=1118']};
+const TAPK = {nilai:[1,5,10,50,100], batas:[200,150,100,75,50], buka:[0,1000,5000,20000,50000], img:['uang-n1.jpg?v=1118','uang-n5.jpg?v=1118','uang-n10.jpg?v=1118','uang-n50.jpg?v=1118','uang-n100.jpg?v=1118']};
 function tapuKol(tot){ let k = 0; for (let i=1;i<5;i++) if (tot >= TAPK.buka[i]) k = i; return k; }
 function tapuSim(){ let tot = TAPU.total || 0, hj = TAPU.hari || 0, hk = TAPU.hk == null ? tapuKol(tot) : TAPU.hk, ks = 0, kas = 0;
   for (let i=0;i<TAPU.pending;i++){ const k = tapuKol(tot); if (k !== hk){ hk = k; hj = 0; } if (hj < TAPK.batas[k]) ks += TAPK.nilai[k]; else kas += TAPK.nilai[k]; hj++; tot++; }
@@ -7045,6 +7045,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 01:30</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 01:40</div>
 </body>
 </html>
