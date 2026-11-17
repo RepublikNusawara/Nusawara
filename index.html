@@ -4685,8 +4685,24 @@ function kasKolom(label, nilai, ket, kode){ return `<div class="card kasKolom" d
   <span style="font-size:28px;line-height:1">🏦</span><span style="flex:1;min-width:0"><small style="display:block;font-size:11px;opacity:.85">${label}</small><b style="font-size:20px;color:#ffe066">${nilai == null ? '…' : N$(nilai)}</b>${ket ? `<small style="display:block;font-size:10px;opacity:.75">${ket}</small>` : ''}</span></div>`; }
 function kasSisip(html, label, nilai, ket){ return html ? html.replace('</h2>', '</h2>' + kasKolom(label, nilai, ket, 'NEGARA')) : html; }
 function kasLabelFas(id){ return /RS-|SEKOLAH-|PELABUHAN-/.test(id) ? 'Kas Kantor' : id.startsWith('STADION-') ? 'Kas Stadium' : 'Kas Perusahaan'; }
+function istanaBuka(){
+  const old = document.getElementById('istanaRuang'); if (old) old.remove();
+  const ov = document.createElement('div'); ov.id = 'istanaRuang';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99990;background:#0b1424;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;font-family:inherit';
+  const wp = WAPRES && WAPRES.minggu === mingguKini() && WAPRES.username ? namaW(WAPRES.username) : 'Kosong';
+  ov.innerHTML = `<div style="width:100%;max-width:900px;text-align:center;color:#fff">
+    <div style="font-size:12px;letter-spacing:2px;color:#f2c14e;font-weight:800">GEDUNG GARUDA</div><b style="font-size:22px;display:block;margin:2px 0 10px">🏛️ Ruang Istana Republik Nusawara</b>
+    <div style="position:relative;border:3px solid #f2c14e;border-radius:16px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.6)"><img src="assets/istana-ruang.jpg" alt="Ruang Istana: kursi Presiden dan Wakil Presiden" style="display:block;width:100%;height:auto">
+      <span style="position:absolute;left:66%;top:69%;transform:translateX(-50%);background:#1f3a5fe6;color:#ffe066;border:1px solid #f2c14e;border-radius:8px;padding:2px 8px;font-size:clamp(9px,2.6vw,14px);font-weight:800;white-space:nowrap">${esc(wp)}</span></div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;font-size:13px"><span style="background:#ffffff14;border-radius:10px;padding:6px 10px">🎖️ Wakil Presiden minggu ini: <b style="color:#ffe066">${esc(wp)}</b></span></div>
+    <button data-istana-x style="margin-top:14px;border:2px solid #f2c14e;border-radius:14px;padding:11px 26px;background:transparent;color:#fff;font:inherit;font-weight:800;font-size:15px;cursor:pointer">← Keluar Istana</button></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e=>{ if (e.target.closest('[data-istana-x]')) ov.remove(); });
+}
+document.addEventListener('click', e=>{ if (e.target.closest && e.target.closest('[data-istana]')){ e.preventDefault(); istanaBuka(); } });
 function bangunInfo(id, html){ if (!html || KAV[id]) return html; if (id === 'EKO-DONASI') return html;
-  html = kasSisip(html, 'Saldo Kas Negara', KAS, 'Gedung milik Negara · kas dikelola Negara'); kasbMuat(); const b = Object.assign({}, BANGUN_DEF, (typeof BANGUN !== 'undefined' && BANGUN[id]) || {});
+  html = kasSisip(html, 'Saldo Kas Negara', KAS, 'Gedung milik Negara · kas dikelola Negara'); kasbMuat();
+  if (id === 'EKO-PRN') html = html.replace(/(<div class="card kasKolom"[\s\S]*?<\/span><\/div>)/, '$1<button class="btn" data-istana style="width:100%;margin:0 0 12px;padding:13px;font-size:16px;font-weight:900;background:linear-gradient(180deg,#e0162f,#8f0a1d);color:#ffe066;border:2px solid #f2c14e">🏛️ Masuk Gedung Istana</button>'); const b = Object.assign({}, BANGUN_DEF, (typeof BANGUN !== 'undefined' && BANGUN[id]) || {});
   return html.replace('</h2>', `</h2><p style="font-size:13px;margin:0 0 8px">🏗️ Dibangun <b>${esc(b.hari)}</b> oleh <b>${esc(b.oleh)}</b>.</p>`); }
 const JAB = {tab:'jabatan', kat:[], pem:{}, muat:0, gaji:null}, GAJI_WAPRES = 250, GAJI_PENASIHAT = 100;
 const LOWONGAN = {};
@@ -6790,6 +6806,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 01:05</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 01:10</div>
 </body>
 </html>
