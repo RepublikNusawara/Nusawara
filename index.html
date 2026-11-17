@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-2350">
+<meta name="nusawara-build" content="20261118-0020">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -6053,7 +6053,7 @@ function fasHTML(id){
       ${top ? '<span style="font-size:12px;font-weight:700;color:#8a6d1f;flex:none">👑 Jabatan</span>' : `<button class="btn${full ? ' ghost' : ''}" ${full ? 'disabled' : `data-kerja="${esc(id)}|${esc(p)}"`}>${full ? 'Penuh' : 'Daftar'}</button>`}</div>`; }).join('');
   if (KASB[id] == null) kasbMuat();
   return `<div class="kicker">Fasilitas Republik Nusawara</div><h2>${F.ikon} ${esc(F.nama)}</h2>${kasKolom(kasLabelFas(id) + ' · ' + esc(F.nama), KASB[id] != null ? KASB[id] : (FAS[id] && BIZ.lap[id] && BIZ.lap[id].kas != null ? BIZ.lap[id].kas : (KASB_AT ? 0 : null)), '', id)}
-    <p style="font-size:13px;margin:0 0 6px">Dibangun <b>${F.hari}</b> ${F.usulTeks ? 'dari ' + esc(F.usulTeks) : 'dari usulan warga @' + esc(F.usul)}.</p>
+    <p style="font-size:13px;margin:0 0 6px">Dibangun <b>${F.hari}</b> ${F.usulTeks ? 'dari ' + esc(F.usulTeks) : 'dari usulan warga ' + esc(namaW(F.usul))}.</p>
     ${facTop(id) ? `<p style="font-size:13px;margin:0 0 10px">👑 <b>${esc(F.pos[0][0])}:</b> ${F.ownerTeks ? esc(F.ownerTeks) : esc(namaW(facTop(id)))}</p>` : ''}
     ${kerjaTombol(id)}
     <div class="card"><h3>🖼️ Billboard gedung</h3>${boardPreview(id, '')}${editBtn(id)}</div>
@@ -6783,6 +6783,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 23:50</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 18 Nov 00:20</div>
 </body>
 </html>
