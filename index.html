@@ -3,7 +3,7 @@
 <head><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261117-0620">
+<meta name="nusawara-build" content="20261117-2350">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -127,6 +127,9 @@ if(x&&x[1]!==cur&&!sessionStorage.getItem('nusawara_rl_'+x[1])){sessionStorage.s
   #cawapres .cr .u{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800}#cawapres .cr .u small{display:block;font-size:9.5px;font-weight:700;opacity:.85}
   #cawapres .cr .p{font-weight:900;font-size:11.5px;white-space:nowrap}
   #cawapres .ft{font-size:9.5px;opacity:.75;text-align:center;margin-top:5px}
+  #cawapres{position:fixed}#cawapres .cwx{position:absolute;top:6px;right:7px;width:30px;height:30px;border-radius:50%;border:0;background:#ffffff26;color:#ffe066;font:900 18px/1 system-ui,sans-serif;cursor:pointer;padding:0}
+  #cawapres.mini{width:auto!important;padding:5px 44px 5px 12px;border-radius:22px}#cawapres.mini h4{margin:0;font-size:14px;white-space:nowrap}#cawapres.mini h4 br{display:none}
+  #cawapres.mini .cr,#cawapres.mini .ft{display:none}#cawapres.mini .cwx{top:50%;transform:translateY(-50%);right:5px}
   body.sheet-open #cawapres{display:none!important}
   /* panduan pemula */
   #misiChip{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 118px);z-index:5;width:68px;height:68px;border-radius:50%;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0;cursor:pointer;
@@ -5223,12 +5226,16 @@ function cawapresGambar(){ let el = document.getElementById('cawapres');
   if (!el){ el = document.createElement('div'); el.id = 'cawapres'; document.body.appendChild(el); el.addEventListener('click', ()=>{ try { focusObj(DON); } catch(_) {} }); }
   const top = (PAPAN || []).filter(r=>Number(r.poin) > 0).slice(0, 5);
   const per = ['👑','🧑‍⚖️','🧑‍⚖️'], ket = ['Calon Wakil Presiden','Calon Penasihat Negara','Calon Penasihat Negara'];
-  el.innerHTML = `<h4>🗳️ Calon Wakil Presiden<br>Minggu Depan</h4>${top.length ? top.map((r, i)=>`<div class="cr${i === 0 ? ' w' : ''}"><span class="n">${i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}</span><span class="u">${esc(namaW(r.username))}<small>${i < 3 ? per[i] + ' ' + ket[i] : 'Peringkat donasi'}</small></span><span class="p">${Number(r.poin).toLocaleString('id-ID')} poin</span></div>`).join('') : '<div class="ft" style="font-size:11px">Belum ada donasi. Ayo jadi yang pertama!</div>'}
+  let mini = false; try { mini = localStorage.getItem('nusawara.cawapres.min') === '1'; } catch(_) {}
+  el.classList.toggle('mini', mini);
+  el.innerHTML = `<button class="cwx" aria-label="${mini ? 'Buka' : 'Perkecil'}">${mini ? '＋' : '—'}</button><h4>🗳️ Calon Wakil Presiden<br>Minggu Depan</h4>${top.length ? top.map((r, i)=>`<div class="cr${i === 0 ? ' w' : ''}"><span class="n">${i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}</span><span class="u">${esc(namaW(r.username))}<small>${i < 3 ? per[i] + ' ' + ket[i] : 'Peringkat donasi'}</small></span><span class="p">${Number(r.poin).toLocaleString('id-ID')} poin</span></div>`).join('') : '<div class="ft" style="font-size:11px">Belum ada donasi. Ayo jadi yang pertama!</div>'}
     <div class="ft">Rank donasi · ditetapkan setiap Senin · ketuk untuk Papan Donasi</div>`;
+  const bt = el.querySelector('.cwx'); if (bt) bt.addEventListener('click', ev=>{ ev.stopPropagation(); let m = false; try { m = localStorage.getItem('nusawara.cawapres.min') === '1'; localStorage.setItem('nusawara.cawapres.min', m ? '0' : '1'); } catch(_) { m = el.classList.contains('mini'); }
+    el.classList.toggle('mini', !m); bt.textContent = m ? '—' : '＋'; bt.setAttribute('aria-label', m ? 'Perkecil' : 'Buka'); cawapresPosisi(); });
   cawapresPosisi(); el.style.display = 'block'; }
 function cawapresPosisi(){ const el = document.getElementById('cawapres'), q = document.getElementById('search'), b = document.querySelector('.top .brand'); if (!el || !q) return;
   const r = q.getBoundingClientRect(); el.style.top = Math.round(r.bottom + 8) + 'px';
-  if (b && b.offsetWidth) el.style.width = Math.min(innerWidth - 20, Math.max(220, b.offsetWidth * 2)) + 'px'; }
+  if (el.classList.contains('mini')) el.style.width = ''; else if (b && b.offsetWidth) el.style.width = Math.min(innerWidth - 20, Math.max(220, b.offsetWidth * 2)) + 'px'; }
 addEventListener('resize', ()=>{ try { cawapresPosisi(); } catch(_) {} }); setInterval(()=>{ try { cawapresPosisi(); } catch(_) {} }, 2000);
 function donGambar(){ try { cawapresGambar(); } catch(_) {}
   donMat.map = canvasTex(1024, 512, (c,W,H)=>{ c.fillStyle = '#1f3a5f'; c.fillRect(0,0,W,H); c.fillStyle = '#f2b134'; c.fillRect(0,0,W,70);
@@ -6776,6 +6783,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 09:55</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 17 Nov 23:50</div>
 </body>
 </html>
