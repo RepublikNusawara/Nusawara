@@ -1,0 +1,122 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#dfe9f3}canvas{display:block}</style></head><body>
+<script src="three.min.js"></script>
+<script>
+// ===== Desain karakter POLISI REPUBLIK NUSAWARA (gaya sama dengan Presiden: balok bersudut membulat) =====
+const W = 1800, H = 760;
+const renderer = new THREE.WebGLRenderer({antialias:true, preserveDrawingBuffer:true}); renderer.setSize(W,H); renderer.setPixelRatio(1); renderer.shadowMap.enabled = true; document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0xdfe9f3);
+const camera = new THREE.PerspectiveCamera(22, W/H, .1, 200); camera.position.set(0, 2.6, 30); camera.lookAt(0, 1.85, 0);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8f9aa8, .75)); const sun = new THREE.DirectionalLight(0xffffff, .75); sun.position.set(6,10,9); sun.castShadow = true; sun.shadow.mapSize.set(2048,2048); Object.assign(sun.shadow.camera,{left:-12,right:12,top:8,bottom:-4}); scene.add(sun);
+const floor = new THREE.Mesh(new THREE.CircleGeometry(14,64), new THREE.MeshLambertMaterial({color:0xc9d6e3})); floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
+let BASE = null;
+function RB(list, parent, x, y, z){
+  if (!BASE){ const g = new THREE.BoxGeometry(1,1,1,3,3,3); BASE = {p:g.attributes.position.array, n:g.attributes.normal.array, i:g.index.array}; }
+  const pos = [], nor = [], col = [], idx = [];
+  list.forEach(([bx,by,bz,w,h,d,c,r])=>{ const cc = new THREE.Color(c), o = pos.length/3; r = Math.min(r || .06, w/2-.001, h/2-.001, d/2-.001);
+    const ix = w/2-r, iy = h/2-r, iz = d/2-r, P = BASE.p, N = BASE.n;
+    for (let i = 0; i < P.length; i += 3){ const px = P[i]*w, py = P[i+1]*h, pz = P[i+2]*d;
+      const qx = Math.max(-ix,Math.min(ix,px)), qy = Math.max(-iy,Math.min(iy,py)), qz = Math.max(-iz,Math.min(iz,pz));
+      let nx = px-qx, ny = py-qy, nz = pz-qz, l = Math.hypot(nx,ny,nz); if (l < 1e-6){ nx = N[i]; ny = N[i+1]; nz = N[i+2]; l = 1; }
+      nx/=l; ny/=l; nz/=l; pos.push(bx+qx+nx*r, by+qy+ny*r, bz+qz+nz*r); nor.push(nx,ny,nz); col.push(cc.r,cc.g,cc.b); }
+    BASE.i.forEach(k=>idx.push(o+k)); });
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos,3)); geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor,3));
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(col,3)); geo.setIndex(idx);
+  const m = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({vertexColors:true, shininess:10, specular:0x181818})); m.position.set(x||0,y||0,z||0); m.castShadow = true; parent.add(m); return m; }
+function tex(w,h,fn){ const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'),w,h); const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t; }
+function decal(parent, w, h, x, y, z, t, ry){ const m = new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({map:t, transparent:true})); m.position.set(x,y,z); if (ry) m.rotation.y = ry; parent.add(m); return m; }
+
+// warna seragam (fiktif, khas Nusawara): cokelat dinas + celana cokelat tua
+const SER = 0x1e2c63, SER2 = 0x15204b, CEL = 0x18234f, SEP = 0x151515, GOLD = 0xe3b03a, SKIN1 = 0xecbf96, SKIN2 = 0xc98f62, HAIR = 0x1b1b1b, BRN = 0x3d1f10;
+const lencana = tex(128,128,(g,w,h)=>{ g.fillStyle='#e3b03a'; g.beginPath(); g.moveTo(64,6); g.lineTo(116,30); g.lineTo(104,96); g.lineTo(64,122); g.lineTo(24,96); g.lineTo(12,30); g.closePath(); g.fill(); g.strokeStyle='#8a5a1c'; g.lineWidth=6; g.stroke();
+  g.fillStyle='#8a5a1c'; g.beginPath(); for (let i=0;i<10;i++){ const a = -Math.PI/2 + i*Math.PI/5, r = i%2 ? 13 : 30; g.lineTo(64+Math.cos(a)*r, 62+Math.sin(a)*r); } g.closePath(); g.fill(); });
+const kotak = tex(256,32,(g,w,h)=>{ for (let i=0;i<16;i++) for (let j=0;j<2;j++){ g.fillStyle = (i+j)%2 ? '#1d3fa8' : '#ffffff'; g.fillRect(i*16,j*16,16,16); } });
+const punggung = tex(512,256,(g,w,h)=>{ g.fillStyle='#14204a'; g.fillRect(0,0,w,h); g.strokeStyle='#f2c23a'; g.lineWidth=14; g.strokeRect(10,10,w-20,h-20); g.fillStyle='#ffffff'; g.textAlign='center'; g.textBaseline='middle'; g.font='900 110px sans-serif'; g.fillText('POLISI',w/2,100); g.font='800 44px sans-serif'; g.fillText('REPUBLIK',w/2,170); g.fillText('NUSAWARA',w/2,215); });
+const tagPolisi = tex(256,96,(g,w,h)=>{ g.fillStyle='#0d0d0d'; g.fillRect(0,0,w,h); g.strokeStyle='#e3b03a'; g.lineWidth=6; g.strokeRect(3,3,w-6,h-6); g.fillStyle='#fff'; g.font='900 62px sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText('POLISI',w/2,52); });
+const papanNama = n => tex(256,64,(g,w,h)=>{ g.fillStyle='#111'; g.fillRect(0,0,w,h); g.fillStyle='#fff'; g.font='bold 38px sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(n,w/2,h/2+2); });
+const tulisPolisi = (bg,fg) => tex(512,128,(g,w,h)=>{ g.fillStyle=bg; g.fillRect(0,0,w,h); g.fillStyle=fg; g.font='900 78px sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText('POLISI',w/2,58); g.font='700 26px sans-serif'; g.fillText('REPUBLIK NUSAWARA',w/2,108); });
+const merahPutih = tex(64,64,(g)=>{ g.fillStyle='#d8212f'; g.fillRect(0,0,64,32); g.fillStyle='#fff'; g.fillRect(0,32,64,32); });
+
+function polisi(o){
+  const P = new THREE.Group(), B = new THREE.Group(); B.scale.setScalar(1.3); P.add(B);
+  const baju = o.baju || SER, cel = o.celana || CEL, kulit = o.kulit || SKIN1;
+  // kaki
+  [.16,-.16].forEach(x=>{ const l = new THREE.Group(); l.position.set(x,1.06,0); B.add(l);
+    RB([[0,-.38,0,.3,.78,.34,cel,.06],[0,-.91,.05,.32,.2,.46,SEP,.07],[0,-.99,.05,.34,.05,.48,0x0a0a0a,.02],[0,-.78,.0,.31,.06,.35,0x0f0f0f,.02]].concat(o.sepatuBot ? [[0,-.7,0,.32,.34,.36,SEP,.06]] : []), l);
+    if (o.garisCelana !== false) RB([[x>0?.151:-.151,-.38,0,.014,.78,.07,o.garisCelana||GOLD,.004]], l); });
+  // badan
+  const Z = .232;
+  RB([[0,1.08,0,.66,.14,.44,cel,.05],[0,1.5,0,.72,.8,.46,baju,.09],
+    [0,1.13,.0,.74,.1,.48,0x1a1a1a,.03],[0,1.13,.245,.13,.1,.02,GOLD,.015],                       // sabuk + gesper
+    [-.27,1.13,.18,.12,.16,.12,0x111111,.03],[-.27,1.18,.245,.06,.03,.02,0x333333,.01],              // kantong radio di sabuk
+    [.27,1.12,.17,.1,.14,.12,0x111111,.03],                                                         // kantong borgol
+    [0,1.86,.03,.42,.08,.4,baju,.03],[-.1,1.86,.23,.16,.1,.03,o.kerah||SER2,.02],[.1,1.86,.23,.16,.1,.03,o.kerah||SER2,.02],   // kerah
+    [-.17,1.58,Z+.01,.2,.18,.03,SER2,.03],[.17,1.58,Z+.01,.2,.18,.03,SER2,.03],                         // saku dada
+    [-.17,1.66,Z+.025,.2,.04,.02,SER2,.01],[.17,1.66,Z+.025,.2,.04,.02,SER2,.01],
+    [0,1.5,Z+.01,.035,.66,.02,SER2,.01],[0,1.75,Z+.025,.03,.03,.02,GOLD,.012],[0,1.58,Z+.025,.03,.03,.02,GOLD,.012],[0,1.41,Z+.025,.03,.03,.02,GOLD,.012],[0,1.25,Z+.025,.03,.03,.02,GOLD,.012],   // kancing
+    [.33,1.88,0,.16,.05,.32,o.epolet||SER2,.02],[-.33,1.88,0,.16,.05,.32,o.epolet||SER2,.02],[.33,1.9,.0,.17,.02,.33,GOLD,.006],[-.33,1.9,.0,.17,.02,.33,GOLD,.006],        // epolet bahu
+    [0,1.92,0,.22,.12,.22,kulit,.04]].concat(o.badan || []), B);
+  decal(B,.12,.12,.17,1.73,Z+.032,lencana);                         // lencana bintang emas
+  decal(B,.2,.075,-.17,1.71,Z+.032,tagPolisi);     // label POLISI
+  decal(B,.08,.05,-.17,1.79,Z+.032,merahPutih);
+  decal(B,.5,.25,0,1.6,-.236,punggung,Math.PI);   // tulisan di punggung
+  if (o.rompi){ RB([[0,1.48,.0,.76,.7,.5,o.rompi,.08],[0,1.3,.251,.74,.06,.02,0xd9d9d9,.01],[0,1.6,.251,.74,.06,.02,0xd9d9d9,.01],[0,1.3,-.251,.74,.06,.02,0xd9d9d9,.01],[0,1.6,-.251,.74,.06,.02,0xd9d9d9,.01],
+      [-.17,1.8,.0,.14,.16,.5,o.rompi,.04],[.17,1.8,.0,.14,.16,.5,o.rompi,.04]], B); decal(B,.5,.25,0,1.5,-.262,punggung,Math.PI); decal(B,.12,.12,.17,1.73,.262,lencana); decal(B,.2,.075,-.17,1.71,.262,tagPolisi); decal(B,.74,.07,0,1.18,.262,kotak); decal(B,.74,.07,0,1.18,-.262,kotak,Math.PI); }
+  if (o.selempang) RB([[0,0,0,.1,.86,.02,o.selempang,.01]], B, 0, 1.5, .245).rotation.z = .62;
+  if (o.medali) o.medali.forEach(([x,c],i)=>RB([[x,1.62,Z+.03,.06,.025,.015,c,.006]], B));
+  // lengan
+  const arm = (x, raise) => { const a = new THREE.Group(); a.position.set(x,1.8,0); B.add(a);
+    RB([[0,-.27,0,.22,.6,.26,baju,.07],[0,-.08,0,.23,.16,.27,SER2,.05],[0,-.56,0,.21,.06,.25,SER2,.02],[0,-.69,0,.19,.2,.22,o.sarung||kulit,.06]], a);
+    decal(a,.13,.13,Math.sign(x)*.116,-.16,0,lencana,Math.sign(x)*Math.PI/2);
+    if (raise){ a.rotation.x = raise[0]; a.rotation.z = raise[1]; } return a; };
+  arm(.43, o.angkatKiri); arm(-.43, o.angkatKanan);
+  // kepala
+  const hd = new THREE.Group(); hd.position.y = 2.36; B.add(hd); const Zf = .4, F = [];
+  [-.18,.18].forEach(cx=>{ F.push([cx,.0,Zf+.015,.17,.19,.03,BRN,.04],[cx+.04,.05,Zf+.035,.06,.06,.01,0xffffff,.02],[cx-.04,-.05,Zf+.035,.03,.03,.01,0xffffff,.01],[cx,.2,Zf+.02,.2,.05,.04,0x141414,.02],[Math.sign(cx)*.28,-.16,Zf+.005,.13,.06,.02,0xf09a8a,.025]); });
+  F.push([0,-.09,Zf+.025,.07,.07,.05, kulit === SKIN2 ? 0xb07a52 : 0xe2ad86,.025],[0,-.24,Zf+.015,.2,.04,.03,0x8b2a1e,.014],[-.12,-.215,Zf+.015,.04,.04,.03,0x8b2a1e,.012],[.12,-.215,Zf+.015,.04,.04,.03,0x8b2a1e,.012]);
+  if (o.kumis) F.push([0,-.165,Zf+.03,.26,.05,.03,0x1b1b1b,.015]);
+  if (o.kacamataHitam) F.push([-.18,.02,Zf+.05,.24,.15,.03,0x111111,.04],[.18,.02,Zf+.05,.24,.15,.03,0x111111,.04],[0,.04,Zf+.05,.1,.03,.03,0x111111,.01]);
+  const hair = o.rambut || 'pendek';
+  RB([[0,0,0,.84,.82,.8,kulit,.1],[.43,-.03,0,.07,.18,.14,0xe2ad86,.03],[-.43,-.03,0,.07,.18,.14,0xe2ad86,.03]]
+    .concat(hair === 'pendek' ? [[0,.38,-.03,.86,.14,.82,HAIR,.05],[0,.12,-.42,.86,.5,.08,HAIR,.04],[.43,.26,-.2,.06,.18,.4,HAIR,.03],[-.43,.26,-.2,.06,.18,.4,HAIR,.03]] : [])
+    .concat(hair === 'cepol' ? [[0,.38,-.03,.86,.14,.82,HAIR,.05],[0,.1,-.43,.86,.62,.1,HAIR,.05],[0,.18,-.58,.3,.3,.24,HAIR,.12],[.44,.05,-.1,.08,.6,.62,HAIR,.03],[-.44,.05,-.1,.08,.6,.62,HAIR,.03],[.4,.0,-.62,.3,.3,.26,HAIR,.12]] : [])
+    .concat(hair === 'hijab' ? [[0,.05,-.03,.92,.92,.88,o.hijab,.14],[0,-.42,.02,.96,.22,.84,o.hijab,.08],[0,-.55,.1,.7,.2,.6,o.hijab,.08]] : [])
+    .concat(F), hd);
+  if (hair === 'hijab') RB([[0,.02,Zf+.03,.74,.72,.02,kulit,.08]].concat(F.map(f=>[f[0],f[1],f[2]+.02,f[3],f[4],f[5],f[6],f[7]])), hd);
+  // tutup kepala
+  const T = o.topi;
+  if (T === 'pet'){ RB([[0,.5,.0,.94,.12,.9,o.topiWarna||SER2,.05],[0,.62,-.02,1.04,.2,1.0,o.topiWarna||SER2,.08],[0,.47,.5,.8,.04,.26,0x111111,.02],[0,.54,.47,.84,.05,.02,o.talitopi||0x111111,.01],[0,.53,.0,.96,.06,.92,o.pitaTopi||GOLD,.02]], hd);
+    decal(hd,.24,.24,0,.66,.515,lencana);
+    if (o.talitopi === GOLD) RB([[0,.47,.6,.7,.035,.06,GOLD,.01],[-.2,.48,.58,.18,.03,.04,GOLD,.01],[.2,.48,.58,.18,.03,.04,GOLD,.01]], hd); }
+  if (T === 'helm'){ RB([[0,.5,.0,.94,.12,.9,0x111111,.05],[0,.62,-.02,1.04,.22,1.0,0xffffff,.08],[0,.47,.5,.8,.04,.26,0x111111,.02]], hd); decal(hd,1.0,.1,0,.51,.462,kotak); decal(hd,.24,.24,0,.66,.515,lencana); }
+  if (T === 'baret'){ const b = RB([[0,.5,-.02,.98,.14,.92,o.topiWarna||0x7a1420,.07],[.12,.56,-.02,.8,.12,.8,o.topiWarna||0x7a1420,.06]], hd); b.rotation.z = -.12; decal(hd,.18,.18,-.24,.52,.47,lencana); }
+  if (o.peluit) RB([[.12,1.68,Z+.04,.03,.18,.015,0xe8e8e8,.006]], B);
+  if (o.ht){ const h = new THREE.Group(); h.position.set(-.27,1.25,.24); B.add(h); RB([[0,0,0,.08,.16,.05,0x222222,.02],[0,.12,0,.02,.1,.02,0x222222,.008]], h); }
+  if (o.tongkat){ const s = new THREE.Group(); B.add(s); s.position.set(-.55,1.08,.35); RB([[0,0,0,.06,.6,.06,0xff7a00,.02],[0,.12,0,.065,.2,.065,0xffffff,.02],[0,-.3,0,.08,.1,.08,0x222222,.02]], s); s.rotation.z = -.5; s.rotation.x = .3; }
+  if (o.map){ const s = new THREE.Group(); B.add(s); s.position.set(.6,1.12,.32); RB([[0,0,0,.36,.26,.05,0x2b2b2b,.02],[0,0,.03,.32,.22,.01,0xf4f4f4,.01]], s); s.rotation.y = -.3; }
+  return P;
+}
+
+const SPEC = [
+  {nama:'BRIPKA BUDI', judul:'👮 Polisi Patroli', topi:'pet', ht:true, peluit:true, sub:'Seragam dinas lengkap · topi pet · HT · peluit'},
+  {nama:'AIPDA RINA', judul:'👮‍♀️ Polwan', topi:'pet', rambut:'cepol', ht:true, sub:'Rambut dicepol · topi pet · lencana · papan nama'},
+  {nama:'BRIGPOL ANDI', judul:'🚦 Polantas', topi:'helm', rompi:0xc8f000, sarung:0xffffff, tongkat:true, angkatKanan:[-.9,.25], sepatuBot:true, sub:'Rompi stabilo · topi putih kotak-kotak · sarung tangan · tongkat lalu lintas'},
+  {nama:'AIPTU SITI', judul:'🧕 Polwan Berhijab', topi:'pet', rambut:'hijab', hijab:0x1a2756, map:true, ht:true, sub:'Hijab biru navy · topi pet · papan laporan · HT'},
+  {nama:'KOMBES JOKO', judul:'⭐ Komandan', topi:'pet', talitopi:GOLD, epolet:GOLD, selempang:0xe3b03a, kacamataHitam:true, medali:[[-.24,0xd8212f],[-.18,0x2f80ed],[-.12,0x2e9e48]], sub:'Pet berhias emas · epolet emas · selempang · tanda jasa'},
+];
+const N = SPEC.length, gap = 3.9;
+SPEC.forEach((s,i)=>{ const p = polisi(s); p.position.set((i-(N-1)/2)*gap, 0, 0); p.rotation.y = (i-(N-1)/2)*-.07; scene.add(p); });
+
+const groups = scene.children.filter(o=>o.type==='Group');
+const CW = 360, CH = 600; renderer.setSize(CW, CH); camera.aspect = CW/CH; camera.fov = 30; camera.updateProjectionMatrix();
+const out = document.createElement('canvas'); out.width = CW*N; out.height = 150 + CH*2 + 150; const g = out.getContext('2d');
+g.fillStyle = '#13233b'; g.fillRect(0,0,out.width,150); g.fillStyle = '#ffd21f'; g.font = '900 66px sans-serif'; g.textAlign = 'center'; g.fillText('POLISI REPUBLIK NUSAWARA', out.width/2, 82); g.fillStyle = '#fff'; g.font = '600 30px sans-serif'; g.fillText('Desain karakter · seragam biru navy · tampak depan & belakang', out.width/2, 126);
+groups.forEach((G,i)=>{ groups.forEach(o=>o.visible = o === G); const x = G.position.x; G.rotation.y = 0;
+  floor.position.x = x;
+  [[0,150],[Math.PI,150+CH]].forEach(([ry,y])=>{ G.rotation.y = ry; camera.position.set(x + 1.2, 2.6, 10.5); camera.lookAt(x, 1.75, 0); renderer.render(scene, camera); g.drawImage(renderer.domElement, i*CW, y); });
+  G.rotation.y = 0;
+  const s = SPEC[i], cx = i*CW + CW/2, yb = 150 + CH*2; g.fillStyle = i%2 ? '#f4f7fb' : '#ffffff'; g.fillRect(i*CW, yb, CW, 150);
+  g.fillStyle = '#13233b'; g.font = '900 32px sans-serif'; g.textAlign = 'center'; g.fillText(s.judul, cx, yb+40); g.fillStyle = '#c8102e'; g.font = '800 24px sans-serif'; g.fillText(s.nama, cx, yb+74);
+  g.fillStyle = '#4a5563'; g.font = '500 19px sans-serif'; const parts = s.sub.split(' · '); const l1 = parts.slice(0, Math.ceil(parts.length/2)).join(' · '), l2 = parts.slice(Math.ceil(parts.length/2)).join(' · '); g.fillText(l1, cx, yb+106); g.fillText(l2, cx, yb+132);
+  g.strokeStyle = '#c9d6e3'; g.lineWidth = 2; g.beginPath(); g.moveTo(i*CW, 150); g.lineTo(i*CW, out.height); g.stroke(); });
+window.SHEET = out.toDataURL('image/png'); window.BACK = 1;
+</script></body></html>
