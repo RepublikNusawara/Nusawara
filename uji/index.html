@@ -3,7 +3,7 @@
 <head><base href="../"><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261119-0214">
+<meta name="nusawara-build" content="20261119-0227">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -4231,6 +4231,39 @@ const POLP = {ov:null, pending:0, sibuk:false, timer:null, rkTimer:null, last:0,
   #polP .full td{padding:5px 3px;border-bottom:1px solid #ffffff22}#polP .full tr{cursor:pointer}#polP .full tr.me td{background:#f2c14e;color:#2a1d00;font-weight:800}
   #polP .full td img{width:22px;height:28px;object-fit:cover;object-position:top;border-radius:4px;background:#dfe9f3;vertical-align:middle}
   #polP .prof{text-align:center}#polP .prof img{height:220px;filter:drop-shadow(0 6px 6px #0006)}
+  #polP .pp{max-width:520px;background:linear-gradient(180deg,#9fd3ff 0%,#5aa6ee 14%,#2a74d2 34%,#1a52b0 70%,#163f92 100%)}
+  #polP .pp:before{content:'';position:absolute;left:0;right:0;top:0;height:120px;border-radius:20px 20px 0 0;pointer-events:none;background:radial-gradient(60px 22px at 18% 30px,#fff9 60%,transparent 62%),radial-gradient(80px 26px at 82% 22px,#fff8 60%,transparent 62%),radial-gradient(50px 18px at 60% 60px,#fff6 60%,transparent 62%)}
+  #polP .hdr{padding:24px 10px 10px 30px;background:linear-gradient(180deg,#244fa8,#13306f);border-width:5px;box-shadow:0 5px 0 #0b1c4a,inset 0 2px 0 #ffffff33}
+  #polP .hdr .lam{position:absolute;top:-6px;font-size:28px;filter:drop-shadow(0 2px 0 #7a5200)}#polP .hdr .shl{position:absolute;left:-30px;top:40px;width:46px;height:52px;display:flex;align-items:center;justify-content:center;font-size:26px;background:linear-gradient(180deg,#244fa8,#13306f);border:4px solid #f2c14e;border-radius:12px 12px 28px 28px}
+  #polP .bnr{position:absolute;top:288px;width:30px;height:84px;background:linear-gradient(180deg,#1c3f8f,#122a66);border:3px solid #f2c14e;border-bottom:none;clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);display:flex;align-items:flex-start;justify-content:center;padding-top:10px;font-size:15px;z-index:1}
+  #polP .hero{height:250px;background:linear-gradient(180deg,#cfe8ff 0%,#eaf4ff 40%,#d9e3f0 78%,#bfcadb 100%)}
+  #polP .hero .ged{left:4%;right:4%;top:62px;height:150px;background:linear-gradient(180deg,#ffffff,#e9eef6);border:3px solid #c9d6e8;border-bottom:none}
+  #polP .hero .ged:before{left:4%;top:44px;width:26%;height:66px;background:repeating-linear-gradient(90deg,#2f74d6 0 22px,#e8f2ff 22px 26px);box-shadow:0 0 0 3px #fff}#polP .hero .ged:after{right:4%;top:44px;width:26%;height:66px;background:repeating-linear-gradient(90deg,#2f74d6 0 22px,#e8f2ff 22px 26px);box-shadow:0 0 0 3px #fff}
+  #polP .hero .pil{position:absolute;top:56px;width:20px;height:160px;background:linear-gradient(90deg,#e3e9f3,#fff 40%,#cfd9e8);border:2px solid #b8c6da;border-radius:4px;z-index:1}#polP .hero .pil:before{content:'';position:absolute;left:-6px;right:-6px;top:-10px;height:12px;background:linear-gradient(180deg,#ffe38a,#e3b03a);border-radius:4px}
+  #polP .hero .pintu{position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:34%;height:110px;background:linear-gradient(180deg,#2a6fd0,#174a9c);border:4px solid #f2c14e;border-bottom:none;border-radius:12px 12px 0 0}
+  #polP .hero .lmp{position:absolute;top:94px;font-size:16px;z-index:1}#polP .hero .tnm{position:absolute;bottom:4px;font-size:30px;z-index:2}
+  #polP .hero .papan{top:18px;padding:5px 16px;border-width:4px;box-shadow:0 4px 0 #0b1c4a}#polP .hero .papan:before{content:'⭐';position:absolute;left:50%;top:-20px;transform:translateX(-50%);font-size:18px}
+  #polP .hero .char{height:172px;bottom:-4px}#polP .hero .mob{font-size:52px;bottom:2px}
+  #polP .mid{display:grid;grid-template-columns:.82fr .9fr 1.75fr;gap:5px;align-items:stretch}#polP .mid .box{padding:6px 5px}#polP .mid h4{font-size:12px}
+  #polP .mid .sr{display:flex;flex-direction:column;align-items:center;text-align:center;gap:1px;padding:5px 3px;font-size:10px;line-height:1.15}#polP .mid .sr b{font-size:16px}
+  #polP .mid .daun{text-align:center;font-size:22px;margin-top:2px;letter-spacing:12px}
+  #polP .tbtn{width:100%;max-width:150px;height:auto;aspect-ratio:1;align-self:center;justify-self:center}#polP .tbtn .t{font-size:34px}#polP .tbtn .a{font-size:26px}
+  #polP .tapwrap{display:flex;align-items:center;justify-content:center;position:relative}#polP .tapwrap:before{content:'';position:absolute;inset:-4px;background:repeating-conic-gradient(#ffe38a55 0 10deg,transparent 10deg 22deg);border-radius:50%;pointer-events:none}
+  #polP table.rt{width:100%;border-collapse:collapse;font-size:9.5px;table-layout:fixed}#polP table.rt th{color:#cfe0ff;font-weight:800;font-size:8.5px;padding:2px 2px;text-align:left;border-bottom:1px solid #ffffff33}
+  #polP table.rt td{padding:3px 2px;border-bottom:1px solid #ffffff1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#polP table.rt td.p{white-space:normal;line-height:1.05}#polP table.rt tr{cursor:pointer}
+  #polP table.rt td.n span{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;font-weight:900;font-size:10px;background:#0b1c4a}
+  #polP table.rt td.n span.m1{background:#f2c14e;color:#2a1d00}#polP table.rt td.n span.m2{background:#cfd8e3;color:#22303f}#polP table.rt td.n span.m3{background:#d08b4a;color:#2a1600}
+  #polP table.rt td img{width:16px;height:20px;object-fit:cover;object-position:top;border-radius:3px;background:#dfe9f3;vertical-align:middle;margin-right:2px}
+  #polP table.rt td.t{text-align:right;font-weight:900;color:#ffd84a;font-size:10.5px;overflow:visible}#polP table.rt tr.me td.n span{background:#2a1d00;color:#ffd84a}#polP table.rt td.p{font-size:8.5px}#polP table.rt td.p.pmax{color:#ffd84a;font-weight:800}
+  #polP table.rt tr.me td{background:linear-gradient(180deg,#ffe38a,#f2c14e);color:#2a1d00;font-weight:800}#polP table.rt tr.me td.t{color:#7a2a00}
+  #polP .lvs{grid-template-columns:repeat(5,1fr);gap:9px}#polP .lv{overflow:visible}#polP .lv:not(:last-child):after{content:'»';position:absolute;right:-11px;top:44%;color:#ffd84a;font-weight:900;font-size:18px;text-shadow:0 2px 0 #0b1c4a;z-index:2}
+  #polP .tbl{background:linear-gradient(180deg,#1c3f8f,#122a66);border:3px solid #f2c14e;border-radius:18px;padding:22px 8px 8px;position:relative;margin:16px 0 8px}
+  #polP .tbl>b{position:absolute;left:50%;top:-14px;transform:translateX(-50%);white-space:nowrap;background:linear-gradient(180deg,#1c3f8f,#122a66);border:3px solid #f2c14e;border-radius:12px;padding:3px 12px;font-size:13px;font-weight:900}
+  #polP .tbl table{width:100%;border-collapse:collapse;font-size:11.5px}#polP .tbl th{color:#ffd84a;font-size:10.5px;text-align:left;padding:5px 4px;border-bottom:2px solid #f2c14e}
+  #polP .tbl td{padding:6px 4px;border-bottom:1px solid #ffffff22;vertical-align:middle}#polP .tbl td img{width:26px;height:32px;object-fit:cover;object-position:top;border-radius:5px;background:#dfe9f3;vertical-align:middle}
+  #polP .tbl tr.on td{background:#2e9e4844}#polP .tbl .lvb{display:inline-block;background:linear-gradient(180deg,#e0162f,#a50e22);border:2px solid #f2c14e;border-radius:7px;padding:0 5px;font-weight:900;font-size:10px}
+  #polP .tbl .st{font-weight:900;font-size:10.5px}
+  @media (max-width:380px){#polP .mid{grid-template-columns:1fr 1fr}#polP .mid .rkbox{grid-column:1 / -1}#polP table.rt{font-size:11px}#polP table.rt td{max-width:110px}}
   #polP .prof .pkb{display:inline-block;margin:4px 0 8px;background:linear-gradient(180deg,#ffe38a,#f2c14e);color:#2a1d00;font-weight:900;padding:6px 14px;border-radius:999px}`; document.head.appendChild(st); })();
 // gambar karakter warga berseragam polisi (dirender sekali lalu disimpan)
 function polImg(u, g, lv){
@@ -4264,8 +4297,10 @@ function polRender(){ const o = POLP.ov; if (!o) return; const q = s=>o.querySel
   const ch = q('#ppChar'), src = polImg(me, S.g, lv); if (ch && ch.dataset.k !== S.g + lv){ ch.dataset.k = S.g + lv; ch.src = src; }
   if (q('#ppLvs')) q('#ppLvs').innerHTML = POL_PANGKAT.map((n, i)=>{ const L = i + 1, st = L === lv ? 'on' : L < lv ? 'done' : 'lock';
     return `<div class="lv ${st}${L === 5 ? ' max' : ''}"><span class="tag">Lv ${L}</span><img src="${polImg(me, S.g, L)}" alt=""><span class="nm">${n}</span><span class="sy">${st === 'on' ? '✓ Saat Ini' : st === 'done' ? '✓ Selesai' : '🔒 ' + POL_SYARAT[i].toLocaleString('id-ID') + ' Tap'}</span></div>`; }).join('');
-  if (q('#ppRk')) q('#ppRk').innerHTML = live.slice(0, 5).map(r=>`<li class="${r.u === me ? 'me' : ''}" data-pp-u="${esc(r.u)}"><span class="n${r.rank <= 3 ? ' m' + r.rank : ''}">${r.rank}</span><img src="${polImg(r.u, r.g, r.lv)}" alt=""><span class="u">${esc(namaW(r.u))}<small>${POL_PANGKAT[r.lv-1]}</small></span><span class="tt">${Number(r.total).toLocaleString('id-ID')}</span></li>`).join('')
-    + (rank > 5 ? `<li class="me" data-pp-u="${esc(me)}"><span class="n">${rank}</span><img src="${polImg(me, S.g, lv)}" alt=""><span class="u">${esc(namaW(me))}<small>${POL_PANGKAT[lv-1]}</small></span><span class="tt">${tot.toLocaleString('id-ID')}</span></li>` : '');
+  const rrow = (r, me1)=>`<tr class="${me1 ? 'me' : ''}" data-pp-u="${esc(r.u)}"><td class="n"><span class="${r.rank <= 3 ? 'm' + r.rank : ''}">${r.rank}</span></td><td><img src="${polImg(r.u, r.g, r.lv)}" alt="">${esc(namaW(r.u))}</td><td class="p${r.lv === 5 ? ' pmax' : ''}">${POL_PANGKAT[r.lv-1]}</td><td class="t">${Number(r.total).toLocaleString('id-ID')}</td></tr>`;
+  if (q('#ppRk')) q('#ppRk').innerHTML = live.slice(0, 5).map(r=>rrow(r, r.u === me)).join('') + (rank > 5 ? rrow({u: me, g: S.g, lv, total: tot, rank}, true) : '');
+  if (q('#ppTbl')) q('#ppTbl').innerHTML = POL_PANGKAT.map((n, i)=>{ const L = i + 1, sisa = POL_SYARAT[i] - tot;
+    return `<tr class="${L === lv ? 'on' : ''}"><td><span class="lvb">Lv ${L}</span></td><td><img src="${polImg(me, S.g, L)}" alt=""></td><td><b>${n}</b></td><td>${i ? POL_SYARAT[i].toLocaleString('id-ID') + ' tap' : 'Saat daftar'}</td><td class="st">${L === lv ? '<span style="color:#7ee08a">✓ Saat Ini</span>' : L < lv ? '<span style="color:#7ee08a">✓ Selesai</span>' : '🔒 ' + sisa.toLocaleString('id-ID') + ' lagi'}</td></tr>`; }).join('');
   if (lv !== POLP.lvLama){ if (POLP.lvLama && lv > POLP.lvLama){ const m = q('.msg'); if (m) m.innerHTML = `🎉 Selamat! Kamu naik pangkat jadi <b style="color:#ffd84a">${POL_PANGKAT[lv-1]}</b>!`; polisiSet(me, S.g, lv); }
     POLP.lvLama = lv; } }
 function polFull(){ const o = POLP.ov; if (!o) return; let f = o.querySelector('.full'); if (!f){ f = document.createElement('div'); f.className = 'full'; o.querySelector('.pp').appendChild(f); }
@@ -4310,17 +4345,20 @@ function polBangun(){ const ov = POLP.ov; if (!ov) return; const masuk = !!(AKUN
   const isi = !masuk ? `<div class="daftar"><h3>🔑 Masuk dulu</h3><p>Masuk sebagai Warga Republik Nusawara untuk mendaftar jadi polisi.</p><button class="btnD" data-pp-masuk>Masuk</button></div>`
     : !S ? `<div class="daftar"><h3>👮 Daftar Jadi Polisi Nusawara</h3><p>Gratis! Kuota sementara <b id="ppKuota">${POLP.jumlah}/${POLP.kuota}</b> polisi. Pilih gendermu — seragam karaktermu otomatis jadi seragam polisi.</p><div class="gs" id="ppGs"></div><button class="btnD" id="ppDaftar" disabled>Pilih gender dulu</button></div>`
     : `<div class="lvbar"><div class="shield" id="ppLv">Lv 1</div><div class="pk" id="ppNm">Polisi Patroli</div><div class="pg"><small id="ppTo">Progress ke Lv 2</small><div class="b"><i id="ppBar" style="width:0%"></i><span id="ppBt">0 / 2.500 Tap</span></div></div><div class="pct" id="ppPc">0%</div></div>
-      <div class="mid"><div class="box"><h4>👆 Statistik Tap</h4><div class="stats"><div class="sr"><span>📅 Tap Hari Ini</span><b id="ppHari">0</b></div><div class="sr"><span>📊 Total Tap</span><b id="ppTot">0</b></div><div class="sr"><span>🏆 Peringkat Kamu</span><b id="ppRank">–</b></div></div></div>
-        <button class="tbtn" id="ppTap"><span class="a">👆</span><span class="t">TAP</span><span class="c">LATIHAN POLISI</span></button>
-        <div class="msg"></div>
-        <div class="box"><h4>🏆 Papan Peringkat Polisi <small style="font-weight:700;opacity:.8">· ketuk untuk lihat profil</small></h4><ul class="rk" id="ppRk"></ul><button class="lnk" data-pp-semua>Lihat Peringkat Lengkap ›</button></div></div>
-      <div class="tng"><b>⭐ Tingkatan Pangkat Polisi Nusawara ⭐</b><div class="lvs" id="ppLvs"></div></div>`;
+      <div class="mid"><div class="box"><h4>👆 Statistik Tap</h4><div class="sr"><span>📅 Tap Hari Ini</span><b id="ppHari">0</b></div><div class="sr"><span>📊 Total Tap</span><b id="ppTot">0</b></div><div class="sr"><span>🏆 Peringkat Kamu</span><b id="ppRank">–</b></div><div class="daun">🌿🌿</div></div>
+        <div class="tapwrap"><button class="tbtn" id="ppTap"><span class="a">👆</span><span class="t">TAP</span><span class="c">LATIHAN POLISI</span></button></div>
+        <div class="box rkbox"><h4>🏆 Papan Peringkat Polisi</h4><table class="rt"><colgroup><col style="width:20px"><col><col style="width:44px"><col style="width:50px"></colgroup><thead><tr><th>#</th><th>Nama Warga</th><th>Pangkat</th><th style="text-align:right">Total</th></tr></thead><tbody id="ppRk"></tbody></table><button class="lnk" data-pp-semua>Lihat Peringkat Lengkap ›</button></div></div>
+      <div class="msg"></div>
+      <div class="tng"><b>⭐ Tingkatan Pangkat Polisi Nusawara ⭐</b><div class="lvs" id="ppLvs"></div></div>
+      <div class="tbl"><b>📋 Tabel Pangkat Polisi Nusawara</b><table><thead><tr><th>Lv</th><th>Seragam</th><th>Pangkat</th><th>Syarat Tap</th><th>Status</th></tr></thead><tbody id="ppTbl"></tbody></table></div>`;
   ov.innerHTML = `<div class="pp">
     <button class="rb" data-pp-help style="left:10px;background:#f7d774;color:#3b2600">?</button><button class="rb" data-pp-x style="right:10px;background:#e0162f;color:#fff">✕</button>
-    <div class="hdr"><span class="rib">REPUBLIK NUSAWARA</span><b>SISTEM PANGKAT<br><i>POLISI NUSAWARA</i></b><div class="st">★★★</div></div>
+    <span class="bnr" style="left:6px">⭐</span><span class="bnr" style="right:6px">⭐</span>
+    <div class="hdr"><span class="rib">REPUBLIK NUSAWARA</span><span class="lam" style="left:-6px">🌿</span><span class="lam" style="right:-6px;transform:scaleX(-1)">🌿</span><span class="shl">⭐</span><b>SISTEM PANGKAT<br><i>POLISI NUSAWARA</i></b><div class="st">★★★</div></div>
     <div class="chips"><div class="chip"><i>👤</i><div style="min-width:0"><small>Nama Warga</small><b>${masuk ? esc(namaW(me)) : 'Belum masuk'}</b></div></div>
       <div class="chip"><i>🛡️</i><div style="min-width:0"><small>Pangkat Saat Ini</small><b id="ppPk">${S ? '' : 'Belum jadi polisi'}</b></div></div></div>
-    <div class="hero"><div class="papan"><b>KANTOR POLISI</b><small>REPUBLIK NUSAWARA</small></div><div class="ged"></div><span class="mob" style="left:4px">🚓</span><span class="mob" style="right:4px;transform:scaleX(-1)">🚓</span>
+    <div class="hero"><div class="ged"></div><span class="pil" style="left:31%"></span><span class="pil" style="right:31%"></span><div class="pintu"></div><span class="lmp" style="left:28%">🏮</span><span class="lmp" style="right:28%">🏮</span>
+      <span class="tnm" style="left:22%">🪴</span><span class="tnm" style="right:22%">🪴</span><div class="papan"><b>KANTOR POLISI</b><small>REPUBLIK NUSAWARA</small></div><span class="mob" style="left:2px">🚓</span><span class="mob" style="right:2px;transform:scaleX(-1)">🚓</span>
       <img class="char" id="ppChar" src="${masuk ? polImg(me, S ? S.g : (POLP.gPilih || 'pria'), S ? polisiLv(polTotal()) : 1) : ''}" alt=""></div>
     ${isi}
     <div class="foot"><span class="ii">i</span><span>Lakukan Tap untuk Latihan, kumpulkan Tap sesuai syarat dan naikkan pangkatmu menjadi <em>Komandan Polisi Nusawara</em>!</span></div></div>`;
@@ -7796,6 +7834,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 19 Nov 02:14</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 19 Nov 02:27</div>
 </body>
 </html>
