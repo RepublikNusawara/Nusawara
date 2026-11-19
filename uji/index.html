@@ -4316,8 +4316,8 @@ function polProfil(u){ const o = POLP.ov; if (!o) return; const r = polLive().fi
     <div class="sr"><span>${r.lv >= 5 ? '🏅 Pangkat tertinggi' : '🎯 Menuju ' + POL_PANGKAT[nx-1]}</span><b>${r.lv >= 5 ? '✓' : (POL_SYARAT[nx-1] - r.total).toLocaleString('id-ID') + ' tap lagi'}</b></div></div>`; }
 function polAturan(){ const o = POLP.ov; if (!o) return; let f = o.querySelector('.full'); if (!f){ f = document.createElement('div'); f.className = 'full'; o.querySelector('.pp').appendChild(f); }
   const li = [['🆓','Daftar jadi polisi <b>gratis</b>. Kuota sementara <b>100 polisi</b>.'],['🧍','Pilih gender: <b>Pria</b>, <b>Wanita</b>, atau <b>Berhijab</b>. Seragam karaktermu di peta otomatis berganti jadi seragam polisi.'],
-    ['👆','Tekan <b>TAP Latihan Polisi</b> untuk mengumpulkan tap. Tap tidak pernah direset.'],['⭐','Pangkat: <b>Polisi Patroli</b> (awal) → <b>Polisi Muda</b> 2.500 tap → <b>Polisi Senior</b> 10.000 tap → <b>Kepala Polisi</b> 30.000 tap → <b>Komandan Polisi</b> 75.000 tap. Seragam ikut berubah setiap naik pangkat.'],
-    ['💵','<b>Gaji polisi per hari</b>: Patroli N$50 · Muda N$80 · Senior N$120 · Kepala N$180 · Komandan N$240. Gaji hari itu terbuka setelah <b>20 tap latihan</b>, dibayar dari Kas Negara lewat pop-up <b>Terima Gaji</b> (berlaku hari itu dan besoknya).'],
+    ['👆','Tekan <b>TAP Latihan Polisi</b> untuk mengumpulkan tap. Tap tidak pernah direset. Setiap 1 tap = <b>+N$10 otomatis masuk Kas Negara</b>.'],['⭐','Pangkat: <b>Polisi Patroli</b> (awal) → <b>Polisi Muda</b> 2.500 tap → <b>Polisi Senior</b> 10.000 tap → <b>Kepala Polisi</b> 30.000 tap → <b>Komandan Polisi</b> 75.000 tap. Seragam ikut berubah setiap naik pangkat.'],
+    ['💵','<b>Gaji polisi per hari</b>: Patroli N$50 · Muda N$80 · Senior N$120 · Kepala N$180 · Komandan N$240. Gaji dibayar <b>harian</b> dan <b>dipotong dari Kas Negara</b>. Gaji hari itu terbuka setelah <b>20 tap latihan</b>, diterima lewat pop-up <b>Terima Gaji</b> (berlaku hari itu dan besoknya).'],
     ['💼','Polisi dihitung sebagai <b>pekerjaan</b>: polisi tidak boleh punya pekerjaan lain, dan warga yang sudah bekerja tidak bisa daftar polisi.'],
     ['🏆','Ketuk nama di Papan Peringkat Polisi untuk melihat profil polisi lain.']];
   f.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><b style="flex:1;font-size:18px;color:#ffd84a">📜 Aturan Polisi Nusawara</b><button class="lnk" style="width:auto;padding:6px 12px;margin:0" data-pp-tutup>✕ Tutup</button></div>
@@ -4350,7 +4350,7 @@ function polBangun(){ const ov = POLP.ov; if (!ov) return; const masuk = !!(AKUN
     : !S ? `<div class="daftar"><h3>👮 Daftar Jadi Polisi Nusawara</h3><p>Gratis! Kuota sementara <b id="ppKuota">${POLP.jumlah}/${POLP.kuota}</b> polisi. Pilih gendermu — seragam karaktermu otomatis jadi seragam polisi.</p><div class="gs" id="ppGs"></div><button class="btnD" id="ppDaftar" disabled>Pilih gender dulu</button></div>`
     : `<div class="lvbar"><div class="shield" id="ppLv">Lv 1</div><div class="pk" id="ppNm">Polisi Patroli</div><div class="pg"><small id="ppTo">Progress ke Lv 2</small><div class="b"><i id="ppBar" style="width:0%"></i><span id="ppBt">0 / 2.500 Tap</span></div></div><div class="pct" id="ppPc">0%</div></div>
       <div class="mid"><div class="box"><h4>👆 Statistik Tap</h4><div class="sr"><span>📅 Tap Hari Ini</span><b id="ppHari">0</b></div><div class="sr"><span>📊 Total Tap</span><b id="ppTot">0</b></div><div class="sr"><span>🏆 Peringkat Kamu</span><b id="ppRank">–</b></div><div class="daun">🌿🌿</div></div>
-        <div class="tapwrap"><button class="tbtn" id="ppTap"><span class="a">👆</span><span class="t">TAP</span><span class="c">LATIHAN POLISI</span></button></div>
+        <div class="tapwrap"><button class="tbtn" id="ppTap"><span class="a">👆</span><span class="t">TAP</span><span class="c">LATIHAN · +N$10 KAS NEGARA</span></button></div>
         <div class="box rkbox"><h4>🏆 Papan Peringkat Polisi</h4><table class="rt"><colgroup><col style="width:20px"><col><col style="width:44px"><col style="width:50px"></colgroup><thead><tr><th>#</th><th>Nama Warga</th><th>Pangkat</th><th style="text-align:right">Total</th></tr></thead><tbody id="ppRk"></tbody></table><button class="lnk" data-pp-semua>Lihat Peringkat Lengkap ›</button></div></div>
       <div class="msg"></div>
       <div class="tng"><b>⭐ Tingkatan Pangkat Polisi Nusawara ⭐</b><div class="lvs" id="ppLvs"></div></div>
@@ -7947,6 +7947,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 20 Nov 02:05</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 20 Nov 02:11</div>
 </body>
 </html>
