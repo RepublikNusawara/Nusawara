@@ -4583,11 +4583,11 @@ function lowonganDaftar(){
   Object.keys(FAS).forEach(id=>{ const F = FAS[id]; if (!F || !Array.isArray(F.pos)) return;
     if (typeof LOWONGAN !== 'undefined' && LOWONGAN[id] === undefined) return;   // gedung tidak ada / disembunyikan di peta
     const kosong = [];
-    F.pos.forEach(([p,q,ik],i)=>{ if (i === 0) return; const n = rows.filter(r=>r.fasilitas === id && r.posisi === p).length; if (n < q) kosong.push({p, ik: ik || '💼', sisa: q - n}); });
+    F.pos.forEach(([p,q,ik],i)=>{ if (i === 0) return; const n = rows.filter(r=>r.fasilitas === id && r.posisi === p).length; if (n < q) kosong.push({p, ik: ik || '💼', sisa: q - n, isi: n, kuota: q}); });
     if (kosong.length) out.push({id, nama: F.nama, ikon: F.ikon || '🏢', kosong}); });
   out.sort((a,b)=>b.kosong.reduce((s,k)=>s+k.sisa,0) - a.kosong.reduce((s,k)=>s+k.sisa,0));
   const pj = (typeof POLP !== 'undefined' && POLP.jumlah) || Object.keys(POLW || {}).length, kq = (typeof POLP !== 'undefined' && POLP.kuota) || 100;
-  if (pj < kq) out.push({id:'POLISI-NUSAWARA', nama:'Kantor Polisi Republik Nusawara', ikon:'👮', kosong:[{p:'Polisi Patroli', ik:'👮', sisa: kq - pj}]});
+  if (pj < kq) out.push({id:'POLISI-NUSAWARA', nama:'Kantor Polisi Republik Nusawara', ikon:'👮', kosong:[{p:'Polisi Patroli', ik:'👮', sisa: kq - pj, isi: pj, kuota: kq}]});
   return out; }
 function lowonganBukaTempat(id){
   if (id === 'POLISI-NUSAWARA'){ select(null); hideHint(); try { POLP.mode = 'daftar'; } catch(_) {} polisiBuka(); return; }
@@ -4622,7 +4622,7 @@ function tapPilihBuka(){
       ov.querySelector('#tpPilihan').innerHTML = '<p style="font-size:13px;font-weight:800;margin:14px 2px 4px">📢 Tempat yang sedang buka lowongan</p>'
         + (punya ? '<p style="font-size:12px;margin:0 2px 6px;color:#ffd84a">💼 Kamu sudah punya pekerjaan. Aturan: 1 warga 1 pekerjaan, jadi kamu hanya bisa melihat daftar lowongan.</p>' : '<p style="font-size:12px;margin:0 2px 6px;opacity:.85">Ketuk salah satu untuk membuka halamannya, lalu daftar kerja di sana.</p>')
         + (low.length ? low.map(L=>`<button data-tp-lowid="${esc(L.id)}" style="display:flex;gap:10px;align-items:center;width:100%;margin-top:6px;padding:10px;border-radius:12px;border:2px solid #f2c14e;background:#0005;color:#fff;font:inherit;cursor:pointer;text-align:left">
-            <span style="font-size:28px;line-height:1">${L.ikon}</span><span style="flex:1"><b style="display:block;font-size:14px">${esc(L.nama)}</b><small style="display:block;font-size:11px;opacity:.85;margin-top:2px">${L.kosong.reduce((s,k)=>s+k.sisa,0)} kursi kosong · ${L.kosong.slice(0,3).map(k=>esc(k.p)).join(', ')}${L.kosong.length > 3 ? ' +' + (L.kosong.length - 3) + ' posisi lain' : ''}</small></span><b style="font-size:18px;color:#ffd84a">›</b></button>`).join('')
+            <span style="font-size:28px;line-height:1">${L.ikon}</span><span style="flex:1"><b style="display:block;font-size:14px">${esc(L.nama)}</b><small style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">${L.kosong.map(k=>`<span style="font-size:11px;background:#ffffff1f;border-radius:8px;padding:2px 7px">${esc(k.p)} <b style="color:#ffd84a">${k.isi}/${k.kuota}</b></span>`).join('')}</small></span><b style="font-size:18px;color:#ffd84a">›</b></button>`).join('')
           : '<p style="font-size:12px;opacity:.85">Belum ada lowongan. Cek lagi nanti, ya!</p>');
       try { b.scrollIntoView({behavior:'smooth', block:'start'}); } catch(_) {} return; }
     if (b.hasAttribute('data-tp-kerja')){ const m = ov.querySelector('#tpMsg');
@@ -7947,6 +7947,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 20 Nov 01:51</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 20 Nov 02:05</div>
 </body>
 </html>
