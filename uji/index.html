@@ -3,7 +3,7 @@
 <head><base href="../"><meta name="robots" content="noindex">
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
-<meta name="nusawara-build" content="20261119-0855">
+<meta name="nusawara-build" content="20261120-0035">
 <script>window.addEventListener('error',function(e){try{if(/Autofill|Script error/.test(e.message||''))return;var d=document.getElementById('errBox');if(!d){d=document.createElement('div');d.id='errBox';d.style.cssText='position:fixed;left:6px;bottom:60px;z-index:99;font:600 11px system-ui,sans-serif;color:#fff;background:#c62828ee;border-radius:6px;padding:4px 8px;max-width:92vw;pointer-events:none';(document.body||document.documentElement).appendChild(d)}d.textContent='ERR: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||'')}catch(_){}});</script>
 <script>(function(){try{var m=document.querySelector('meta[name=nusawara-build]'),cur=m&&m.content;if(!cur)return;
 fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var x=t.match(/name="nusawara-build" content="([^"]+)"/);
@@ -3265,7 +3265,7 @@ let POSTMAP = {}, POSTSIG = '';
 var FASBOX = {};
 function fasBox(id){
   if (FASBOX[id]) return FASBOX[id];
-  try { for (const o of pickables){ const u = o && o.userData; if (u && u.type === 'fasilitas' && u.data && u.data.id === id){ const b = new THREE.Box3().setFromObject(o); if (isFinite(b.min.x)) return (FASBOX[id] = b); } } } catch(_) {}
+  try { for (const o of pickables){ const u = o && o.userData; if (u && u.type === 'fasilitas' && u.data && u.data.id === id){ const b = new THREE.Box3().setFromObject(o); if (u.depan) b.depan = u.depan; if (isFinite(b.min.x)) return (FASBOX[id] = b); } } } catch(_) {}
   return null;
 }
 function postWorker(k){
@@ -3278,8 +3278,8 @@ function postWorker(k){
      
       if (e){ const n = e.pos.length, st = e.pos[(i-1) % n], r = Math.floor((i-1) / n);   // tiap pekerja punya titik sendiri; kelebihan digeser agar tidak menumpuk
         POSTMAP[u] = {e, x: st[0] + r*1.3, z: st[1] + (r % 2 ? 1.3 : 0), y: st[2]||0}; }
-      else { const b = fasBox(f); if (b){ const cx = (b.min.x + b.max.x)/2, per = 8, c = (i-1) % per, rw = Math.floor((i-1) / per);   // gedung tanpa ruang dalam: berjajar di depan gedung
-        POSTMAP[u] = {e:null, x: cx + (c - (per-1)/2)*1.8, z: b.max.z + 2.4 + rw*1.9, y:0}; } } }); }
+      else { const b = fasBox(f); if (b){ const cx = b.depan ? b.depan.x : (b.min.x + b.max.x)/2, z0 = b.depan ? b.depan.z : b.max.z + 2.4, per = 8, c = (i-1) % per, rw = Math.floor((i-1) / per);   // gedung tanpa ruang dalam: berjajar di depan gedung (titik depan khusus jika ada)
+        POSTMAP[u] = {e:null, x: cx + (c - (per-1)/2)*1.8, z: z0 + rw*1.9, y:0}; } } }); }
   return POSTMAP[k] || null;
 }
 /* titik di depan tempat kerja (pintu gedung) untuk warga yang bekerja */
@@ -5783,15 +5783,20 @@ function sambutanHTML(){ return `<div class="kicker">Selamat datang!</div><h2>�
   <div class="card"><h3>🎁 Hadiah warga baru</h3><div class="saldo">+${N$(300)}</div><p class="note">Sudah masuk ke saldomu. Gunakan untuk memulai hidupmu di Nusawara.</p></div>
   <button class="btn" data-cara>📖 Baca cara main di Republik Nusawara</button>`; }
 function caraMainHTML(){ return `<div class="kicker">Panduan Warga</div><h2>📖 Cara Main di Republik Nusawara</h2>
-  <div class="card"><h3>1. Masuk & dapat modal</h3><p>Tekan <b>🔑 Masuk</b> di kanan atas. Warga baru langsung dapat <b>N$300</b>. Uang Nusawara disebut <b>Nusa (N$)</b>.</p></div>
-  <div class="card"><h3>2. Absen setiap hari</h3><p>Klaim absen di akunmu: hari 1–2 dapat N$10, hari 3–5 N$25, hari 6 dan seterusnya N$50. Lupa sehari? Ulang dari hari 1.</p></div>
-  <div class="card"><h3>3. Menambang</h3><p>Pergi ke Kawasan Tambang (selatan Pelabuhan). Sekali klik dapat 5 bahan. Tiap tambang maksimal 10× sehari.</p></div>
-  <div class="card"><h3>4. Mengolah di pabrik</h3><p>Ubah bahan mentah jadi bahan olahan di Kawasan Industri (utara Pelabuhan). Tidak ada batas harian, cukup bayar biaya olah.</p></div>
-  <div class="card"><h3>5. Jual-beli di PRN</h3><p>Tekan gedung Garuda di Distrik Pusat. Beli bahan selama stok Negara ada, jual bahan selama Kas Negara cukup.</p></div>
-  <div class="card"><h3>6. Beli tanah & bangun</h3><p>Pilih tanah sesuai bangunanmu: rumah kecil (N$1.000) atau rumah modern (N$1.800) di Kawasan Residensial, toko kecil/modern di Kavling Toko, pabrik (N$2.500) di Kavling Pabrik. Boleh punya lebih dari satu.<br>
-    Lalu tekan <b>Bangun</b>: setor bahan atau bayar ke Negara. Setelah lunas, pilih desain siap pakai (langsung berdiri) atau kirim desainmu sendiri.</p></div>
-  <div class="card"><h3>7. Donasi untuk Negara</h3><p>Donasikan bahan atau N$ di Papan Donasi (sebelah barat podium). Setiap bahan dihitung poin, N$1 = 1 poin. Donatur terbanyak diangkat jadi Wakil Presiden, juara 2 dan 3 jadi Penasihat Negara, dicek tiap hari Senin. Uang donasi masuk Kas Negara.</p></div>
-  <div class="card"><h3>8. Aturan penting</h3><p>Satu orang satu akun. Jangan berikan Kata Sandi Warga ke siapa pun. Semua uang, tanah, dan bangunan di Nusawara bersifat virtual.</p></div>
+  <div class="card"><h3>1. Masuk sebagai warga</h3><p>Tekan <b>🔑 Masuk</b> di kanan atas. Warga baru langsung dapat <b>N$300</b>. Uang Nusawara disebut <b>Nusa (N$)</b>. Jangan lupa <b>absen harian</b> di akunmu untuk N$ gratis setiap hari.</p></div>
+  <div class="card"><h3>2. Tekan tombol 💰 Tap N$</h3><p>Semua cara mendapat uang ada di tombol bulat <b>💰 Tap N$</b> di peta. Pilih <b>⚒️ Kerja</b> untuk bekerja, atau <b>🏭 Cetak Uang untuk Negara</b> untuk uang tambahan.</p></div>
+  <div class="card"><h3>3. Daftar kerja</h3><p>Cari gedung yang memasang papan <b>📢 DIBUKA LOWONGAN PEKERJAAN</b>. Tekan gedungnya, pilih posisi yang masih kosong, lalu daftar dengan username dan <b>Kata Sandi Warga</b>. Satu warga hanya boleh <b>satu pekerjaan</b>.</p></div>
+  <div class="card"><h3>4. Bekerja dengan tap</h3><p>Buka <b>💰 Tap N$ → ⚒️ Kerja</b>, lalu tap di Ruang Kerja. Setiap tap = <b>+N$10</b> ke kas gedung untuk membayar gaji karyawan.<br>
+    • Tap minimal <b>20 kali sehari</b> agar digaji hari itu (batas 1.000 tap per toko per hari).<br>
+    • Kas cukup = gaji penuh, kas kurang = 30% gaji, kas kosong = tidak digaji. Jadi rajinlah tap bersama rekan kerja!<br>
+    • Gaji diterima lewat pop-up <b>Terima Gaji</b>, hanya berlaku hari itu (sebelum 00.00 WIB).<br>
+    • Karyawan terbaik tiap minggu dapat bonus: 🥇 +100%, 🥈 +75%, 🥉 +50% gaji harian.</p></div>
+  <div class="card"><h3>5. Uang tambahan di Pabrik Uang Nusawara</h3><p>Buka <b>💰 Tap N$ → 🏭 Cetak Uang untuk Negara</b>. Setiap tap mencetak uang untukmu: mulai <b>N$1</b>, lalu naik ke N$5, N$10, N$50, sampai <b>N$100</b> per tap seiring total tap-mu.<br>
+    • Ada batas tap harian yang masuk ke saldomu (direset 00.00 WIB). Lewat batas, uangnya masuk <b>Kas Negara</b>.<br>
+    • Setiap tap juga menambah <b>+1 poin donasi</b> atas namamu di Papan Donasi.</p></div>
+  <div class="card"><h3>6. Jadi Wakil Presiden 👑</h3><p>Donasikan N$ di <b>Papan Donasi</b> (sebelah barat podium), atau kumpulkan poin lewat tap di Pabrik Uang. Setiap <b>hari Senin</b> dicek: <b>donatur nomor 1</b> diangkat jadi <b>Wakil Presiden</b> minggu itu, juara 2 dan 3 jadi <b>Penasihat Negara</b>. Semuanya dapat gaji jabatan harian.<br>
+    Catatan: Wakil Presiden dan Penasihat hanya memegang jabatan, tidak boleh punya pekerjaan.</p></div>
+  <div class="card"><h3>7. Aturan penting</h3><p>Satu orang satu akun. Jangan berikan Kata Sandi Warga ke siapa pun. Semua uang, gaji, dan jabatan di Nusawara bersifat virtual.</p></div>
   <button class="btn" data-klaim>📅 Sekarang klaim N$ harianmu!</button>
 `; }
 let KES = null;
@@ -7794,7 +7799,7 @@ function loop(){
     // belakang: dermaga bongkar muat + 2 truk
     b(26,.06,24,0x9aa0a8,0,.07,-35); b(18,4.5,5,0xbfc3ca,0,2.25,-25.5); [-4.5,4.5].forEach(x=>b(5,3.2,.1,0x222,x,1.7,-28.05));
     [-4.5,4.5].forEach(x=>{ b(3.2,3.4,7,0xffffff,x,2.1,-32.5); b(3,2.4,2.4,0x2f6fbf,x,1.6,-37.2); b(.9,.04,6,YEL,x-2.4,.1,-32); b(.9,.04,6,YEL,x+2.4,.1,-32); });
-    g.userData = {type:'fasilitas', data:{id:'MALL-NUSAWARA'}}; pickables.push(g);
+    g.userData = {type:'fasilitas', data:{id:'MALL-NUSAWARA'}, depan:{x:MX, z:MZ+32}}; pickables.push(g);   // pekerja berdiri di depan pintu atrium (bukan di ujung plaza)
     if (typeof COLL !== 'undefined'){ COLL.push([MX,MZ,35,23]); COLL.push([MX,MZ+26,10.5,3.5]); } }
   // ===== TOKO KAMERA REPUBLIK NUSAWARA — saran warga @kindomcream; 2 lantai, mengikuti gambar =====
   try { const TX = 262, TZ = -250;
@@ -7910,6 +7915,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 19 Nov 08:55</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 20 Nov 00:35</div>
 </body>
 </html>
