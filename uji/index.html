@@ -4426,7 +4426,7 @@ function polLProfil(u){ POLL.view = 'profil'; const r = polLive().find(x=>x.u ==
     <div class="sr"><span>${r.lv >= 5 ? '🏅 Pangkat tertinggi' : '🎯 Menuju ' + POL_PANGKAT[nx-1]}</span><b>${r.lv >= 5 ? '✓' : (POL_SYARAT[nx-1] - r.total).toLocaleString('id-ID') + ' tap lagi'}</b></div></div>`); }
 function polisiBuka(){
   if (POLL.ov) return; const ov = document.createElement('div'); ov.id = 'polL'; POLL.ov = ov; document.body.appendChild(ov);
-  ov.innerHTML = `<div class="pl"><div class="atas"><img src="../assets/polisi-kantor.jpg?v=1119" alt="Kantor Polisi Republik Nusawara"><button class="hs" style="left:1.6%" data-pl-help aria-label="Bantuan"></button><button class="hs" style="right:1.4%" data-pl-x aria-label="Tutup"></button></div>
+  ov.innerHTML = `<div class="pl"><div class="atas"><img src="assets/polisi-kantor.jpg?v=1120" alt="Kantor Polisi Republik Nusawara"><button class="hs" style="left:1.6%" data-pl-help aria-label="Bantuan"></button><button class="hs" style="right:1.4%" data-pl-x aria-label="Tutup"></button></div>
     <div class="bwrap"><button class="yb" data-pl-latihan><span class="ic">👆</span><span class="tx">Latihan Polisi</span><span class="ar">»</span></button>
       <button class="yb" data-pl-daftar><span class="ic">📝</span><span class="tx">Daftar Polisi</span><span class="ar">»</span></button>
       <div class="tiles"><button class="tile" data-pl-pangkat><span class="ic">🎖️</span>Pangkat</button><button class="tile" data-pl-peringkat><span class="ic">🏆</span>Peringkat</button></div></div></div>`;
@@ -7915,6 +7915,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 20 Nov 00:35</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 20 Nov 01:39</div>
 </body>
 </html>
