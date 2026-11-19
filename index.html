@@ -4577,18 +4577,39 @@ function sambutPop(){
       if (e.target.closest('[data-sp-x]')){ ov.remove(); res(); } });
   });
 }
+/* daftar tempat yang sedang membuka lowongan (sama dengan papan 📢 DIBUKA LOWONGAN PEKERJAAN di peta) */
+function lowonganDaftar(){
+  const rows = Array.isArray(window.KERJA_ALL) ? window.KERJA_ALL : [], out = [];
+  Object.keys(FAS).forEach(id=>{ const F = FAS[id]; if (!F || !Array.isArray(F.pos)) return;
+    if (typeof LOWONGAN !== 'undefined' && LOWONGAN[id] === undefined) return;   // gedung tidak ada / disembunyikan di peta
+    const kosong = [];
+    F.pos.forEach(([p,q,ik],i)=>{ if (i === 0) return; const n = rows.filter(r=>r.fasilitas === id && r.posisi === p).length; if (n < q) kosong.push({p, ik: ik || '💼', sisa: q - n}); });
+    if (kosong.length) out.push({id, nama: F.nama, ikon: F.ikon || '🏢', kosong}); });
+  out.sort((a,b)=>b.kosong.reduce((s,k)=>s+k.sisa,0) - a.kosong.reduce((s,k)=>s+k.sisa,0));
+  const pj = (typeof POLP !== 'undefined' && POLP.jumlah) || Object.keys(POLW || {}).length, kq = (typeof POLP !== 'undefined' && POLP.kuota) || 100;
+  if (pj < kq) out.push({id:'POLISI-NUSAWARA', nama:'Kantor Polisi Republik Nusawara', ikon:'👮', kosong:[{p:'Polisi Patroli', ik:'👮', sisa: kq - pj}]});
+  return out; }
+function lowonganBukaTempat(id){
+  if (id === 'POLISI-NUSAWARA'){ select(null); hideHint(); try { POLP.mode = 'daftar'; } catch(_) {} polisiBuka(); return; }
+  let g = null; for (const o of pickables){ const u = o && o.userData; if (u && (u.type === 'fasilitas' || u.type === 'stadion') && u.data && u.data.id === id){ g = o; break; } }
+  if (!g){ openSheet(()=>fasHTML(id)); return; }
+  try { const p = g.getWorldPosition(new THREE.Vector3()), bb = new THREE.Box3().setFromObject(g); flyTo(new THREE.Vector3(p.x, 2, (bb.min.z + bb.max.z)/2), new THREE.Vector3(p.x + 10, 34, bb.max.z + 40)); } catch(_) {}
+  focusObj(g); }
 function tapPilihBuka(){
   const old = document.getElementById('tapPilih'); if (old) old.remove();
   const ov = document.createElement('div'); ov.id = 'tapPilih';
   ov.style.cssText = 'position:fixed;inset:0;z-index:99989;background:rgba(8,14,28,.6);display:flex;align-items:center;justify-content:center;padding:18px;font-family:inherit';
-  const kj = kerjaSaya();
+  const kj = kerjaSaya(), pol = !!(AKUN.u && POLW && POLW[AKUN.u]), punya = kj.length > 0 || pol, low = lowonganDaftar();
   const kartu = (ik, judul, ket, attr, warna) => `<button ${attr} style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:3px solid #f2c14e;border-radius:18px;padding:14px;margin-top:10px;cursor:pointer;color:#fff;background:${warna};font:inherit;box-shadow:0 5px 0 rgba(0,0,0,.25)">
       <span style="font-size:38px;line-height:1">${ik}</span><span><b style="display:block;font-size:17px">${judul}</b><small style="display:block;font-size:12px;opacity:.9;margin-top:2px">${ket}</small></span></button>`;
-  ov.innerHTML = `<div style="width:100%;max-width:360px;background:linear-gradient(180deg,#1f3a5f,#16263d);border:3px solid #f2c14e;border-radius:22px;padding:16px;color:#fff;position:relative;box-shadow:0 14px 40px rgba(0,0,0,.5)">
+  const ketKerja = !AKUN.u ? 'Masuk dulu sebagai warga' : kj.length ? 'Tap +N$10 ke kas ' + esc(kj.map(id=>FAS[id].nama).join(', ')) : pol ? 'Latihan Polisi di Kantor Polisi' : 'Kamu belum punya pekerjaan';
+  const ketLow = !low.length ? 'Belum ada lowongan saat ini' : punya ? `${low.length} tempat buka lowongan · kamu sudah bekerja, hanya bisa melihat` : `${low.length} tempat sedang buka lowongan · ayo daftar kerja!`;
+  ov.innerHTML = `<div style="width:100%;max-width:360px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(180deg,#1f3a5f,#16263d);border:3px solid #f2c14e;border-radius:22px;padding:16px;color:#fff;position:relative;box-shadow:0 14px 40px rgba(0,0,0,.5)">
     <button data-tp-x style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:2px solid #f2c14e;background:#e0162f;color:#fff;font-weight:900;cursor:pointer">✕</button>
     <div style="font-size:12px;opacity:.8">💰 Tap N$</div><b style="font-size:20px">Mau tap untuk apa?</b>
-    ${kartu('🏭', 'Cetak Uang untuk Negara', 'Pabrik Uang Nusawara · cetak N$1 sampai N$100, lewat batas harian masuk Kas Negara', 'data-tp-negara', 'linear-gradient(135deg,#e0162f,#8f0a1d)')}
-    ${kartu('⚒️', 'Kerja', !AKUN.u ? 'Masuk dulu sebagai warga' : kj.length ? 'Tap +N$10 ke kas ' + esc(kj.map(id=>FAS[id].nama).join(', ')) : 'Kamu belum punya pekerjaan', 'data-tp-kerja', 'linear-gradient(135deg,#2e9e48,#17602a)')}
+    ${kartu('🏭', 'Cari Uang Tambahan', 'Pabrik Uang Nusawara · cetak N$1 sampai N$100, lewat batas harian masuk Kas Negara', 'data-tp-negara', 'linear-gradient(135deg,#e0162f,#8f0a1d)')}
+    ${kartu('⚒️', 'Kerja', ketKerja, 'data-tp-kerja', 'linear-gradient(135deg,#2e9e48,#17602a)')}
+    ${kartu('📢', 'Lowongan Pekerjaan', ketLow, 'data-tp-low', 'linear-gradient(135deg,#f29a2e,#b4580b)')}
     <div id="tpPilihan"></div><p id="tpMsg" style="font-size:12px;margin:10px 2px 0;min-height:14px"></p></div>`;
   document.body.appendChild(ov);
   ov.addEventListener('click', e=>{ const b = e.target.closest('button');
@@ -4596,9 +4617,18 @@ function tapPilihBuka(){
     if (!b) return;
     if (b.hasAttribute('data-tp-negara')){ ov.remove(); pabrikUangBuka(); return; }
     if (b.dataset.tpFas){ ov.remove(); kerjaBuka(b.dataset.tpFas); return; }
+    if (b.dataset.tpLowid){ ov.remove(); lowonganBukaTempat(b.dataset.tpLowid); return; }
+    if (b.hasAttribute('data-tp-low')){ const m = ov.querySelector('#tpMsg'); m.innerHTML = '';
+      ov.querySelector('#tpPilihan').innerHTML = '<p style="font-size:13px;font-weight:800;margin:14px 2px 4px">📢 Tempat yang sedang buka lowongan</p>'
+        + (punya ? '<p style="font-size:12px;margin:0 2px 6px;color:#ffd84a">💼 Kamu sudah punya pekerjaan. Aturan: 1 warga 1 pekerjaan, jadi kamu hanya bisa melihat daftar lowongan.</p>' : '<p style="font-size:12px;margin:0 2px 6px;opacity:.85">Ketuk salah satu untuk membuka halamannya, lalu daftar kerja di sana.</p>')
+        + (low.length ? low.map(L=>`<button data-tp-lowid="${esc(L.id)}" style="display:flex;gap:10px;align-items:center;width:100%;margin-top:6px;padding:10px;border-radius:12px;border:2px solid #f2c14e;background:#0005;color:#fff;font:inherit;cursor:pointer;text-align:left">
+            <span style="font-size:28px;line-height:1">${L.ikon}</span><span style="flex:1"><b style="display:block;font-size:14px">${esc(L.nama)}</b><small style="display:block;font-size:11px;opacity:.85;margin-top:2px">${L.kosong.reduce((s,k)=>s+k.sisa,0)} kursi kosong · ${L.kosong.slice(0,3).map(k=>esc(k.p)).join(', ')}${L.kosong.length > 3 ? ' +' + (L.kosong.length - 3) + ' posisi lain' : ''}</small></span><b style="font-size:18px;color:#ffd84a">›</b></button>`).join('')
+          : '<p style="font-size:12px;opacity:.85">Belum ada lowongan. Cek lagi nanti, ya!</p>');
+      try { b.scrollIntoView({behavior:'smooth', block:'start'}); } catch(_) {} return; }
     if (b.hasAttribute('data-tp-kerja')){ const m = ov.querySelector('#tpMsg');
       if (!AKUN.u){ ov.remove(); openSheet(akunHTML); return; }
-      if (!kj.length){ m.innerHTML = '❌ Kamu belum bekerja. Daftar kerja dulu di gedung yang membuka lowongan (cari papan <b>📢 DIBUKA LOWONGAN PEKERJAAN</b>).'; return; }
+      if (!kj.length && pol){ ov.remove(); select(null); hideHint(); polisiBuka(); return; }
+      if (!kj.length){ m.innerHTML = '❌ Kamu belum bekerja. Tekan <b>📢 Lowongan Pekerjaan</b> untuk mencari tempat kerja.'; return; }
       if (kj.length === 1){ ov.remove(); kerjaBuka(kj[0]); return; }
       ov.querySelector('#tpPilihan').innerHTML = '<p style="font-size:12px;margin:12px 2px 0">Pilih tempat kerja:</p>' + kj.map(id=>`<button data-tp-fas="${esc(id)}" style="display:block;width:100%;margin-top:6px;padding:10px;border-radius:12px;border:2px solid #7ee08a;background:#0005;color:#fff;font:inherit;font-weight:700;cursor:pointer;text-align:left">${FAS[id].ikon} ${esc(FAS[id].nama)}</button>`).join(''); } });
 }
@@ -7917,6 +7947,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 20 Nov 01:47</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 20 Nov 01:51</div>
 </body>
 </html>
