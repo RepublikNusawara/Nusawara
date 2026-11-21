@@ -4316,7 +4316,7 @@ function polProfil(u){ const o = POLP.ov; if (!o) return; const r = polLive().fi
     <div class="sr"><span>🏆 Peringkat</span><b>#${r.rank}</b></div><div class="sr"><span>👆 Total Tap</span><b>${Number(r.total).toLocaleString('id-ID')}</b></div><div class="sr"><span>🧍 Gender</span><b>${gN}</b></div>
     <div class="sr"><span>${r.lv >= 5 ? '🏅 Pangkat tertinggi' : '🎯 Menuju ' + POL_PANGKAT[nx-1]}</span><b>${r.lv >= 5 ? '✓' : (POL_SYARAT[nx-1] - r.total).toLocaleString('id-ID') + ' poin lagi'}</b></div></div>`; }
 function polAturan(){ const o = POLP.ov; if (!o) return; let f = o.querySelector('.full'); if (!f){ f = document.createElement('div'); f.className = 'full'; o.querySelector('.pp').appendChild(f); }
-  const li = [['🆓','Daftar jadi polisi <b>gratis</b>. Kuota sementara <b>100 polisi</b>.'],['🧍','Pilih gender: <b>Pria</b>, <b>Wanita</b>, atau <b>Berhijab</b>. Seragam karaktermu di peta otomatis berganti jadi seragam polisi.'],
+  const li = [['🆓','Daftar jadi polisi <b>gratis</b>. Kuota sementara <b>100 polisi</b>.'],['🧍','Pilih gender: <b>Pria</b>, <b>Wanita</b>, atau <b>Berhijab</b>. Seragam karaktermu di peta otomatis berganti jadi seragam polisi. <b>Daftar dan pilih gender hanya bisa 1x</b>, tidak bisa diubah lagi.'],
     ['🎯','Tekan <b>TAP</b> untuk menembak penjahat yang lewat di bidikan: Pisau/Senapan +50, Kantong Uang +100, Boss +150, Boss Mode +200 poin. <b>Pangkat naik berdasarkan total poin</b>: daftar = Lv0 Calon Polisi · 5.000 Polisi Junior · 10.000 Polisi Muda · 30.000 Polisi Senior · 75.000 Kepala Polisi · 150.000 Komandan Polisi. Poin hari ini direset setiap hari.'],
     ['👆','Setiap 1 tap = <b>+N$10 otomatis masuk Kas Negara</b>.'],['⭐','Pangkat: <b>Polisi Junior</b> (awal) → <b>Polisi Muda</b> 2.500 tap → <b>Polisi Senior</b> 10.000 tap → <b>Kepala Polisi</b> 30.000 tap → <b>Komandan Polisi</b> 75.000 tap. Seragam ikut berubah setiap naik pangkat.'],
     ['💵','<b>Gaji polisi per hari</b>: Patroli N$50 · Muda N$80 · Senior N$120 · Kepala N$180 · Komandan N$240. Gaji dibayar <b>harian</b> dan <b>dipotong dari Kas Negara</b>. Gaji hari itu terbuka setelah <b>20 tap latihan</b>, diterima lewat pop-up <b>Terima Gaji</b> (berlaku hari itu dan besoknya).'],
@@ -4513,7 +4513,6 @@ function polRender2(){ const o = POLP.ov; if (!o) return; const q = s=>o.querySe
     POLP.lvLama = lv; } }
 function polBangun(){ const ov = POLP.ov; if (!ov) return; const masuk = !!(AKUN.u && AKUN.s), me = AKUN.u, S = POLP.saya;
   if (masuk && S && POLP.mode !== 'daftar'){ ov.innerHTML = pp2HTML(); POLP.lvLama = polisiLv(polTotal()); ov.dataset.s = '1'; polRender2(); tembakMulai();
-    try { const k = 'polL0_' + me; if (!localStorage.getItem(k)){ localStorage.setItem(k, '1'); if (POLP.lvLama === 0) setTimeout(()=>polNaikPop(-1, 0), 300); } } catch(_) {}
     if (me === 'julianto_jul'){ const art = ov.querySelector('.pp2 .art');   // Admin: ketuk kartu pangkat untuk melihat ucapan naik pangkat
       PP2_K.forEach((k, i)=>{ const h = document.createElement('button'); h.className = 'hs'; h.title = 'Admin: lihat ucapan Lv ' + (i + 1); h.style.cssText = `left:${(k[0]/10.24).toFixed(2)}%;top:70.5%;width:${((k[1]-k[0])/10.24).toFixed(2)}%;height:20.9%;border-radius:1.6cqw;z-index:6`;
         h.addEventListener('click', ()=>polNaikPop(i, i + 1)); art.appendChild(h); });
@@ -4524,7 +4523,7 @@ function polBangun(){ const ov = POLP.ov; if (!ov) return; const masuk = !!(AKUN
     tb.addEventListener('pointerdown', tap); ov.querySelector('[data-tb-hit]').addEventListener('pointerdown', tap);
     return; }
   const isi = !masuk ? `<div class="daftar"><h3>🔑 Masuk dulu</h3><p>Masuk sebagai Warga Republik Nusawara untuk mendaftar jadi polisi.</p><button class="btnD" data-pp-masuk>Masuk</button></div>`
-    : POLP.mode === 'daftar' && S ? `<div class="daftar"><h3>✅ Kamu sudah Polisi Nusawara</h3><p>Pangkatmu sekarang <b style="color:#ffd84a">${POL_PANGKAT[polisiLv(polTotal())-1]}</b>. Kamu bisa mengganti gender seragammu di bawah.</p><div class="gs" id="ppGs"></div><button class="btnD" id="ppGanti">💾 Simpan Gender</button><button class="btnD" style="margin-top:8px;background:linear-gradient(180deg,#ffd84a,#e3a51c);color:#2a1d00;box-shadow:0 4px 0 #9a6a0b" data-pp-latihan>👆 Mulai Latihan Polisi »</button></div>`
+    : POLP.mode === 'daftar' && S ? `<div class="daftar"><h3>✅ Kamu sudah terdaftar sebagai Polisi Nusawara</h3><p>Pangkatmu sekarang <b style="color:#ffd84a">${POL_PANGKAT[polisiLv(polTotal())-1]}</b>. Gender seragam: <b>${({pria:'👮 Pria', wanita:'👮‍♀️ Wanita', hijab:'🧕 Berhijab'})[S.g] || S.g}</b> (dipilih saat daftar, tidak bisa diubah).</p><button class="btnD" style="margin-top:8px;background:linear-gradient(180deg,#ffd84a,#e3a51c);color:#2a1d00;box-shadow:0 4px 0 #9a6a0b" data-pp-latihan>👆 Mulai Latihan Polisi »</button></div>`
     : POLP.mode !== 'daftar' && !S ? `<div class="daftar"><h3>🚫 Belum terdaftar</h3><p>Daftar dulu jadi Polisi Nusawara (gratis) untuk mulai latihan.</p><button class="btnD" data-pp-kedaftar>📝 Daftar Polisi</button></div>`
     : !S ? `<div class="daftar"><h3>👮 Daftar Jadi Polisi Nusawara</h3><p>Gratis! Kuota sementara <b id="ppKuota">${POLP.jumlah}/${POLP.kuota}</b> polisi. Pilih gendermu — seragam karaktermu otomatis jadi seragam polisi.</p><div class="gs" id="ppGs"></div><button class="btnD" id="ppDaftar" disabled>Pilih gender dulu</button></div>`
     : `<div class="lvbar"><div class="shield" id="ppLv">Lv 1</div><div class="pk" id="ppNm">Polisi Junior</div><div class="pg"><small id="ppTo">Progress ke Lv 2</small><div class="b"><i id="ppBar" style="width:0%"></i><span id="ppBt">0 / 2.500 Tap</span></div></div><div class="pct" id="ppPc">0%</div></div>
@@ -4546,7 +4545,7 @@ function polBangun(){ const ov = POLP.ov; if (!ov) return; const masuk = !!(AKUN
     ${isi}
     <div class="foot"><span class="ii">i</span><span>Lakukan Tap untuk Latihan, kumpulkan Tap sesuai syarat dan naikkan pangkatmu menjadi <em>Komandan Polisi Nusawara</em>!</span></div></div>`;
   POLP.lvLama = S ? polisiLv(polTotal()) : 0; ov.dataset.s = S ? '1' : '0';
-  if (S && POLP.mode === 'daftar'){ if (!POLP.gPilih) POLP.gPilih = S.g; polDaftarRender(); }
+  if (S && POLP.mode === 'daftar'){ POLP.gPilih = S.g; }
   const btn = ov.querySelector('#ppTap');
   if (btn) btn.addEventListener('pointerdown', e=>{ e.preventDefault(); const kini = performance.now(); if (kini - (POLP.last || 0) < 120) return; POLP.last = kini; polSuara(); btn.classList.add('on'); setTimeout(()=>btn.classList.remove('on'), 90);
     POLP.pending++; const p = document.createElement('span'); p.className = 'plus'; p.textContent = '+1'; btn.appendChild(p); setTimeout(()=>p.remove(), 800);
@@ -4653,7 +4652,7 @@ function polisiBuka(){
     else if (t.hasAttribute('data-pl-help')){ POLL.view = 'aturan'; polLFull(polLKepala('📜 Aturan Polisi Nusawara') + [['🆓','Daftar jadi polisi <b>gratis</b>. Kuota sementara <b>100 polisi</b>.'],['🧍','Pilih gender: <b>Pria</b>, <b>Wanita</b>, atau <b>Berhijab</b>. Seragam karaktermu di peta otomatis jadi seragam polisi.'],['👆','Buka <b>Latihan Polisi</b> lalu tekan TAP untuk mengumpulkan tap.'],['⭐','Pangkat: <b>Polisi Junior</b> → <b>Polisi Muda</b> 2.500 → <b>Polisi Senior</b> 10.000 → <b>Kepala Polisi</b> 30.000 → <b>Komandan Polisi</b> 75.000 tap. Seragam berubah tiap naik pangkat.'],['🏆','Lihat semua polisi di menu <b>Pangkat</b> dan <b>Peringkat</b>.']].map(([i,x],k)=>`<div style="display:flex;gap:10px;background:#ffffff14;border-radius:12px;padding:9px 10px;margin-bottom:7px;font-size:13px;line-height:1.45"><span style="font-size:20px">${i}</span><span><b style="color:#ffd84a">${k+1}.</b> ${x}</span></div>`).join('')); }
     else if (t.hasAttribute('data-pl-back')){ const f = ov.querySelector('.full'); if (f) f.remove(); POLL.view = null; }
     else if (t.hasAttribute('data-pl-latihan')) polLatihanBuka('latihan');
-    else if (t.hasAttribute('data-pl-daftar')) polLatihanBuka('daftar');
+    else if (t.hasAttribute('data-pl-daftar')){ if (AKUN.u && POLP.saya) toast('✅ Kamu sudah terdaftar sebagai Polisi Nusawara.'); else polLatihanBuka('daftar'); }
     else if (t.hasAttribute('data-pl-pangkat')) polLPangkat();
     else if (t.hasAttribute('data-pl-peringkat')) polLPeringkat();
     else if (t.hasAttribute('data-pl-u')) polLProfil(t.getAttribute('data-pl-u')); });
@@ -4674,13 +4673,13 @@ function polLatihanBuka(mode){
     else if (t.hasAttribute('data-pp-u')){ polProfil(t.getAttribute('data-pp-u')); }
     else if (t.hasAttribute('data-pp-masuk')){ polisiTutup(); polLandingTutup(); openSheet(akunHTML); }
     else if (t.hasAttribute('data-pp-kedaftar')){ POLP.mode = 'daftar'; polBangun(); }
-    else if (t.hasAttribute('data-pp-latihan')){ POLP.mode = 'latihan'; polBangun(); }
+    else if (t.hasAttribute('data-pp-latihan')){ POLP.mode = 'latihan'; polBangun(); if (POLP.baruDaftar){ POLP.baruDaftar = false; setTimeout(()=>polNaikPop(-1, 0), 250); } }   // ucapan Lv0 setelah daftar
     else if (t.id === 'ppGanti'){ t.disabled = true; try { const r = await SB.rpc('polisi_daftar', {p_user: AKUN.u, p_sandi: AKUN.s, p_gender: POLP.gPilih}); if (r && r.ok){ POLP.saya.g = POLP.gPilih; polisiSet(AKUN.u, POLP.gPilih, polisiLv(polTotal())); toast('✅ Gender seragam disimpan.'); } else toast('❌ Gagal menyimpan.'); } catch(_) { toast('❌ Gagal tersambung.'); } t.disabled = false; }
     else if (t.hasAttribute('data-pp-g')){ POLP.gPilih = t.getAttribute('data-pp-g'); polDaftarRender(); }
     else if (t.id === 'ppDaftar'){ if (!POLP.gPilih) return; t.disabled = true; t.textContent = 'Mendaftar…';
       try { const r = await SB.rpc('polisi_daftar', {p_user: AKUN.u, p_sandi: AKUN.s, p_gender: POLP.gPilih});
-        if (r && r.ok){ polisiSet(AKUN.u, POLP.gPilih, 1); toast('👮 Selamat! Kamu resmi jadi Polisi Junior Republik Nusawara.'); POLP.mode = 'latihan'; await polPapan(); polBangun(); }
-        else { const m = {sudah_kerja:'💼 Kamu sudah punya pekerjaan. Polisi dihitung sebagai pekerjaan, jadi keluar dulu dari pekerjaanmu.', jabatan_tinggi:'🏛️ Wakil Presiden dan Penasihat Negara hanya boleh memegang jabatan.', penuh:'⛔ Kuota polisi sudah penuh (100).', sandi:'❌ Sesi masuk berakhir. Masuk lagi.', warga:'❌ Hanya untuk Warga Republik Nusawara.', gender:'❌ Pilih gender dulu.'}[r && r.alasan] || '❌ Gagal mendaftar.'; toast(m); polDaftarRender(); } }
+        if (r && r.ok){ polisiSet(AKUN.u, POLP.gPilih, 1); POLP.baruDaftar = true; POLP.mode = 'daftar'; await polPapan(); polBangun(); }
+        else { const m = {sudah_kerja:'💼 Kamu sudah punya pekerjaan. Polisi dihitung sebagai pekerjaan, jadi keluar dulu dari pekerjaanmu.', jabatan_tinggi:'🏛️ Wakil Presiden dan Penasihat Negara hanya boleh memegang jabatan.', penuh:'⛔ Kuota polisi sudah penuh (100).', sudah:'✅ Kamu sudah terdaftar sebagai Polisi Nusawara.', sandi:'❌ Sesi masuk berakhir. Masuk lagi.', warga:'❌ Hanya untuk Warga Republik Nusawara.', gender:'❌ Pilih gender dulu.'}[r && r.alasan] || '❌ Gagal mendaftar.'; toast(m); polDaftarRender(); } }
       catch(_) { toast('❌ Gagal tersambung. Coba lagi.'); polDaftarRender(); } } });
   POLP.timer = setInterval(polKirim, 700); POLP.rkTimer = setInterval(polPapan, 6000); polPapan();
 }
@@ -8163,6 +8162,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 14:46</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 14:57</div>
 </body>
 </html>
