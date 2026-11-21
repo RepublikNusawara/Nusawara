@@ -4409,27 +4409,27 @@ const TB_BID = 0.387;   // posisi bidikan dalam jalur (0..1) — tetap diam
 const TB_JENIS = [
   {i:1, poin:50,  v:1,   w:0.19},
   {i:3, poin:50,  v:1,   w:0.19},
-  {i:2, poin:100, v:1.5, w:0.19},
-  {i:4, poin:150, v:2,   w:0.165},
-  {i:5, poin:200, v:1.2, w:0.295, langka:true}];   // Boss Mode: muncul tiap 10 putaran penjahat 50 poin
-function tembakHTML(){ return `<div class="xgame">${TB_JENIS.map(j=>`<div class="xpj" data-i="${j.i}" style="width:${(j.w*100).toFixed(1)}%;${j.langka ? 'display:none;z-index:3;' : j.i === 4 ? 'z-index:2;' : ''}"><img src="assets/penjahat${j.i}.png?v=1121b" alt=""></div>`).join('')}</div>
+  {i:2, poin:100, v:1.5, w:0.19,  langka:true, tiap:2},    // muncul tiap 2 putaran penjahat 50 poin
+  {i:4, poin:150, v:2,   w:0.165, langka:true, tiap:5},    // muncul tiap 5 putaran penjahat 50 poin
+  {i:5, poin:200, v:1.5, w:0.295, langka:true, tiap:10}];  // Boss Mode: tiap 10 putaran, kecepatan sama dengan penjahat 100 poin
+function tembakHTML(){ return `<div class="xgame">${TB_JENIS.map(j=>`<div class="xpj" data-i="${j.i}" style="width:${(j.w*100).toFixed(1)}%;${j.langka ? 'display:none;z-index:' + (j.poin / 50) + ';' : ''}"><img src="assets/penjahat${j.i}.png?v=1121b" alt=""></div>`).join('')}</div>
   <svg class="xbid" viewBox="0 0 100 100"><g fill="none" stroke="#fff" stroke-width="12"><circle cx="50" cy="50" r="30"/><path d="M50 4V30M50 70V96M4 50H30M70 50H96"/></g><g fill="none" stroke="#e8152b" stroke-width="6"><circle cx="50" cy="50" r="30"/><path d="M50 6V30M50 70V94M6 50H30M70 50H94"/></g><circle cx="50" cy="50" r="5" fill="#e8152b" stroke="#fff" stroke-width="2"/></svg>
   <i class="xtrc"></i>
   <svg class="xflash" viewBox="0 0 100 100"><polygon fill="#fff6b0" points="50,0 58,36 96,18 66,46 100,52 64,58 92,88 56,66 50,100 42,66 10,90 36,58 0,50 36,42 8,14 44,34"/><circle cx="50" cy="50" r="16" fill="#fff"/></svg>
   <div class="xskor">Skor Tembak<b id="tbSkor">0</b></div>
   <button class="xhit" data-tb-hit aria-label="Tembak"></button>`; }
 function tembakMulai(){ const o = POLP.ov; if (!o) return; const g = o.querySelector('.xgame'); if (!g) return;
-  const V = 0.16, awal = [0, 0.55, 0.3, 0.8, 0];
-  TEMBAK.pj = TB_JENIS.map((j, k)=>({...j, el: g.querySelector(`.xpj[data-i="${j.i}"]`), x: j.langka ? -j.w : -j.w + awal[k] * (1 + j.w), mati: 0, aktif: !j.langka}));
+  const V = 0.16, awal = [0, 0.55];
+  TEMBAK.pj = TB_JENIS.map((j, k)=>({...j, el: g.querySelector(`.xpj[data-i="${j.i}"]`), x: j.langka ? -j.w : -j.w + (awal[k] || 0) * (1 + j.w), mati: 0, aktif: !j.langka}));
   TEMBAK.skor = 0; TEMBAK.putaran = 0; cancelAnimationFrame(TEMBAK.raf);
   let last = performance.now();
   const step = (now)=>{ if (!document.body.contains(g)) return; const dt = Math.min(0.05, (now - last) / 1000); last = now;
     TEMBAK.pj.forEach(p=>{ if (!p.aktif) return;
       p.x += dt * V * p.v;   // bergerak ke kanan, tembus, lalu muncul lagi dari kiri
       if (p.x > 1){
-        if (p.langka){ p.aktif = false; p.mati = 0; p.el.classList.remove('kena'); p.el.style.display = 'none'; return; }   // Boss Mode hanya lewat sekali
+        if (p.langka){ p.aktif = false; p.mati = 0; p.el.classList.remove('kena'); p.el.style.display = 'none'; return; }   // penjahat langka hanya lewat sekali per kemunculan
         p.x -= 1 + p.w; if (p.mati){ p.mati = 0; p.el.classList.remove('kena'); }
-        if (p.i === 1 && ++TEMBAK.putaran % 10 === 0){ const b = TEMBAK.pj.find(q=>q.langka); if (b && !b.aktif){ b.aktif = true; b.x = -b.w; b.mati = 0; b.el.classList.remove('kena'); b.el.style.display = ''; } }
+        if (p.i === 1){ TEMBAK.putaran++; TEMBAK.pj.forEach(b=>{ if (b.langka && !b.aktif && TEMBAK.putaran % b.tiap === 0){ b.aktif = true; b.x = -b.w; b.mati = 0; b.el.classList.remove('kena'); b.el.style.display = ''; } }); }
       }
       p.el.style.left = (p.x * 100).toFixed(2) + '%'; p.el.style.transform = p.mati ? '' : `translateY(${(Math.abs(Math.sin(now / (p.langka ? 110 : 160) + p.i)) * -4).toFixed(1)}%)`; });
     TEMBAK.raf = requestAnimationFrame(step); };
@@ -8123,6 +8123,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 13:49</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 13:55</div>
 </body>
 </html>
