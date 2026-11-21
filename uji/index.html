@@ -4485,11 +4485,21 @@ function polNaikPop(dari, ke){ const old = document.getElementById('polNaik'); i
     d.style.left = (Math.random() < .5 ? Math.random() * 18 : 82 + Math.random() * 18) + '%'; d.style.top = (Math.random() * 6 - 3) + '%'; d.style.animationDelay = (Math.random() * 1.6).toFixed(2) + 's'; nk.appendChild(d); } });
   ov.addEventListener('click', e=>{ if (e.target === ov || e.target.closest('.ok')) ov.remove(); });
   document.body.appendChild(ov); try { polSuara(); } catch(_) {} }
-/* musik latihan menembak (sama dengan video): ganti musik peta selama latihan */
-const LAT_MUSIK = {a: null, petaJalan: false};
-function latMusikMulai(){ try { if (window.NUSA_SOUND === false) return; const peta = window.__nusaBgm; LAT_MUSIK.petaJalan = !!(peta && !peta.paused); if (LAT_MUSIK.petaJalan) peta.pause();
-  const a = LAT_MUSIK.a || (LAT_MUSIK.a = new Audio('media/musik-latihan.mp3?v=1122')); a.loop = true; a.volume = .35; a.setAttribute('playsinline', ''); const pp = a.play(); if (pp && pp.catch) pp.catch(()=>{}); } catch(_) {} }
-function latMusikStop(){ try { if (LAT_MUSIK.a) LAT_MUSIK.a.pause(); if (LAT_MUSIK.petaJalan && window.__nusaBgm && window.NUSA_SOUND !== false){ const pp = window.__nusaBgm.play(); if (pp && pp.catch) pp.catch(()=>{}); } LAT_MUSIK.petaJalan = false; } catch(_) {} }
+/* musik latihan menembak: Rekrutmen Semangat versi loop 30 dtk, diputar tanpa jeda (Web Audio); musik peta dimatikan selama latihan */
+const LAT_MUSIK = {ctx: null, buf: null, src: null, gain: null, el: null, aktif: false};
+async function latMusikMulai(){ window.__nusaBgmBlok = true; try { music.stop(); } catch(_) {}
+  LAT_MUSIK.aktif = true; if (window.NUSA_SOUND === false) return;
+  try { const C = LAT_MUSIK.ctx || (LAT_MUSIK.ctx = new (window.AudioContext || window.webkitAudioContext)()); if (C.state !== 'running') C.resume().catch(()=>{});
+    if (!LAT_MUSIK.buf){ const r = await fetch('media/musik-latihan.mp3?v=1122b'); LAT_MUSIK.buf = await C.decodeAudioData(await r.arrayBuffer()); }
+    if (!LAT_MUSIK.aktif || LAT_MUSIK.src) return;
+    const g = LAT_MUSIK.gain = C.createGain(); g.gain.setValueAtTime(0, C.currentTime); g.gain.linearRampToValueAtTime(.35, C.currentTime + .6); g.connect(C.destination);
+    const s = C.createBufferSource(); s.buffer = LAT_MUSIK.buf; s.loop = true; s.loopStart = 30; s.loopEnd = 60;   // file berisi 3× putaran 30 dtk: ulang 30→60 = mulus
+    s.connect(g); s.start(); LAT_MUSIK.src = s;
+  } catch(_) { try { const el = LAT_MUSIK.el || (LAT_MUSIK.el = new Audio('media/musik-latihan.mp3?v=1122b')); el.loop = true; el.volume = .35; const pp = el.play(); if (pp && pp.catch) pp.catch(()=>{}); } catch(__) {} } }
+function latMusikStop(){ LAT_MUSIK.aktif = false;
+  try { if (LAT_MUSIK.src){ const C = LAT_MUSIK.ctx, s = LAT_MUSIK.src, g = LAT_MUSIK.gain; g.gain.setValueAtTime(g.gain.value, C.currentTime); g.gain.linearRampToValueAtTime(0, C.currentTime + .4); s.stop(C.currentTime + .45); } } catch(_) {}
+  LAT_MUSIK.src = null; try { if (LAT_MUSIK.el) LAT_MUSIK.el.pause(); } catch(_) {}
+  window.__nusaBgmBlok = false; try { music.start(); } catch(_) {} }
 function pp2HTML(){ const me = AKUN.u, S = POLP.saya, px = (x)=>(x / 10.24).toFixed(2) + '%';
   return `<div class="pp pp2"><div class="art"><img class="bg" src="assets/polisi-tembak2.jpg?v=1121" alt="Sistem Pangkat Polisi Nusawara">${tembakHTML()}
     <button class="hs" data-pp-help style="left:3.4%;top:1.6%;width:8.4%;height:5.6%" aria-label="Bantuan"></button><button class="hs" data-pp-x style="left:88.4%;top:1%;width:8.8%;height:5.8%" aria-label="Tutup"></button>
@@ -6981,7 +6991,7 @@ const music = (()=>{
   const bgm = new Audio('media/musik-peta.mp3'); bgm.loop = true; bgm.preload = 'auto'; bgm.volume = .55; bgm.setAttribute('playsinline','');
   window.__nusaBgm = bgm;
   function start(){
-    if (!on) return;
+    if (!on || window.__nusaBgmBlok) return;   // diblok selama latihan polisi
     started = true; bgm.muted = false;
     const pp = bgm.play(); if (pp && pp.catch) pp.catch(()=>{ started = false; });
   }
@@ -6995,7 +7005,7 @@ const music = (()=>{
     try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch(_) {}
     if (actx && actx.state !== 'running') actx.resume().catch(()=>{});
   }
-  const kick = ()=>{ if (!on) return; unlock(); if (!started || bgm.paused) start(); };
+  const kick = ()=>{ if (!on || window.__nusaBgmBlok) return; unlock(); if (!started || bgm.paused) start(); };
   ['pointerdown','touchend','click','keydown'].forEach(ev=>addEventListener(ev, kick, {passive:true}));
   document.addEventListener('visibilitychange', ()=>{ if (document.hidden) stop(); else if (on) start(); });
   return { start, stop };
@@ -8173,6 +8183,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 22 Nov 03:04</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 22 Nov 03:12</div>
 </body>
 </html>
