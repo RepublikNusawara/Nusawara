@@ -4161,7 +4161,7 @@ function pabrikUangBuka(){
 // ---------- SISTEM PANGKAT POLISI NUSAWARA: daftar gratis (kuota 100), pilih gender, naik pangkat dengan tap latihan ----------
 const POLP = {ov:null, pending:0, sibuk:false, timer:null, rkTimer:null, last:0, saya:null, top:[], jumlah:0, kuota:100, gPilih:null, imgs:{}, r:null, ac:null};
 (()=>{ const st = document.createElement('style'); st.textContent = `
-  #polP{position:fixed;inset:0;z-index:99990;background:rgba(6,14,38,.78);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(10px,env(safe-area-inset-top)) 8px 16px;font-family:inherit;-webkit-user-select:none;user-select:none}
+  #polP{position:fixed;inset:0;z-index:99990;background:rgba(6,14,38,.78);display:flex;align-items:center;justify-content:center;overflow:auto;padding:10px 8px;font-family:inherit;-webkit-user-select:none;user-select:none}
   #polP .pp{width:100%;max-width:460px;border-radius:24px;padding:12px 10px 12px;background:linear-gradient(180deg,#3d8be0 0%,#1f5fb8 38%,#16418f 100%);border:4px solid #f2c14e;color:#fff;position:relative;box-shadow:0 14px 44px rgba(0,0,0,.55)}
   #polP .rb{position:absolute;top:10px;width:42px;height:42px;border-radius:50%;border:3px solid #fff;font-weight:900;font-size:20px;cursor:pointer;z-index:3;box-shadow:0 3px 0 #0005}
   #polP .hdr{margin:2px 46px 10px;text-align:center;background:linear-gradient(180deg,#1c3f8f,#122a66);border:4px solid #f2c14e;border-radius:22px;padding:22px 8px 10px;position:relative}
@@ -4347,13 +4347,13 @@ function polDaftarRender(){ const o = POLP.ov; if (!o) return; const q = s=>o.qu
   const b = q('#ppDaftar'); if (b){ b.disabled = !POLP.gPilih || penuh; b.textContent = penuh ? '⛔ Kuota polisi sudah penuh' : POLP.gPilih ? '👆 Mulai Latihan Polisi »' : 'Pilih gender dulu'; } }
 /* ---------- HALAMAN LATIHAN POLISI (desain gambar, angka diisi otomatis) ---------- */
 (()=>{ const st = document.createElement('style'); st.textContent = `
-  #polP .pp.pp2{max-width:520px;padding:0;background:none;border:0;box-shadow:0 14px 44px rgba(0,0,0,.55);border-radius:22px;overflow:hidden;container-type:inline-size}
+  #polP .pp.pp2{max-width:520px;padding:0;background:none;border:0;box-shadow:none;border-radius:0;overflow:visible;container-type:inline-size}
   #polP .pp2 .art{position:relative;line-height:0}#polP .pp2 .art>img.bg{width:100%;display:block}
   #polP .pp2 .o{position:absolute;line-height:1.1;white-space:nowrap;font-weight:900;color:#fff;overflow:hidden;text-overflow:ellipsis}
   #polP .pp2 .hs{position:absolute;background:transparent;border:0;cursor:pointer;padding:0;border-radius:50%}
   #polP .pp2 .xnm,#polP .pp2 .xpk{top:19.1%;font-size:3.1cqw;max-width:24%;transform:translateY(-50%)}
   #polP .pp2 .xnm{left:21.4%}#polP .pp2 .xpk{left:61.9%;max-width:27%;font-size:2.75cqw}
-  #polP .pp2 .xlv{left:11.9%;top:42.95%;transform:translate(-50%,-50%);font-size:3.3cqw;color:#ffe46b;text-shadow:0 .3cqw 0 #061a4a}
+  #polP .pp2 .xlv{left:11.9%;top:42.95%;transform:translate(-50%,-50%);height:3.2%;width:7%;display:flex;align-items:center;justify-content:center}
   #polP .pp2 .xpkn{left:18.4%;top:42.95%;transform:translateY(-50%);font-size:2.75cqw;color:#1b1300;max-width:20.5%}
   #polP .pp2 .xto{left:42.6%;top:41.6%;transform:translateY(-50%);font-size:2.4cqw}
   #polP .pp2 .xfill{position:absolute;left:42.7%;top:43.05%;height:1.82%;border-radius:999px;background:linear-gradient(180deg,#9dff7a 0%,#2ee02e 40%,#14b514 100%);box-shadow:inset 0 2px 0 #ffffff88;transition:width .25s}
@@ -4500,8 +4500,17 @@ function latMusikStop(){ LAT_MUSIK.aktif = false;
   try { if (LAT_MUSIK.src){ const C = LAT_MUSIK.ctx, s = LAT_MUSIK.src, g = LAT_MUSIK.gain; g.gain.setValueAtTime(g.gain.value, C.currentTime); g.gain.linearRampToValueAtTime(0, C.currentTime + .4); s.stop(C.currentTime + .45); } } catch(_) {}
   LAT_MUSIK.src = null; try { if (LAT_MUSIK.el) LAT_MUSIK.el.pause(); } catch(_) {}
   window.__nusaBgmBlok = false; try { music.start(); } catch(_) {} }
+/* tabel Lencana Pangkat (dipakai di Kantor Polisi & Latihan) */
+function lencanaHTML(lv){ const kartu = i=>{ const buka = lv >= i, kini = lv === i;
+    return `<div class="lk${buka ? '' : ' kunci'}${kini ? ' kini' : ''}"><img src="assets/lencana/k${i}.jpg?v=1122" alt="${POL_PANGKAT[i-1]}">
+      ${buka ? `<span class="st ${kini ? 'on' : ''}">${kini ? '✓ Saat Ini' : '✓ Terbuka'}</span>` : `<span class="gk">🔒<b>${POL_SYARAT[i-1].toLocaleString('id-ID')} Poin</b></span>`}</div>`; };
+  return `<div class="lh">⭐ Lencana Pangkat Polisi ⭐</div><div class="lr">${[1,2,3,4,5].map(kartu).join('')}</div>`; }
+function ppLencana(lv){ const el = POLP.ov && POLP.ov.querySelector('#ppLenc'); if (!el) return; el.innerHTML = lencanaHTML(lv); el.querySelectorAll('img').forEach(i=>i.addEventListener('load', window.ppFit)); ppFit(); [200, 800, 2000].forEach(t=>setTimeout(window.ppFit, t)); }
+/* halaman Latihan Polisi pas satu layar */
+function ppFit(){ const pp = POLP.ov && POLP.ov.querySelector('.pp2'); if (!pp) return; pp.style.maxWidth = ''; const avail = window.innerHeight - 24, h = pp.offsetHeight, w = pp.offsetWidth; if (h > avail) pp.style.maxWidth = Math.floor(w * avail / h) + 'px'; }   // tinggi sebanding lebar: perkecil lebar agar pas satu layar
+window.ppFit = ()=>{ try { ppFit(); } catch(_) {} }; window.addEventListener('resize', window.ppFit);
 function pp2HTML(){ const me = AKUN.u, S = POLP.saya, px = (x)=>(x / 10.24).toFixed(2) + '%';
-  return `<div class="pp pp2"><div class="art"><img class="bg" src="assets/polisi-tembak3.jpg?v=1122b" alt="Sistem Pangkat Polisi Nusawara">${tembakHTML()}
+  return `<div class="pp pp2"><div class="art"><img class="bg" onload="window.ppFit && ppFit()" src="assets/polisi-tembak3.jpg?v=1122b" alt="Sistem Pangkat Polisi Nusawara">${tembakHTML()}
     <button class="hs" data-pp-help style="left:3.4%;top:1.6%;width:8.4%;height:5.6%" aria-label="Bantuan"></button><button class="hs" data-pp-x style="left:88.4%;top:1%;width:8.8%;height:5.8%" aria-label="Tutup"></button>
     <span class="o xnm">${esc(namaW(me))}</span><span class="o xpk" id="ppPk"></span>
     <span class="o xlv" id="ppLv"></span><span class="o xpkn" id="ppNm"></span><span class="o xto" id="ppTo"></span>
@@ -4511,16 +4520,17 @@ function pp2HTML(){ const me = AKUN.u, S = POLP.saya, px = (x)=>(x / 10.24).toFi
     <div class="xrk" id="ppRk"></div>
     <button class="hs" data-pp-semua style="left:59.3%;top:63.9%;width:32.5%;height:2.7%;border-radius:999px" aria-label="Lihat Peringkat Lengkap"></button>
     <i class="xcur" id="ppCur"></i>${PP2_X.map((x, i)=>`<span class="xsy" id="ppSy${i}" style="left:${px(x)}"></span>`).join('')}
-    <div class="msg"></div></div></div>`; }
+    <div class="msg"></div></div><div class="lenc" id="ppLenc"></div></div>`; }
 function polRender2(){ const o = POLP.ov; if (!o) return; const q = s=>o.querySelector(s), me = AKUN.u, S = POLP.saya; if (!S) return;
   const tot = polTotal(), lv = polisiLv(tot), nx = Math.min(5, lv + 1), maks = lv >= 5, b = maks ? POL_MAKS : POL_SYARAT[nx - 1], pc = Math.min(100, Math.floor(tot / b * 100));
   const live = polLive(), ix = live.findIndex(r=>r.u === me), rank = ix >= 0 ? ix + 1 : S.rank;
-  q('#ppPk').textContent = `${POL_PANGKAT[lv-1]} (Lv ${lv})`; q('#ppLv').textContent = 'Lv ' + lv; q('#ppNm').textContent = POL_PANGKAT[lv-1];
+  q('#ppPk').textContent = `${POL_PANGKAT[lv-1]} (Lv ${lv})`; if (q('#ppLv').dataset.lv != lv){ q('#ppLv').dataset.lv = lv; q('#ppLv').innerHTML = `<img src="assets/lencana/i${Math.max(1, lv)}.png?v=1122" alt="" style="height:100%;width:auto;display:block;margin:auto${lv ? '' : ';filter:grayscale(1) brightness(1.15);opacity:.55'}">`; ppLencana(lv); }
+  q('#ppNm').textContent = `Lv${lv} ${POL_PANGKAT[lv-1]}`;
   q('#ppTo').textContent = maks ? 'Pangkat tertinggi!' : 'Progress ke Lv ' + nx;
   q('#ppBar').style.width = (43.36 * pc / 100).toFixed(2) + '%';
   q('#ppBt').textContent = `${tot.toLocaleString('id-ID')} / ${b.toLocaleString('id-ID')} Poin`; q('#ppPc').textContent = pc + '%';
   const ph = Number(S.poin_hari || 0) + (POLP.pendPoin || 0); q('#ppHari').textContent = ph.toLocaleString('id-ID'); const sk = q('#tbSkor'); if (sk) sk.textContent = ph.toLocaleString('id-ID'); q('#ppTot').textContent = tot.toLocaleString('id-ID'); [['#ppHari', 0], ['#ppTot', 0]].forEach(([id])=>{ const e = q(id); e.style.fontSize = Math.min(2.4, 20 / Math.max(5, e.textContent.length)).toFixed(2) + "cqw"; });
-  q('#ppNm').style.fontSize = Math.min(2.75, 36 / POL_PANGKAT[lv-1].length).toFixed(2) + 'cqw'; q('#ppPk').style.fontSize = Math.min(2.75, 50 / q('#ppPk').textContent.length).toFixed(2) + 'cqw'; q('#ppRank').textContent = '#' + (rank || '–');
+  q('#ppNm').style.fontSize = Math.min(2.6, 38 / q('#ppNm').textContent.length).toFixed(2) + 'cqw'; q('#ppPk').style.fontSize = Math.min(2.75, 50 / q('#ppPk').textContent.length).toFixed(2) + 'cqw'; q('#ppRank').textContent = '#' + (rank || '–');
   const row = (r, me1)=>`<div class="r${me1 ? ' me' : ''}" data-pp-u="${esc(r.u)}"><span class="n${r.rank <= 3 ? ' m' + r.rank : ''}">${r.rank}</span><img src="${polImg(r.u, r.g, r.lv)}" alt=""><span class="u">@${esc(namaW(r.u)).replace(/^@/, '')}</span><span class="p${r.lv === 5 ? ' mx' : ''}">${POL_PANGKAT[r.lv-1]}</span><span class="t">${Number(r.total).toLocaleString('id-ID')}</span></div>`;
   const top = live.slice(0, rank > 5 ? 4 : 5);
   q('#ppRk').innerHTML = top.map(r=>row(r, r.u === me)).join('') + (rank > 5 ? row({u: me, g: S.g, lv, total: tot, rank}, true) : '') + '<div class="r" style="visibility:hidden"></div>'.repeat(Math.max(0, 5 - top.length - (rank > 5 ? 1 : 0)));
@@ -4624,6 +4634,21 @@ function polBangun(){ const ov = POLP.ov; if (!ov) return; const masuk = !!(AKUN
 #polL .lenc .st{position:absolute;left:50%;top:-8px;transform:translateX(-50%);line-height:1;white-space:nowrap;font-weight:900;font-size:clamp(7px,2.1vw,10px);background:linear-gradient(180deg,#5aa6ff,#2a62d6);border:1.5px solid #fff;border-radius:999px;padding:2px 5px;color:#fff}
 #polL .lenc .st.on{background:linear-gradient(180deg,#5fe05f,#1f9a2a);border-color:#d9ffd0}
 #polL .lenc .lr{padding-top:6px}
+#polP .lenc{margin:14px 0 2px;border-radius:18px;border:4px solid #f2c14e;background:linear-gradient(180deg,#1f56c8,#123d8f);padding:30px 8px 10px;position:relative}
+#polP .lenc .lh{position:absolute;left:50%;top:-18px;transform:translateX(-50%);white-space:nowrap;background:linear-gradient(180deg,#1a3f94,#0f2a6e);border:3px solid #f2c14e;border-radius:999px;padding:4px 16px;font-weight:900;font-size:clamp(13px,3.8vw,17px);text-shadow:0 2px 0 #071a45}
+#polP .lenc .lr{display:flex;gap:6px;justify-content:center}#polP .lenc .lr.dua{margin-top:6px}
+#polP .lenc .lr{gap:4px}#polP .lenc .lr .lk{flex:1 1 0;min-width:0}
+#polP .lenc .lk{position:relative;border-radius:8px;line-height:0}
+#polP .lenc .lk img{width:100%;aspect-ratio:456/422;object-fit:cover;display:block;border-radius:8px}
+#polP .lenc .lk.kunci img{filter:grayscale(1) brightness(.5)}
+#polP .lenc .lk.kini{box-shadow:0 0 0 3px #ffe46b,0 0 16px #ffe46b;animation:lkGlow 1.6s ease-in-out infinite}@keyframes lkGlow{50%{box-shadow:0 0 0 3px #ffe46b,0 0 4px #ffe46b}}
+#polP .lenc .gk{position:absolute;left:50%;top:32%;transform:translate(-50%,-50%);line-height:1.1;font-size:clamp(13px,4vw,20px);text-align:center;white-space:nowrap}
+#polP .lenc .gk b{display:block;font-size:clamp(7px,2.1vw,10px);background:#0d2a6ae6;border:1.5px solid #f2c14e;border-radius:999px;padding:1px 4px;margin-top:3px;color:#ffd84a}
+#polP .lenc .st{position:absolute;left:50%;top:-8px;transform:translateX(-50%);line-height:1;white-space:nowrap;font-weight:900;font-size:clamp(7px,2.1vw,10px);background:linear-gradient(180deg,#5aa6ff,#2a62d6);border:1.5px solid #fff;border-radius:999px;padding:2px 5px;color:#fff}
+#polP .lenc .st.on{background:linear-gradient(180deg,#5fe05f,#1f9a2a);border-color:#d9ffd0}
+#polP .lenc .lr{padding-top:6px}
+#polP .lenc{margin:22px 0 0;box-shadow:0 10px 30px #0007}
+#polP .pp2 .art{border-radius:22px;overflow:hidden;box-shadow:0 14px 44px rgba(0,0,0,.55)}
 #polL .full{position:absolute;inset:0;background:linear-gradient(180deg,#1f5fb8,#122a66);padding:14px;overflow:auto;z-index:5}
   #polL .full h3{margin:0;flex:1;font-size:19px;color:#ffd84a}
   #polL .back{border:2px solid #f2c14e;background:#244fa8;color:#fff;font-weight:900;border-radius:999px;padding:6px 12px;cursor:pointer}
@@ -4664,7 +4689,7 @@ function polLLencana(lv){ const el = POLL.ov && POLL.ov.querySelector('#plLenc')
       ${buka ? `<span class="st ${kini ? 'on' : ''}">${kini ? '✓ Saat Ini' : '✓ Terbuka'}</span>` : `<span class="gk">🔒<b>${POL_SYARAT[i-1].toLocaleString('id-ID')} Poin</b></span>`}</div>`; };
   el.innerHTML = `<div class="lh">⭐ Lencana Pangkat Polisi ⭐</div><div class="lr">${[1,2,3,4,5].map(kartu).join('')}</div>`; polLFit(); }
 /* halaman Kantor Polisi dibuat pas satu layar (diperkecil otomatis bila perlu) */
-function polLFit(){ const ov = POLL.ov, pl = ov && ov.querySelector('.pl'); if (!pl) return; pl.style.zoom = 1; const avail = window.innerHeight - 32, h = pl.offsetHeight; pl.style.zoom = h > avail ? (avail / h).toFixed(3) : 1; }
+function polLFit(){ const ov = POLL.ov, pl = ov && ov.querySelector('.pl'); if (!pl) return; pl.style.zoom = 1; const avail = window.innerHeight - 32, h = pl.offsetHeight; pl.style.zoom = h > avail ? (avail / h).toFixed(3) : 1; if (h > avail){ const h2 = pl.getBoundingClientRect().height; if (h2 > avail + 2) pl.style.zoom = (avail / h * avail / h2).toFixed(3); } }
 window.polLFit = ()=>{ try { polLFit(); } catch(_) {} }; window.addEventListener('resize', window.polLFit);
 function polLandingTutup(){ if (!POLL.ov) return; clearInterval(POLL.timer); POLL.ov.remove(); POLL.ov = null; }
 function polLFull(html){ const pl = POLL.ov && POLL.ov.querySelector('.pl'); if (!pl) return; let f = pl.querySelector('.full'); if (!f){ f = document.createElement('div'); f.className = 'full'; pl.appendChild(f); } f.innerHTML = html; pl.scrollIntoView({block:'start'}); }
@@ -8207,6 +8232,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 22 Nov 03:54</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 22 Nov 04:10</div>
 </body>
 </html>
