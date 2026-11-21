@@ -4572,7 +4572,7 @@ function polBangun(){ const ov = POLP.ov; if (!ov) return; const masuk = !!(AKUN
   if (S && POLP.mode !== 'daftar') polRender(); else if (masuk && !S) polDaftarRender(); }
 // ---------- HALAMAN DEPAN KANTOR POLISI (muncul saat gedung diketuk): Latihan · Daftar · Pangkat · Peringkat ----------
 (()=>{ const st = document.createElement('style'); st.textContent = `
-  #polL{position:fixed;inset:0;z-index:99980;background:rgba(6,14,38,.78);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(10px,env(safe-area-inset-top)) 8px 16px;-webkit-user-select:none;user-select:none}
+  #polL{position:fixed;inset:0;z-index:99980;background:rgba(6,14,38,.78);display:flex;align-items:center;justify-content:center;overflow:auto;padding:10px 8px;-webkit-user-select:none;user-select:none}
   #polL .pl{width:100%;max-width:520px;border-radius:24px;overflow:hidden;background:linear-gradient(180deg,#1f5fc8 0%,#1a4fae 40%,#143c8c 100%);border:4px solid #f2c14e;box-shadow:0 14px 44px rgba(0,0,0,.55);position:relative;color:#fff}
   #polL .atas{position:relative;line-height:0}#polL .atas img{width:100%;display:block}
   #polL .hs{position:absolute;top:1.5%;width:9%;aspect-ratio:1;border-radius:50%;background:transparent;border:0;cursor:pointer}
@@ -4614,14 +4614,14 @@ function polBangun(){ const ov = POLP.ov; if (!ov) return; const masuk = !!(AKUN
 #polL .lenc{margin:14px 0 2px;border-radius:18px;border:4px solid #f2c14e;background:linear-gradient(180deg,#1f56c8,#123d8f);padding:30px 8px 10px;position:relative}
 #polL .lenc .lh{position:absolute;left:50%;top:-18px;transform:translateX(-50%);white-space:nowrap;background:linear-gradient(180deg,#1a3f94,#0f2a6e);border:3px solid #f2c14e;border-radius:999px;padding:4px 16px;font-weight:900;font-size:clamp(13px,3.8vw,17px);text-shadow:0 2px 0 #071a45}
 #polL .lenc .lr{display:flex;gap:6px;justify-content:center}#polL .lenc .lr.dua{margin-top:6px}
-#polL .lenc .lr .lk{flex:0 0 31.5%}#polL .lenc .lr.dua .lk{flex:0 0 37.5%}
-#polL .lenc .lk{position:relative;border-radius:12px;line-height:0}
-#polL .lenc .lk img{width:100%;display:block;border-radius:12px}
+#polL .lenc .lr{gap:4px}#polL .lenc .lr .lk{flex:1 1 0;min-width:0}
+#polL .lenc .lk{position:relative;border-radius:8px;line-height:0}
+#polL .lenc .lk img{width:100%;aspect-ratio:456/422;object-fit:cover;display:block;border-radius:8px}
 #polL .lenc .lk.kunci img{filter:grayscale(1) brightness(.5)}
 #polL .lenc .lk.kini{box-shadow:0 0 0 3px #ffe46b,0 0 16px #ffe46b;animation:lkGlow 1.6s ease-in-out infinite}@keyframes lkGlow{50%{box-shadow:0 0 0 3px #ffe46b,0 0 4px #ffe46b}}
-#polL .lenc .gk{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%);line-height:1.1;font-size:clamp(20px,6vw,28px);text-align:center;white-space:nowrap}
-#polL .lenc .gk b{display:block;font-size:clamp(10px,2.9vw,13px);background:#0d2a6ae6;border:2px solid #f2c14e;border-radius:999px;padding:2px 8px;margin-top:3px;color:#ffd84a}
-#polL .lenc .st{position:absolute;left:50%;top:-8px;transform:translateX(-50%);line-height:1;white-space:nowrap;font-weight:900;font-size:clamp(10px,2.8vw,12px);background:linear-gradient(180deg,#5aa6ff,#2a62d6);border:2px solid #fff;border-radius:999px;padding:3px 9px;color:#fff}
+#polL .lenc .gk{position:absolute;left:50%;top:32%;transform:translate(-50%,-50%);line-height:1.1;font-size:clamp(13px,4vw,20px);text-align:center;white-space:nowrap}
+#polL .lenc .gk b{display:block;font-size:clamp(7px,2.1vw,10px);background:#0d2a6ae6;border:1.5px solid #f2c14e;border-radius:999px;padding:1px 4px;margin-top:3px;color:#ffd84a}
+#polL .lenc .st{position:absolute;left:50%;top:-8px;transform:translateX(-50%);line-height:1;white-space:nowrap;font-weight:900;font-size:clamp(7px,2.1vw,10px);background:linear-gradient(180deg,#5aa6ff,#2a62d6);border:1.5px solid #fff;border-radius:999px;padding:2px 5px;color:#fff}
 #polL .lenc .st.on{background:linear-gradient(180deg,#5fe05f,#1f9a2a);border-color:#d9ffd0}
 #polL .lenc .lr{padding-top:6px}
 #polL .full{position:absolute;inset:0;background:linear-gradient(180deg,#1f5fb8,#122a66);padding:14px;overflow:auto;z-index:5}
@@ -4662,7 +4662,10 @@ function polLLencana(lv){ const el = POLL.ov && POLL.ov.querySelector('#plLenc')
   const kartu = i=>{ const buka = lv >= i, kini = lv === i;
     return `<div class="lk${buka ? '' : ' kunci'}${kini ? ' kini' : ''}"><img src="assets/lencana/k${i}.jpg?v=1122" alt="${POL_PANGKAT[i-1]}">
       ${buka ? `<span class="st ${kini ? 'on' : ''}">${kini ? '✓ Saat Ini' : '✓ Terbuka'}</span>` : `<span class="gk">🔒<b>${POL_SYARAT[i-1].toLocaleString('id-ID')} Poin</b></span>`}</div>`; };
-  el.innerHTML = `<div class="lh">⭐ Lencana Pangkat Polisi ⭐</div><div class="lr">${[1,2,3].map(kartu).join('')}</div><div class="lr dua">${[4,5].map(kartu).join('')}</div>`; }
+  el.innerHTML = `<div class="lh">⭐ Lencana Pangkat Polisi ⭐</div><div class="lr">${[1,2,3,4,5].map(kartu).join('')}</div>`; polLFit(); }
+/* halaman Kantor Polisi dibuat pas satu layar (diperkecil otomatis bila perlu) */
+function polLFit(){ const ov = POLL.ov, pl = ov && ov.querySelector('.pl'); if (!pl) return; pl.style.zoom = 1; const avail = window.innerHeight - 32, h = pl.offsetHeight; pl.style.zoom = h > avail ? (avail / h).toFixed(3) : 1; }
+window.polLFit = ()=>{ try { polLFit(); } catch(_) {} }; window.addEventListener('resize', window.polLFit);
 function polLandingTutup(){ if (!POLL.ov) return; clearInterval(POLL.timer); POLL.ov.remove(); POLL.ov = null; }
 function polLFull(html){ const pl = POLL.ov && POLL.ov.querySelector('.pl'); if (!pl) return; let f = pl.querySelector('.full'); if (!f){ f = document.createElement('div'); f.className = 'full'; pl.appendChild(f); } f.innerHTML = html; pl.scrollIntoView({block:'start'}); }
 function polLKepala(judul){ return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><button class="back" data-pl-back>‹ Kembali</button><h3>${judul}</h3></div>`; }
@@ -4680,7 +4683,7 @@ function polLProfil(u){ POLL.view = 'profil'; const r = polLive().find(x=>x.u ==
     <div class="sr"><span>${r.lv >= 5 ? '🏅 Pangkat tertinggi' : '🎯 Menuju ' + POL_PANGKAT[nx-1]}</span><b>${r.lv >= 5 ? '✓' : (POL_SYARAT[nx-1] - r.total).toLocaleString('id-ID') + ' poin lagi'}</b></div></div>`); }
 function polisiBuka(){
   if (POLL.ov) return; const ov = document.createElement('div'); ov.id = 'polL'; POLL.ov = ov; document.body.appendChild(ov);
-  ov.innerHTML = `<div class="pl"><div class="atas"><img src="assets/polisi-kantor.jpg?v=1120" alt="Kantor Polisi Republik Nusawara"><button class="hs" style="left:1.6%" data-pl-help aria-label="Bantuan"></button><button class="hs" style="right:1.4%" data-pl-x aria-label="Tutup"></button></div>
+  ov.innerHTML = `<div class="pl"><div class="atas"><img onload="window.polLFit && polLFit()" src="assets/polisi-kantor.jpg?v=1120" alt="Kantor Polisi Republik Nusawara"><button class="hs" style="left:1.6%" data-pl-help aria-label="Bantuan"></button><button class="hs" style="right:1.4%" data-pl-x aria-label="Tutup"></button></div>
     <div class="bwrap"><button class="yb" data-pl-latihan><span class="ic">👆</span><span class="tx">Latihan Polisi</span><span class="ar">»</span></button>
       <button class="yb" data-pl-daftar><span class="ic">📝</span><span class="tx">Daftar Polisi</span><span class="ar">»</span></button>
       <div class="tiles"><button class="tile" data-pl-pangkat><span class="ic">🎖️</span>Pangkat</button><button class="tile" data-pl-peringkat><span class="ic">🏆</span>Peringkat</button></div>
@@ -8204,6 +8207,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 22 Nov 03:25</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 22 Nov 03:32</div>
 </body>
 </html>
