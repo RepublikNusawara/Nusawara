@@ -2828,8 +2828,9 @@ function pinWarna(u){   // warna pin lencana sesuai kelompok jabatan
 function sedangMain(u){ try { return ctl.key === u; } catch(_) { return false; } }
 var PEJABAT = new Set(), PJMAIN = null;   // pemegang jabatan: berbaju batik dinas
 var POLW = {};   // username -> {g:'pria'|'wanita'|'hijab', lv:1..5} (dimuat dari polisi_semua)
-const POL_PANGKAT = ['Polisi Junior','Polisi Muda','Polisi Senior','Kepala Polisi','Komandan Polisi'], POL_SYARAT = [0, 5000, 10000, 30000, 75000], POL_MAKS = 150000, POL_GAJI = [50, 80, 120, 180, 240];   // gaji/hari per pangkat (sama dengan server)
-function polisiLv(t){ let l = 1; for (let i=1;i<5;i++) if (t >= POL_SYARAT[i]) l = i + 1; return l; }
+const POL_PANGKAT = ['Polisi Junior','Polisi Muda','Polisi Senior','Kepala Polisi','Komandan Polisi'], POL_SYARAT = [5000, 10000, 30000, 75000, 150000], POL_MAKS = 150000,   /* poin untuk mencapai Lv1..Lv5 (Lv0 = Calon Polisi) */ POL_GAJI = [50, 80, 120, 180, 240];   // gaji/hari per pangkat (sama dengan server)
+function polisiLv(t){ let l = 0; for (let i=0;i<5;i++) if (t >= POL_SYARAT[i]) l = i + 1; return l; }
+POL_PANGKAT[-1] = 'Calon Polisi';   // Lv 0
 function polisiSpec(sp, g, lv){
   const wan = HAIR_WANITA.some(h=>h[0] === sp.rambutModel);
   sp.bajuModel = 'polisi'; sp.baju = lv === 1 ? '#4f8fdc' : '#1e2c63'; sp.celana = '#18234f'; sp.celanaModel = 'panjang'; sp.sepatu = '#111111'; sp.topi = 'polisi'; sp.kopi = 'tidak';
@@ -4266,7 +4267,7 @@ const POLP = {ov:null, pending:0, sibuk:false, timer:null, rkTimer:null, last:0,
   @media (max-width:380px){#polP .mid{grid-template-columns:1fr 1fr}#polP .mid .rkbox{grid-column:1 / -1}#polP table.rt{font-size:11px}#polP table.rt td{max-width:110px}}
   #polP .prof .pkb{display:inline-block;margin:4px 0 8px;background:linear-gradient(180deg,#ffe38a,#f2c14e);color:#2a1d00;font-weight:900;padding:6px 14px;border-radius:999px}`; document.head.appendChild(st); })();
 // gambar karakter warga berseragam polisi (dirender sekali lalu disimpan)
-function polImg(u, g, lv){
+function polImg(u, g, lv){ lv = Math.max(1, lv || 0);   // Calon Polisi memakai seragam Polisi Junior
   const key = u + '|' + g + '|' + lv; if (POLP.imgs[key]) return POLP.imgs[key];
   try {
     if (!POLP.r){ const cv = document.createElement('canvas'); cv.width = 240; cv.height = 320; POLP.r = {cv, R: new THREE.WebGLRenderer({canvas:cv, antialias:true, alpha:true, preserveDrawingBuffer:true}), sc: new THREE.Scene(), cam: new THREE.PerspectiveCamera(28, 240/320, .1, 50)};
@@ -4300,7 +4301,7 @@ function polRender(){ const o = POLP.ov; if (!o) return; if (o.querySelector('.p
   const rrow = (r, me1)=>`<tr class="${me1 ? 'me' : ''}" data-pp-u="${esc(r.u)}"><td class="n"><span class="${r.rank <= 3 ? 'm' + r.rank : ''}">${r.rank}</span></td><td><img src="${polImg(r.u, r.g, r.lv)}" alt="">${esc(namaW(r.u))}</td><td class="p${r.lv === 5 ? ' pmax' : ''}">${POL_PANGKAT[r.lv-1]}</td><td class="t">${Number(r.total).toLocaleString('id-ID')}</td></tr>`;
   if (q('#ppRk')) q('#ppRk').innerHTML = live.slice(0, 5).map(r=>rrow(r, r.u === me)).join('') + (rank > 5 ? rrow({u: me, g: S.g, lv, total: tot, rank}, true) : '');
   if (q('#ppTbl')) q('#ppTbl').innerHTML = POL_PANGKAT.map((n, i)=>{ const L = i + 1, sisa = POL_SYARAT[i] - tot;
-    return `<tr class="${L === lv ? 'on' : ''}"><td><span class="lvb">Lv ${L}</span></td><td><img src="${polImg(me, S.g, L)}" alt=""></td><td><b>${n}</b></td><td>${i ? POL_SYARAT[i].toLocaleString('id-ID') + ' poin' : 'Saat daftar'}</td><td><b style="color:#ffd84a">${N$(POL_GAJI[i])}</b></td><td class="st">${L === lv ? '<span style="color:#7ee08a">✓ Saat Ini</span>' : L < lv ? '<span style="color:#7ee08a">✓ Selesai</span>' : '🔒 ' + sisa.toLocaleString('id-ID') + ' lagi'}</td></tr>`; }).join('');
+    return `<tr class="${L === lv ? 'on' : ''}"><td><span class="lvb">Lv ${L}</span></td><td><img src="${polImg(me, S.g, L)}" alt=""></td><td><b>${n}</b></td><td>${POL_SYARAT[i].toLocaleString('id-ID') + ' poin'}</td><td><b style="color:#ffd84a">${N$(POL_GAJI[i])}</b></td><td class="st">${L === lv ? '<span style="color:#7ee08a">✓ Saat Ini</span>' : L < lv ? '<span style="color:#7ee08a">✓ Selesai</span>' : '🔒 ' + sisa.toLocaleString('id-ID') + ' lagi'}</td></tr>`; }).join('');
   if (lv !== POLP.lvLama){ if (POLP.lvLama && lv > POLP.lvLama){ const m = q('.msg'); if (m) m.innerHTML = `🎉 Selamat! Kamu naik pangkat jadi <b style="color:#ffd84a">${POL_PANGKAT[lv-1]}</b>!`; polisiSet(me, S.g, lv); }
     POLP.lvLama = lv; } }
 function polFull(){ const o = POLP.ov; if (!o) return; let f = o.querySelector('.full'); if (!f){ f = document.createElement('div'); f.className = 'full'; o.querySelector('.pp').appendChild(f); }
@@ -4316,7 +4317,7 @@ function polProfil(u){ const o = POLP.ov; if (!o) return; const r = polLive().fi
     <div class="sr"><span>${r.lv >= 5 ? '🏅 Pangkat tertinggi' : '🎯 Menuju ' + POL_PANGKAT[nx-1]}</span><b>${r.lv >= 5 ? '✓' : (POL_SYARAT[nx-1] - r.total).toLocaleString('id-ID') + ' poin lagi'}</b></div></div>`; }
 function polAturan(){ const o = POLP.ov; if (!o) return; let f = o.querySelector('.full'); if (!f){ f = document.createElement('div'); f.className = 'full'; o.querySelector('.pp').appendChild(f); }
   const li = [['🆓','Daftar jadi polisi <b>gratis</b>. Kuota sementara <b>100 polisi</b>.'],['🧍','Pilih gender: <b>Pria</b>, <b>Wanita</b>, atau <b>Berhijab</b>. Seragam karaktermu di peta otomatis berganti jadi seragam polisi.'],
-    ['🎯','Tekan <b>TAP</b> untuk menembak penjahat yang lewat di bidikan: Pisau/Senapan +50, Kantong Uang +100, Boss +150, Boss Mode +200 poin. <b>Pangkat naik berdasarkan total poin</b> (Lv2 5.000 · Lv3 10.000 · Lv4 30.000 · Lv5 75.000 · target Komandan 150.000). Poin hari ini direset setiap hari.'],
+    ['🎯','Tekan <b>TAP</b> untuk menembak penjahat yang lewat di bidikan: Pisau/Senapan +50, Kantong Uang +100, Boss +150, Boss Mode +200 poin. <b>Pangkat naik berdasarkan total poin</b>: daftar = Lv0 Calon Polisi · 5.000 Polisi Junior · 10.000 Polisi Muda · 30.000 Polisi Senior · 75.000 Kepala Polisi · 150.000 Komandan Polisi. Poin hari ini direset setiap hari.'],
     ['👆','Setiap 1 tap = <b>+N$10 otomatis masuk Kas Negara</b>.'],['⭐','Pangkat: <b>Polisi Junior</b> (awal) → <b>Polisi Muda</b> 2.500 tap → <b>Polisi Senior</b> 10.000 tap → <b>Kepala Polisi</b> 30.000 tap → <b>Komandan Polisi</b> 75.000 tap. Seragam ikut berubah setiap naik pangkat.'],
     ['💵','<b>Gaji polisi per hari</b>: Patroli N$50 · Muda N$80 · Senior N$120 · Kepala N$180 · Komandan N$240. Gaji dibayar <b>harian</b> dan <b>dipotong dari Kas Negara</b>. Gaji hari itu terbuka setelah <b>20 tap latihan</b>, diterima lewat pop-up <b>Terima Gaji</b> (berlaku hari itu dan besoknya).'],
     ['💼','Polisi dihitung sebagai <b>pekerjaan</b>: polisi tidak boleh punya pekerjaan lain, dan warga yang sudah bekerja tidak bisa daftar polisi.'],
@@ -4336,7 +4337,7 @@ async function polKirim(){ if (POLP.sibuk || !POLP.pending || !AKUN.u) return; P
   POLP.sibuk = false; polRender(); if (POLP.pending) setTimeout(polKirim, 250); }
 function polisiSet(u, g, lv){ if (!u) return; const k = String(u).toLowerCase(), lama = POLW[k]; POLW[k] = {g, lv};
   if (!lama || lama.g !== g || lama.lv !== lv) setTimeout(()=>{ try { if (WALKERS[k] && WINFO[k]) syncWalkers({[k]: WINFO[k]}); } catch(_) {} }, 0); }
-async function polisiMuat(){ try { const r = await SB.rpc('polisi_semua', {}); if (!Array.isArray(r)) return; const baru = {}; r.forEach(x=>{ if (x && x.u) baru[String(x.u).toLowerCase()] = {g: x.g, lv: x.lvp || x.lv}; });
+async function polisiMuat(){ try { const r = await SB.rpc('polisi_semua', {}); if (!Array.isArray(r)) return; const baru = {}; r.forEach(x=>{ if (x && x.u) baru[String(x.u).toLowerCase()] = {g: x.g, lv: Math.max(1, x.lvp ?? x.lv ?? 1)}; });
     const ubah = Object.keys(baru).filter(u=>!POLW[u] || POLW[u].g !== baru[u].g || POLW[u].lv !== baru[u].lv).concat(Object.keys(POLW).filter(u=>!baru[u]));
     POLW = baru; if (ubah.length) setTimeout(()=>ubah.forEach(u=>{ try { if (WALKERS[u] && WINFO[u]) syncWalkers({[u]: WINFO[u]}); } catch(_) {} }), 0); } catch(_) {} }
 setTimeout(polisiMuat, 2500); setInterval(polisiMuat, 60000);
@@ -4465,7 +4466,7 @@ function polRender2(){ const o = POLP.ov; if (!o) return; const q = s=>o.querySe
   const tot = polTotal(), lv = polisiLv(tot), nx = Math.min(5, lv + 1), maks = lv >= 5, b = maks ? POL_MAKS : POL_SYARAT[nx - 1], pc = Math.min(100, Math.floor(tot / b * 100));
   const live = polLive(), ix = live.findIndex(r=>r.u === me), rank = ix >= 0 ? ix + 1 : S.rank;
   q('#ppPk').textContent = `${POL_PANGKAT[lv-1]} (Lv ${lv})`; q('#ppLv').textContent = 'Lv ' + lv; q('#ppNm').textContent = POL_PANGKAT[lv-1];
-  q('#ppTo').textContent = maks ? 'Progress Komandan Polisi' : 'Progress ke Lv ' + nx;
+  q('#ppTo').textContent = maks ? 'Pangkat tertinggi!' : 'Progress ke Lv ' + nx;
   q('#ppBar').style.width = (43.36 * pc / 100).toFixed(2) + '%';
   q('#ppBt').textContent = `${tot.toLocaleString('id-ID')} / ${b.toLocaleString('id-ID')} Poin`; q('#ppPc').textContent = pc + '%';
   const ph = Number(S.poin_hari || 0) + (POLP.pendPoin || 0); q('#ppHari').textContent = ph.toLocaleString('id-ID'); const sk = q('#tbSkor'); if (sk) sk.textContent = ph.toLocaleString('id-ID'); q('#ppTot').textContent = tot.toLocaleString('id-ID'); [['#ppHari', 0], ['#ppTot', 0]].forEach(([id])=>{ const e = q(id); e.style.fontSize = Math.min(3, 15 / Math.max(5, e.textContent.length) * 1).toFixed(2) + 'cqw'; });
@@ -4473,10 +4474,10 @@ function polRender2(){ const o = POLP.ov; if (!o) return; const q = s=>o.querySe
   const row = (r, me1)=>`<div class="r${me1 ? ' me' : ''}" data-pp-u="${esc(r.u)}"><span class="n${r.rank <= 3 ? ' m' + r.rank : ''}">${r.rank}</span><img src="${polImg(r.u, r.g, r.lv)}" alt=""><span class="u">@${esc(namaW(r.u)).replace(/^@/, '')}</span><span class="p${r.lv === 5 ? ' mx' : ''}">${POL_PANGKAT[r.lv-1]}</span><span class="t">${Number(r.total).toLocaleString('id-ID')}</span></div>`;
   const top = live.slice(0, rank > 5 ? 4 : 5);
   q('#ppRk').innerHTML = top.map(r=>row(r, r.u === me)).join('') + (rank > 5 ? row({u: me, g: S.g, lv, total: tot, rank}, true) : '') + '<div class="r" style="visibility:hidden"></div>'.repeat(Math.max(0, 5 - top.length - (rank > 5 ? 1 : 0)));
-  const k = PP2_K[lv - 1], c = q('#ppCur'); c.style.left = (k[0] / 10.24).toFixed(2) + '%'; c.style.width = ((k[1] - k[0]) / 10.24).toFixed(2) + '%';
+  const k = PP2_K[Math.max(0, lv - 1)], c = q('#ppCur'); c.style.display = lv ? '' : 'none'; c.style.left = (k[0] / 10.24).toFixed(2) + '%'; c.style.width = ((k[1] - k[0]) / 10.24).toFixed(2) + '%';
   POL_PANGKAT.forEach((n, i)=>{ const L = i + 1, el = q('#ppSy' + i); el.className = 'xsy' + (L === lv ? ' on' : '');
     el.textContent = L === lv ? '✓ Saat Ini' : L < lv ? '✓ Tercapai' : '🔒 ' + POL_SYARAT[i].toLocaleString('id-ID') + ' Poin'; });
-  if (lv !== POLP.lvLama){ if (POLP.lvLama && lv > POLP.lvLama){ const m = q('.msg'); if (m) m.innerHTML = `🎉 Selamat! Kamu naik pangkat jadi <b style="color:#ffd84a">${POL_PANGKAT[lv-1]}</b>!`; polisiSet(me, S.g, lv); }
+  if (lv !== POLP.lvLama){ if (POLP.lvLama != null && lv > POLP.lvLama){ const m = q('.msg'); if (m) m.innerHTML = `🎉 Selamat! Kamu naik pangkat jadi <b style="color:#ffd84a">${POL_PANGKAT[lv-1]}</b>!`; polisiSet(me, S.g, lv); }
     POLP.lvLama = lv; } }
 function polBangun(){ const ov = POLP.ov; if (!ov) return; const masuk = !!(AKUN.u && AKUN.s), me = AKUN.u, S = POLP.saya;
   if (masuk && S && POLP.mode !== 'daftar'){ ov.innerHTML = pp2HTML(); POLP.lvLama = polisiLv(polTotal()); ov.dataset.s = '1'; polRender2(); tembakMulai();
@@ -4592,9 +4593,9 @@ function polLandingTutup(){ if (!POLL.ov) return; clearInterval(POLL.timer); POL
 function polLFull(html){ const pl = POLL.ov && POLL.ov.querySelector('.pl'); if (!pl) return; let f = pl.querySelector('.full'); if (!f){ f = document.createElement('div'); f.className = 'full'; pl.appendChild(f); } f.innerHTML = html; pl.scrollIntoView({block:'start'}); }
 function polLKepala(judul){ return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><button class="back" data-pl-back>‹ Kembali</button><h3>${judul}</h3></div>`; }
 function polLPangkat(){ POLL.view = 'pangkat'; const me = AKUN.u, live = polLive();
-  const grp = [5,4,3,2,1].map(L=>{ const org = live.filter(r=>r.lv === L), cth = me ? polImg(me, (POLP.saya && POLP.saya.g) || 'pria', L) : polImg(org[0] ? org[0].u : 'julianto_jul', org[0] ? org[0].g : 'pria', L);
+  const grp = [5,4,3,2,1,0].map(L=>{ const org = live.filter(r=>r.lv === L), cth = me ? polImg(me, (POLP.saya && POLP.saya.g) || 'pria', L) : polImg(org[0] ? org[0].u : 'julianto_jul', org[0] ? org[0].g : 'pria', L);
     return `<div class="grp"><img src="${cth}" alt=""><b>${POL_PANGKAT[L-1]}</b><span class="lvb">Lv ${L}</span><small>${org.length} polisi</small></div>
-      ${org.length ? `<div class="ppl">${org.map(r=>`<div class="${r.u === me ? 'me' : ''}" data-pl-u="${esc(r.u)}"><img src="${polImg(r.u, r.g, r.lv)}" alt=""><span>${esc(namaW(r.u))}</span><em>${Number(r.total).toLocaleString('id-ID')} tap</em></div>`).join('')}</div>` : `<div class="kosong">Belum ada polisi di pangkat ini.</div>`}`; }).join('');
+      ${org.length ? `<div class="ppl">${org.map(r=>`<div class="${r.u === me ? 'me' : ''}" data-pl-u="${esc(r.u)}"><img src="${polImg(r.u, r.g, r.lv)}" alt=""><span>${esc(namaW(r.u))}</span><em>${Number(r.total).toLocaleString('id-ID')} poin</em></div>`).join('')}</div>` : `<div class="kosong">Belum ada polisi di pangkat ini.</div>`}`; }).join('');
   polLFull(polLKepala('⭐ Pangkat Polisi') + `<p style="font-size:12px;opacity:.85;margin:0 0 4px">${POLP.jumlah}/${POLP.kuota} polisi terdaftar · ketuk karakter untuk melihat profilnya.</p>` + grp); }
 function polLPeringkat(){ POLL.view = 'peringkat'; const me = AKUN.u;
   const rows = polLive().map(r=>`<tr class="${r.u === me ? 'me' : ''}" data-pl-u="${esc(r.u)}"><td>${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : r.rank}</td><td><img src="${polImg(r.u, r.g, r.lv)}" alt="">${esc(namaW(r.u))}</td><td>${POL_PANGKAT[r.lv-1]}</td><td style="text-align:right;font-weight:900">${Number(r.total).toLocaleString('id-ID')}</td></tr>`).join('');
@@ -8125,6 +8126,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 14:23</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 14:34</div>
 </body>
 </html>
