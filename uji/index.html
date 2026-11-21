@@ -4383,8 +4383,60 @@ function polDaftarRender(){ const o = POLP.ov; if (!o) return; const q = s=>o.qu
   #polP .pp2 .msg:empty{display:none}
 `; document.head.appendChild(st); })();
 const PP2_X = [130, 322, 510, 698, 895], PP2_K = [[38,222],[232,410],[420,598],[608,786],[798,990]];
+/* ---------- LATIHAN MENEMBAK: polisi menembak 3 penjahat yang bergerak (bidikan diam di tengah) ---------- */
+(()=>{ const st = document.createElement('style'); st.textContent = `
+  #polP .pp2 .xgame{position:absolute;left:31.25%;top:21.1%;width:68.75%;height:18.4%;overflow:hidden;pointer-events:none}
+  #polP .pp2 .xpj{position:absolute;bottom:24%;width:19%;transform-origin:50% 100%;will-change:transform,left}
+  #polP .pp2 .xpj img{width:100%;display:block}
+  #polP .pp2 .xpj.kena img{animation:pjKena .6s ease-in forwards}
+  @keyframes pjKena{0%{filter:brightness(3) saturate(0)}20%{filter:brightness(1.6) sepia(1) hue-rotate(-40deg) saturate(4);transform:rotate(-8deg)}100%{transform:rotate(-80deg) translateY(30%);opacity:0}}
+  #polP .pp2 .xbid{position:absolute;left:57.8%;top:29.9%;width:10.5%;transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 0 .6cqw #fff)}
+  #polP .pp2 .xbid.hit{animation:bidHit .25s}@keyframes bidHit{50%{transform:translate(-50%,-50%) scale(1.25)}}
+  #polP .pp2 .xflash{position:absolute;left:31.1%;top:33.5%;width:9%;transform:translate(-30%,-50%) scale(0);opacity:0;pointer-events:none;mix-blend-mode:screen}
+  #polP .pp2 .xflash.on{animation:fl .14s ease-out}@keyframes fl{0%{transform:translate(-30%,-50%) scale(.4) rotate(0);opacity:1}60%{transform:translate(-30%,-50%) scale(1.15) rotate(12deg);opacity:1}100%{transform:translate(-30%,-50%) scale(1.3) rotate(20deg);opacity:0}}
+  #polP .pp2 .xtrc{position:absolute;left:32.6%;top:33.5%;height:.35%;width:26%;transform-origin:0 50%;transform:rotate(-13.7deg);background:linear-gradient(90deg,#fff8,#ffe46b);border-radius:9px;opacity:0;pointer-events:none}
+  #polP .pp2 .xtrc.on{animation:trc .12s linear}@keyframes trc{0%{opacity:1;clip-path:inset(0 100% 0 0)}100%{opacity:0;clip-path:inset(0 0 0 0)}}
+  #polP .pp2 .xpoin{position:absolute;transform:translate(-50%,-50%);font-weight:900;font-size:4.2cqw;color:#ffe46b;-webkit-text-stroke:.35cqw #8a2a00;paint-order:stroke;pointer-events:none;animation:poin .9s ease-out forwards;white-space:nowrap}
+  #polP .pp2 .xpoin.ms{font-size:2.6cqw;color:#fff;-webkit-text-stroke:.3cqw #0a1c4a}
+  @keyframes poin{0%{opacity:0;transform:translate(-50%,-20%) scale(.6)}20%{opacity:1;transform:translate(-50%,-60%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-180%) scale(1)}}
+  #polP .pp2 .xskor{position:absolute;right:9.5%;top:21.8%;background:linear-gradient(180deg,#1a3f94,#0f2a6e);border:.4cqw solid #f2c14e;border-radius:1.4cqw;padding:.5cqw 1.6cqw;font-weight:900;font-size:2.3cqw;line-height:1.15;text-align:center;color:#fff;pointer-events:none}
+  #polP .pp2 .xskor b{display:block;font-size:3.4cqw;color:#ffd84a}
+  #polP .pp2 .xhit{position:absolute;left:31.25%;top:21.1%;width:68.75%;height:18.4%;background:transparent;border:0;padding:0;cursor:crosshair;-webkit-tap-highlight-color:transparent}
+`; document.head.appendChild(st); })();
+const TEMBAK = {pj: [], skor: 0, raf: 0, t0: 0, ac: null};
+const TB_BID = 0.387;   // posisi bidikan dalam jalur (0..1) — tetap diam
+function tembakHTML(){ return `<div class="xgame">${[1,2,3].map(i=>`<div class="xpj" data-i="${i}"><img src="assets/penjahat${i}.png?v=1121" alt=""></div>`).join('')}</div>
+  <svg class="xbid" viewBox="0 0 100 100"><g fill="none" stroke="#fff" stroke-width="12"><circle cx="50" cy="50" r="30"/><path d="M50 4V30M50 70V96M4 50H30M70 50H96"/></g><g fill="none" stroke="#e8152b" stroke-width="6"><circle cx="50" cy="50" r="30"/><path d="M50 6V30M50 70V94M6 50H30M70 50H94"/></g><circle cx="50" cy="50" r="5" fill="#e8152b" stroke="#fff" stroke-width="2"/></svg>
+  <i class="xtrc"></i>
+  <svg class="xflash" viewBox="0 0 100 100"><polygon fill="#fff6b0" points="50,0 58,36 96,18 66,46 100,52 64,58 92,88 56,66 50,100 42,66 10,90 36,58 0,50 36,42 8,14 44,34"/><circle cx="50" cy="50" r="16" fill="#fff"/></svg>
+  <div class="xskor">Skor Tembak<b id="tbSkor">0</b></div>
+  <button class="xhit" data-tb-hit aria-label="Tembak"></button>`; }
+function tembakMulai(){ const o = POLP.ov; if (!o) return; const g = o.querySelector('.xgame'); if (!g) return;
+  const els = [...g.querySelectorAll('.xpj')], W = 1 + 0.19;   // panjang putaran (lebar jalur + lebar penjahat)
+  TEMBAK.pj = els.map((el, k)=>({el, x: -0.19 + k * W / 3, mati: 0, poin: k === 1 ? 100 : 50})); TEMBAK.skor = 0; cancelAnimationFrame(TEMBAK.raf);
+  let last = performance.now();
+  const step = (now)=>{ if (!document.body.contains(g)) return; const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    TEMBAK.pj.forEach(p=>{ p.x += dt * 0.16;   // bergerak ke kanan, tembus, lalu muncul lagi dari kiri (jarak antar penjahat tetap)
+      if (p.x > 1){ p.x -= W; if (p.mati){ p.mati = 0; p.el.classList.remove('kena'); } }   // yang tertembak hidup lagi saat muncul dari kiri
+      p.el.style.left = (p.x * 100).toFixed(2) + '%'; p.el.style.transform = p.mati ? '' : `translateY(${(Math.abs(Math.sin(now / 160 + p.poin)) * -4).toFixed(1)}%)`; });
+    TEMBAK.raf = requestAnimationFrame(step); };
+  TEMBAK.raf = requestAnimationFrame(step); }
+function tembakSuara(){ try { const A = TEMBAK.ac || (TEMBAK.ac = new (window.AudioContext || window.webkitAudioContext)()); const t = A.currentTime;
+  const n = A.createBuffer(1, A.sampleRate * 0.25, A.sampleRate), d = n.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3);
+  const s = A.createBufferSource(); s.buffer = n; const f = A.createBiquadFilter(); f.type = 'lowpass'; f.frequency.setValueAtTime(5000, t); f.frequency.exponentialRampToValueAtTime(400, t + 0.2);
+  const g = A.createGain(); g.gain.setValueAtTime(0.9, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.25); s.connect(f); f.connect(g); g.connect(A.destination); s.start(t);
+  const o = A.createOscillator(), og = A.createGain(); o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.15); og.gain.setValueAtTime(0.8, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.18); o.connect(og); og.connect(A.destination); o.start(t); o.stop(t + 0.2);
+} catch(_) {} }
+function tembak(){ const o = POLP.ov; if (!o) return; const art = o.querySelector('.pp2 .art'); if (!art) return;
+  tembakSuara(); const fl = o.querySelector('.xflash'), tr = o.querySelector('.xtrc'), bd = o.querySelector('.xbid');
+  [fl, tr].forEach(e=>{ e.classList.remove('on'); void e.offsetWidth; e.classList.add('on'); });
+  const lebar = 0.19, kena = TEMBAK.pj.find(p=>!p.mati && Math.abs(p.x + lebar / 2 - TB_BID) < lebar * 0.38);
+  const tx = (k, x, y, cls)=>{ const s = document.createElement('span'); s.className = 'xpoin' + (cls ? ' ' + cls : ''); s.textContent = k; s.style.left = x; s.style.top = y; art.appendChild(s); setTimeout(()=>s.remove(), 900); };
+  if (kena){ kena.mati = 1; kena.el.classList.add('kena'); TEMBAK.skor += kena.poin; const sk = o.querySelector('#tbSkor'); if (sk) sk.textContent = TEMBAK.skor.toLocaleString('id-ID');
+    bd.classList.remove('hit'); void bd.offsetWidth; bd.classList.add('hit'); tx('+' + kena.poin, '57.8%', '23.5%'); if (navigator.vibrate) try { navigator.vibrate(25); } catch(_) {} }
+  else tx('Meleset!', '57.8%', '25.5%', 'ms'); }
 function pp2HTML(){ const me = AKUN.u, S = POLP.saya, px = (x)=>(x / 10.24).toFixed(2) + '%';
-  return `<div class="pp pp2"><div class="art"><img class="bg" src="assets/polisi-latihan.jpg?v=1120" alt="Sistem Pangkat Polisi Nusawara">
+  return `<div class="pp pp2"><div class="art"><img class="bg" src="assets/polisi-tembak.jpg?v=1121" alt="Sistem Pangkat Polisi Nusawara">${tembakHTML()}
     <button class="hs" data-pp-help style="left:3.4%;top:1.6%;width:8.4%;height:5.6%" aria-label="Bantuan"></button><button class="hs" data-pp-x style="left:88.4%;top:1%;width:8.8%;height:5.8%" aria-label="Tutup"></button>
     <span class="o xnm">${esc(namaW(me))}</span><span class="o xpk" id="ppPk"></span>
     <span class="o xlv" id="ppLv"></span><span class="o xpkn" id="ppNm"></span><span class="o xto" id="ppTo"></span>
@@ -4412,10 +4464,11 @@ function polRender2(){ const o = POLP.ov; if (!o) return; const q = s=>o.querySe
   if (lv !== POLP.lvLama){ if (POLP.lvLama && lv > POLP.lvLama){ const m = q('.msg'); if (m) m.innerHTML = `🎉 Selamat! Kamu naik pangkat jadi <b style="color:#ffd84a">${POL_PANGKAT[lv-1]}</b>!`; polisiSet(me, S.g, lv); }
     POLP.lvLama = lv; } }
 function polBangun(){ const ov = POLP.ov; if (!ov) return; const masuk = !!(AKUN.u && AKUN.s), me = AKUN.u, S = POLP.saya;
-  if (masuk && S && POLP.mode !== 'daftar'){ ov.innerHTML = pp2HTML(); POLP.lvLama = polisiLv(polTotal()); ov.dataset.s = '1'; polRender2();
-    const tb = ov.querySelector('#ppTap'); tb.addEventListener('pointerdown', e=>{ e.preventDefault(); const kini = performance.now(); if (kini - (POLP.last || 0) < 500) return; POLP.last = kini;   // jeda 0,5 detik per tap
-      polSuara(); tb.classList.add('on'); setTimeout(()=>tb.classList.remove('on'), 110); POLP.pending++; const p = document.createElement('span'); p.className = 'plus'; p.textContent = '+1'; tb.appendChild(p); setTimeout(()=>p.remove(), 800);
-      if (navigator.vibrate) try { navigator.vibrate(8); } catch(_) {} polRender2(); if (POLP.pending >= 10) polKirim(); });
+  if (masuk && S && POLP.mode !== 'daftar'){ ov.innerHTML = pp2HTML(); POLP.lvLama = polisiLv(polTotal()); ov.dataset.s = '1'; polRender2(); tembakMulai();
+    const tb = ov.querySelector('#ppTap'), tap = e=>{ e.preventDefault(); const kini = performance.now(); if (kini - (POLP.last || 0) < 500) return; POLP.last = kini;   // jeda 0,5 detik per tap/tembakan
+      tembak(); tb.classList.add('on'); setTimeout(()=>tb.classList.remove('on'), 110); POLP.pending++; const p = document.createElement('span'); p.className = 'plus'; p.textContent = '+1'; tb.appendChild(p); setTimeout(()=>p.remove(), 800);
+      polRender2(); if (POLP.pending >= 10) polKirim(); };
+    tb.addEventListener('pointerdown', tap); ov.querySelector('[data-tb-hit]').addEventListener('pointerdown', tap);
     return; }
   const isi = !masuk ? `<div class="daftar"><h3>🔑 Masuk dulu</h3><p>Masuk sebagai Warga Republik Nusawara untuk mendaftar jadi polisi.</p><button class="btnD" data-pp-masuk>Masuk</button></div>`
     : POLP.mode === 'daftar' && S ? `<div class="daftar"><h3>✅ Kamu sudah Polisi Nusawara</h3><p>Pangkatmu sekarang <b style="color:#ffd84a">${POL_PANGKAT[polisiLv(polTotal())-1]}</b>. Kamu bisa mengganti gender seragammu di bawah.</p><div class="gs" id="ppGs"></div><button class="btnD" id="ppGanti">💾 Simpan Gender</button><button class="btnD" style="margin-top:8px;background:linear-gradient(180deg,#ffd84a,#e3a51c);color:#2a1d00;box-shadow:0 4px 0 #9a6a0b" data-pp-latihan>👆 Mulai Latihan Polisi »</button></div>`
@@ -8057,6 +8110,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 20 Nov 03:59</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 13:37</div>
 </body>
 </html>
