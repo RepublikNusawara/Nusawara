@@ -4386,7 +4386,7 @@ const PP2_X = [130, 322, 510, 698, 895], PP2_K = [[38,222],[232,410],[420,598],[
 /* ---------- LATIHAN MENEMBAK: polisi menembak 3 penjahat yang bergerak (bidikan diam di tengah) ---------- */
 (()=>{ const st = document.createElement('style'); st.textContent = `
   #polP .pp2 .xgame{position:absolute;left:31.25%;top:21.1%;width:68.75%;height:18.4%;overflow:hidden;pointer-events:none}
-  #polP .pp2 .xpj{position:absolute;bottom:24%;width:19%;transform-origin:50% 100%;will-change:transform,left}
+  #polP .pp2 .xpj{position:absolute;bottom:24%;width:19%;z-index:1;transform-origin:50% 100%;will-change:transform,left}
   #polP .pp2 .xpj img{width:100%;display:block}
   #polP .pp2 .xpj.kena img{animation:pjKena .6s ease-in forwards}
   @keyframes pjKena{0%{filter:brightness(3) saturate(0)}20%{filter:brightness(1.6) sepia(1) hue-rotate(-40deg) saturate(4);transform:rotate(-8deg)}100%{transform:rotate(-80deg) translateY(30%);opacity:0}}
@@ -4405,20 +4405,33 @@ const PP2_X = [130, 322, 510, 698, 895], PP2_K = [[38,222],[232,410],[420,598],[
 `; document.head.appendChild(st); })();
 const TEMBAK = {pj: [], skor: 0, raf: 0, t0: 0, ac: null};
 const TB_BID = 0.387;   // posisi bidikan dalam jalur (0..1) — tetap diam
-function tembakHTML(){ return `<div class="xgame">${[1,2,3].map(i=>`<div class="xpj" data-i="${i}"><img src="assets/penjahat${i}.png?v=1121" alt=""></div>`).join('')}</div>
+/* penjahat: poin, kecepatan relatif (1 = penjahat 50 poin), lebar (bagian dari jalur) */
+const TB_JENIS = [
+  {i:1, poin:50,  v:1,   w:0.19},
+  {i:3, poin:50,  v:1,   w:0.19},
+  {i:2, poin:100, v:1.5, w:0.19},
+  {i:4, poin:150, v:2,   w:0.165},
+  {i:5, poin:200, v:1.2, w:0.295, langka:true}];   // Boss Mode: muncul tiap 10 putaran penjahat 50 poin
+function tembakHTML(){ return `<div class="xgame">${TB_JENIS.map(j=>`<div class="xpj" data-i="${j.i}" style="width:${(j.w*100).toFixed(1)}%;${j.langka ? 'display:none;z-index:3;' : j.i === 4 ? 'z-index:2;' : ''}"><img src="assets/penjahat${j.i}.png?v=1121b" alt=""></div>`).join('')}</div>
   <svg class="xbid" viewBox="0 0 100 100"><g fill="none" stroke="#fff" stroke-width="12"><circle cx="50" cy="50" r="30"/><path d="M50 4V30M50 70V96M4 50H30M70 50H96"/></g><g fill="none" stroke="#e8152b" stroke-width="6"><circle cx="50" cy="50" r="30"/><path d="M50 6V30M50 70V94M6 50H30M70 50H94"/></g><circle cx="50" cy="50" r="5" fill="#e8152b" stroke="#fff" stroke-width="2"/></svg>
   <i class="xtrc"></i>
   <svg class="xflash" viewBox="0 0 100 100"><polygon fill="#fff6b0" points="50,0 58,36 96,18 66,46 100,52 64,58 92,88 56,66 50,100 42,66 10,90 36,58 0,50 36,42 8,14 44,34"/><circle cx="50" cy="50" r="16" fill="#fff"/></svg>
   <div class="xskor">Skor Tembak<b id="tbSkor">0</b></div>
   <button class="xhit" data-tb-hit aria-label="Tembak"></button>`; }
 function tembakMulai(){ const o = POLP.ov; if (!o) return; const g = o.querySelector('.xgame'); if (!g) return;
-  const els = [...g.querySelectorAll('.xpj')], W = 1 + 0.19;   // panjang putaran (lebar jalur + lebar penjahat)
-  TEMBAK.pj = els.map((el, k)=>({el, x: -0.19 + k * W / 3, mati: 0, poin: k === 1 ? 100 : 50})); TEMBAK.skor = 0; cancelAnimationFrame(TEMBAK.raf);
+  const V = 0.16, awal = [0, 0.55, 0.3, 0.8, 0];
+  TEMBAK.pj = TB_JENIS.map((j, k)=>({...j, el: g.querySelector(`.xpj[data-i="${j.i}"]`), x: j.langka ? -j.w : -j.w + awal[k] * (1 + j.w), mati: 0, aktif: !j.langka}));
+  TEMBAK.skor = 0; TEMBAK.putaran = 0; cancelAnimationFrame(TEMBAK.raf);
   let last = performance.now();
   const step = (now)=>{ if (!document.body.contains(g)) return; const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    TEMBAK.pj.forEach(p=>{ p.x += dt * 0.16;   // bergerak ke kanan, tembus, lalu muncul lagi dari kiri (jarak antar penjahat tetap)
-      if (p.x > 1){ p.x -= W; if (p.mati){ p.mati = 0; p.el.classList.remove('kena'); } }   // yang tertembak hidup lagi saat muncul dari kiri
-      p.el.style.left = (p.x * 100).toFixed(2) + '%'; p.el.style.transform = p.mati ? '' : `translateY(${(Math.abs(Math.sin(now / 160 + p.poin)) * -4).toFixed(1)}%)`; });
+    TEMBAK.pj.forEach(p=>{ if (!p.aktif) return;
+      p.x += dt * V * p.v;   // bergerak ke kanan, tembus, lalu muncul lagi dari kiri
+      if (p.x > 1){
+        if (p.langka){ p.aktif = false; p.mati = 0; p.el.classList.remove('kena'); p.el.style.display = 'none'; return; }   // Boss Mode hanya lewat sekali
+        p.x -= 1 + p.w; if (p.mati){ p.mati = 0; p.el.classList.remove('kena'); }
+        if (p.i === 1 && ++TEMBAK.putaran % 10 === 0){ const b = TEMBAK.pj.find(q=>q.langka); if (b && !b.aktif){ b.aktif = true; b.x = -b.w; b.mati = 0; b.el.classList.remove('kena'); b.el.style.display = ''; } }
+      }
+      p.el.style.left = (p.x * 100).toFixed(2) + '%'; p.el.style.transform = p.mati ? '' : `translateY(${(Math.abs(Math.sin(now / (p.langka ? 110 : 160) + p.i)) * -4).toFixed(1)}%)`; });
     TEMBAK.raf = requestAnimationFrame(step); };
   TEMBAK.raf = requestAnimationFrame(step); }
 function tembakSuara(){ try { const A = TEMBAK.ac || (TEMBAK.ac = new (window.AudioContext || window.webkitAudioContext)()); const t = A.currentTime;
@@ -4430,7 +4443,7 @@ function tembakSuara(){ try { const A = TEMBAK.ac || (TEMBAK.ac = new (window.Au
 function tembak(){ const o = POLP.ov; if (!o) return; const art = o.querySelector('.pp2 .art'); if (!art) return;
   tembakSuara(); const fl = o.querySelector('.xflash'), tr = o.querySelector('.xtrc'), bd = o.querySelector('.xbid');
   [fl, tr].forEach(e=>{ e.classList.remove('on'); void e.offsetWidth; e.classList.add('on'); });
-  const lebar = 0.19, kena = TEMBAK.pj.find(p=>!p.mati && Math.abs(p.x + lebar / 2 - TB_BID) < lebar * 0.38);
+  const kena = TEMBAK.pj.filter(p=>p.aktif && !p.mati && Math.abs(p.x + p.w / 2 - TB_BID) < p.w * 0.38).sort((p, q)=>q.poin - p.poin)[0];   // kena yang poinnya terbesar bila bertumpuk
   const tx = (k, x, y, cls)=>{ const s = document.createElement('span'); s.className = 'xpoin' + (cls ? ' ' + cls : ''); s.textContent = k; s.style.left = x; s.style.top = y; art.appendChild(s); setTimeout(()=>s.remove(), 900); };
   if (kena){ kena.mati = 1; kena.el.classList.add('kena'); TEMBAK.skor += kena.poin; const sk = o.querySelector('#tbSkor'); if (sk) sk.textContent = TEMBAK.skor.toLocaleString('id-ID');
     bd.classList.remove('hit'); void bd.offsetWidth; bd.classList.add('hit'); tx('+' + kena.poin, '57.8%', '23.5%'); if (navigator.vibrate) try { navigator.vibrate(25); } catch(_) {} }
@@ -8110,6 +8123,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 13:37</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 13:49</div>
 </body>
 </html>
