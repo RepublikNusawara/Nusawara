@@ -4344,7 +4344,7 @@ setTimeout(polisiMuat, 2500); setInterval(polisiMuat, 60000);
 function polDaftarRender(){ const o = POLP.ov; if (!o) return; const q = s=>o.querySelector(s), me = AKUN.u, penuh = POLP.jumlah >= POLP.kuota;
   if (q('#ppKuota')) q('#ppKuota').textContent = `${POLP.jumlah}/${POLP.kuota}`; const ch0 = q('#ppChar'); if (ch0 && me && POLP.gPilih) ch0.src = polImg(me, POLP.gPilih, POLP.saya ? polisiLv(polTotal()) : 1);
   if (q('#ppGs')) q('#ppGs').innerHTML = [['pria','👮 Pria'],['wanita','👮‍♀️ Wanita'],['hijab','🧕 Berhijab']].map(([g, n])=>`<div class="g${POLP.gPilih === g ? ' on' : ''}" data-pp-g="${g}"><img src="${me ? polImg(me, g, POLP.saya ? polisiLv(polTotal()) : 1) : ''}" alt="">${n}</div>`).join('');
-  const b = q('#ppDaftar'); if (b){ b.disabled = !POLP.gPilih || penuh; b.textContent = penuh ? '⛔ Kuota polisi sudah penuh' : POLP.gPilih ? '✅ Daftar Gratis Jadi Polisi' : 'Pilih gender dulu'; } }
+  const b = q('#ppDaftar'); if (b){ b.disabled = !POLP.gPilih || penuh; b.textContent = penuh ? '⛔ Kuota polisi sudah penuh' : POLP.gPilih ? '👆 Mulai Latihan Polisi »' : 'Pilih gender dulu'; } }
 /* ---------- HALAMAN LATIHAN POLISI (desain gambar, angka diisi otomatis) ---------- */
 (()=>{ const st = document.createElement('style'); st.textContent = `
   #polP .pp.pp2{max-width:520px;padding:0;background:none;border:0;box-shadow:0 14px 44px rgba(0,0,0,.55);border-radius:22px;overflow:hidden;container-type:inline-size}
@@ -4471,6 +4471,9 @@ function tembak(){ const o = POLP.ov; if (!o) return; const art = o.querySelecto
   #polNaik .cf{position:absolute;width:9px;height:14px;border-radius:2px;animation:pnCf 1.6s ease-in infinite}
   @keyframes pnCf{0%{transform:translateY(-10px) rotate(0)}100%{transform:translateY(40px) rotate(260deg);opacity:0}}
 `; document.head.appendChild(st); })();
+function polInfo2s(teks){ const o = document.getElementById('polInfo'); if (o) o.remove(); const d = document.createElement('div'); d.id = 'polInfo'; d.textContent = teks;
+  d.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:99996;background:rgba(10,28,74,.94);color:#fff;border:3px solid #f2c14e;border-radius:16px;padding:14px 22px;font-weight:900;font-size:18px;box-shadow:0 10px 30px #0008;pointer-events:none;transition:opacity .3s';
+  document.body.appendChild(d); setTimeout(()=>{ d.style.opacity = '0'; setTimeout(()=>d.remove(), 300); }, 2000); }
 function polNaikPop(dari, ke){ const old = document.getElementById('polNaik'); if (old) old.remove();
   const v = '?v=1121', ov = document.createElement('div'); ov.id = 'polNaik';
   ov.innerHTML = `<div class="nk"><div class="rays"></div><div class="tt">🎉 ${ke === 0 ? 'SELAMAT BERGABUNG!' : 'NAIK PANGKAT!'}</div>
@@ -4652,7 +4655,7 @@ function polisiBuka(){
     else if (t.hasAttribute('data-pl-help')){ POLL.view = 'aturan'; polLFull(polLKepala('📜 Aturan Polisi Nusawara') + [['🆓','Daftar jadi polisi <b>gratis</b>. Kuota sementara <b>100 polisi</b>.'],['🧍','Pilih gender: <b>Pria</b>, <b>Wanita</b>, atau <b>Berhijab</b>. Seragam karaktermu di peta otomatis jadi seragam polisi.'],['👆','Buka <b>Latihan Polisi</b> lalu tekan TAP untuk mengumpulkan tap.'],['⭐','Pangkat: <b>Polisi Junior</b> → <b>Polisi Muda</b> 2.500 → <b>Polisi Senior</b> 10.000 → <b>Kepala Polisi</b> 30.000 → <b>Komandan Polisi</b> 75.000 tap. Seragam berubah tiap naik pangkat.'],['🏆','Lihat semua polisi di menu <b>Pangkat</b> dan <b>Peringkat</b>.']].map(([i,x],k)=>`<div style="display:flex;gap:10px;background:#ffffff14;border-radius:12px;padding:9px 10px;margin-bottom:7px;font-size:13px;line-height:1.45"><span style="font-size:20px">${i}</span><span><b style="color:#ffd84a">${k+1}.</b> ${x}</span></div>`).join('')); }
     else if (t.hasAttribute('data-pl-back')){ const f = ov.querySelector('.full'); if (f) f.remove(); POLL.view = null; }
     else if (t.hasAttribute('data-pl-latihan')) polLatihanBuka('latihan');
-    else if (t.hasAttribute('data-pl-daftar')){ if (AKUN.u && POLP.saya) toast('✅ Kamu sudah terdaftar sebagai Polisi Nusawara.'); else polLatihanBuka('daftar'); }
+    else if (t.hasAttribute('data-pl-daftar')){ if (AKUN.u && POLP.saya) polInfo2s('✅ Kamu sudah terdaftar'); else polLatihanBuka('daftar'); }
     else if (t.hasAttribute('data-pl-pangkat')) polLPangkat();
     else if (t.hasAttribute('data-pl-peringkat')) polLPeringkat();
     else if (t.hasAttribute('data-pl-u')) polLProfil(t.getAttribute('data-pl-u')); });
@@ -4678,7 +4681,7 @@ function polLatihanBuka(mode){
     else if (t.hasAttribute('data-pp-g')){ POLP.gPilih = t.getAttribute('data-pp-g'); polDaftarRender(); }
     else if (t.id === 'ppDaftar'){ if (!POLP.gPilih) return; t.disabled = true; t.textContent = 'Mendaftar…';
       try { const r = await SB.rpc('polisi_daftar', {p_user: AKUN.u, p_sandi: AKUN.s, p_gender: POLP.gPilih});
-        if (r && r.ok){ polisiSet(AKUN.u, POLP.gPilih, 1); POLP.baruDaftar = true; POLP.mode = 'daftar'; await polPapan(); polBangun(); }
+        if (r && r.ok){ polisiSet(AKUN.u, POLP.gPilih, 1); POLP.mode = 'latihan'; await polPapan(); polBangun(); setTimeout(()=>polNaikPop(-1, 0), 250); }   // daftar → langsung latihan + ucapan Lv0
         else { const m = {sudah_kerja:'💼 Kamu sudah punya pekerjaan. Polisi dihitung sebagai pekerjaan, jadi keluar dulu dari pekerjaanmu.', jabatan_tinggi:'🏛️ Wakil Presiden dan Penasihat Negara hanya boleh memegang jabatan.', penuh:'⛔ Kuota polisi sudah penuh (100).', sudah:'✅ Kamu sudah terdaftar sebagai Polisi Nusawara.', sandi:'❌ Sesi masuk berakhir. Masuk lagi.', warga:'❌ Hanya untuk Warga Republik Nusawara.', gender:'❌ Pilih gender dulu.'}[r && r.alasan] || '❌ Gagal mendaftar.'; toast(m); polDaftarRender(); } }
       catch(_) { toast('❌ Gagal tersambung. Coba lagi.'); polDaftarRender(); } } });
   POLP.timer = setInterval(polKirim, 700); POLP.rkTimer = setInterval(polPapan, 6000); polPapan();
@@ -8162,6 +8165,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 14:57</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 15:01</div>
 </body>
 </html>
