@@ -4450,6 +4450,38 @@ function tembak(){ const o = POLP.ov; if (!o) return; const art = o.querySelecto
   if (kena){ kena.mati = 1; kena.el.classList.add('kena'); TEMBAK.skor += kena.poin; POLP.pendPoin = (POLP.pendPoin || 0) + kena.poin;   // skor tembak = poin (disimpan ke server)
     bd.classList.remove('hit'); void bd.offsetWidth; bd.classList.add('hit'); tx('+' + kena.poin, '57.8%', '23.5%'); if (navigator.vibrate) try { navigator.vibrate(25); } catch(_) {} }
   else tx('Meleset!', '57.8%', '25.5%', 'ms'); }
+/* ---------- POP-UP NAIK PANGKAT POLISI (Lv0 saat pertama latihan, Lv1–5 saat naik) ---------- */
+(()=>{ const st = document.createElement('style'); st.textContent = `
+  #polNaik{position:fixed;inset:0;z-index:99995;background:rgba(5,12,35,.72);display:flex;align-items:center;justify-content:center;padding:10px;font-family:inherit;animation:pnIn .25s}
+  @keyframes pnIn{from{opacity:0}}
+  #polNaik .nk{width:100%;max-width:440px;border-radius:22px;border:4px solid #f2c14e;background:linear-gradient(180deg,#2a6fd6,#16418f);box-shadow:0 0 40px #ffd84a88,0 14px 40px #000a;padding:14px 10px;position:relative;text-align:center;color:#fff;isolation:isolate}
+  #polNaik .rays{position:absolute;inset:-60px;background:repeating-conic-gradient(from 0deg,#ffe46b22 0 8deg,transparent 8deg 22deg);border-radius:50%;z-index:-1;animation:pnSp 12s linear infinite;pointer-events:none}
+  @keyframes pnSp{to{transform:rotate(360deg)}}
+  #polNaik .tt{position:relative;z-index:2;display:inline-block;background:linear-gradient(180deg,#e3262e,#9b1019);border:3px solid #ffd84a;border-radius:999px;padding:4px 20px;font-weight:900;font-size:clamp(17px,5vw,22px);text-shadow:0 2px 0 #5a0a10;margin-bottom:10px}
+  #polNaik .in{background:linear-gradient(180deg,#eaf3ff,#cfe1fa);border-radius:16px;padding:8px;border:3px solid #9cc4f5}
+  #polNaik .r1{display:flex;align-items:center;gap:4px}
+  #polNaik .b{width:22%;flex:0 0 22%;border-radius:12px;overflow:hidden}#polNaik .b img,#polNaik .p img,#polNaik .r2 img{width:100%;display:block}
+  #polNaik .wg{display:flex;align-items:center;justify-content:center;aspect-ratio:148/134;background:#dde9f8}
+  #polNaik .wg span{background:linear-gradient(180deg,#7f8a9c,#4c5668);border:3px solid #e9eef5;border-radius:12px;padding:6px 8px;font-weight:900;font-size:clamp(12px,3.6vw,16px);color:#fff;box-shadow:0 3px 0 #2e3644}
+  #polNaik .ar{font-size:28px;color:#f2a90f;text-shadow:0 2px 0 #7a5200;animation:pnAr 1s ease-in-out infinite}@keyframes pnAr{50%{transform:translateX(4px)}}
+  #polNaik .p{flex:1;border-radius:12px;overflow:hidden;animation:pnPop .6s cubic-bezier(.3,1.6,.5,1)}@keyframes pnPop{0%{transform:scale(.4);opacity:0}}
+  #polNaik .r2{margin-top:8px;border-radius:14px;overflow:hidden;animation:pnIn .5s .2s both}
+  #polNaik .ok{margin-top:12px;width:72%;padding:11px;border-radius:999px;border:3px solid #fff3b0;background:linear-gradient(180deg,#ffe46b,#f2a90f);color:#2a1d00;font-weight:900;font-size:18px;box-shadow:0 5px 0 #b77a06;cursor:pointer;font-family:inherit}
+  #polNaik .ok:active{transform:translateY(3px);box-shadow:0 2px 0 #b77a06}
+  #polNaik .cf{position:absolute;width:9px;height:14px;border-radius:2px;animation:pnCf 1.6s ease-in infinite}
+  @keyframes pnCf{0%{transform:translateY(-10px) rotate(0)}100%{transform:translateY(40px) rotate(260deg);opacity:0}}
+`; document.head.appendChild(st); })();
+function polNaikPop(dari, ke){ const old = document.getElementById('polNaik'); if (old) old.remove();
+  const v = '?v=1121', ov = document.createElement('div'); ov.id = 'polNaik';
+  ov.innerHTML = `<div class="nk"><div class="rays"></div><div class="tt">🎉 ${ke === 0 ? 'SELAMAT BERGABUNG!' : 'NAIK PANGKAT!'}</div>
+    <div class="in"><div class="r1">${dari < 0 ? '<div class="b wg"><span>Warga</span></div>' : `<div class="b"><img src="assets/naik/b${dari}.jpg${v}" alt=""></div>`}<div class="ar">➜</div>
+      <div class="b"><img src="assets/naik/b${ke}.jpg${v}" alt="Lv ${ke}"></div><div class="p"><img src="assets/naik/p${ke}.jpg${v}" alt="${POL_PANGKAT[ke-1]}"></div></div>
+      <div class="r2"><img src="assets/naik/u${ke}.jpg${v}" alt=""></div></div>
+    <button class="ok">${ke === 0 ? '👆 Mulai Latihan!' : ke === 5 ? 'Siap, Komandan! 🫡' : 'Lanjutkan Latihan!'}</button></div>`;
+  const nk = ov.querySelector('.nk'); ['#ffd84a','#e3262e','#3fd16b','#5aa6ff','#fff'].forEach(c=>{ for (let i = 0; i < 5; i++){ const d = document.createElement('i'); d.className = 'cf'; d.style.background = c;
+    d.style.left = (Math.random() < .5 ? Math.random() * 18 : 82 + Math.random() * 18) + '%'; d.style.top = (Math.random() * 6 - 3) + '%'; d.style.animationDelay = (Math.random() * 1.6).toFixed(2) + 's'; nk.appendChild(d); } });
+  ov.addEventListener('click', e=>{ if (e.target === ov || e.target.closest('.ok')) ov.remove(); });
+  document.body.appendChild(ov); try { polSuara(); } catch(_) {} }
 function pp2HTML(){ const me = AKUN.u, S = POLP.saya, px = (x)=>(x / 10.24).toFixed(2) + '%';
   return `<div class="pp pp2"><div class="art"><img class="bg" src="assets/polisi-tembak2.jpg?v=1121" alt="Sistem Pangkat Polisi Nusawara">${tembakHTML()}
     <button class="hs" data-pp-help style="left:3.4%;top:1.6%;width:8.4%;height:5.6%" aria-label="Bantuan"></button><button class="hs" data-pp-x style="left:88.4%;top:1%;width:8.8%;height:5.8%" aria-label="Tutup"></button>
@@ -4477,10 +4509,15 @@ function polRender2(){ const o = POLP.ov; if (!o) return; const q = s=>o.querySe
   const k = PP2_K[Math.max(0, lv - 1)], c = q('#ppCur'); c.style.display = lv ? '' : 'none'; c.style.left = (k[0] / 10.24).toFixed(2) + '%'; c.style.width = ((k[1] - k[0]) / 10.24).toFixed(2) + '%';
   POL_PANGKAT.forEach((n, i)=>{ const L = i + 1, el = q('#ppSy' + i); el.className = 'xsy' + (L === lv ? ' on' : '');
     el.textContent = L === lv ? '✓ Saat Ini' : L < lv ? '✓ Tercapai' : '🔒 ' + POL_SYARAT[i].toLocaleString('id-ID') + ' Poin'; });
-  if (lv !== POLP.lvLama){ if (POLP.lvLama != null && lv > POLP.lvLama){ const m = q('.msg'); if (m) m.innerHTML = `🎉 Selamat! Kamu naik pangkat jadi <b style="color:#ffd84a">${POL_PANGKAT[lv-1]}</b>!`; polisiSet(me, S.g, lv); }
+  if (lv !== POLP.lvLama){ if (POLP.lvLama != null && lv > POLP.lvLama){ polNaikPop(POLP.lvLama, lv); polisiSet(me, S.g, lv); }
     POLP.lvLama = lv; } }
 function polBangun(){ const ov = POLP.ov; if (!ov) return; const masuk = !!(AKUN.u && AKUN.s), me = AKUN.u, S = POLP.saya;
   if (masuk && S && POLP.mode !== 'daftar'){ ov.innerHTML = pp2HTML(); POLP.lvLama = polisiLv(polTotal()); ov.dataset.s = '1'; polRender2(); tembakMulai();
+    try { const k = 'polL0_' + me; if (!localStorage.getItem(k)){ localStorage.setItem(k, '1'); if (POLP.lvLama === 0) setTimeout(()=>polNaikPop(-1, 0), 300); } } catch(_) {}
+    if (me === 'julianto_jul'){ const art = ov.querySelector('.pp2 .art');   // Admin: ketuk kartu pangkat untuk melihat ucapan naik pangkat
+      PP2_K.forEach((k, i)=>{ const h = document.createElement('button'); h.className = 'hs'; h.title = 'Admin: lihat ucapan Lv ' + (i + 1); h.style.cssText = `left:${(k[0]/10.24).toFixed(2)}%;top:70.5%;width:${((k[1]-k[0])/10.24).toFixed(2)}%;height:20.9%;border-radius:1.6cqw;z-index:6`;
+        h.addEventListener('click', ()=>polNaikPop(i, i + 1)); art.appendChild(h); });
+      const h0 = document.createElement('button'); h0.className = 'hs'; h0.title = 'Admin: lihat ucapan Lv 0'; h0.style.cssText = 'left:6%;top:38.6%;width:12%;height:8.6%;z-index:6'; h0.addEventListener('click', ()=>polNaikPop(-1, 0)); art.appendChild(h0); }
     const tb = ov.querySelector('#ppTap'), tap = e=>{ e.preventDefault(); const kini = performance.now(); if (kini - (POLP.last || 0) < 500) return; POLP.last = kini;   // jeda 0,5 detik per tap/tembakan
       tembak(); tb.classList.add('on'); setTimeout(()=>tb.classList.remove('on'), 110); POLP.pending++; const p = document.createElement('span'); p.className = 'plus'; p.textContent = '+1'; tb.appendChild(p); setTimeout(()=>p.remove(), 800);
       polRender2(); if (POLP.pending >= 10) polKirim(); };
@@ -8126,6 +8163,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 14:34</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 14:46</div>
 </body>
 </html>
