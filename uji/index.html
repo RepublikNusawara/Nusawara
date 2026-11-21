@@ -4825,10 +4825,12 @@ function tapPilihBuka(){
   ov.innerHTML = `<div style="width:100%;max-width:360px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(180deg,#1f3a5f,#16263d);border:3px solid #f2c14e;border-radius:22px;padding:16px;color:#fff;position:relative;box-shadow:0 14px 40px rgba(0,0,0,.5)">
     <button data-tp-x style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:2px solid #f2c14e;background:#e0162f;color:#fff;font-weight:900;cursor:pointer">✕</button>
     <div style="font-size:12px;opacity:.8">💰 Tap N$</div><b style="font-size:20px">Mau tap untuk apa?</b>
+    <button data-tp-pol style="display:block;width:100%;margin-top:10px;padding:0;border:3px solid #f2c14e;border-radius:18px;overflow:hidden;cursor:pointer;background:linear-gradient(180deg,#8fc9ff,#4f97e6);box-shadow:0 5px 0 rgba(0,0,0,.25);font:inherit;color:#fff">
+      <img src="assets/menjadi-polisi.jpg?v=1121" alt="Menjadi Polisi Nusawara" style="width:100%;display:block">
+      <small style="display:block;padding:5px 8px 7px;font-size:12px;font-weight:800;background:#16357f">${!AKUN.u ? 'Masuk dulu sebagai warga' : pol ? '👮 Kamu sudah polisi · lanjut latihan menembak' : '🇮🇩 Mengabdi kepada negara · semua warga bisa daftar'}</small></button>
     ${kartu('🏭', 'Cari Uang Tambahan', 'Pabrik Uang Nusawara · cetak N$1 sampai N$100, lewat batas harian masuk Kas Negara', 'data-tp-negara', 'linear-gradient(135deg,#e0162f,#8f0a1d)')}
     ${kartu('⚒️', 'Kerja', ketKerja, 'data-tp-kerja', 'linear-gradient(135deg,#2e9e48,#17602a)')}
     ${kartu('📢', 'Lowongan Pekerjaan', ketLow, 'data-tp-low', 'linear-gradient(135deg,#f29a2e,#b4580b)')}
-    ${kartu('👮', 'Menjadi Polisi Nusawara', !AKUN.u ? 'Masuk dulu sebagai warga' : pol ? 'Kamu sudah polisi · lanjut latihan menembak' : 'Mengabdi kepada negara · semua warga bisa daftar', 'data-tp-pol', 'linear-gradient(135deg,#2a62d6,#16357f)')}
     <div id="tpPilihan"></div><p id="tpMsg" style="font-size:12px;margin:10px 2px 0;min-height:14px"></p></div>`;
   document.body.appendChild(ov);
   ov.addEventListener('click', e=>{ const b = e.target.closest('button');
@@ -8166,6 +8168,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 15:10</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 21 Nov 15:18</div>
 </body>
 </html>
