@@ -4611,6 +4611,19 @@ function polBangun(){ const ov = POLP.ov; if (!ov) return; const masuk = !!(AKUN
 #polL .prog2 .ex{font-size:3.5cqw}
 #polL .prog2 .fill{position:absolute;left:30.4%;top:63%;height:7%;border-radius:999px;background:linear-gradient(180deg,#fff2a0 0%,#ffd23a 45%,#f2a90f 100%);box-shadow:0 0 1.2cqw #ffd84aaa;transition:width .4s}
 #polL .prog2 .sub{position:absolute;left:49.4%;top:91%;transform:translate(-50%,-50%);font-size:2.3cqw;line-height:1;white-space:nowrap;color:#ffe38a;font-weight:800}
+#polL .lenc{margin:14px 0 2px;border-radius:18px;border:4px solid #f2c14e;background:linear-gradient(180deg,#1f56c8,#123d8f);padding:30px 8px 10px;position:relative}
+#polL .lenc .lh{position:absolute;left:50%;top:-18px;transform:translateX(-50%);white-space:nowrap;background:linear-gradient(180deg,#1a3f94,#0f2a6e);border:3px solid #f2c14e;border-radius:999px;padding:4px 16px;font-weight:900;font-size:clamp(13px,3.8vw,17px);text-shadow:0 2px 0 #071a45}
+#polL .lenc .lr{display:flex;gap:6px;justify-content:center}#polL .lenc .lr.dua{margin-top:6px}
+#polL .lenc .lr .lk{flex:0 0 31.5%}#polL .lenc .lr.dua .lk{flex:0 0 37.5%}
+#polL .lenc .lk{position:relative;border-radius:12px;line-height:0}
+#polL .lenc .lk img{width:100%;display:block;border-radius:12px}
+#polL .lenc .lk.kunci img{filter:grayscale(1) brightness(.5)}
+#polL .lenc .lk.kini{box-shadow:0 0 0 3px #ffe46b,0 0 16px #ffe46b;animation:lkGlow 1.6s ease-in-out infinite}@keyframes lkGlow{50%{box-shadow:0 0 0 3px #ffe46b,0 0 4px #ffe46b}}
+#polL .lenc .gk{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%);line-height:1.1;font-size:clamp(20px,6vw,28px);text-align:center;white-space:nowrap}
+#polL .lenc .gk b{display:block;font-size:clamp(10px,2.9vw,13px);background:#0d2a6ae6;border:2px solid #f2c14e;border-radius:999px;padding:2px 8px;margin-top:3px;color:#ffd84a}
+#polL .lenc .st{position:absolute;left:50%;top:-8px;transform:translateX(-50%);line-height:1;white-space:nowrap;font-weight:900;font-size:clamp(10px,2.8vw,12px);background:linear-gradient(180deg,#5aa6ff,#2a62d6);border:2px solid #fff;border-radius:999px;padding:3px 9px;color:#fff}
+#polL .lenc .st.on{background:linear-gradient(180deg,#5fe05f,#1f9a2a);border-color:#d9ffd0}
+#polL .lenc .lr{padding-top:6px}
 #polL .full{position:absolute;inset:0;background:linear-gradient(180deg,#1f5fb8,#122a66);padding:14px;overflow:auto;z-index:5}
   #polL .full h3{margin:0;flex:1;font-size:19px;color:#ffd84a}
   #polL .back{border:2px solid #f2c14e;background:#244fa8;color:#fff;font-weight:900;border-radius:999px;padding:6px 12px;cursor:pointer}
@@ -4637,12 +4650,19 @@ function polLProgres(){ const el = POLL.ov && POLL.ov.querySelector('#plProg'); 
   const tgt = maks ? POL_MAKS : POL_SYARAT[nx - 1], pc = Math.max(0, Math.min(100, tot / tgt * 100));
   const nm = (t, x, y)=>`<span class="t" style="left:${x}%;top:${y}%;font-size:${Math.min(3.4, 21 / (t.length * .6)).toFixed(2)}cqw">${t}</span>`;
   el.className = 'prog2';
-  el.innerHTML = `<img src="assets/polisi-progres.jpg?v=1120" alt="Progres Karier Polisi">
+  el.innerHTML = `<img src="assets/polisi-progres2.jpg?v=1122" alt="Progres Karier Polisi"><img class="lic" src="assets/lencana/i${maks ? 5 : nx}.png?v=1122" alt="" style="position:absolute;left:86.1%;top:48.4%;height:${maks || nx >= 4 ? 30 : 27}%;transform:translate(-50%,-50%);width:auto;border-radius:0">
     ${nm(POL_PANGKAT[lv-1], 15.6, 71.6)}<span class="t lv" style="left:15.5%;top:83%">Lv. ${lv}</span>
     ${(e=>`<span class="t ex" style="left:50.6%;top:51%;font-size:${Math.min(3.5, 34 / (e.length * .62)).toFixed(2)}cqw">${e}</span>`)('EXP : ' + tot.toLocaleString('id-ID') + ' / ' + tgt.toLocaleString('id-ID'))}
     <i class="fill" style="width:${(37.6 * pc / 100).toFixed(2)}%"></i>
     ${nm(maks ? 'Pangkat Tertinggi' : POL_PANGKAT[nx-1], 86, 69.2)}<span class="t lv" style="left:86.4%;top:81%">${maks ? 'MAX' : 'Lv. ' + nx}</span>
-    ${!AKUN.u ? '<span class="sub">🔑 Masuk & daftar polisi untuk mulai</span>' : !S ? '<span class="sub">📝 Daftar polisi dulu untuk mulai</span>' : ''}`; }
+    ${!AKUN.u ? '<span class="sub">🔑 Masuk & daftar polisi untuk mulai</span>' : !S ? '<span class="sub">📝 Daftar polisi dulu untuk mulai</span>' : ''}`;
+  polLLencana(lv); }
+/* tabel Lencana Pangkat: terbuka saat poin tercapai */
+function polLLencana(lv){ const el = POLL.ov && POLL.ov.querySelector('#plLenc'); if (!el) return;
+  const kartu = i=>{ const buka = lv >= i, kini = lv === i;
+    return `<div class="lk${buka ? '' : ' kunci'}${kini ? ' kini' : ''}"><img src="assets/lencana/k${i}.jpg?v=1122" alt="${POL_PANGKAT[i-1]}">
+      ${buka ? `<span class="st ${kini ? 'on' : ''}">${kini ? '✓ Saat Ini' : '✓ Terbuka'}</span>` : `<span class="gk">🔒<b>${POL_SYARAT[i-1].toLocaleString('id-ID')} Poin</b></span>`}</div>`; };
+  el.innerHTML = `<div class="lh">⭐ Lencana Pangkat Polisi ⭐</div><div class="lr">${[1,2,3].map(kartu).join('')}</div><div class="lr dua">${[4,5].map(kartu).join('')}</div>`; }
 function polLandingTutup(){ if (!POLL.ov) return; clearInterval(POLL.timer); POLL.ov.remove(); POLL.ov = null; }
 function polLFull(html){ const pl = POLL.ov && POLL.ov.querySelector('.pl'); if (!pl) return; let f = pl.querySelector('.full'); if (!f){ f = document.createElement('div'); f.className = 'full'; pl.appendChild(f); } f.innerHTML = html; pl.scrollIntoView({block:'start'}); }
 function polLKepala(judul){ return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><button class="back" data-pl-back>‹ Kembali</button><h3>${judul}</h3></div>`; }
@@ -4664,7 +4684,8 @@ function polisiBuka(){
     <div class="bwrap"><button class="yb" data-pl-latihan><span class="ic">👆</span><span class="tx">Latihan Polisi</span><span class="ar">»</span></button>
       <button class="yb" data-pl-daftar><span class="ic">📝</span><span class="tx">Daftar Polisi</span><span class="ar">»</span></button>
       <div class="tiles"><button class="tile" data-pl-pangkat><span class="ic">🎖️</span>Pangkat</button><button class="tile" data-pl-peringkat><span class="ic">🏆</span>Peringkat</button></div>
-      <div class="prog" id="plProg"></div></div></div>`;
+      <div class="prog" id="plProg"></div>
+      <div class="lenc" id="plLenc"></div></div></div>`;
   ov.addEventListener('click', e=>{ const t = e.target.closest('button,[data-pl-u]'); if (!t){ if (e.target === ov) polLandingTutup(); return; }
     if (t.hasAttribute('data-pl-x')) polLandingTutup();
     else if (t.hasAttribute('data-pl-help')){ POLL.view = 'aturan'; polLFull(polLKepala('📜 Aturan Polisi Nusawara') + [['🆓','Daftar jadi polisi <b>gratis</b>. Kuota sementara <b>100 polisi</b>.'],['🧍','Pilih gender: <b>Pria</b>, <b>Wanita</b>, atau <b>Berhijab</b>. Seragam karaktermu di peta otomatis jadi seragam polisi.'],['👆','Buka <b>Latihan Polisi</b> lalu tekan TAP untuk mengumpulkan tap.'],['⭐','Pangkat: <b>Polisi Junior</b> → <b>Polisi Muda</b> 2.500 → <b>Polisi Senior</b> 10.000 → <b>Kepala Polisi</b> 30.000 → <b>Komandan Polisi</b> 75.000 tap. Seragam berubah tiap naik pangkat.'],['🏆','Lihat semua polisi di menu <b>Pangkat</b> dan <b>Peringkat</b>.']].map(([i,x],k)=>`<div style="display:flex;gap:10px;background:#ffffff14;border-radius:12px;padding:9px 10px;margin-bottom:7px;font-size:13px;line-height:1.45"><span style="font-size:20px">${i}</span><span><b style="color:#ffd84a">${k+1}.</b> ${x}</span></div>`).join('')); }
@@ -8183,6 +8204,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 22 Nov 03:12</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">UJI COBA · versi 22 Nov 03:25</div>
 </body>
 </html>
