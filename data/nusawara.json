@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-23T00:20:00+11:00",
-  "penduduk": 382,
+  "updatedAt": "2026-11-23T06:20:34+11:00",
+  "penduduk": 387,
   "warga": {
     "110_rey_masteryo.a": {
       "username": "110_rey_masteryo.a",
@@ -657,6 +657,13 @@
       "username": "ethernalkyzenruzz",
       "niwn": "NUS-000253",
       "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "eventhoughtndu_1013": {
+      "username": "eventhoughtndu_1013",
+      "niwn": "NUS-000388",
+      "terdaftar": "23 Nov 2026",
       "houseId": null,
       "follow": null
     },
@@ -1794,6 +1801,13 @@
       "houseId": null,
       "follow": true
     },
+    "resbilal": {
+      "username": "resbilal",
+      "niwn": "NUS-000384",
+      "terdaftar": "23 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "restu": {
       "username": "Restu",
       "niwn": "NUS-000061",
@@ -1842,6 +1856,27 @@
       "terdaftar": "13 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "ritzz_aja04": {
+      "username": "ritzz_aja04",
+      "niwn": "NUS-000385",
+      "terdaftar": "23 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "ritzzaja": {
+      "username": "ritzzaja",
+      "niwn": "NUS-000387",
+      "terdaftar": "23 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "ritzzaja04": {
+      "username": "ritzzaja04",
+      "niwn": "NUS-000386",
+      "terdaftar": "23 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "rizam": {
       "username": "rizam",
@@ -3735,6 +3770,7 @@
     "elll_elll_____": "caace69bf0fd0b6f52f84bfc909f71d505916cd52d10652c1d27299b81e0d641",
     "erlanggamakanserangga": "a4ac6319100010a5173733dfc2644b603b09b97550abd195b9ec22f8119b3708",
     "ethernalkyzenruzz": "6b1b2b0bc2ae5bb42321f13eef958a69ba82707eeb609e9d41fb015362715872",
+    "eventhoughtndu_1013": "3d8b4c8b2b35e383674f2544de4b24432537c671df58574910172664cc13657f",
     "f.rikoo": "e8d1f5742ba103917da968029433fcf948e1a98d794d1f40e4296cc7eccaa296",
     "f4bi4nn_01": "e36ca43e7a5be4908e2b3121a15059a64b5116cee79e6b119644b913b02aa9e9",
     "fadil": "d0d3b120bba2e7370d2971c38b3c5d83a277cdafee5e67f03cfd3621858c3102",
@@ -3890,6 +3926,7 @@
     "rendra_ayoga": "acc3ed32c7ef1348bba3d39b54c2ff86a1557fa3cf9c08408c0bf516047a047f",
     "rendraayoga": "4eb50ed84a0d824cb71556581b7ed6d69ec34b9486a939d2a0255c987117379b",
     "rerey": "f0132e99834a911119d1f7c1ee3aaf6d31aa197f3c30113519dec3795fa6417e",
+    "resbilal": "94ebf552d2e21ad0d7864dd664bdab35ffe8cd84af62e934c6737ba95357accc",
     "restu": "688ab975270d18098f2726378d0fd4fe678c153afbebb30ae9a1145b96805d1f",
     "rfaelsh_": "b5f7349833bad3ba5160e6370344a81194b5371cf1d4a18dc4f803cfd0fc1a21",
     "rhnmlnibrhm_": "4523e7cbf91fee56554e3abe6d3837a003d554dc90564de5a6d8d96f2e197be8",
@@ -3897,6 +3934,9 @@
     "rifki": "9941e920e50c53cd077b072c3194be7dcecdefe9831dfcc7734447d5580ed950",
     "rikofrl": "ca22a6396db8d18d2353ab3cb6ad286c0247fd668eacb6291f5fe33c776cd36e",
     "rinynatyansya": "fa4f17edb26ff2cad823a08f290c948e72c91fde0f671f1136a7d48ce8406684",
+    "ritzz_aja04": "173c9c6f81cb5e237275fc5124af32b0e5d482f22df645a16634fd7afc73e610",
+    "ritzzaja": "c7a5853f19233fef969eec15fd97337862c2c4dc0f417daa04ae95d41f9e3562",
+    "ritzzaja04": "ace4e74599266193151398e1514cb19196f6955d753257c5c85806bc49d48a6a",
     "rizilubis_": "328cf059f26cadc8df0537ac0a0ade7b5ea3bab196274ffe703c18b12aae901b",
     "rizz_08": "337a6b5d3491194e15f24351959a86fc3649ee07af4d9105584639fb20c31a2d",
     "roro": "a1aa07db92077537f8ae26870ac78c27223b9045e367ba06a5305c29875735e2",
