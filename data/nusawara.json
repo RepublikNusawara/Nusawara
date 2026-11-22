@@ -1,13 +1,27 @@
 {
-  "updatedAt": "2026-11-22T06:20:39+11:00",
-  "penduduk": 336,
+  "updatedAt": "2026-11-22T18:19:15+11:00",
+  "penduduk": 374,
   "warga": {
+    "110_rey_masteryo.a": {
+      "username": "110_rey_masteryo.a",
+      "niwn": "NUS-000368",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "29_rezky": {
       "username": "29_Rezky",
       "niwn": "NUS-000022",
       "terdaftar": "13 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "3zra_11": {
+      "username": "3zra_11",
+      "niwn": "NUS-000351",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "4bidz4r": {
       "username": "4bidz4r",
@@ -120,6 +134,13 @@
       "terdaftar": "13 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "accang15": {
+      "username": "accang15",
+      "niwn": "NUS-000361",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "aditya.dwangga": {
       "username": "aditya.dwangga",
@@ -240,12 +261,33 @@
       "houseId": null,
       "follow": null
     },
+    "altobi_bunan": {
+      "username": "altobi_bunan",
+      "niwn": "NUS-000342",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "alvaro": {
       "username": "ALVARO",
       "niwn": "NUS-000134",
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "alvaroxi_gen2": {
+      "username": "alvaroxi_gen2",
+      "niwn": "NUS-000369",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "amir_husein_mp": {
+      "username": "amir_husein_mp",
+      "niwn": "NUS-000339",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "andynieputri": {
       "username": "AndyniePutri",
@@ -310,6 +352,20 @@
       "houseId": null,
       "follow": null
     },
+    "arpan": {
+      "username": "arpan",
+      "niwn": "NUS-000374",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "arpan_syah": {
+      "username": "arpan_syah",
+      "niwn": "NUS-000373",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "arsyilaarsyad": {
       "username": "Arsyilaarsyad",
       "niwn": "NUS-000310",
@@ -345,12 +401,26 @@
       "houseId": null,
       "follow": true
     },
+    "bexze88": {
+      "username": "bexze88",
+      "niwn": "NUS-000350",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "billsky": {
       "username": "billsky",
       "niwn": "NUS-000113",
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "buleeee01": {
+      "username": "buleeee01",
+      "niwn": "NUS-000344",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "bun9lon": {
       "username": "bun9lon",
@@ -401,6 +471,13 @@
       "houseId": null,
       "follow": null
     },
+    "cik_am_18": {
+      "username": "cik_am_18",
+      "niwn": "NUS-000352",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "dafcil": {
       "username": "dafcil",
       "niwn": "NUS-000281",
@@ -421,6 +498,13 @@
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "david123": {
+      "username": "david123",
+      "niwn": "NUS-000375",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "dek.khadijah03": {
       "username": "dek.khadijah03",
@@ -562,6 +646,13 @@
       "houseId": null,
       "follow": true
     },
+    "f4bi4nn_01": {
+      "username": "f4bi4nn_01",
+      "niwn": "NUS-000364",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "fadil": {
       "username": "fadil",
       "niwn": "NUS-000090",
@@ -580,6 +671,13 @@
       "username": "fadilamuhamad827gmail.com",
       "niwn": "NUS-000283",
       "terdaftar": "17 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "fadsfadill_": {
+      "username": "fadsfadill_",
+      "niwn": "NUS-000348",
+      "terdaftar": "22 Nov 2026",
       "houseId": null,
       "follow": null
     },
@@ -625,6 +723,13 @@
       "houseId": null,
       "follow": null
     },
+    "fdhiiz": {
+      "username": "fdhiiz",
+      "niwn": "NUS-000345",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "fenndii": {
       "username": "fenndii",
       "niwn": "NUS-000138",
@@ -639,6 +744,13 @@
       "houseId": null,
       "follow": null
     },
+    "feronfransisco": {
+      "username": "feronfransisco",
+      "niwn": "NUS-000340",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "fiqihhh_69": {
       "username": "fiqihhh_69",
       "niwn": "NUS-000102",
@@ -646,12 +758,26 @@
       "houseId": null,
       "follow": true
     },
+    "fizz": {
+      "username": "fizz",
+      "niwn": "NUS-000346",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "frii.hart": {
       "username": "Frii.hart",
       "niwn": "NUS-000016",
       "terdaftar": "13 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "gabriel": {
+      "username": "gabriel",
+      "niwn": "NUS-000367",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "galang_lalinglung": {
       "username": "galang_lalinglung",
@@ -702,12 +828,33 @@
       "houseId": null,
       "follow": null
     },
+    "hajima_shota": {
+      "username": "hajima_shota",
+      "niwn": "NUS-000341",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "hakimdunia": {
       "username": "hakimdunia",
       "niwn": "NUS-000017",
       "terdaftar": "13 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "hallo_guys": {
+      "username": "hallo_guys",
+      "niwn": "NUS-000349",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "hanan_zero5four": {
+      "username": "hanan_zero5four",
+      "niwn": "NUS-000362",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "harviansyahs": {
       "username": "harviansyahs",
@@ -764,6 +911,13 @@
       "terdaftar": "13 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "ilham_17": {
+      "username": "ilham_17",
+      "niwn": "NUS-000359",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "indahhcuyy": {
       "username": "Indahhcuyy",
@@ -853,6 +1007,20 @@
       "username": "j3kyy___",
       "niwn": "NUS-000335",
       "terdaftar": "17 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "j4ury4everr": {
+      "username": "j4ury4everr",
+      "niwn": "NUS-000343",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "jamm.1202": {
+      "username": "jamm.1202",
+      "niwn": "NUS-000357",
+      "terdaftar": "22 Nov 2026",
       "houseId": null,
       "follow": null
     },
@@ -946,6 +1114,20 @@
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "kenan_atmaja": {
+      "username": "kenan_atmaja",
+      "niwn": "NUS-000366",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "kenanatmaja": {
+      "username": "kenanatmaja",
+      "niwn": "NUS-000365",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "kenzo": {
       "username": "kenzo",
@@ -1115,6 +1297,13 @@
       "houseId": null,
       "follow": true
     },
+    "manggturuu766_": {
+      "username": "manggturuu766_",
+      "niwn": "NUS-000363",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "manzz_kidz": {
       "username": "manzz kidz",
       "niwn": "NUS-000121",
@@ -1168,6 +1357,13 @@
       "username": "matr90973gmail.com",
       "niwn": "NUS-000230",
       "terdaftar": "15 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "maulrajinmengaji": {
+      "username": "maulrajinmengaji",
+      "niwn": "NUS-000360",
+      "terdaftar": "22 Nov 2026",
       "houseId": null,
       "follow": null
     },
@@ -1241,6 +1437,13 @@
       "houseId": null,
       "follow": true
     },
+    "nailazahra": {
+      "username": "nailazahra",
+      "niwn": "NUS-000356",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "nandaboy": {
       "username": "NANDABOY",
       "niwn": "NUS-000114",
@@ -1254,6 +1457,20 @@
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "nawwaf_khoirul": {
+      "username": "nawwaf_khoirul",
+      "niwn": "NUS-000371",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "nawwafkhoirul": {
+      "username": "nawwafkhoirul",
+      "niwn": "NUS-000372",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "nazwa": {
       "username": "Nazwa",
@@ -1273,6 +1490,20 @@
       "username": "nggaprt1",
       "niwn": "NUS-000278",
       "terdaftar": "16 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "niaboyya": {
+      "username": "niaboyya",
+      "niwn": "NUS-000347",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "nima": {
+      "username": "nima",
+      "niwn": "NUS-000353",
+      "terdaftar": "22 Nov 2026",
       "houseId": null,
       "follow": null
     },
@@ -1339,6 +1570,13 @@
       "houseId": null,
       "follow": true
     },
+    "pashaprtm1408": {
+      "username": "pashaprtm1408",
+      "niwn": "NUS-000338",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "petraatefaagmail.com": {
       "username": "petraatefaagmail.com",
       "niwn": "NUS-000289",
@@ -1373,6 +1611,13 @@
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "putra.4rt": {
+      "username": "putra.4rt",
+      "niwn": "NUS-000358",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "radoguanteng": {
       "username": "radoguanteng",
@@ -1598,6 +1843,13 @@
       "houseId": null,
       "follow": null
     },
+    "ryan": {
+      "username": "ryan",
+      "niwn": "NUS-000355",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "sabrigeboy": {
       "username": "SabriGeboy",
       "niwn": "NUS-000009",
@@ -1728,6 +1980,13 @@
       "username": "temi_1181",
       "niwn": "NUS-000314",
       "terdaftar": "18 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "ubay7140": {
+      "username": "ubay7140",
+      "niwn": "NUS-000370",
+      "terdaftar": "22 Nov 2026",
       "houseId": null,
       "follow": null
     },
@@ -2171,6 +2430,13 @@
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "warga_bfa5573c": {
+      "username": "warga_bfa5573c",
+      "niwn": "NUS-000354",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "warga_c4033736": {
       "username": "warga_c4033736",
