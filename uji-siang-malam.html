@@ -4180,7 +4180,7 @@ function pabrikUangBuka(){
   TAPU.total = null; TAPU.rank = null; tapuRender(); tapuPeringkat(); negaraMuat().then(tapuRender);
 }
 // ---------- SISTEM PANGKAT POLISI NUSAWARA: daftar gratis (kuota 100), pilih gender, naik pangkat dengan tap latihan ----------
-const POLP = {ov:null, pending:0, sibuk:false, timer:null, rkTimer:null, last:0, saya:null, top:[], jumlah:0, kuota:100, gPilih:null, imgs:{}, r:null, ac:null};
+const POLP = {ov:null, pending:0, sibuk:false, timer:null, rkTimer:null, last:0, saya:null, top:[], jumlah:0, kuota:1000, gPilih:null, imgs:{}, r:null, ac:null};
 (()=>{ const st = document.createElement('style'); st.textContent = `
   #polP{position:fixed;inset:0;z-index:99990;background:rgba(6,14,38,.78);display:flex;align-items:center;justify-content:center;overflow:auto;padding:10px 8px;font-family:inherit;-webkit-user-select:none;user-select:none}
   #polP .pp{width:100%;max-width:460px;border-radius:24px;padding:12px 10px 12px;background:linear-gradient(180deg,#3d8be0 0%,#1f5fb8 38%,#16418f 100%);border:4px solid #f2c14e;color:#fff;position:relative;box-shadow:0 14px 44px rgba(0,0,0,.55)}
@@ -4346,7 +4346,7 @@ function polAturan(){ const o = POLP.ov; if (!o) return; let f = o.querySelector
   f.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><b style="flex:1;font-size:18px;color:#ffd84a">📜 Aturan Polisi Nusawara</b><button class="lnk" style="width:auto;padding:6px 12px;margin:0" data-pp-tutup>✕ Tutup</button></div>
     ${li.map(([i,t],k)=>`<div style="display:flex;gap:10px;align-items:flex-start;background:#ffffff14;border-radius:12px;padding:9px 10px;margin-bottom:7px;font-size:13px;line-height:1.45"><span style="font-size:20px;line-height:1.2">${i}</span><span><b style="color:#ffd84a">${k+1}.</b> ${t}</span></div>`).join('')}`; }
 async function polPapan(){ try { const r = await SB.rpc('polisi_papan', {p_user: AKUN.u || null, p_limit: 100}); if (!r) return;
-    POLP.top = r.top || []; POLP.jumlah = r.jumlah || 0; POLP.kuota = r.kuota || 100;
+    POLP.top = r.top || []; POLP.jumlah = r.jumlah || 0; POLP.kuota = r.kuota || 1000;
     if (r.saya){ r.saya.rank = r.saya.rank_poin; if (!POLP.pending && !POLP.sibuk) POLP.saya = r.saya; else POLP.saya.rank = r.saya.rank_poin; } else POLP.saya = null;
     if (POLP.ov){ const sudah = POLP.ov.dataset.s === '1'; if (!!POLP.saya !== sudah) polBangun(); else if (POLP.saya) polRender(); else polDaftarRender(); const f = POLP.ov.querySelector('.full[data-v="semua"]'); if (f) polFull(); } } catch(_) {} }
 async function polKirim(){ if (POLP.sibuk || !POLP.pending || !AKUN.u) return; POLP.sibuk = true; const n = Math.min(POLP.pending, 40);
@@ -4901,7 +4901,7 @@ function lowonganDaftar(){
     F.pos.forEach(([p,q,ik],i)=>{ if (i === 0) return; const n = rows.filter(r=>r.fasilitas === id && r.posisi === p).length; if (n < q) kosong.push({p, ik: ik || '💼', sisa: q - n, isi: n, kuota: q}); });
     if (kosong.length) out.push({id, nama: F.nama, ikon: F.ikon || '🏢', kosong}); });
   out.sort((a,b)=>b.kosong.reduce((s,k)=>s+k.sisa,0) - a.kosong.reduce((s,k)=>s+k.sisa,0));
-  const pj = (typeof POLP !== 'undefined' && POLP.jumlah) || Object.keys(POLW || {}).length, kq = (typeof POLP !== 'undefined' && POLP.kuota) || 100;
+  const pj = (typeof POLP !== 'undefined' && POLP.jumlah) || Object.keys(POLW || {}).length, kq = (typeof POLP !== 'undefined' && POLP.kuota) || 1000;
   if (pj < kq) out.push({id:'POLISI-NUSAWARA', nama:'Kantor Polisi Republik Nusawara', ikon:'👮', kosong:[{p:'Polisi Junior', ik:'👮', sisa: kq - pj, isi: pj, kuota: kq}]});
   return out; }
 function lowonganBukaTempat(id){
@@ -8265,6 +8265,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 22 Nov 13:10</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 22 Nov 13:15</div>
 </body>
 </html>
