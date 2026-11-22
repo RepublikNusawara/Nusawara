@@ -4348,12 +4348,13 @@ function polAturan(){ const o = POLP.ov; if (!o) return; let f = o.querySelector
 /* pil statistik polisi di tabel "Menjadi Polisi Nusawara": jumlah terdaftar/kuota + total poin semua polisi (sama dengan poin di halaman peringkat) */
 function polStatSet(){ const id = n=>Number(n || 0).toLocaleString('id-ID');
   document.querySelectorAll('.polStatJ').forEach(e=>e.textContent = id(POLP.jumlah) + '/' + id(POLP.kuota));
-  document.querySelectorAll('.polStatP').forEach(e=>e.textContent = id(POLP.totalPoin)); }
-function polBar(teks){ const id = n=>Number(n || 0).toLocaleString('id-ID');
-  const pil = (cls, v, ket, bg, bd, c1, c2)=>`<span style="flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:23%;padding:3px 7px 4px;border-radius:999px;background:${bg};border:2px solid ${bd};line-height:1.05"><b class="${cls}" style="font-size:14px;font-weight:900;color:${c1}">${v}</b><small style="font-size:7.5px;font-weight:800;letter-spacing:.2px;color:${c2}">${ket}</small></span>`;
-  return `<span style="display:flex;align-items:center;gap:6px;padding:6px 7px;background:#16357f;text-align:left"><small style="flex:1;min-width:0;font-size:12px;font-weight:800;line-height:1.25">${teks}</small>`
-    + pil('polStatJ', id(POLP.jumlah) + '/' + id(POLP.kuota), 'POLISI TERDAFTAR', '#f2c14e', '#ffe8a0', '#3b2600', '#6e4600')
-    + pil('polStatP', id(POLP.totalPoin), 'TOTAL POIN', '#fff', '#f2c14e', '#16357f', '#3c508c') + `</span>`; }
+  document.querySelectorAll('.polStatP').forEach(e=>{ e.textContent = id(POLP.totalPoin); e.style.fontSize = polFs(e.textContent) + 'px'; }); }
+function polFs(t){ return Math.max(9, Math.min(17, 17 - (String(t).length - 6) * 1.6)); }   // angka makin panjang → font makin kecil, selalu muat di kolom
+function polBar(teks){ const id = n=>Number(n || 0).toLocaleString('id-ID'), tp = id(POLP.totalPoin);
+  const pil = (cls, v, ket, bg, bd, c1, c2, w, fs)=>`<span style="flex:none;width:${w};box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 6px 4px;border-radius:999px;background:${bg};border:2px solid ${bd};line-height:1.05;overflow:hidden"><b class="${cls}" style="font-size:${fs}px;font-weight:900;color:${c1};white-space:nowrap">${v}</b><small style="font-size:6.5px;font-weight:800;letter-spacing:.1px;color:${c2};white-space:nowrap">${ket}</small></span>`;
+  return `<span style="display:flex;align-items:center;gap:5px;padding:6px 7px;background:#16357f;text-align:left"><small style="flex:1;min-width:0;font-size:12px;font-weight:800;line-height:1.25">${teks}</small>`
+    + pil('polStatJ', id(POLP.jumlah) + '/' + id(POLP.kuota), 'POLISI TERDAFTAR', '#f2c14e', '#ffe8a0', '#3b2600', '#6e4600', '19%', 12)
+    + pil('polStatP', tp, 'TOTAL POIN', '#fff', '#f2c14e', '#16357f', '#3c508c', '30%', polFs(tp)) + `</span>`; }
 function polStatJalan(ov){ try { polPapan(); } catch(_) {} const t = setInterval(()=>{ if (!document.body.contains(ov)) return clearInterval(t); try { polPapan(); } catch(_) {} }, 6000); }
 async function polPapan(){ try { const r = await SB.rpc('polisi_papan', {p_user: AKUN.u || null, p_limit: 100}); if (!r) return;
     POLP.top = r.top || []; POLP.jumlah = r.jumlah || 0; POLP.kuota = r.kuota || 1000; POLP.totalPoin = Number(r.total_poin || 0); polStatSet();
@@ -8275,6 +8276,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 22 Nov 13:35</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 22 Nov 13:40</div>
 </body>
 </html>
