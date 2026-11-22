@@ -4516,7 +4516,7 @@ function pp2HTML(){ const me = AKUN.u, S = POLP.saya, px = (x)=>(x / 10.24).toFi
     <span class="o xlv" id="ppLv"></span><span class="o xpkn" id="ppNm"></span><span class="o xto" id="ppTo"></span>
     <i class="xfill" id="ppBar" style="width:0%"></i><span class="o xbt" id="ppBt"></span><span class="o xpc" id="ppPc"></span>
     <span class="o xst" style="top:54.1%;left:9.6%;right:auto;text-align:left" id="ppHari"></span><span class="o xst" style="top:57.68%;left:9.6%;right:auto;text-align:left" id="ppTot"></span><span class="o xst" style="top:62.45%;left:16.45%;right:auto;transform:translate(-50%,-50%);text-align:center;font-size:2.7cqw" id="ppRank"></span>
-    <button class="tapb" id="ppTap" aria-label="Tap Latihan Polisi"><img src="assets/polisi-tap.png?v=1120" alt="TAP"></button>
+    <button class="tapb" id="ppTap" aria-label="Tembak"><img src="assets/polisi-tap.png?v=1122t" alt="TEMBAK"></button>
     <div class="xrk" id="ppRk"></div>
     <button class="hs" data-pp-semua style="left:59.3%;top:63.9%;width:32.5%;height:2.7%;border-radius:999px" aria-label="Lihat Peringkat Lengkap"></button>
     <i class="xcur" id="ppCur"></i>${PP2_X.map((x, i)=>`<span class="xsy" id="ppSy${i}" style="left:${px(x)}"></span>`).join('')}
@@ -4540,12 +4540,16 @@ function polRender2(){ const o = POLP.ov; if (!o) return; const q = s=>o.querySe
   if (lv !== POLP.lvLama){ if (POLP.lvLama != null && lv > POLP.lvLama){ polNaikPop(POLP.lvLama, lv); polisiSet(me, S.g, lv); }
     POLP.lvLama = lv; } }
 function polBangun(){ const ov = POLP.ov; if (!ov) return; const masuk = !!(AKUN.u && AKUN.s), me = AKUN.u, S = POLP.saya;
-  if (masuk && S && POLP.mode !== 'daftar'){ ov.innerHTML = pp2HTML(); POLP.lvLama = polisiLv(polTotal()); ov.dataset.s = '1'; polRender2(); tembakMulai(); latMusikMulai();
+  if (masuk && (S || POLP.mode === 'latihan') && POLP.mode !== 'daftar'){ ov.innerHTML = pp2HTML(); POLP.lvLama = polisiLv(polTotal()); ov.dataset.s = S ? '1' : '0'; polRender2(); tembakMulai(); latMusikMulai();
     if (me === 'julianto_jul'){ const art = ov.querySelector('.pp2 .art');   // Admin: ketuk kartu pangkat untuk melihat ucapan naik pangkat
       PP2_K.forEach((k, i)=>{ const h = document.createElement('button'); h.className = 'hs'; h.title = 'Admin: lihat ucapan Lv ' + (i + 1); h.style.cssText = `left:${(k[0]/10.24).toFixed(2)}%;top:70.5%;width:${((k[1]-k[0])/10.24).toFixed(2)}%;height:20.9%;border-radius:1.6cqw;z-index:6`;
         h.addEventListener('click', ()=>polNaikPop(i, i + 1)); art.appendChild(h); });
       const h0 = document.createElement('button'); h0.className = 'hs'; h0.title = 'Admin: lihat ucapan Lv 0'; h0.style.cssText = 'left:6%;top:38.6%;width:12%;height:8.6%;z-index:6'; h0.addEventListener('click', ()=>polNaikPop(-1, 0)); art.appendChild(h0); }
     const tb = ov.querySelector('#ppTap'), tap = e=>{ e.preventDefault(); const kini = performance.now(); if (kini - (POLP.last || 0) < 500) return; POLP.last = kini;   // jeda 0,5 detik per tap/tembakan
+      if (!POLP.saya){ const art = ov.querySelector('.pp2 .art'); if (art && !art.querySelector('.blmPol')){ const m = document.createElement('div'); m.className = 'blmPol';   // belum terdaftar: tidak menembak, arahkan ke daftar
+        m.style.cssText = 'position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);z-index:20;width:72%;background:#fffaf0;border:4px solid #c9a227;border-radius:18px;padding:16px 14px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.5);font-family:inherit';
+        m.innerHTML = '<div style="font-size:38px;line-height:1">👮</div><div style="font-size:18px;font-weight:800;color:#7a0a12;margin:8px 0 12px">Kamu Belum Menjadi Polisi</div><button class="btnD" data-pp-kedaftar style="width:100%">📝 Daftar</button>';
+        art.appendChild(m); } return; }
       tembak(); tb.classList.add('on'); setTimeout(()=>tb.classList.remove('on'), 110); POLP.pending++; const p = document.createElement('span'); p.className = 'plus'; p.textContent = '+1'; tb.appendChild(p); setTimeout(()=>p.remove(), 800);
       polRender2(); if (POLP.pending >= 10) polKirim(); };
     tb.addEventListener('pointerdown', tap); ov.querySelector('[data-tb-hit]').addEventListener('pointerdown', tap);
@@ -8236,6 +8240,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 22 Nov 12:52</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 22 Nov 13:00</div>
 </body>
 </html>
