@@ -4410,7 +4410,7 @@ const TB_BID = 0.387;   // posisi bidikan dalam jalur (0..1) — tetap diam
 /* penjahat: poin, kecepatan relatif (1 = penjahat 50 poin), lebar (bagian dari jalur) */
 const TB_JENIS = [
   {i:1, poin:50,  v:1,   w:0.19},
-  {i:3, poin:50,  v:1,   w:0.19},
+  {i:3, poin:50,  v:1.5, w:0.19},                         // kecepatan sama dengan penjahat 100 poin, tidak pernah keluar barengan
   {i:2, poin:100, v:1.5, w:0.19,  langka:true, tiap:2},    // muncul tiap 2 putaran penjahat 50 poin
   {i:4, poin:150, v:2,   w:0.165, langka:true, tiap:5},    // muncul tiap 5 putaran penjahat 50 poin
   {i:5, poin:200, v:1.5, w:0.295, langka:true, tiap:10}];  // Boss Mode: tiap 10 putaran, kecepatan sama dengan penjahat 100 poin
@@ -4426,12 +4426,16 @@ function tembakMulai(){ const o = POLP.ov; if (!o) return; const g = o.querySele
   TEMBAK.skor = 0; TEMBAK.putaran = 0; cancelAnimationFrame(TEMBAK.raf);
   let last = performance.now();
   const step = (now)=>{ if (!document.body.contains(g)) return; const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const P2 = TEMBAK.pj.find(b=>b.i === 2), P3 = TEMBAK.pj.find(b=>b.i === 3), JEDA = 0.5;   // jarak minimal penjahat 3 dan penjahat 100 poin (setengah layar)
+    if (P2 && P3 && P2.antri && (P3.tunggu || P3.x >= JEDA)){ P2.antri = false; P2.aktif = true; P2.x = -P2.w; P2.mati = 0; P2.el.classList.remove('kena'); P2.el.style.display = ''; }
     TEMBAK.pj.forEach(p=>{ if (!p.aktif) return;
+      if (p.tunggu){ if (P2 && P2.aktif && P2.x < JEDA) return; p.tunggu = false; p.x = -p.w; p.el.style.display = ''; }
       p.x += dt * V * p.v;   // bergerak ke kanan, tembus, lalu muncul lagi dari kiri
       if (p.x > 1){
         if (p.langka){ p.aktif = false; p.mati = 0; p.el.classList.remove('kena'); p.el.style.display = 'none'; return; }   // penjahat langka hanya lewat sekali per kemunculan
         p.x -= 1 + p.w; if (p.mati){ p.mati = 0; p.el.classList.remove('kena'); }
-        if (p.i === 1){ TEMBAK.putaran++; TEMBAK.pj.forEach(b=>{ if (b.langka && !b.aktif && TEMBAK.putaran % b.tiap === 0){ b.aktif = true; b.x = -b.w; b.mati = 0; b.el.classList.remove('kena'); b.el.style.display = ''; } }); }
+        if (p.i === 3 && P2 && P2.aktif && P2.x < JEDA){ p.tunggu = true; p.el.style.display = 'none'; return; }
+        if (p.i === 1){ TEMBAK.putaran++; TEMBAK.pj.forEach(b=>{ if (b.langka && !b.aktif && TEMBAK.putaran % b.tiap === 0){ if (b.i === 2 && P3 && !P3.tunggu && P3.x < JEDA){ b.antri = true; return; } b.aktif = true; b.x = -b.w; b.mati = 0; b.el.classList.remove('kena'); b.el.style.display = ''; } }); }
       }
       p.el.style.left = (p.x * 100).toFixed(2) + '%'; p.el.style.transform = p.mati ? '' : `translateY(${(Math.abs(Math.sin(now / (p.langka ? 110 : 160) + p.i)) * -4).toFixed(1)}%)`; });
     TEMBAK.raf = requestAnimationFrame(step); };
@@ -8240,6 +8244,6 @@ loop();
 })();
 
 </script>
-<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 22 Nov 13:05</div>
+<div id="verTag" style="position:fixed;left:6px;bottom:4px;z-index:5;font:600 10px system-ui,sans-serif;color:#fff;background:#0007;border-radius:6px;padding:2px 6px;pointer-events:none">versi 22 Nov 13:10</div>
 </body>
 </html>
