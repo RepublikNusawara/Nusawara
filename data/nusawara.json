@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-23T06:20:34+11:00",
-  "penduduk": 387,
+  "updatedAt": "2026-11-24T00:30:38+11:00",
+  "penduduk": 396,
   "warga": {
     "110_rey_masteryo.a": {
       "username": "110_rey_masteryo.a",
@@ -373,6 +373,13 @@
       "houseId": null,
       "follow": null
     },
+    "arpansyah": {
+      "username": "arpansyah",
+      "niwn": "NUS-000394",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "arsyilaarsyad": {
       "username": "Arsyilaarsyad",
       "niwn": "NUS-000310",
@@ -681,6 +688,13 @@
       "houseId": null,
       "follow": null
     },
+    "f4bi4nn__01": {
+      "username": "f4bi4nn__01",
+      "niwn": "NUS-000393",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "fadil": {
       "username": "fadil",
       "niwn": "NUS-000090",
@@ -846,6 +860,13 @@
       "username": "gilbert17_10",
       "niwn": "NUS-000263",
       "terdaftar": "16 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "gngazmalvro": {
+      "username": "gngazmalvro",
+      "niwn": "NUS-000389",
+      "terdaftar": "23 Nov 2026",
       "houseId": null,
       "follow": null
     },
@@ -1353,6 +1374,13 @@
       "houseId": null,
       "follow": null
     },
+    "mangrabbidinvasion": {
+      "username": "mangrabbidinvasion",
+      "niwn": "NUS-000395",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "manzz_kidz": {
       "username": "manzz kidz",
       "niwn": "NUS-000121",
@@ -1591,6 +1619,20 @@
       "houseId": null,
       "follow": true
     },
+    "omjho37": {
+      "username": "omjho37",
+      "niwn": "NUS-000397",
+      "terdaftar": "23 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "opaa.saja": {
+      "username": "opaa.saja",
+      "niwn": "NUS-000390",
+      "terdaftar": "23 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "opalmorata": {
       "username": "opalmorata",
       "niwn": "NUS-000109",
@@ -1672,6 +1714,13 @@
       "username": "putrasyaban",
       "niwn": "NUS-000381",
       "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "queenflower8899": {
+      "username": "queenflower8899",
+      "niwn": "NUS-000391",
+      "terdaftar": "23 Nov 2026",
       "houseId": null,
       "follow": null
     },
@@ -1833,6 +1882,13 @@
       "username": "Rhnr_zk05",
       "niwn": "NUS-000309",
       "terdaftar": "17 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "rico_09": {
+      "username": "rico_09",
+      "niwn": "NUS-000396",
+      "terdaftar": "23 Nov 2026",
       "houseId": null,
       "follow": null
     },
@@ -2064,6 +2120,13 @@
       "username": "temi_1181",
       "niwn": "NUS-000314",
       "terdaftar": "18 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "tgarsendiantoro": {
+      "username": "tgarsendiantoro",
+      "niwn": "NUS-000392",
+      "terdaftar": "23 Nov 2026",
       "houseId": null,
       "follow": null
     },
@@ -3731,6 +3794,7 @@
     "arisyaputra04": "90fac398f2daaa63c1589783634c52bb809b4401d680eca048460912419aa592",
     "arpan": "4479921d00e0674000213d655269b6bbcff03b7f8f0c93fc9dc9e03fa4736d66",
     "arpan_syah": "7969ee2635ebc483bfb66aa34c37b72cd2c38e12406642d192c8c6198dcf110e",
+    "arpansyah": "7d96f074e1baf4b11f46480a8423f357965cfb3d7a87da283a13042565b16eae",
     "arsyilaarsyad": "3e2af8c20eb56aadeccd9460a84903f39d75498e6b533f997473a0f28af90c5c",
     "asmaul_khusnah": "ca7d5181269eee5f50ee77337647d01ba975776d93541310bf16c5c1156d6f81",
     "asmaulkhusnah": "66ff8198b63c79c2016c8fa2a1e6bc22ca7fbbf10da30a5a2d7aee61ae134581",
@@ -3773,6 +3837,7 @@
     "eventhoughtndu_1013": "3d8b4c8b2b35e383674f2544de4b24432537c671df58574910172664cc13657f",
     "f.rikoo": "e8d1f5742ba103917da968029433fcf948e1a98d794d1f40e4296cc7eccaa296",
     "f4bi4nn_01": "e36ca43e7a5be4908e2b3121a15059a64b5116cee79e6b119644b913b02aa9e9",
+    "f4bi4nn__01": "c455638156323d45e4c69ca905752b1e43b76a67e1821d8752c24c5b71ef8ef6",
     "fadil": "d0d3b120bba2e7370d2971c38b3c5d83a277cdafee5e67f03cfd3621858c3102",
     "fadil_ebelzz": "6e8c4f005b6db10254f2a7ea3882900af33bb5b11d4e4bbf6ea14527a0d1e1cd",
     "fadilamuhamad827gmail.com": "a54b45d118459ba6f46e198dad1a88eff9d6a8e7317ee139bb1a0a48f899c887",
@@ -3797,6 +3862,7 @@
     "ghaisanhatta": "354bd854066c4d65d039baef7a44473bfa30358621e70f48702d1fa787c5e528",
     "gilbert.gallaghers": "a7368fc3fb07e8bc893b0c41f41951be4dfde51a2a9a6b7cf88fffe59c84951e",
     "gilbert17_10": "49c834a57dc6d9baedbfbdc0939e08c208aa7a4b31415f5be64cc8d2be2d46d0",
+    "gngazmalvro": "0cdb52f75b5a37495f60ccefe5c27c6716f0f28ebc30920c76d80db022e251e3",
     "gwen": "032ac4e8d14b00bd2e0062a10bbf2a73f9f9bfb3229f4963e401889a0e32438a",
     "h3ellloocacaa": "1e4dcc2164f78bc4fc537dd4ef476b3965271ca8db2e5660dc2d84acd5a9627f",
     "hajima_shota": "22a1ecd1944069112d90982e8389833280d4ad66d00ebf2b6140c507edb82352",
@@ -3862,6 +3928,7 @@
     "maliktawoto": "3193036f31d90a10c568a7236abc8a7c850690a01fa83d814fccf173adb0b601",
     "mang_rabbid_invasion": "2d03f5488729e76bcadb56a07faca6e02aa319ff93d7881bdac7b1c6fd5ad8e7",
     "manggturuu766_": "9b2405b68369908b9c372f6cc652a41f19fc494019ab0667ea5339329fd20bc8",
+    "mangrabbidinvasion": "452a7c78f0ee2b9968553b6607d35a6fc51c104b1bbdd7a46d01325db993fca8",
     "manzz_kidz": "ba9338c0ec96672c636518b50173c010ac4a85c0e5edeeafc673f562aa757d5e",
     "manzzkidz": "d471b15f932657888bb33ad5a98c0c6d07ba9e7cb58b0c7428e5521662e4d58e",
     "mar.vinn2299": "23c657c1bb547b7516239c1002731e43d5361fef527cc5a4bd2121fb3c1b2434",
@@ -3896,6 +3963,8 @@
     "niyus": "81c80a1cc58b84a65ae163f70b10c868e746df60c8faee29accbd535b8b4b3b8",
     "noufalraffasya2712gmail.com": "36f558a9fdd599002aa38ef9bed4f8f598fc6453f30a4d6b66529ec7ad247aa4",
     "olivia__": "a89f30da5b3f74d665162ca4c7744c7fe0215acf70badd39728198fe3c3ea8c9",
+    "omjho37": "b7a9bfff3b7566f35681ad346b4119e380d064b8c29635fabc7a56662b2fa4ba",
+    "opaa.saja": "992cabfb88ac9211dc1462d30ca50d86064c8e65428e43b8c1d989a9451be813",
     "opalmorata": "4c5f2b9bf62c9cc8c767ab76855e5cd22588731dac9bb7b829db1d7d8c426d26",
     "p3tr4_": "45c9b1aa32adf2c733ea7e9e87e49cdf6a8c0c2071b2b945cf6a472c09e92590",
     "p3tr4___": "70d6419c98a8453fd82bd2466cd6b9a43b32b4d7dadadd5485df2dd2153652d5",
@@ -3908,6 +3977,7 @@
     "princee_yanzz01": "89d2492b9e272a614935a58cd4930ee70d2d19183a60a7f3723dcbf898691435",
     "putra.4rt": "eb79c4b63f88e467c230772c4d3702e39f7dc8d5e0fd6a8d035465f1a63921ee",
     "putrasyaban": "bf3a9b763b8f3a8345530b56bfc585b4976f8dfc5b28247f34cb703bf168de5f",
+    "queenflower8899": "a06f4f24facc178e26f454bbe16047b00dde1b8d7c54de8ed94be1b0c6b5d064",
     "radoguanteng": "17ca114280e34e5b4adfc1cbfaba46be9bcc3659b26c997975e08a8130678f6d",
     "rafadityarizkyi": "fc1a08baebdb5a2c89eac7a826dd5c8e393f43c39a47270a968c7236b6869c08",
     "rafi__malo_178": "4799639ec3efb46ef10ca69471e0a6cc101fbd1c019451cae9ba3ff4560875f8",
@@ -3931,6 +4001,7 @@
     "rfaelsh_": "b5f7349833bad3ba5160e6370344a81194b5371cf1d4a18dc4f803cfd0fc1a21",
     "rhnmlnibrhm_": "4523e7cbf91fee56554e3abe6d3837a003d554dc90564de5a6d8d96f2e197be8",
     "rhnr_zk05": "458e43bb7a7a85fe865f60dca90e7088c993b5fc50faa66e6db59d7ed92e1b4e",
+    "rico_09": "6a1ee778a04967eaf58bd1d8a404c1df2dd6800aa4ad7b897f504d44102956fd",
     "rifki": "9941e920e50c53cd077b072c3194be7dcecdefe9831dfcc7734447d5580ed950",
     "rikofrl": "ca22a6396db8d18d2353ab3cb6ad286c0247fd668eacb6291f5fe33c776cd36e",
     "rinynatyansya": "fa4f17edb26ff2cad823a08f290c948e72c91fde0f671f1136a7d48ce8406684",
@@ -3963,6 +4034,7 @@
     "syrof27": "ede247a6545f57930d6b19266429c3d75ada16adf1342f12d4acf7bc7ef1fb78",
     "tammjackk": "2db280366bdcd6087354e835d40c94c3f5431b274e8da1bc32c5633b3c9218c5",
     "temi_1181": "bf7fe227fbe344d4987cede3a401718eaa9f3a6949c9b42e494d6e0551d502c6",
+    "tgarsendiantoro": "56d9ab09aaa8e76417a4f8640ea5ec2072ef50aa0162975ae3cf3cae2b370906",
     "ubay7140": "69ac17365087d8ce4318a9f5a68fd677712bb6d41ea16b6c3003e565815711c0",
     "ufairahhcall": "3caea1c5f4a259f93db06ae9b646b7481615e32b8900e2ad74ad91eadb08ef65",
     "upsititutt": "0e7206193ce31955e760922766f33ef72e7308fe0be9c157a5148bd1b057d20c",
