@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-25T00:29:45+11:00",
-  "penduduk": 403,
+  "updatedAt": "2026-11-25T06:25:21+11:00",
+  "penduduk": 406,
   "warga": {
     "110_rey_masteryo.a": {
       "username": "110_rey_masteryo.a",
@@ -1290,6 +1290,13 @@
       "houseId": null,
       "follow": true
     },
+    "latipsmash": {
+      "username": "latipsmash",
+      "niwn": "NUS-000405",
+      "terdaftar": "25 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "levelupgaming078": {
       "username": "levelupgaming078",
       "niwn": "NUS-000174",
@@ -1405,6 +1412,13 @@
     "manusi_12_biasa": {
       "username": "manusi_12_biasa",
       "niwn": "NUS-000399",
+      "terdaftar": "24 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "manusia_12__biasa": {
+      "username": "manusia_12__biasa",
+      "niwn": "NUS-000407",
       "terdaftar": "24 Nov 2026",
       "houseId": null,
       "follow": null
@@ -1930,6 +1944,13 @@
     "rico_09": {
       "username": "rico_09",
       "niwn": "NUS-000396",
+      "terdaftar": "23 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "rico_____09": {
+      "username": "rico_____09",
+      "niwn": "NUS-000406",
       "terdaftar": "23 Nov 2026",
       "houseId": null,
       "follow": null
@@ -2839,19 +2860,19 @@
     }
   },
   "billboards": {
-    "BACKDROP": {
-      "kind": "text",
-      "title": "Republik Nusawara",
-      "sub": "",
-      "bg": "#1f3a5f",
-      "fg": "#ffffff"
-    },
     "BHR-MAWAR-001": {
       "kind": "text",
       "title": "AdamJohnAaro",
       "sub": "The Phantom Thieves of Hearts",
       "bg": "#1f3a5f",
       "fg": "#ff0000"
+    },
+    "BACKDROP": {
+      "kind": "text",
+      "title": "Republik Nusawara",
+      "sub": "",
+      "bg": "#1f3a5f",
+      "fg": "#ffffff"
     }
   },
   "rumah": {
@@ -3966,6 +3987,7 @@
     "kona_tiffanyarka": "961bc01ba362dfbd5da1a8400428ea86e67b50e57ebab7c757d73c760acc4297",
     "laila": "c3e59d64269b45e0c98b05e90b0b6d0f653c9453dbf4a3339c492c9e2743aa14",
     "laila_ii": "1e3e422079a27f2368c79c69b73464eea2a1aa64b112dbd5a48893f912c592d5",
+    "latipsmash": "8fc88206be25cd0ed7105af463b6856d3cea8a2ea1cb61ad3c5d4e23339a79b6",
     "levelupgaming078": "e091e5219839d635688bc747beb0a9d96076f2707a282e1cfe63498b53a3205f",
     "liam": "391aa01f7e098b1ef07a08153348ca164b4c4049b6e9a7858489376066f5c192",
     "lintar_zaira_125": "c5cdebe9bc2fb014a7d9acd49d5c035f94f1a0d02f7be47b8eab63ec4a6f8aa4",
@@ -3982,6 +4004,7 @@
     "manggturuu766_": "9b2405b68369908b9c372f6cc652a41f19fc494019ab0667ea5339329fd20bc8",
     "mangrabbidinvasion": "452a7c78f0ee2b9968553b6607d35a6fc51c104b1bbdd7a46d01325db993fca8",
     "manusi_12_biasa": "992bbb48253c33a7d1efed5ec07e99f36ec7abba389149ae9389ad8822519eba",
+    "manusia_12__biasa": "b18575446652542d8fbe37fe365a6a3c2fa4a6ed3f72124eacaaff46c9d1b5bc",
     "manusia_12_biasa": "eac2a65f13ac74c7921d1751140d02f2c3a9723f6eb7f1bde24f2749761611a3",
     "manzz_kidz": "ba9338c0ec96672c636518b50173c010ac4a85c0e5edeeafc673f562aa757d5e",
     "manzzkidz": "d471b15f932657888bb33ad5a98c0c6d07ba9e7cb58b0c7428e5521662e4d58e",
@@ -4057,6 +4080,7 @@
     "rhnmlnibrhm_": "4523e7cbf91fee56554e3abe6d3837a003d554dc90564de5a6d8d96f2e197be8",
     "rhnr_zk05": "458e43bb7a7a85fe865f60dca90e7088c993b5fc50faa66e6db59d7ed92e1b4e",
     "rico_09": "6a1ee778a04967eaf58bd1d8a404c1df2dd6800aa4ad7b897f504d44102956fd",
+    "rico_____09": "81da54c26088aeb95fbf44f270bd6cbf1c14350a1574f92044f07b41825709f8",
     "rifki": "9941e920e50c53cd077b072c3194be7dcecdefe9831dfcc7734447d5580ed950",
     "rikofrl": "ca22a6396db8d18d2353ab3cb6ad286c0247fd668eacb6291f5fe33c776cd36e",
     "rinynatyansya": "fa4f17edb26ff2cad823a08f290c948e72c91fde0f671f1136a7d48ce8406684",
