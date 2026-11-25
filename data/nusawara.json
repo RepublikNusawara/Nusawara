@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-25T06:25:21+11:00",
-  "penduduk": 406,
+  "updatedAt": "2026-11-25T18:21:50+11:00",
+  "penduduk": 412,
   "warga": {
     "110_rey_masteryo.a": {
       "username": "110_rey_masteryo.a",
@@ -464,6 +464,13 @@
       "houseId": null,
       "follow": null
     },
+    "candra_onlyyyy": {
+      "username": "candra_onlyyyy",
+      "niwn": "NUS-000413",
+      "terdaftar": "25 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "carmecar._": {
       "username": "carmecar. _",
       "niwn": "NUS-000070",
@@ -496,6 +503,13 @@
       "username": "cristian12",
       "niwn": "NUS-000380",
       "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "crystal_impus": {
+      "username": "crystal_impus",
+      "niwn": "NUS-000410",
+      "terdaftar": "25 Nov 2026",
       "houseId": null,
       "follow": null
     },
@@ -776,6 +790,13 @@
       "username": "fdhiiz",
       "niwn": "NUS-000345",
       "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "febrianabi1": {
+      "username": "febrianabi1",
+      "niwn": "NUS-000411",
+      "terdaftar": "25 Nov 2026",
       "houseId": null,
       "follow": null
     },
@@ -1367,6 +1388,13 @@
       "houseId": null,
       "follow": true
     },
+    "m.nopalaryasatya": {
+      "username": "m.nopalaryasatya",
+      "niwn": "NUS-000408",
+      "terdaftar": "25 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "malik_tawoto": {
       "username": "malik tawoto",
       "niwn": "NUS-000072",
@@ -1941,6 +1969,13 @@
       "houseId": null,
       "follow": null
     },
+    "ricky_aje002": {
+      "username": "ricky_aje002",
+      "niwn": "NUS-000412",
+      "terdaftar": "25 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "rico_09": {
       "username": "rico_09",
       "niwn": "NUS-000396",
@@ -2136,6 +2171,13 @@
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "st": {
+      "username": "st",
+      "niwn": "NUS-000409",
+      "terdaftar": "25 Nov 2026",
+      "houseId": null,
+      "follow": null
     },
     "starr_light": {
       "username": "starr_light",
@@ -3876,11 +3918,13 @@
     "bun9lon": "cc41ed6506f27c2d396cdfa14899661c3c1cc07ab83aa2947870194215a42f6f",
     "caaxaa.yx": "83867c787160e097660aa85e9be64e46d3e0e21a6f503b791370fdc62c718429",
     "call": "d5b1e7a5b0abec8514b2102a6aaa865f80063c6637fe93c27da3e1f092daede0",
+    "candra_onlyyyy": "c1bc4019bd4db646dab45105ed86125c976d238af4e3f754a6036c4246da3411",
     "carmecar._": "51653d6ac8eb5f9fb5af74c9977e399ef72dc60ac1e612764a86b4aa515a8b40",
     "ch3rriess___": "549927a13f5d2483e78263f6682b05336883a093c01611e2f725b4c0d9031439",
     "chsyaahering_": "1caa2a6d5228ae4064645666f4e81751509d5b9a738dbd5b5d7f3bbc7d7c0cb4",
     "cik_am_18": "c2f2147580687b22319b2df79ddaf171c872558fc66d25d36d9a6112138a030f",
     "cristian12": "744cb4e8055f42fe86c2093f120b5ccd838fb2b637fb175e06c53ac8f5144603",
+    "crystal_impus": "d8bd78c62dd2a87b7c25f55d2da31c7617c636c5853ed585a0fe7cc79fb45ade",
     "dafcil": "8b78651c2bdba64e7225b1832331e9312490f16211b862ad1648562e5cbc4cab",
     "daftar": "2c028e7b3505926301ea61ca1611a0fe32c17093bd72843fd8b02504143ad42b",
     "darlingnyasiapa_12": "dfedf4fd692ad8fd0fee8e9d93a27dd01b7a9f941a8bbc3df8263d72c551bd64",
@@ -3920,6 +3964,7 @@
     "farhan": "60c5108deb61dd7785ee0e150b789bed776cbb7377a883d21ebe56d022aced2b",
     "fauzanyusuf481gmail.com": "ba7e355ae24553a015afdf6f11fced7961ee2601fa9cf5372571c3fc3109602c",
     "fdhiiz": "8253e231027b83dd04cdc120c7a1a7037f6305306821d892ef5ac44c4d07a245",
+    "febrianabi1": "71202afca233c3b471f23bc3a13ce867a27167f74aab8431ef3e73463a7567dc",
     "fenndii": "06acc071b66574ff9483d08f41dd27fe9d65d2885d55f9568f90abebbd94689d",
     "feradevitaa": "657591cc532ef8ae70da315a8ec38874403d0f09640233e463082e8cec6b51fe",
     "feronfransisco": "4f4bbcdde10703465b4d27ca7e6ca90ea62f1f963df774bf7caf6fc7a228c6a1",
@@ -3997,6 +4042,7 @@
     "luthfi": "5898e813f0a674a78707bc5bc111d4d59a15e9e6e157cf2225217b04df0e0c31",
     "m.junaedi_rajab": "511bcb20809cd240188ed15eae81521532996b305c17f528f62ed7630fd5356d",
     "m.junaedirajab": "e1554a43021f266d4f96beba6fef261f1db8b490f24d187aff419ff2faef3f22",
+    "m.nopalaryasatya": "a8d2cf5607ee900305515979595593d496ecfa3aa0dbef1da82c8dd33852dee0",
     "malik_tawoto": "e0228f18b7baf626b8c82271874669c4b4c4a7ece3c983bd6656c52b41cf8a20",
     "malikha": "f649bb781c58e87fd600c7677af41ec2b168cf291f022f6a4b41f20ca49aa3bf",
     "maliktawoto": "3193036f31d90a10c568a7236abc8a7c850690a01fa83d814fccf173adb0b601",
@@ -4079,6 +4125,7 @@
     "rfaelsh_": "b5f7349833bad3ba5160e6370344a81194b5371cf1d4a18dc4f803cfd0fc1a21",
     "rhnmlnibrhm_": "4523e7cbf91fee56554e3abe6d3837a003d554dc90564de5a6d8d96f2e197be8",
     "rhnr_zk05": "458e43bb7a7a85fe865f60dca90e7088c993b5fc50faa66e6db59d7ed92e1b4e",
+    "ricky_aje002": "c8df5a44a8f2f50659df6fdce3472841374525172ae49924f2f3fcefaba0a7a7",
     "rico_09": "6a1ee778a04967eaf58bd1d8a404c1df2dd6800aa4ad7b897f504d44102956fd",
     "rico_____09": "81da54c26088aeb95fbf44f270bd6cbf1c14350a1574f92044f07b41825709f8",
     "rifki": "9941e920e50c53cd077b072c3194be7dcecdefe9831dfcc7734447d5580ed950",
@@ -4106,6 +4153,7 @@
     "shiato_kojirom.raihan_afiq": "b48df027537041a0c73574c78ae09928f8d2e23aa6c1ea976d6601cea6858f2c",
     "shiatokojiro": "10490594d9aee759ad819bb19b03e29a9a05db64f5d1bea077b014f522313374",
     "sikatkain": "321624010b4fe17921a41414607a4312fc6b0d92fd4bf589e787e111e1a00fd5",
+    "st": "4b3f985e8e98cd67e26cc9609631f55f69f1136c96306cd7ec408686ad3ee214",
     "starr_light": "817e2c475325ed59e97e3d9ce21c98f41fe9746ff767502c5bcaa2d8b5c4f2d3",
     "superionss": "65bd7d5984ee95bfdbb388c0f6bfd6f3e99d6d148fd0567481e6dbad9dd33cd3",
     "superrfaaxml": "fb913a059ef8b74fdad2259ebd51745e518dd310a8834f37224d2679efedb800",
