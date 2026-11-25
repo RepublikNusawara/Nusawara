@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-25T18:21:50+11:00",
-  "penduduk": 412,
+  "updatedAt": "2026-11-26T00:26:43+11:00",
+  "penduduk": 413,
   "warga": {
     "110_rey_masteryo.a": {
       "username": "110_rey_masteryo.a",
@@ -1521,6 +1521,13 @@
       "houseId": null,
       "follow": null
     },
+    "maychel_09": {
+      "username": "maychel_09",
+      "niwn": "NUS-000414",
+      "terdaftar": "25 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
     "mingz_019": {
       "username": "mingz_019",
       "niwn": "NUS-000033",
@@ -2902,19 +2909,19 @@
     }
   },
   "billboards": {
-    "BHR-MAWAR-001": {
-      "kind": "text",
-      "title": "AdamJohnAaro",
-      "sub": "The Phantom Thieves of Hearts",
-      "bg": "#1f3a5f",
-      "fg": "#ff0000"
-    },
     "BACKDROP": {
       "kind": "text",
       "title": "Republik Nusawara",
       "sub": "",
       "bg": "#1f3a5f",
       "fg": "#ffffff"
+    },
+    "BHR-MAWAR-001": {
+      "kind": "text",
+      "title": "AdamJohnAaro",
+      "sub": "The Phantom Thieves of Hearts",
+      "bg": "#1f3a5f",
+      "fg": "#ff0000"
     }
   },
   "rumah": {
@@ -4061,6 +4068,7 @@
     "matowkyyy.071126": "8c487d519784f1b64e21f519d7e6582181a9e5cdf00eff33af419053034ded07",
     "matr90973gmail.com": "26b90199b10a9e949acbaee80e4cbbd3408260552a20b6409b49a3fda6efd861",
     "maulrajinmengaji": "cd63e6079d816da404b63209d7343547a6057a4f9a6e31c768db1b7e710fff28",
+    "maychel_09": "52bb5a5b1e586d9e183013fac47a6dc2283c05ee0f3cb9486aaa3a1323eb9d8d",
     "mingz_019": "b6775630f6f9d287cb9ce7360baa85bbd446b9d0edc58c6d4bf846208ce647bc",
     "mpruyy": "17709f5e038c7170eefcbac8d7133dd365b77dae8cffde79729db33ab716b1e8",
     "msyaquilaazzahra": "46ab839bb186806269188a1f997c8bb3a1db085f52028eb1aeb401605572bc5e",
