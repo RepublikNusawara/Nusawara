@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-26T12:24:25+11:00",
-  "penduduk": 418,
+  "updatedAt": "2026-11-27T00:21:55+11:00",
+  "penduduk": 419,
   "warga": {
     "110_rey_masteryo.a": {
       "username": "110_rey_masteryo.a",
@@ -2941,6 +2941,13 @@
       "terdaftar": "14 Nov 2026",
       "houseId": null,
       "follow": true
+    },
+    "ahmadputrasriwijaya": {
+      "username": "ahmadputrasriwijaya",
+      "niwn": "NUS-000421",
+      "terdaftar": "26 Nov 2026",
+      "houseId": null,
+      "follow": null
     }
   },
   "billboards": {
@@ -4299,6 +4306,7 @@
     "yxleo___": "5caaa8ebb1c6afc39fe4ab9b1398537a8ad0e7fb350757a45fb1758bc921fe8f",
     "zuhana": "d1702eb0819e0ebe3325b3540792f297358bda9b714460ded1205ae41a44099c",
     "zuhana836": "d3ecf7316ca1ad1b5157f54d17f097a3fa79ecfac73807fa94cda7a66647a833",
-    "zzam": "aa25b44f6ae55d177e149d4a8dc2cc4c2e99c118222eeac60ce74bdcc55bc7fc"
+    "zzam": "aa25b44f6ae55d177e149d4a8dc2cc4c2e99c118222eeac60ce74bdcc55bc7fc",
+    "ahmadputrasriwijaya": "278158ec3bd83bec0aa2faa5a7f757b774529d13eb30fadad03453c52d1ca346"
   }
 }
