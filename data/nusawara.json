@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-27T00:21:55+11:00",
-  "penduduk": 419,
+  "updatedAt": "2026-11-27T12:21:02+11:00",
+  "penduduk": 423,
   "warga": {
     "110_rey_masteryo.a": {
       "username": "110_rey_masteryo.a",
@@ -2948,6 +2948,34 @@
       "terdaftar": "26 Nov 2026",
       "houseId": null,
       "follow": null
+    },
+    "kyylohyaa": {
+      "username": "kyylohyaa",
+      "niwn": "NUS-000422",
+      "terdaftar": "17 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "ajiaja": {
+      "username": "ajiaja",
+      "niwn": "NUS-000423",
+      "terdaftar": "18 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "irawati": {
+      "username": "irawati",
+      "niwn": "NUS-000424",
+      "terdaftar": "19 Nov 2026",
+      "houseId": null,
+      "follow": null
+    },
+    "yuser": {
+      "username": "yuser",
+      "niwn": "NUS-000425",
+      "terdaftar": "22 Nov 2026",
+      "houseId": null,
+      "follow": null
     }
   },
   "billboards": {
@@ -4307,6 +4335,10 @@
     "zuhana": "d1702eb0819e0ebe3325b3540792f297358bda9b714460ded1205ae41a44099c",
     "zuhana836": "d3ecf7316ca1ad1b5157f54d17f097a3fa79ecfac73807fa94cda7a66647a833",
     "zzam": "aa25b44f6ae55d177e149d4a8dc2cc4c2e99c118222eeac60ce74bdcc55bc7fc",
-    "ahmadputrasriwijaya": "278158ec3bd83bec0aa2faa5a7f757b774529d13eb30fadad03453c52d1ca346"
+    "ahmadputrasriwijaya": "278158ec3bd83bec0aa2faa5a7f757b774529d13eb30fadad03453c52d1ca346",
+    "kyylohyaa": "0154d0e5606a37ff740d5dd4681aa2655a0a1f7b7d4f8dd398e395778d42b9cd",
+    "ajiaja": "7e4fb283d6aacb03735f00366beee0f680e03cb4d0aa11daef9b6ef87b7cfa00",
+    "irawati": "3acdaf8dd266b5ff4cc0e669da3cb11b7f9f931e620a00cb60471841b600a65a",
+    "yuser": "e1d1c0999c7f75a29c98ea317860b6fbf8b5243a733b22376aca26becc5f2488"
   }
 }
