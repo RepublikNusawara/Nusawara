@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-27T12:21:02+11:00",
-  "penduduk": 423,
+  "updatedAt": "2026-11-27T18:20:16+11:00",
+  "penduduk": 424,
   "warga": {
     "110_rey_masteryo.a": {
       "username": "110_rey_masteryo.a",
@@ -2976,6 +2976,13 @@
       "terdaftar": "22 Nov 2026",
       "houseId": null,
       "follow": null
+    },
+    "diniarmiati13": {
+      "username": "diniarmiati13",
+      "niwn": "NUS-000426",
+      "terdaftar": "27 Nov 2026",
+      "houseId": null,
+      "follow": null
     }
   },
   "billboards": {
@@ -4339,6 +4346,7 @@
     "kyylohyaa": "0154d0e5606a37ff740d5dd4681aa2655a0a1f7b7d4f8dd398e395778d42b9cd",
     "ajiaja": "7e4fb283d6aacb03735f00366beee0f680e03cb4d0aa11daef9b6ef87b7cfa00",
     "irawati": "3acdaf8dd266b5ff4cc0e669da3cb11b7f9f931e620a00cb60471841b600a65a",
-    "yuser": "e1d1c0999c7f75a29c98ea317860b6fbf8b5243a733b22376aca26becc5f2488"
+    "yuser": "e1d1c0999c7f75a29c98ea317860b6fbf8b5243a733b22376aca26becc5f2488",
+    "diniarmiati13": "d887f489492b8640af8e33efaa4d631216fe7ded46f20e6277f73d5ad475be90"
   }
 }
